@@ -1,21 +1,27 @@
 // src/contexts/SettingsContext.tsx
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, {createContext, useContext, useState, ReactNode, useMemo} from 'react';
+import {LocalStorageRepository} from "../../repositories";
+
+interface Settings {
+  spreadsheetId: string;
+}
 
 // Define a type for the context value
 interface SettingsContextType {
-  sharedValue: string;
-  setSharedValue: React.Dispatch<React.SetStateAction<string>>;
+  settings: Settings;
+  setSettings: React.Dispatch<React.SetStateAction<Settings>>;
 }
 
 // Create the context with a default value
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 // Create a custom provider component
-const MyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [sharedValue, setSharedValue] = useState<string>('Default Value');
+const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const ls = useMemo(() => new LocalStorageRepository('settings'), [])
+  const [settings, setSettings] = useState<Settings>({spreadsheetId: ls.get('spreadsheetId') || ''});
 
   return (
-    <SettingsContext.Provider value={{ sharedValue, setSharedValue }}>
+    <SettingsContext.Provider value={{ settings, setSettings }}>
   {children}
   </SettingsContext.Provider>
 );
@@ -30,4 +36,4 @@ const useSettingsContext = () => {
   return context;
 };
 
-export { MyProvider, useSettingsContext };
+export { SettingsProvider, useSettingsContext };

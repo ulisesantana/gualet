@@ -1,0 +1,14 @@
+.App {
+  background-color: lightseagreen;
+  height: calc(100vh - 48px);
+  padding: 24px;
+  text-align: center;
+  width: calc(100% - 48px);
+}
+
+
+
+.App main {
+  height: calc(100vh - 152px);
+}
+
