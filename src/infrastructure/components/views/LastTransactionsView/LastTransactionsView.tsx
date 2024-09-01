@@ -2,20 +2,27 @@ import React, {useEffect, useState} from 'react'
 import {Header, HeaderProps} from "infrastructure/components/templates";
 import {TransactionList} from "../../templates/";
 import {Transaction} from "../../../../domain/models";
-import {GetLastTransactions} from "../../../../application/cases";
+import {AddTransaction, GetLastTransactions, GetTransactionSettings} from "../../../../application/cases";
 import {TransactionRepositoryImplementation} from "../../../repositories";
 import {GoogleSheetsDataSource} from "../../../data-sources";
 import {useSettingsContext} from "../../contexts";
+import {AddTransactionForm} from "../../templates/AddTransactionForm";
+import {TransactionRepository, TransactionSettings} from "../../../../application/repositories";
 
 
 export function LastTransactionsView({onLogout}: HeaderProps) {
   const {settings} = useSettingsContext();
+  const [repository, setRepository] = useState<TransactionRepository>(new TransactionRepositoryImplementation(new GoogleSheetsDataSource(settings.spreadsheetId)))
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [transactionSettings, setTransactionSettings] = useState<TransactionSettings>({
+    incomeCategories: [],
+    outcomeCategories: [],
+    types: []
+  })
   const [isLoading, setIsLoading] = useState(true)
 
-
   useEffect(() => {
-    new GetLastTransactions(new TransactionRepositoryImplementation(new GoogleSheetsDataSource(settings.spreadsheetId))).exec()
+    new GetLastTransactions(repository).exec()
       .then(setTransactions)
       .catch((error) => {
         console.error('Error getting last transactions')
@@ -23,13 +30,26 @@ export function LastTransactionsView({onLogout}: HeaderProps) {
       }).finally(() => {
       setIsLoading(false)
     })
-  }, [])
+
+    new GetTransactionSettings(repository).exec().then(setTransactionSettings)
+  }, [repository])
+
+  useEffect(() => {
+    setRepository(new TransactionRepositoryImplementation(new GoogleSheetsDataSource(settings.spreadsheetId)))
+  }, [settings])
+
+  const onSubmit = (transaction: Transaction) => {
+    new AddTransaction(repository).exec(transaction).then(() => {
+      console.debug('Transaction added', transaction)
+    })
+  }
 
   return isLoading
     ? <span>Cargando</span>
     : <>
       <Header onLogout={onLogout}/>
       <main>
+        <AddTransactionForm settings={transactionSettings} onSubmit={onSubmit} />
         <TransactionList transactions={transactions}/>
       </main>
     </>

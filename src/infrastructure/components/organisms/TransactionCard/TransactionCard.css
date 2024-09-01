@@ -1,66 +1,42 @@
 .transaction-card {
     align-items: center;
-    background: #1D976C;  /* fallback for old browsers */
-    background: -webkit-linear-gradient(to bottom, #93F9B9, #1D976C);  /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to bottom, #93F9B9, #1D976C); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: #e3f9ff;  /* fallback for old browsers */
     border-radius: 24px;
+    box-sizing: border-box;
     display: grid;
     font-size: 1.25rem;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
-    gap: 0 0;
-    grid-template-areas:
-    "header"
-    "body"
-    "body"
-    "footer";
-    height: 160px;
-    width: 200px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr;
+    gap: 8px;
+    grid-template-areas: "header body body footer";
+    height: 80px;
+    padding: 8px 16px;
 }
 
-.transaction-card-header {
+.transaction-card-date {
     align-items: center;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     grid-area: header;
     justify-content: center;
 }
 
-.transaction-card-header .title {
-    margin: 8px;
+.outcome {
+    color: #ff5a5a;
 }
 
-.transaction-card-header .subtitle {
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.transaction-card-header .subtitle h3{
-    margin: 8px;
-}
-
-.transaction-card-header .subtitle .separator {
-    display: block;
-    height: 24px;
-    width: 24px;
-}
-
-.transaction-card-header .subtitle .separator:after {
-    content: "-";
-    font-weight: bolder;
-    font-size: 24px;
-    line-height: 24px;
+.income {
+    color: #2bc800;
 }
 
 .transaction-card-body {
     grid-area: body;
 }
 
-.transaction-card-footer {
+.transaction-card-amount {
     grid-area: footer;
     margin: 8px;
+    text-align: right;
 }
 
 /* Small devices (landscape phones, 576px and up) */
@@ -69,14 +45,6 @@
 
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) {
-    .transaction-card {
-        height: 240px;
-        width: 240px;
-    }
-
-    .transaction-card-header .title {
-        margin: 16px;
-    }
 }
 
 /* Large devices (desktops, 992px and up) */
@@ -86,8 +54,4 @@
 
 /* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
-    .transaction-card {
-        height: 240px;
-        width: 240px;
-    }
 }

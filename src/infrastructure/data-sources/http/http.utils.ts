@@ -13,13 +13,13 @@ class RequestError extends Error {
 }
 
 export function request(url: string, method: HttpMethod, data?: object, token?: string): Promise<Response> {
-	
+
 	const headers = new Headers({});
-	
+
 	if (token) {
 		headers.append('Authorization', `Bearer ${token}`);
 	}
-	
+
 	const config: RequestInit = {
 		method,
 		headers,
@@ -29,12 +29,12 @@ export function request(url: string, method: HttpMethod, data?: object, token?: 
 		redirect: "follow",
 		referrer: "no-referrer"
 	};
-	
+
 	if (data !== undefined) {
 		headers.append("Content-Type", "application/json; charset=utf-8");
 		config.body = JSON.stringify(data, null, 2);
 	}
-	
+
 	try {
 		return fetch(url, config);
 	} catch (e) {
@@ -43,24 +43,24 @@ export function request(url: string, method: HttpMethod, data?: object, token?: 
 	}
 }
 
-export function handleErrors<T>(res: Response): Promise<{data: T}> | Response {
+export function handleErrors<T>(res: Response): Promise<{data: T}> {
 	if (!res.ok) {
 		throw new RequestError(res.status, res.statusText);
 	}
-	
+
 	if (!!res.headers.get('Content-Range')) {
 		return res.json().then((json) => ({
 			data: json,
 			contentRange: res.headers.get('Content-Range')
 		}));
 	}
-	
+
 	if(res.headers.get("Content-Type")!.includes("application/json")){
 		return res.json().then((json) => ({
 			data: json,
 			contentRange: res.headers.get('Content-Range')
 		}));
 	}
-	
-	return res;
+
+	return Promise.resolve({data: {} as T});
 }

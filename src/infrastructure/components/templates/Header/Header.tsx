@@ -8,7 +8,7 @@ export interface HeaderProps {
 
 export function Header({onLogout}: HeaderProps) {
     return <header>
-        <span>HEADER</span>
+        <i>Misperrapp</i>
         <div className="clock">
             <LogoutButton onLogout={onLogout}/>
         </div>

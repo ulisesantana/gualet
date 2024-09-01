@@ -5,15 +5,15 @@ interface JsonResponse<T> {
 }
 
 export type HTTP = {
-    get: <T>(url: string, token?: string, headerIncluded?: string) => Promise<JsonResponse<T>| Response>,
-    post: <T>(url: string, data: object, token?: string) => Promise<JsonResponse<T>| Response>,
-    put: <T>(url: string, data?: object, token?: string) => Promise<JsonResponse<T>| Response>,
-    patch: <T>(url: string, data?: object, token?: string) => Promise<JsonResponse<T>| Response>,
-    delete: <T>(url: string, token?: string) => Promise<JsonResponse<T>| Response>,
+    get: <T>(url: string, token?: string, headerIncluded?: string) => Promise<JsonResponse<T>>,
+    post: <T>(url: string, data: object, token?: string) => Promise<JsonResponse<T>>,
+    put: <T>(url: string, data?: object, token?: string) => Promise<JsonResponse<T>>,
+    patch: <T>(url: string, data?: object, token?: string) => Promise<JsonResponse<T>>,
+    delete: <T>(url: string, token?: string) => Promise<JsonResponse<T>>,
 }
 
 export const http: HTTP = {
-    get: async <T>(url: string, token?: string): Promise<JsonResponse<T>| Response> => {
+    get: async <T>(url: string, token?: string): Promise<JsonResponse<T>> => {
         try {
             const response = await request(url, HttpMethod.GET, undefined, token);
             return handleErrors(response);
@@ -21,7 +21,7 @@ export const http: HTTP = {
             throw e;
         }
     },
-    post: async <T>(url: string, data: object, token?: string): Promise<JsonResponse<T>| Response> => {
+    post: async <T>(url: string, data: object, token?: string): Promise<JsonResponse<T>> => {
         try {
             const response = await request(url, HttpMethod.POST, data, token);
             return handleErrors(response);
@@ -29,7 +29,7 @@ export const http: HTTP = {
             throw e;
         }
     },
-    put: async <T>(url: string, data?: object, token?: string): Promise<JsonResponse<T>| Response>  => {
+    put: async <T>(url: string, data?: object, token?: string): Promise<JsonResponse<T>>  => {
         try {
             const response = await request(url, HttpMethod.PUT, data, token);
             return handleErrors(response);
@@ -37,7 +37,7 @@ export const http: HTTP = {
             throw e;
         }
     },
-    patch: async <T>(url: string, data?: object, token?: string): Promise<JsonResponse<T>| Response>  => {
+    patch: async <T>(url: string, data?: object, token?: string): Promise<JsonResponse<T>>  => {
         try {
             const response = await request(url, HttpMethod.PATCH, data, token);
             return handleErrors(response);
@@ -45,7 +45,7 @@ export const http: HTTP = {
             throw e;
         }
     },
-    delete: async <T>(url: string, token?: string): Promise<JsonResponse<T>| Response>  => {
+    delete: async <T>(url: string, token?: string): Promise<JsonResponse<T>>  => {
         try {
             const response = await request(url, HttpMethod.DELETE, undefined, token);
             return handleErrors(response);
