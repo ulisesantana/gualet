@@ -5,7 +5,7 @@ import {TransactionSettings} from "../../../../application/repositories";
 
 export interface AddTransactionFormProps {
   settings: TransactionSettings
-  onSubmit: (transaction: Transaction) => void
+  onSubmit: (transaction: Transaction) => Promise<void>
 }
 
 export function AddTransactionForm({settings, onSubmit}: AddTransactionFormProps) {
@@ -29,7 +29,12 @@ export function AddTransactionForm({settings, onSubmit}: AddTransactionFormProps
       operation: operation,
       timestamp: new Date().toISOString(),
       type: formRef.current?.type?.value
-    }))
+    })).then(() => {
+      formRef.current!.category.value = ''
+      formRef.current!.amount.value = ''
+      formRef.current!.description.value = ''
+      setOperation(TransactionOperation.Outcome)
+    })
   }
   const today = new Date();
   const defaultDay = String(today.getDate()).padStart(2, '0'); // Default to today's day

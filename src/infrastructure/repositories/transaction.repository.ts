@@ -18,7 +18,7 @@ export class TransactionRepositoryImplementation implements TransactionRepositor
   }
 
   async findLast(limit: number): Promise<Transaction[]> {
-    const result = await this.gs.getValuesFromRange(`transactions!A2:J${2 + limit}`)
+    const result = await this.gs.getValuesFromRange(`Movimientos!A2:J${1 + limit}`)
     return result.map(([id, timestamp, type, operation, category_out, category_in, amount, month, day, description]: string[]) => new Transaction({
       id,
       timestamp,

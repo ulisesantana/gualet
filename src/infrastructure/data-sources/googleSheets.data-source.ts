@@ -34,7 +34,7 @@ export class GoogleSheetsDataSource {
     if (accessToken) {
       try {
         await http.post<{values: string[][]}>(
-          `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}/values/${range}:append?valueInputOption=USER_ENTERED&key=${this.apiKey}`,
+          `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}/values/${range}:append?valueInputOption=RAW&key=${this.apiKey}`,
           data,
           accessToken
         );

@@ -39,9 +39,7 @@ export function LastTransactionsView({onLogout}: HeaderProps) {
   }, [settings])
 
   const onSubmit = (transaction: Transaction) => {
-    new AddTransaction(repository).exec(transaction).then(() => {
-      console.debug('Transaction added', transaction)
-    })
+    return new AddTransaction(repository).exec(transaction)
   }
 
   return isLoading
