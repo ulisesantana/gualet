@@ -28,7 +28,7 @@ export const App: React.FC = () => {
             });
             setTokenClient(client);
         };
-    }, []);
+    }, [ls]);
 
     const handleSignIn = () => {
         if (tokenClient) {
