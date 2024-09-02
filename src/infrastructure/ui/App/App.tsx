@@ -1,6 +1,6 @@
 // src/App.tsx
 import React, {useEffect, useMemo, useState} from 'react';
-import {LastTransactionsView, LoginView} from "infrastructure/components/views";
+import {LastTransactionsView, LoginView} from "infrastructure/ui/views";
 import {LocalStorageRepository} from "infrastructure/repositories";
 
 // Define the global 'google' object for TypeScript
@@ -17,20 +17,19 @@ export const App: React.FC = () => {
     const [tokenClient, setTokenClient] = useState<any>(null);
 
     useEffect(() => {
-        window.onload = () => {
             const client = window.google.accounts.oauth2.initTokenClient({
                 client_id: process.env.REACT_APP_CLIENT_ID,
                 scope: 'https://www.googleapis.com/auth/spreadsheets',
                 callback: (tokenResponse: any) => {
                     setIsSignedIn(true);
-                    ls.set('accessToken', tokenResponse.access_token);
+                    new LocalStorageRepository('settings').set('accessToken', tokenResponse.access_token);
                 },
             });
             setTokenClient(client);
-        };
-    }, [ls]);
+    }, []);
 
     const handleSignIn = () => {
+        console.debug('SIGN IN', tokenClient)
         if (tokenClient) {
             tokenClient.requestAccessToken();
         }

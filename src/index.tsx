@@ -2,8 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import {App} from "infrastructure/components/App";
-import {SettingsProvider} from "./infrastructure/components/contexts";
+import {App} from "infrastructure/ui/App";
+import {SettingsProvider} from "./infrastructure/ui/contexts";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

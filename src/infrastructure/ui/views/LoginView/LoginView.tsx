@@ -13,6 +13,7 @@ export function LoginView({onLogin}: LoginViewProps) {
   const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const newSpreadsheetId = formRef.current?.spreadsheetId?.value
+    console.debug('onSubmit handler',newSpreadsheetId)
     if (newSpreadsheetId) {
       ls.set('spreadsheetId', newSpreadsheetId)
       setSettings({...settings, spreadsheetId: newSpreadsheetId})

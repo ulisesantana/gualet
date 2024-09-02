@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
-import {Header, HeaderProps} from "infrastructure/components/templates";
-import {TransactionList} from "../../templates/";
+import {Header, HeaderProps} from "infrastructure/ui/templates";
+import {TransactionList} from "../../templates";
 import {Transaction} from "../../../../domain/models";
 import {AddTransaction, GetLastTransactions, GetTransactionSettings} from "../../../../application/cases";
 import {TransactionRepositoryImplementation} from "../../../repositories";
@@ -38,8 +38,9 @@ export function LastTransactionsView({onLogout}: HeaderProps) {
     setRepository(new TransactionRepositoryImplementation(new GoogleSheetsDataSource(settings.spreadsheetId)))
   }, [settings])
 
-  const onSubmit = (transaction: Transaction) => {
-    return new AddTransaction(repository).exec(transaction)
+  const onSubmit = async (transaction: Transaction) => {
+    await new AddTransaction(repository).exec(transaction)
+    setTransactions([transaction, ...transactions])
   }
 
   return isLoading
