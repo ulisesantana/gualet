@@ -7,7 +7,7 @@ export enum TransactionOperation {
 
 export interface TransactionParams {
   id?: string
-  amount: string
+  amount: number
   category: string
   day: string
   description: string
@@ -19,7 +19,7 @@ export interface TransactionParams {
 
 export class Transaction {
   readonly id: string;
-  readonly amount: string
+  readonly amount: number
   readonly category: string
   readonly day: string
   readonly description: string
@@ -44,7 +44,7 @@ export class Transaction {
     return (this.isOutcome() ? '-' : '') + new Intl.NumberFormat('de-DE', {
       style: 'currency',
       currency: 'EUR'
-    }).format(Number(this.amount.replaceAll('.', '').replace(',', '.')))
+    }).format(this.amount)
   }
 
   static isOutcome(operation: TransactionOperation | string): boolean {

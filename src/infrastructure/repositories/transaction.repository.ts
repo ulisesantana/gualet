@@ -12,7 +12,18 @@ export class TransactionRepositoryImplementation implements TransactionRepositor
     const outcomeCategory = transaction.isOutcome() ? transaction.category : ''
     await this.gs.append('transactions!A1:J1', {
       values: [
-        [transaction.id, transaction.timestamp, transaction.type, transaction.operation, outcomeCategory, incomeCategory, transaction.amount.replace('.', ','), transaction.month, transaction.day, transaction.description]
+        [
+          transaction.id,
+          transaction.timestamp,
+          transaction.type,
+          transaction.operation,
+          outcomeCategory,
+          incomeCategory,
+          Number(transaction.amount),
+          transaction.month,
+          transaction.day,
+          transaction.description
+        ]
       ]
     })
   }
@@ -24,7 +35,7 @@ export class TransactionRepositoryImplementation implements TransactionRepositor
       timestamp,
       type,
       operation,
-      amount,
+      amount: Number(amount.replaceAll('.', '').replace(',', '.')),
       month,
       day,
       description,

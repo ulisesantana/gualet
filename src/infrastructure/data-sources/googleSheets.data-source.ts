@@ -4,7 +4,7 @@ import {http} from "./http";
 interface ValueRange {
   range?: string,
   majorDimension?: string,
-  values: string[][]
+  values: any[][]
 }
 
 export class GoogleSheetsDataSource {

@@ -21,7 +21,7 @@ export function AddTransactionForm({settings, onSubmit}: AddTransactionFormProps
   const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     onSubmit(new Transaction({
-      amount: formRef.current?.amount?.value,
+      amount: Number(formRef.current?.amount?.value),
       category: formRef.current?.category?.value,
       day: formRef.current?.day?.value,
       description: formRef.current?.description?.value,
