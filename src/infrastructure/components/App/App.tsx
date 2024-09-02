@@ -15,20 +15,19 @@ export const App: React.FC = () => {
     const accessToken = ls.get('accessToken');
     const [isSignedIn, setIsSignedIn] = useState<boolean>(Boolean(accessToken));
     const [tokenClient, setTokenClient] = useState<any>(null);
-    const initializeGis = () => {
-        const client = window.google.accounts.oauth2.initTokenClient({
-            client_id: process.env.REACT_APP_CLIENT_ID,
-            scope: 'https://www.googleapis.com/auth/spreadsheets',
-            callback: (tokenResponse: any) => {
-                setIsSignedIn(true);
-                ls.set('accessToken', tokenResponse.access_token);
-            },
-        });
-        setTokenClient(client);
-    };
 
     useEffect(() => {
-        window.onload = initializeGis;
+        window.onload = () => {
+            const client = window.google.accounts.oauth2.initTokenClient({
+                client_id: process.env.REACT_APP_CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/spreadsheets',
+                callback: (tokenResponse: any) => {
+                    setIsSignedIn(true);
+                    ls.set('accessToken', tokenResponse.access_token);
+                },
+            });
+            setTokenClient(client);
+        };
     }, []);
 
     const handleSignIn = () => {
