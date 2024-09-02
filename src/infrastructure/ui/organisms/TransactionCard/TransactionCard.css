@@ -5,20 +5,20 @@
     box-sizing: border-box;
     display: grid;
     font-size: 1rem;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 52px 1fr 1fr 1fr 1fr 1fr;
     grid-template-rows: 1fr;
     gap: 8px;
-    grid-template-areas: "header body body footer";
+    grid-template-areas: "date body body body amount amount";
     height: 80px;
     padding: 8px 16px;
-    max-width: 320px;
+    width: 100%;
 }
 
 .transaction-card-date {
     align-items: center;
     display: flex;
     flex-direction: row;
-    grid-area: header;
+    grid-area: date;
     justify-content: center;
 }
 
@@ -35,7 +35,7 @@
 }
 
 .transaction-card-amount {
-    grid-area: footer;
+    grid-area: amount;
     margin: 8px;
     text-align: right;
 }
