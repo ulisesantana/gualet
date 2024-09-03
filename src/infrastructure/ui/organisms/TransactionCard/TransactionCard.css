@@ -5,12 +5,13 @@
     box-sizing: border-box;
     display: grid;
     font-size: 1rem;
-    grid-template-columns: 52px 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 64px 176px 64px;
     grid-template-rows: 1fr;
     gap: 8px;
-    grid-template-areas: "date body body body amount amount";
+    grid-template-areas: "date body amount";
     height: 80px;
     padding: 8px 16px;
+    max-width: 100%;
     width: 100%;
 }
 
