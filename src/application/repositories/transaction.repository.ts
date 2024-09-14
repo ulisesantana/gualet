@@ -1,6 +1,6 @@
 import {Transaction} from "../../domain/models";
 
-export interface TransactionSettings {
+export interface TransactionConfig {
   types: string[],
   incomeCategories: string[],
   outcomeCategories: string[]
@@ -11,5 +11,5 @@ export interface TransactionRepository {
 
   findLast(limit: number): Promise<Transaction[]>
 
-  fetchTransactionSettings(): Promise<TransactionSettings>
+  fetchTransactionConfig(): Promise<TransactionConfig>
 }

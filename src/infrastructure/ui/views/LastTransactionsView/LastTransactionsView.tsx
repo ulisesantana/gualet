@@ -1,20 +1,19 @@
 import React, {useEffect, useState} from 'react'
-import {Header, HeaderProps} from "infrastructure/ui/templates";
-import {TransactionList} from "../../templates";
 import {Transaction} from "../../../../domain/models";
-import {AddTransaction, GetLastTransactions, GetTransactionSettings} from "../../../../application/cases";
+import {AddTransaction, GetLastTransactions, GetTransactionConfig} from "../../../../application/cases";
 import {TransactionRepositoryImplementation} from "../../../repositories";
 import {GoogleSheetsDataSource} from "../../../data-sources";
 import {useSettingsContext} from "../../contexts";
-import {AddTransactionForm} from "../../templates/AddTransactionForm";
-import {TransactionRepository, TransactionSettings} from "../../../../application/repositories";
+import {TransactionConfig, TransactionRepository} from "../../../../application/repositories";
+import {AddTransactionForm, Header, HeaderProps, Loader, TransactionList} from "../../components";
 
+import './LastTransactionsView.css'
 
 export function LastTransactionsView({onLogout}: HeaderProps) {
   const {settings} = useSettingsContext();
   const [repository, setRepository] = useState<TransactionRepository>(new TransactionRepositoryImplementation(new GoogleSheetsDataSource(settings.spreadsheetId)))
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [transactionSettings, setTransactionSettings] = useState<TransactionSettings>({
+  const [transactionConfig, setTransactionConfig] = useState<TransactionConfig>({
     incomeCategories: [],
     outcomeCategories: [],
     types: []
@@ -31,7 +30,7 @@ export function LastTransactionsView({onLogout}: HeaderProps) {
       setIsLoading(false)
     })
 
-    new GetTransactionSettings(repository).exec().then(setTransactionSettings)
+    new GetTransactionConfig(repository).exec().then(setTransactionConfig)
   }, [repository])
 
   useEffect(() => {
@@ -43,13 +42,18 @@ export function LastTransactionsView({onLogout}: HeaderProps) {
     setTransactions([transaction, ...transactions])
   }
 
-  return isLoading
-    ? <span>Cargando</span>
-    : <>
-      <Header onLogout={onLogout}/>
-      <main>
-        <AddTransactionForm settings={transactionSettings} onSubmit={onSubmit} />
-        <TransactionList transactions={transactions}/>
-      </main>
-    </>
+  return <div className="last-transactions-view">
+    <Header onLogout={onLogout}/>
+    <main>
+      {isLoading
+        ? (<div className="loader-container">
+          <Loader/>
+        </div>)
+        : (<>
+          <AddTransactionForm settings={transactionConfig} onSubmit={onSubmit}/>
+          <TransactionList transactions={transactions}/>
+        </>)
+      }
+    </main>
+  </div>
 }

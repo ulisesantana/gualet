@@ -1,5 +1,5 @@
 import React, {MouseEventHandler} from 'react'
-import {LogoutButton} from "infrastructure/ui/atoms";
+import {LogoutButton} from "../LogoutButton";
 import './Header.css'
 
 export interface HeaderProps {

@@ -1,0 +1,15 @@
+.login-view {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding: 10vh 0 0 0;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+
+}
+
+@media (min-width: 1200px) {
+
+}
