@@ -1,5 +1,5 @@
 import {GoogleSheetsDataSource} from "../data-sources";
-import {TransactionSettings, TransactionRepository} from "../../application/repositories";
+import {TransactionConfig, TransactionRepository} from "../../application/repositories";
 import {Transaction, TransactionOperation} from "../../domain/models";
 
 
@@ -43,8 +43,8 @@ export class TransactionRepositoryImplementation implements TransactionRepositor
     } as Transaction))
   }
 
-  async fetchTransactionSettings(): Promise<TransactionSettings> {
-    const settings: TransactionSettings = {incomeCategories: [], outcomeCategories: [], types: []}
+  async fetchTransactionConfig(): Promise<TransactionConfig> {
+    const settings: TransactionConfig = {incomeCategories: [], outcomeCategories: [], types: []}
     const result = await this.gs.getValuesFromRange(`settings!A2:C100`)
 
     for (const [outcomeCategory, incomeCategory, type] of result) {

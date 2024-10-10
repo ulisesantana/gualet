@@ -1,10 +1,10 @@
 import {UseCase} from "./use-case";
-import {TransactionSettings, TransactionRepository} from "../repositories";
+import {TransactionConfig, TransactionRepository} from "../repositories";
 
-export class GetTransactionSettings implements UseCase<number, Promise<TransactionSettings>> {
+export class GetTransactionConfig implements UseCase<number, Promise<TransactionConfig>> {
   constructor(private readonly repository: TransactionRepository) {}
 
-  async exec(): Promise<TransactionSettings> {
-    return this.repository.fetchTransactionSettings()
+  async exec(): Promise<TransactionConfig> {
+    return this.repository.fetchTransactionConfig()
   }
 }

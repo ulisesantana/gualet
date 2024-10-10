@@ -1,8 +1,8 @@
 import {v4 as uuidv4} from 'uuid';
 
 export enum TransactionOperation {
-  Income = 'Ingreso',
-  Outcome = 'Gasto'
+  Income = 'Income',
+  Outcome = 'Outcome'
 }
 
 export interface TransactionParams {
