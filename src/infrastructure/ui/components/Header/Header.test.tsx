@@ -1,20 +1,22 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { vi } from "vitest";
 
 import { Header } from "./Header";
 
 // Mock CSS import
-jest.mock("./Header.css", () => ({}));
+vi.mock("./Header.css", () => ({}));
 
 // Mock the LogoutButton component
-jest.mock("../LogoutButton", () => ({
-  LogoutButton: ({ onLogout }: { onLogout: jest.Mock }) => (
+vi.mock("../LogoutButton", () => ({
+  // @ts-ignore
+  LogoutButton: ({ onLogout }) => (
     <button onClick={onLogout}>Mocked Logout</button>
   ),
 }));
 
 describe("Header", () => {
-  const mockOnLogout = jest.fn();
+  const mockOnLogout = vi.fn();
 
   it("renders the header with the application name", () => {
     render(<Header onLogout={mockOnLogout} />);

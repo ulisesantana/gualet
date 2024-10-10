@@ -1,10 +1,13 @@
 import { act } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { vi } from "vitest";
 
 import { LogoutButton } from "./LogoutButton";
 
 // Mock the logout icon import
-jest.mock("./logout.png", () => "mocked-logout-icon.png");
+vi.mock("./logout.png", () => ({
+  default: "mocked-logout-icon.png",
+}));
 
 describe("LogoutButton", () => {
   it("renders the button with the logout icon", () => {
@@ -20,7 +23,7 @@ describe("LogoutButton", () => {
   });
 
   it("calls the onLogout handler when clicked", () => {
-    const mockOnLogout = jest.fn();
+    const mockOnLogout = vi.fn();
 
     act(() => {
       render(<LogoutButton onLogout={mockOnLogout} />);

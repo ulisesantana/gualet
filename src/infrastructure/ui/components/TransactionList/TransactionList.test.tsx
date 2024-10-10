@@ -6,15 +6,16 @@ import {
   Id,
   Transaction,
   TransactionOperation,
-} from "domain/models";
+} from "@domain/models";
+import { vi } from "vitest";
 
 import { TransactionList } from "./TransactionList";
 
 // Mock CSS import
-jest.mock("./TransactionList.css", () => ({}));
+vi.mock("./TransactionList.css", () => ({ default: "irrelevant" }));
 
 // Mock the TransactionCard component
-jest.mock("../TransactionCard", () => ({
+vi.mock("../TransactionCard", () => ({
   TransactionCard: ({ transaction }: { transaction: Transaction }) => (
     <div>{`Transaction: ${transaction.category.title} - ${transaction.amountFormatted}`}</div>
   ),

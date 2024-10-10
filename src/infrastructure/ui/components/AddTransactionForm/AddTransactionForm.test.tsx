@@ -1,12 +1,12 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { Category, TransactionOperation } from "domain/models";
+import { Category, TransactionOperation } from "@domain/models";
+import { vi, Mock } from "vitest";
 
 import {
   AddTransactionForm,
   AddTransactionFormProps,
 } from "./AddTransactionForm";
-import Mock = jest.Mock;
 
 describe("AddTransactionForm", () => {
   let mockOnSubmit: Mock;
@@ -28,7 +28,7 @@ describe("AddTransactionForm", () => {
   };
 
   const setup = (overrides: Partial<AddTransactionFormProps> = {}) => {
-    mockOnSubmit = jest.fn(async () => {});
+    mockOnSubmit = vi.fn(async () => {});
     const props: AddTransactionFormProps = {
       settings: mockSettings,
       onSubmit: mockOnSubmit,
@@ -69,10 +69,10 @@ describe("AddTransactionForm", () => {
       mockSettings.outcomeCategories.length,
     );
     expect(initialCategories).toContain(
-      mockSettings.outcomeCategories[0].id.toString(),
+      mockSettings.outcomeCategories[0].title,
     );
     expect(initialCategories).toContain(
-      mockSettings.outcomeCategories[1].id.toString(),
+      mockSettings.outcomeCategories[1].title,
     );
 
     // Change operation to income
@@ -82,12 +82,8 @@ describe("AddTransactionForm", () => {
 
     const incomeCategories = getCategoryOptions();
     expect(incomeCategories).toHaveLength(mockSettings.incomeCategories.length);
-    expect(incomeCategories).toContain(
-      mockSettings.incomeCategories[0].id.toString(),
-    );
-    expect(incomeCategories).toContain(
-      mockSettings.incomeCategories[1].id.toString(),
-    );
+    expect(incomeCategories).toContain(mockSettings.incomeCategories[0].title);
+    expect(incomeCategories).toContain(mockSettings.incomeCategories[1].title);
   });
 
   it("calls onSubmit with correct transaction data on form submit", async () => {
@@ -98,7 +94,7 @@ describe("AddTransactionForm", () => {
       target: { value: 10.5 },
     });
     fireEvent.change(screen.getByLabelText(/Category:/i), {
-      target: { value: mockSettings.outcomeCategories[0].id.toString() },
+      target: { value: mockSettings.outcomeCategories[0].title },
     });
     fireEvent.change(screen.getByLabelText(/Date:/i), {
       target: { value: "2023-09-08" },
@@ -115,14 +111,14 @@ describe("AddTransactionForm", () => {
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
-      expect(mockOnSubmit.mock.lastCall[0].amount).toBe(10.5);
-      expect(mockOnSubmit.mock.lastCall[0].category.name).toBe("Groceries");
-      expect(mockOnSubmit.mock.lastCall[0].date.toString()).toBe("2023/09/08");
-      expect(mockOnSubmit.mock.lastCall[0].description).toBe(
+      expect(mockOnSubmit.mock.lastCall![0].amount).toBe(10.5);
+      expect(mockOnSubmit.mock.lastCall![0].category.name).toBe("Groceries");
+      expect(mockOnSubmit.mock.lastCall![0].date.toString()).toBe("2023/09/08");
+      expect(mockOnSubmit.mock.lastCall![0].description).toBe(
         "Test transaction",
       );
-      expect(mockOnSubmit.mock.lastCall[0].paymentMethod).toBe("Cash");
-      expect(mockOnSubmit.mock.lastCall[0].operation).toBe(
+      expect(mockOnSubmit.mock.lastCall![0].paymentMethod).toBe("Cash");
+      expect(mockOnSubmit.mock.lastCall![0].operation).toBe(
         TransactionOperation.Outcome,
       );
     });
@@ -137,7 +133,7 @@ describe("AddTransactionForm", () => {
       target: { value: 42.5 },
     });
     fireEvent.change(screen.getByLabelText(/Category:/i), {
-      target: { value: mockSettings.outcomeCategories[1].id.toString() },
+      target: { value: mockSettings.outcomeCategories[1].title },
     });
     fireEvent.change(screen.getByLabelText(/Date:/i), {
       target: { value: "2024-01-06" },

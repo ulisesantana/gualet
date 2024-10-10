@@ -7,7 +7,15 @@
       "esnext"
     ],
     "allowJs": true,
-    "baseUrl": "./src",
+    "baseUrl": "./",
+    "paths": {
+      "@application/*": ["src/application/*"],
+      "@components/*": ["src/infrastructure/ui/components/*"],
+      "@data-sources/*": ["src/infrastructure/data-sources/*"],
+      "@domain/*": ["src/domain/*"],
+      "@repositories": ["src/infrastructure/repositories/index.ts"],
+      "@views": ["src/infrastructure/ui/views/index.ts"]
+    },
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

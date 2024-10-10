@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { LastTransactionsView, LoginView } from "infrastructure/ui/views";
-import { LocalStorageRepository } from "infrastructure/repositories";
+import { LastTransactionsView, LoginView } from "@views";
+import { LocalStorageRepository } from "@repositories";
 
 // Define the global 'google' object for TypeScript
 declare global {

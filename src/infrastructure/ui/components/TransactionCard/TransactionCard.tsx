@@ -1,4 +1,4 @@
-import { Transaction } from "domain/models";
+import { Transaction } from "@domain/models";
 import "./TransactionCard.css";
 
 export function TransactionCard({ transaction }: { transaction: Transaction }) {

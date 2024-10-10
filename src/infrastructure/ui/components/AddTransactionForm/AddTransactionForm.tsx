@@ -5,7 +5,7 @@ import {
   Transaction,
   TransactionConfig,
   TransactionOperation,
-} from "domain/models";
+} from "@domain/models";
 
 export interface AddTransactionFormProps {
   settings: TransactionConfig;
@@ -21,10 +21,10 @@ function getOnSubmitHandler(
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const categoryId = formData.get("category") as string;
-    const category = categories.find((c) => c.id.equals(categoryId));
+    const categoryTitle = formData.get("category") as string;
+    const category = categories.find((c) => c.title === categoryTitle);
     if (!category) {
-      throw new Error(`Category with id ${categoryId} does not exist.`);
+      throw new Error(`Category ${categoryTitle} does not exist.`);
     }
 
     const transaction = new Transaction({
@@ -35,9 +35,7 @@ function getOnSubmitHandler(
       operation: formData.get("operation") as TransactionOperation,
       paymentMethod: formData.get("payment-method") as string,
     });
-    console.debug("BEFORE");
     onSubmit(transaction).then(() => {
-      console.debug("AFTER");
       form.reset();
       onSubmitSuccess(transaction);
     });
@@ -106,11 +104,7 @@ export function AddTransactionForm({
         <input list="category-options" name="category" required />
         <datalist id="category-options">
           {categories.map((category) => (
-            <option
-              key={category.id.toString()}
-              value={category.id.toString()}
-              label={category.title}
-            />
+            <option key={category.id.toString()} value={category.title} />
           ))}
         </datalist>
       </label>
