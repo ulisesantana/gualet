@@ -1,6 +1,12 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { Transaction, TransactionOperation } from "domain/models";
+import {
+  Category,
+  Day,
+  Id,
+  Transaction,
+  TransactionOperation,
+} from "domain/models";
 
 import { TransactionCard } from "./TransactionCard";
 
@@ -9,15 +15,16 @@ jest.mock("./TransactionCard.css", () => ({}));
 
 describe("TransactionCard", () => {
   const mockTransaction = new Transaction({
-    id: "123",
+    id: new Id(),
     amount: 150,
-    category: "Groceries",
-    day: "12",
+    category: new Category({
+      name: "Groceries",
+      type: TransactionOperation.Outcome,
+    }),
+    date: new Day("2024/09/12"),
     description: "Buying groceries",
-    month: "09",
     operation: TransactionOperation.Outcome,
-    timestamp: new Date().toISOString(),
-    type: "Expense",
+    paymentMethod: "Expense",
   });
 
   it("renders transaction card with correct data", () => {

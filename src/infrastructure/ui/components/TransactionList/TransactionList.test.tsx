@@ -16,7 +16,7 @@ jest.mock("./TransactionList.css", () => ({}));
 // Mock the TransactionCard component
 jest.mock("../TransactionCard", () => ({
   TransactionCard: ({ transaction }: { transaction: Transaction }) => (
-    <div>{`Transaction: ${transaction.category} - ${transaction.amountFormatted}`}</div>
+    <div>{`Transaction: ${transaction.category.title} - ${transaction.amountFormatted}`}</div>
   ),
 }));
 
@@ -40,11 +40,11 @@ describe("TransactionList", () => {
       amount: 200,
       description: "Monthly salary",
       category: new Category({
-        name: "Groceries",
-        type: TransactionOperation.Outcome,
+        name: "Salary",
+        type: TransactionOperation.Income,
       }),
       operation: TransactionOperation.Income,
-      paymentMethod: "Salary",
+      paymentMethod: "Bank transfer",
     }),
   ];
 

@@ -1,6 +1,9 @@
 import { GoogleSheetsDataSource } from "../data-sources";
 import { TransactionRepository } from "../../application/repositories";
 import {
+  Category,
+  Day,
+  Id,
   Transaction,
   TransactionConfig,
   TransactionOperation,
@@ -12,20 +15,24 @@ export class TransactionRepositoryImplementation
   constructor(private gs: GoogleSheetsDataSource) {}
 
   async save(transaction: Transaction): Promise<void> {
-    const incomeCategory = transaction.isOutcome() ? "" : transaction.category;
-    const outcomeCategory = transaction.isOutcome() ? transaction.category : "";
+    const incomeCategory = transaction.isOutcome()
+      ? ""
+      : transaction.category.id.toString();
+    const outcomeCategory = transaction.isOutcome()
+      ? transaction.category.id.toString()
+      : "";
     await this.gs.append("transactions!A1:J1", {
       values: [
         [
-          transaction.id,
-          transaction.timestamp,
-          transaction.type,
+          transaction.id.toString(),
+          transaction.date.toString(),
+          transaction.paymentMethod,
           transaction.operation,
           outcomeCategory,
           incomeCategory,
           Number(transaction.amount),
-          transaction.month,
-          transaction.day,
+          transaction.date.getFormatedMonth(),
+          transaction.date.getFormatedDate(),
           transaction.description,
         ],
       ],
@@ -45,24 +52,26 @@ export class TransactionRepositoryImplementation
         category_out,
         category_in,
         amount,
-        month,
-        day,
         description,
       ]: string[]) =>
         new Transaction({
-          id,
-          timestamp,
-          type,
-          operation,
+          id: new Id(id),
+          date: new Day(timestamp),
+          paymentMethod: type,
+          operation: operation as TransactionOperation,
           amount: Number(amount.replaceAll(".", "").replace(",", ".")),
-          month,
-          day,
           description,
           category:
             operation === TransactionOperation.Income
-              ? category_in
-              : category_out,
-        } as Transaction),
+              ? new Category({
+                  name: category_in,
+                  type: TransactionOperation.Income,
+                })
+              : new Category({
+                  name: category_out,
+                  type: TransactionOperation.Outcome,
+                }),
+        }),
     );
   }
 

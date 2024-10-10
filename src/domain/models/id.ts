@@ -11,7 +11,7 @@ export class Id {
     return this.value;
   }
 
-  equals(other: Id): boolean {
+  equals(other: Id | string): boolean {
     return this.value === other.toString();
   }
 }

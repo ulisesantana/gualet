@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { AddTransactionForm } from "./AddTransactionForm";
+import { Category, TransactionOperation } from "../../../../domain/models";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -23,39 +24,30 @@ export const AddForm: Story = {
     async onSubmit() {},
     settings: {
       incomeCategories: [
-        "💰 Nómina",
-        "🏷️ Ventas",
-        "🏦 Intereses",
-        "🫰🏻 Devolución",
+        new Category({
+          icon: "💰",
+          type: TransactionOperation.Income,
+          name: "Salary",
+        }),
+        new Category({
+          icon: "🏷️",
+          type: TransactionOperation.Income,
+          name: "Sales",
+        }),
       ],
       outcomeCategories: [
-        "🚖 Taxi",
-        "🍽️ Comida en el trabajo",
-        "👨🏻‍🍳 Restaurante",
-        "🛵 Comida a domicilio",
-        "☕ Cafetería",
-        "🛒 Supermercado",
-        "📚 Cultura",
-        "🍻 Alcohol",
-        "💸 Suscripción",
-        "💳 Crédito",
-        "🏥 Farmacia",
-        "🛍️ Ropa",
-        "🚍 Guagua",
-        "🛞 Transporte",
-        "🛠️ Mantenimiento del hogar",
-        "🪴 Ganja",
-        "🧑‍⚕️ Médicos",
-        "🧠 Terapia psicológica",
-        "🐶 Mascotas",
-        "💿 Música",
-        "💻 Software",
-        "🎮 Videojuegos",
-        "🎓🚗 Autoescuela",
-        "🎓 Formación",
-        "🏠 Alquiler",
+        new Category({
+          icon: "🚖",
+          type: TransactionOperation.Outcome,
+          name: "Taxi",
+        }),
+        new Category({
+          icon: "👨🏻‍🍳",
+          type: TransactionOperation.Outcome,
+          name: "Restaurant",
+        }),
       ],
-      types: ["Tarjeta", "Efectivo", "Bizum", "Transferencia"],
+      types: ["Credit card", "Cash", "Bizum", "Bank transfer"],
     },
   },
 };

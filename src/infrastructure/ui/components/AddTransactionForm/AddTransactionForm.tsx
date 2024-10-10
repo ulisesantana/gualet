@@ -1,5 +1,7 @@
 import React, { RefObject, useEffect, useRef } from "react";
 import {
+  Category,
+  Day,
   Transaction,
   TransactionConfig,
   TransactionOperation,
@@ -10,11 +12,8 @@ export interface AddTransactionFormProps {
   onSubmit: (transaction: Transaction) => Promise<void>;
 }
 
-function prependZero(x: any) {
-  return String(x).padStart(2, "0");
-}
-
 function getOnSubmitHandler(
+  categories: Category[],
   onSubmit: (transaction: Transaction) => Promise<void>,
   onSubmitSuccess: (transaction: Transaction) => void,
 ) {
@@ -22,37 +21,39 @@ function getOnSubmitHandler(
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
+    const categoryId = formData.get("category") as string;
+    const category = categories.find((c) => c.id.equals(categoryId));
+    if (!category) {
+      throw new Error(`Category with id ${categoryId} does not exist.`);
+    }
 
     const transaction = new Transaction({
       amount: Number(formData.get("amount")),
-      category: formData.get("category") as string,
-      day: formData.get("day") as string,
+      category: category,
+      date: new Day(formData.get("date") as string),
       description: formData.get("description") as string,
-      month: formData.get("month") as string,
       operation: formData.get("operation") as TransactionOperation,
-      timestamp: new Date().toISOString(),
-      type: formData.get("type") as string,
+      paymentMethod: formData.get("payment-method") as string,
     });
-
+    console.debug("BEFORE");
     onSubmit(transaction).then(() => {
+      console.debug("AFTER");
       form.reset();
       onSubmitSuccess(transaction);
     });
   };
 }
 
-// eslint-disable-next-line max-lines-per-function
 export function AddTransactionForm({
   settings,
   onSubmit,
 }: AddTransactionFormProps) {
-  const today = new Date();
-  const [day, setDay] = React.useState(prependZero(today.getDate()));
-  const [month, setMonth] = React.useState(prependZero(today.getMonth() + 1));
+  const today = new Day();
+  const [date, setDate] = React.useState(today.toString());
   const [operation, setOperation] = React.useState<TransactionOperation>(
     TransactionOperation.Outcome,
   );
-  const [categories, setCategories] = React.useState<string[]>(
+  const [categories, setCategories] = React.useState<Category[]>(
     settings.outcomeCategories,
   );
   const formRef: RefObject<HTMLFormElement> = useRef(null);
@@ -69,10 +70,10 @@ export function AddTransactionForm({
   }, [operation, settings]);
 
   const onSubmitHandler = getOnSubmitHandler(
+    categories,
     onSubmit,
     (transaction: Transaction) => {
-      setDay(transaction.date.getFormatedDate());
-      setMonth(transaction.date.getFormatedMonth);
+      setDate(transaction.date.toString());
       setOperation(TransactionOperation.Outcome);
     },
   );
@@ -104,8 +105,12 @@ export function AddTransactionForm({
         <span>Category:</span>
         <input list="category-options" name="category" required />
         <datalist id="category-options">
-          {categories.map((category, index) => (
-            <option key={index} value={category} />
+          {categories.map((category) => (
+            <option
+              key={category.id.toString()}
+              value={category.id.toString()}
+              label={category.title}
+            />
           ))}
         </datalist>
       </label>
@@ -123,41 +128,13 @@ export function AddTransactionForm({
       </label>
 
       <label>
-        <span>Day:</span>
-        <select
-          name="day"
-          value={day}
-          onChange={(e) => setDay(e.target.value as string)}
-          required
-        >
-          {[...Array(31)].map((_, i) => {
-            const value = prependZero(i + 1);
-            return (
-              <option key={i} value={value}>
-                {value}
-              </option>
-            );
-          })}
-        </select>
-      </label>
-
-      <label>
-        <span>Month:</span>
-        <select
-          name="month"
-          value={month}
-          onChange={(e) => setMonth(e.target.value as string)}
-          required
-        >
-          {[...Array(12)].map((_, i) => {
-            const value = String(i + 1).padStart(2, "0");
-            return (
-              <option key={i} value={value}>
-                {value}
-              </option>
-            );
-          })}
-        </select>
+        <span>Date:</span>
+        <input
+          type="date"
+          name="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value as string)}
+        />
       </label>
 
       <label>
@@ -166,8 +143,8 @@ export function AddTransactionForm({
       </label>
 
       <label>
-        <span>Type:</span>
-        <select name="type" required>
+        <span>Payment method:</span>
+        <select name="payment-method" required>
           {settings.types.map((type, index) => (
             <option key={index} value={type}>
               {type}

@@ -8,7 +8,7 @@ import prettierPlugin from "eslint-plugin-prettier";
 
 export default [
   {
-    files: ["**/*.ts", "**/*.tsx"],
+    files: ["src/**/*.ts", "src/**/*.tsx", ".storybook/**/*.ts"],
     languageOptions: {
       parser: typescriptEslintParser,
       parserOptions: {
@@ -31,8 +31,8 @@ export default [
       "react/jsx-uses-react": "off", // React 17+ JSX
       "react/react-in-jsx-scope": "off", // React 17+ JSX
       "react/prop-types": "off", // Using TypeScript types instead of prop-types
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-      "import/order": ["error", { groups: [["builtin", "external", "internal"]], "newlines-between": "always" }],
+      "@typescript-eslint/no-unused-vars": ["warn", {argsIgnorePattern: "^_"}],
+      "import/order": ["error", {groups: [["builtin", "external", "internal"]], "newlines-between": "always"}],
       "jsx-a11y/anchor-is-valid": "off", // Adjust for Next.js Link component
       "prettier/prettier": "error",
       "max-len": [
@@ -46,7 +46,6 @@ export default [
           "ignoreComments": true
         }
       ],
-      "max-lines-per-function": ["error", { "max": 120, "skipBlankLines": true, "skipComments": true }]
     },
     settings: {
       react: {

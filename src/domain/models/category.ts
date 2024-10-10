@@ -20,4 +20,8 @@ export class Category {
     this.type = input.type;
     this.icon = input.icon || "";
   }
+
+  get title() {
+    return this.icon ? `${this.icon} ${this.name}` : this.name;
+  }
 }
