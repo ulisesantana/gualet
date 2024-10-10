@@ -1,61 +1,60 @@
-import {v4 as uuidv4} from 'uuid';
+import { Id } from "./id";
+import { Category } from "./category";
+import { Day } from "./day";
 
 export enum TransactionOperation {
-  Income = 'Income',
-  Outcome = 'Outcome'
+  Income = "INCOME",
+  Outcome = "OUTCOME",
 }
 
 export interface TransactionParams {
-  id?: string
-  amount: number
-  category: string
-  day: string
-  description: string
-  month: string
-  operation: TransactionOperation
-  timestamp: string
-  type: string
+  id?: Id;
+  amount: number;
+  category: Category;
+  date: Day;
+  description: string;
+  operation: TransactionOperation;
+  paymentMethod: string;
 }
 
 export class Transaction {
-  readonly id: string;
-  readonly amount: number
-  readonly category: string
-  readonly day: string
-  readonly description: string
-  readonly month: string
-  readonly operation: TransactionOperation
-  readonly timestamp: string
-  readonly type: string
+  readonly id: Id;
+  readonly amount: number;
+  readonly category: Category;
+  readonly date: Day;
+  readonly description: string;
+  readonly operation: TransactionOperation;
+  readonly paymentMethod: string;
 
   constructor(input: TransactionParams) {
-    this.id = input.id || uuidv4()
-    this.amount = input.amount
-    this.category = input.category
-    this.day = input.day
-    this.description = input.description
-    this.month = input.month
-    this.operation = input.operation
-    this.timestamp = input.timestamp
-    this.type = input.type
+    this.id = input.id || new Id();
+    this.amount = input.amount;
+    this.category = input.category;
+    this.date = input.date;
+    this.description = input.description;
+    this.operation = input.operation;
+    this.paymentMethod = input.paymentMethod;
   }
 
   get amountFormatted(): string {
-    return (this.isOutcome() ? '-' : '') + new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(this.amount)
+    return (
+      (this.isOutcome() ? "-" : "") +
+      new Intl.NumberFormat("de-DE", {
+        style: "currency",
+        currency: "EUR",
+      }).format(this.amount)
+    );
   }
 
-  static isOutcome(operation: TransactionOperation | string): boolean {
-    return operation === TransactionOperation.Outcome
+  static isOutcome(operation: TransactionOperation): boolean {
+    return operation === TransactionOperation.Outcome;
   }
 
-  isOutcome() {
-    return Transaction.isOutcome(this.operation)
+  isOutcome(): boolean {
+    return Transaction.isOutcome(this.operation);
   }
 
-  toString() {
-    return `Transaction for ${this.category} ${this.amountFormatted} (${this.id})`
+  toString(): string {
+    return `Transaction for ${this.category.name} (${this.category.icon}) ${this.amountFormatted} on ${this.date.toString()} (${this.id.toString()}), via ${this.paymentMethod}`;
   }
 }

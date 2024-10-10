@@ -1,56 +1,68 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { TransactionList, TransactionListProps } from './TransactionList';
-import { TransactionCard } from '../TransactionCard';
-import { Transaction, TransactionOperation } from 'domain/models';
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import {
+  Category,
+  Day,
+  Id,
+  Transaction,
+  TransactionOperation,
+} from "domain/models";
+
+import { TransactionList } from "./TransactionList";
 
 // Mock CSS import
-jest.mock('./TransactionList.css', () => ({}));
+jest.mock("./TransactionList.css", () => ({}));
 
 // Mock the TransactionCard component
-jest.mock('../TransactionCard', () => ({
+jest.mock("../TransactionCard", () => ({
   TransactionCard: ({ transaction }: { transaction: Transaction }) => (
     <div>{`Transaction: ${transaction.category} - ${transaction.amountFormatted}`}</div>
   ),
 }));
 
-describe('TransactionList', () => {
+describe("TransactionList", () => {
   const mockTransactions: Transaction[] = [
     new Transaction({
-      id: '1',
+      date: new Day("2022/02/02"),
+      paymentMethod: "Credit card",
+      id: new Id("1"),
       amount: 100,
-      category: 'Groceries',
-      day: '12',
-      description: 'Buying groceries',
-      month: '09',
+      category: new Category({
+        name: "Groceries",
+        type: TransactionOperation.Outcome,
+      }),
+      description: "Buying groceries",
       operation: TransactionOperation.Outcome,
-      timestamp: new Date().toISOString(),
-      type: 'Expense',
     }),
     new Transaction({
-      id: '2',
+      date: new Day("2022/02/05"),
+      id: new Id("2"),
       amount: 200,
-      category: 'Salary',
-      day: '15',
-      description: 'Monthly salary',
-      month: '09',
+      description: "Monthly salary",
+      category: new Category({
+        name: "Groceries",
+        type: TransactionOperation.Outcome,
+      }),
       operation: TransactionOperation.Income,
-      timestamp: new Date().toISOString(),
-      type: 'Income',
+      paymentMethod: "Salary",
     }),
   ];
 
-  it('renders the correct number of TransactionCard components', () => {
+  it("renders the correct number of TransactionCard components", () => {
     render(<TransactionList transactions={mockTransactions} />);
 
     const transactionCards = screen.getAllByText(/Transaction:/);
     expect(transactionCards).toHaveLength(mockTransactions.length);
   });
 
-  it('renders the TransactionCard components with correct transaction details', () => {
+  it("renders the TransactionCard components with correct transaction details", () => {
     render(<TransactionList transactions={mockTransactions} />);
 
-    expect(screen.getByText('Transaction: Groceries - -100,00 €')).toBeInTheDocument();
-    expect(screen.getByText('Transaction: Salary - 200,00 €')).toBeInTheDocument();
+    expect(
+      screen.getByText("Transaction: Groceries - -100,00 €"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Transaction: Salary - 200,00 €"),
+    ).toBeInTheDocument();
   });
 });

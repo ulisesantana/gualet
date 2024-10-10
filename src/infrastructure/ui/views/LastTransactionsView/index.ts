@@ -1,1 +1,1 @@
-export * from './LastTransactionsView'
+export * from "./LastTransactionsView";

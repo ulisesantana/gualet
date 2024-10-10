@@ -1,1 +1,1 @@
-export * from './LoginView'
+export * from "./LoginView";

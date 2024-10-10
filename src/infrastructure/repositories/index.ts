@@ -1,2 +1,2 @@
-export * from './localStorage.repository'
-export * from './transaction.repository'
+export * from "./localStorage.repository";
+export * from "./transaction.repository";
