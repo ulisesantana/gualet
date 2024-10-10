@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { LastTransactionsView, LoginView } from "@views";
-import { LocalStorageRepository } from "@repositories";
+import { LocalStorageRepository } from "@infrastructure/repositories";
 
 // Define the global 'google' object for TypeScript
 declare global {
@@ -69,5 +69,3 @@ export const App: React.FC = () => {
     <LoginView onLogin={handleSignIn} />
   );
 };
-
-export default App;

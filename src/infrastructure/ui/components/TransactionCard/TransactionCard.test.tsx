@@ -8,8 +8,7 @@ import {
   TransactionOperation,
 } from "@domain/models";
 import { vi } from "vitest";
-
-import { TransactionCard } from "./TransactionCard";
+import { TransactionCard } from "@components";
 
 // Mock CSS import
 vi.mock("./TransactionCard.css", () => ({ default: "irrelevant" }));

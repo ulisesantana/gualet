@@ -1,5 +1,5 @@
-import { GoogleSheetsDataSource } from "../data-sources";
-import { TransactionRepository } from "../../application/repositories";
+import { TransactionRepository } from "@application/repositories";
+import { GoogleSheetsDataSource } from "@infrastructure/data-sources";
 import {
   Category,
   Day,
@@ -7,7 +7,7 @@ import {
   Transaction,
   TransactionConfig,
   TransactionOperation,
-} from "../../domain/models";
+} from "@domain/models";
 
 export class TransactionRepositoryImplementation
   implements TransactionRepository

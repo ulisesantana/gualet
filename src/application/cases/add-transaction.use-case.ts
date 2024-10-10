@@ -1,6 +1,7 @@
+import { Transaction } from "@domain/models";
+import { TransactionRepository } from "@application/repositories";
+
 import { UseCase } from "./use-case";
-import { Transaction } from "../../domain/models";
-import { TransactionRepository } from "../repositories";
 
 export class AddTransaction implements UseCase<Transaction, Promise<void>> {
   constructor(private readonly repository: TransactionRepository) {}

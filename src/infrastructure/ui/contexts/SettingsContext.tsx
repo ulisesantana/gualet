@@ -1,4 +1,3 @@
-// src/contexts/SettingsContext.tsx
 import React, {
   createContext,
   useContext,
@@ -6,8 +5,7 @@ import React, {
   ReactNode,
   useMemo,
 } from "react";
-
-import { LocalStorageRepository } from "../../repositories";
+import { LocalStorageRepository } from "@infrastructure/repositories";
 
 interface Settings {
   spreadsheetId: string;

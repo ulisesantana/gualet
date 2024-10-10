@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from "react";
-
-import { Transaction, TransactionConfig } from "../../../../domain/models";
-import {
-  AddTransaction,
-  GetLastTransactions,
-  GetTransactionConfig,
-} from "../../../../application/cases";
-import { TransactionRepositoryImplementation } from "../../../repositories";
-import { GoogleSheetsDataSource } from "../../../data-sources";
-import { useSettingsContext } from "../../contexts";
-import { TransactionRepository } from "../../../../application/repositories";
+import "./LastTransactionsView.css";
 import {
   AddTransactionForm,
   Header,
   HeaderProps,
   Loader,
   TransactionList,
-} from "../../components";
-
-import "./LastTransactionsView.css";
+} from "@components";
+import { useSettingsContext } from "@infrastructure/ui/contexts";
+import { TransactionRepository } from "@application/repositories";
+import { TransactionRepositoryImplementation } from "@infrastructure/repositories";
+import { GoogleSheetsDataSource } from "@infrastructure/data-sources";
+import { Transaction, TransactionConfig } from "@domain/models";
+import {
+  AddTransaction,
+  GetLastTransactions,
+  GetTransactionConfig,
+} from "@application/cases";
 
 export function LastTransactionsView({ onLogout }: HeaderProps) {
   const { settings } = useSettingsContext();

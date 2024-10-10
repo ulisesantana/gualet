@@ -1,4 +1,4 @@
-export * from "./AddTransactionForm";
+export * from "./TransactionForm";
 export * from "./Header";
 export * from "./Loader";
 export * from "./LoginForm";

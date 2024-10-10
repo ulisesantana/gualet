@@ -1,5 +1,6 @@
 import React, { MouseEventHandler } from "react";
 
+// @ts-ignore
 import LogoutIcon from "./logout.png";
 import "./LogoutButton.css";
 

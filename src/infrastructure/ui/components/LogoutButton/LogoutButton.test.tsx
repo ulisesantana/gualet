@@ -1,8 +1,7 @@
 import { act } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { vi } from "vitest";
-
-import { LogoutButton } from "./LogoutButton";
+import { LogoutButton } from "@components";
 
 // Mock the logout icon import
 vi.mock("./logout.png", () => ({

@@ -1,4 +1,5 @@
 import React from "react";
+import { TransactionList } from "@components";
 import { render, screen } from "@testing-library/react";
 import {
   Category,
@@ -8,8 +9,6 @@ import {
   TransactionOperation,
 } from "@domain/models";
 import { vi } from "vitest";
-
-import { TransactionList } from "./TransactionList";
 
 // Mock CSS import
 vi.mock("./TransactionList.css", () => ({ default: "irrelevant" }));

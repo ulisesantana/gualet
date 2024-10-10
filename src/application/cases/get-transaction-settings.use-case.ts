@@ -1,6 +1,6 @@
-import { UseCase } from "./use-case";
-import { TransactionRepository } from "../repositories";
-import { TransactionConfig } from "../../domain/models";
+import { TransactionConfig } from "@domain/models";
+import { UseCase } from "@application/cases/use-case";
+import { TransactionRepository } from "@application/repositories";
 
 export class GetTransactionConfig
   implements UseCase<number, Promise<TransactionConfig>>

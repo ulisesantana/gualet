@@ -10,10 +10,9 @@
     "baseUrl": "./",
     "paths": {
       "@application/*": ["src/application/*"],
-      "@components/*": ["src/infrastructure/ui/components/*"],
-      "@data-sources/*": ["src/infrastructure/data-sources/*"],
+      "@components": ["src/infrastructure/ui/components/index.ts"],
       "@domain/*": ["src/domain/*"],
-      "@repositories": ["src/infrastructure/repositories/index.ts"],
+      "@infrastructure/*": ["src/infrastructure/*"],
       "@views": ["src/infrastructure/ui/views/index.ts"]
     },
     "skipLibCheck": true,

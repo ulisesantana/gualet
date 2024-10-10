@@ -1,5 +1,5 @@
-import { LocalStorageRepository } from "../repositories";
-import { http } from "./http";
+import { LocalStorageRepository } from "@infrastructure/repositories";
+import { http } from "@infrastructure/data-sources";
 
 interface ValueRange {
   range?: string;

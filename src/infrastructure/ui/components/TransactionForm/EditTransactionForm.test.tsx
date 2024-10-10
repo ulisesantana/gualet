@@ -1,14 +1,15 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { Category, TransactionOperation } from "@domain/models";
-import { vi, Mock } from "vitest";
-
+import { EditTransactionForm, EditTransactionFormProps } from "@components";
 import {
-  AddTransactionForm,
-  AddTransactionFormProps,
-} from "./AddTransactionForm";
+  Category,
+  Day,
+  Transaction,
+  TransactionOperation,
+} from "@domain/models";
+import { Mock, vi } from "vitest";
 
-describe("AddTransactionForm", () => {
+describe("EditTransactionForm", () => {
   let mockOnSubmit: Mock;
   let element: HTMLElement;
 
@@ -27,28 +28,50 @@ describe("AddTransactionForm", () => {
     ],
   };
 
-  const setup = (overrides: Partial<AddTransactionFormProps> = {}) => {
+  const mockTransaction = new Transaction({
+    amount: 100,
+    category: mockSettings.outcomeCategories[0],
+    date: new Day("2023-09-08"),
+    description: "",
+    operation: TransactionOperation.Outcome,
+    paymentMethod: mockSettings.types[0],
+  });
+
+  const setup = (overrides: Partial<EditTransactionFormProps> = {}) => {
     mockOnSubmit = vi.fn(async () => {});
-    const props: AddTransactionFormProps = {
+    const props: EditTransactionFormProps = {
+      transaction: mockTransaction,
       settings: mockSettings,
       onSubmit: mockOnSubmit,
       ...overrides,
     };
 
-    const { container } = render(<AddTransactionForm {...props} />);
+    const { container } = render(<EditTransactionForm {...props} />);
 
     element = container;
   };
 
-  it("renders the form with initial values", () => {
+  it("renders the form with given values", () => {
     setup();
 
-    expect(screen.getByLabelText(/Operation:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Category:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Amount:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Date:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Description:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Payment method:/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Operation:/i)).toHaveValue(
+      mockTransaction.operation,
+    );
+    expect(
+      screen.findByDisplayValue(mockTransaction.category.title),
+    ).not.toBeUndefined();
+    expect(screen.getByLabelText(/Amount:/i)).toHaveValue(
+      mockTransaction.amount,
+    );
+    expect(screen.getByLabelText(/Date:/i)).toHaveValue(
+      mockTransaction.date.toString("-"),
+    );
+    expect(screen.getByLabelText(/Description:/i)).toHaveValue(
+      mockTransaction.description,
+    );
+    expect(screen.getByLabelText(/Payment method:/i)).toHaveValue(
+      mockTransaction.paymentMethod,
+    );
   });
 
   it("updates the datalist options when operation changes", () => {
@@ -121,43 +144,6 @@ describe("AddTransactionForm", () => {
       expect(mockOnSubmit.mock.lastCall![0].operation).toBe(
         TransactionOperation.Outcome,
       );
-    });
-  });
-
-  // TODO: Is not working for some reason
-  it.skip("resets the form after successful submission", async () => {
-    setup();
-
-    // Fill in the form
-    fireEvent.change(screen.getByLabelText(/Amount:/i), {
-      target: { value: 42.5 },
-    });
-    fireEvent.change(screen.getByLabelText(/Category:/i), {
-      target: { value: mockSettings.outcomeCategories[1].title },
-    });
-    fireEvent.change(screen.getByLabelText(/Date:/i), {
-      target: { value: "2024-01-06" },
-    });
-    fireEvent.change(screen.getByLabelText(/Description:/i), {
-      target: { value: "Test transaction" },
-    });
-    fireEvent.change(screen.getByLabelText(/Payment method:/i), {
-      target: { value: "Cash" },
-    });
-
-    // Submit the form
-    fireEvent.submit(screen.getByRole("button", { name: "+" }));
-
-    await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalled();
-      // Check that the form resets after submission
-      expect(element.querySelector('[name="operation"]')).toHaveValue(
-        TransactionOperation.Outcome,
-      );
-      expect(element.querySelector('[name="description"]')).toHaveValue("");
-      expect(element.querySelector('[name="amount"]')).toHaveValue(null);
-      expect(element.querySelector('[name="category"]')).toHaveValue("");
-      expect(element.querySelector('[name="date"]')).toHaveValue("2024-01-06");
     });
   });
 });

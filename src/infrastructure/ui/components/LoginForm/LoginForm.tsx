@@ -47,5 +47,3 @@ export function LoginForm({ defaultSpreadsheetId, onSubmit }: LoginProps) {
     </form>
   );
 }
-
-export function ClipboardLogin() {}

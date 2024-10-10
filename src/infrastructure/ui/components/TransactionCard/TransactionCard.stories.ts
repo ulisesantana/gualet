@@ -1,17 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
-import { TransactionCard } from "./TransactionCard";
+import { TransactionCard } from "@components";
 import {
   Category,
   Day,
   Id,
   Transaction,
   TransactionOperation,
-} from "../../../../domain/models";
+} from "@domain/models";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: "Organisms/TransactionCard",
+  title: "TransactionCard",
   component: TransactionCard,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout

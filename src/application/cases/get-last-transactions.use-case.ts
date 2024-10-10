@@ -1,6 +1,6 @@
-import { UseCase } from "./use-case";
-import { Transaction } from "../../domain/models";
-import { TransactionRepository } from "../repositories";
+import { Transaction } from "@domain/models";
+import { TransactionRepository } from "@application/repositories";
+import { UseCase } from "@application/cases/use-case";
 
 export class GetLastTransactions
   implements UseCase<number, Promise<Transaction[]>>

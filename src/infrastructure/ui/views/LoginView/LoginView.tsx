@@ -1,9 +1,7 @@
 import React, { useMemo } from "react";
-
-import { LocalStorageRepository } from "../../../repositories";
-import { useSettingsContext } from "../../contexts";
-import { LoginForm } from "../../components";
-import "./LoginView.css";
+import { LocalStorageRepository } from "@infrastructure/repositories";
+import { useSettingsContext } from "@infrastructure/ui/contexts";
+import { LoginForm } from "@components";
 
 export interface LoginViewProps {
   onLogin(): void;

@@ -13,9 +13,8 @@ export default defineConfig({
     alias: {
       '@application': resolve(__dirname, 'src/application'),
       '@components': resolve(__dirname, 'src/infrastructure/ui/components'),
-      '@data-sources': resolve(__dirname, 'src/infrastructure/data-sources'),
       '@domain': resolve(__dirname, 'src/domain'),
-      '@repositories': resolve(__dirname, 'src/infrastructure/repositories'),
+      '@infrastructure': resolve(__dirname, 'src/infrastructure'),
       '@views': resolve(__dirname, 'src/infrastructure/ui/views'),
     },
   },

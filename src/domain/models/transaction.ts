@@ -50,8 +50,16 @@ export class Transaction {
     return operation === TransactionOperation.Outcome;
   }
 
+  static isIncome(operation: TransactionOperation): boolean {
+    return operation === TransactionOperation.Income;
+  }
+
   isOutcome(): boolean {
     return Transaction.isOutcome(this.operation);
+  }
+
+  isIncome(): boolean {
+    return Transaction.isIncome(this.operation);
   }
 
   toString(): string {
