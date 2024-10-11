@@ -1,5 +1,6 @@
-a .transaction-card {
+.transaction-card-container a {
     text-decoration: none;
+    color: initial;
 }
 
 .transaction-card {
@@ -9,7 +10,7 @@ a .transaction-card {
     box-sizing: border-box;
     display: grid;
     font-size: 1rem;
-    grid-template-columns: 64px 176px 64px;
+    grid-template-columns: 64px 160px 76px;
     grid-template-rows: 1fr;
     gap: 8px;
     grid-template-areas: "date body amount";
