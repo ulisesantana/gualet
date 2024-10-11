@@ -38,8 +38,8 @@ jobs:
         run: corepack enable && yarn
       - name: 🏗 Build
         env:
-          REACT_APP_API_KEY: ${{ secrets.REACT_APP_API_KEY }}
-          REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
+          VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}
+          VITE_SUPABASE_API_KEY: ${{ secrets.VITE_SUPABASE_API_KEY }}
         run: yarn build
       - name: ⚙️ Setup Pages
         uses: actions/configure-pages@v2
@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
-          path: './build'
+          path: './dist'
       - name: 🚀 Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
