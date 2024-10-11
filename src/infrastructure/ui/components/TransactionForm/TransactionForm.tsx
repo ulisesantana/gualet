@@ -3,15 +3,15 @@ import {
   Day,
   Transaction,
   TransactionOperation,
-  UserSettings,
+  TransactionConfig,
 } from "@domain/models";
 import React, { RefObject, useEffect, useRef } from "react";
 
 import { generateOnSubmitHandler } from "./submit-handler";
 
 export interface TransactionFormParams {
-  transaction?: Transaction;
-  settings: UserSettings;
+  transaction: Transaction | undefined;
+  settings: TransactionConfig;
   onSubmit: (transaction: Transaction) => Promise<void>;
 }
 
@@ -139,7 +139,7 @@ export function TransactionForm({
         </select>
       </label>
       <footer>
-        <button type="submit">+</button>
+        <button type="submit">{transaction ? "🔄" : "➕"}</button>
       </footer>
     </form>
   );

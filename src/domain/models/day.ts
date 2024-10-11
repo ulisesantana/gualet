@@ -33,7 +33,7 @@ export class Day {
     return this.date.getUTCFullYear();
   }
 
-  toString(separator = "/") {
+  toString(separator = "-") {
     return (
       this.getYear() +
       separator +

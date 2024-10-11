@@ -5,7 +5,7 @@ import {
   defaultOutcomeCategories,
   defaultPaymentMethods,
   TransactionOperation,
-  UserSettings,
+  TransactionConfig,
 } from "@domain/models";
 import { Mock, vi } from "vitest";
 import { AddTransactionForm, AddTransactionFormProps } from "@components";
@@ -14,7 +14,7 @@ describe("AddTransactionForm", () => {
   let mockOnSubmit: Mock;
   let element: HTMLElement;
 
-  const mockSettings: UserSettings = {
+  const mockSettings: TransactionConfig = {
     paymentMethods: defaultPaymentMethods,
     incomeCategories: defaultIncomeCategories,
     outcomeCategories: defaultOutcomeCategories,
@@ -106,7 +106,7 @@ describe("AddTransactionForm", () => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit.mock.lastCall![0].amount).toBe(10.5);
       expect(mockOnSubmit.mock.lastCall![0].category.name).toBe("Rent");
-      expect(mockOnSubmit.mock.lastCall![0].date.toString()).toBe("2023/09/08");
+      expect(mockOnSubmit.mock.lastCall![0].date.toString()).toBe("2023-09-08");
       expect(mockOnSubmit.mock.lastCall![0].description).toBe(
         "Test transaction",
       );

@@ -1,6 +1,8 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { vi } from "vitest";
+import { SessionContext } from "@infrastructure/ui/contexts";
+import { Session } from "@supabase/supabase-js";
 
 import { Header } from "./Header";
 
@@ -8,36 +10,29 @@ import { Header } from "./Header";
 vi.mock("./Header.css", () => ({}));
 
 // Mock the LogoutButton component
-vi.mock("../LogoutButton", () => ({
+vi.mock("@infrastructure/ui/components", () => ({
   // @ts-ignore
-  LogoutButton: ({ onLogout }) => (
-    <button onClick={onLogout}>Mocked Logout</button>
-  ),
+  LogoutButton: () => <button>Mocked Logout</button>,
 }));
 
 describe("Header", () => {
-  const mockOnLogout = vi.fn();
-
   it("renders the header with the application name", () => {
-    render(<Header onLogout={mockOnLogout} />);
+    render(<Header />);
 
-    const appName = screen.getByText(/misperrapp/i);
+    const appName = screen.getByText(/gualet/i);
     expect(appName).toBeInTheDocument();
   });
 
-  it("renders the LogoutButton component", () => {
-    render(<Header onLogout={mockOnLogout} />);
+  it("renders the LogoutButton component when there is a session", () => {
+    render(
+      <SessionContext.Provider
+        value={{ session: {} as Session, setSession: () => {} }}
+      >
+        <Header />
+      </SessionContext.Provider>,
+    );
 
     const logoutButton = screen.getByText("Mocked Logout");
     expect(logoutButton).toBeInTheDocument();
-  });
-
-  it("calls onLogout when LogoutButton is clicked", () => {
-    render(<Header onLogout={mockOnLogout} />);
-
-    const logoutButton = screen.getByText("Mocked Logout");
-    fireEvent.click(logoutButton);
-
-    expect(mockOnLogout).toHaveBeenCalledTimes(1);
   });
 });

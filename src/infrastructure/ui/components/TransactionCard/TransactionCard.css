@@ -1,3 +1,7 @@
+a .transaction-card {
+    text-decoration: none;
+}
+
 .transaction-card {
     align-items: center;
     background: #e3f9ff;  /* fallback for old browsers */

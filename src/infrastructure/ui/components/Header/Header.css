@@ -2,13 +2,24 @@ header {
     align-items: center;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     margin-bottom: 1rem;
     padding: 1rem;
     height: 3rem;
 }
 
+header .content {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) {
-
+    .content {
+        max-width: 960px;
+    }
 }

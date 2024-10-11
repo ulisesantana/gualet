@@ -3,7 +3,7 @@ import { TransactionRepository } from "@application/repositories";
 
 import { UseCase } from "./use-case";
 
-export class AddTransaction implements UseCase<Transaction, Promise<void>> {
+export class SaveTransaction implements UseCase<Transaction, Promise<void>> {
   constructor(private readonly repository: TransactionRepository) {}
 
   exec(transaction: Transaction): Promise<void> {

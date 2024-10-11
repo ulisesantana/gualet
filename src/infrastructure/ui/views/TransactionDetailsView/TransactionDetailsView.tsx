@@ -1,0 +1,58 @@
+import React, { useEffect, useState } from "react";
+import "./TransactionDetailsView.css";
+import { EditTransactionForm, Loader } from "@components";
+import { Id, Transaction } from "@domain/models";
+import { GetTransaction, SaveTransaction } from "@application/cases";
+import { routes } from "@infrastructure/ui/routes";
+import { useRoute } from "wouter";
+import { Transition } from "react-transition-group";
+import { useTransactions } from "@infrastructure/ui/hooks";
+
+export function TransactionDetailsView() {
+  const [match, params] = useRoute(routes.transactions.details);
+  const { isReady, repository, transactionConfig } = useTransactions();
+  const [isLoading, setIsLoading] = useState(true);
+  const [transaction, setTransaction] = useState<Transaction | undefined>();
+
+  useEffect(() => {
+    if (repository) {
+      new GetTransaction(repository)
+        // @ts-ignore
+        .exec(new Id(params?.id))
+        .then(setTransaction)
+        .catch((error) => {
+          console.error("Error getting transaction");
+          console.error(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [isReady]);
+
+  const onSubmit = async (transaction: Transaction) => {
+    if (repository) {
+      await new SaveTransaction(repository).exec(transaction);
+    }
+  };
+
+  return (
+    <Transition in={match} timeout={500}>
+      <div className="transaction-details-view">
+        {isLoading ? (
+          <div className="loader-container">
+            <Loader />
+          </div>
+        ) : (
+          <>
+            <EditTransactionForm
+              transaction={transaction}
+              settings={transactionConfig}
+              onSubmit={onSubmit}
+            />
+          </>
+        )}
+      </div>
+    </Transition>
+  );
+}

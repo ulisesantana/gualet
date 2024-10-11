@@ -1,11 +1,10 @@
-.last-transactions-view {
+.transaction-details-view  {
     align-items: center;
     display: flex;
-    flex-direction: column;
     justify-content: center;
 }
 
-.last-transactions-view  .loader-container {
+.transaction-details-view  .loader-container {
     align-items: center;
     display: flex;
     justify-content: center;

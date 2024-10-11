@@ -24,22 +24,18 @@ export class PaymentMethod {
 
 export const defaultPaymentMethods = [
   new PaymentMethod({
-    id: new Id("default-payment-method-1"),
     icon: "💳",
     name: "Credit card",
   }),
   new PaymentMethod({
-    id: new Id("default-payment-method-2"),
     icon: "💶",
     name: "Cash",
   }),
   new PaymentMethod({
-    id: new Id("default-payment-method-3"),
     icon: "📱",
     name: "Bizum",
   }),
   new PaymentMethod({
-    id: new Id("default-payment-method-4"),
     icon: "🏦",
     name: "Bank transfer",
   }),

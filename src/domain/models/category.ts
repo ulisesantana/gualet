@@ -28,31 +28,26 @@ export class Category {
 
 export const defaultOutcomeCategories = [
   new Category({
-    id: new Id("default-category-1"),
     icon: "🏠",
     name: "Rent",
     type: TransactionOperation.Outcome,
   }),
   new Category({
-    id: new Id("default-category-2"),
     icon: "🛒",
     name: "Groceries",
     type: TransactionOperation.Outcome,
   }),
   new Category({
-    id: new Id("default-category-3"),
     icon: "🚗",
     name: "Transportation",
     type: TransactionOperation.Outcome,
   }),
   new Category({
-    id: new Id("default-category-4"),
     icon: "🎉",
     name: "Entertainment",
     type: TransactionOperation.Outcome,
   }),
   new Category({
-    id: new Id("default-category-5"),
     icon: "🎁",
     name: "Gifts",
     type: TransactionOperation.Outcome,
@@ -61,25 +56,21 @@ export const defaultOutcomeCategories = [
 
 export const defaultIncomeCategories = [
   new Category({
-    id: new Id("default-category-6"),
     icon: "💼",
     name: "Salary",
     type: TransactionOperation.Income,
   }),
   new Category({
-    id: new Id("default-category-7"),
     icon: "🧑‍💻",
     name: "Freelancing",
     type: TransactionOperation.Income,
   }),
   new Category({
-    id: new Id("default-category-8"),
     icon: "📈",
     name: "Investments",
     type: TransactionOperation.Income,
   }),
   new Category({
-    id: new Id("default-category-9"),
     icon: "🎁",
     name: "Gifts",
     type: TransactionOperation.Income,

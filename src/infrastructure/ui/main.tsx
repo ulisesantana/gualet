@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-
 import "./main.css";
 import "./forms.css";
 import "./theme.css";
+import { SessionProvider } from "@infrastructure/ui/contexts";
+
 import { App } from "./App";
 import { SettingsProvider } from "./contexts";
 
@@ -12,8 +13,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <SettingsProvider>
-      <App />
-    </SettingsProvider>
+    <SessionProvider>
+      <SettingsProvider>
+        <App />
+      </SettingsProvider>
+    </SessionProvider>
   </React.StrictMode>,
 );
