@@ -1,9 +1,9 @@
-import { Transaction, TransactionConfig } from "@domain/models";
+import { Transaction, UserSettings } from "@domain/models";
 
 export interface TransactionRepository {
   save(transaction: Transaction): Promise<void>;
 
   findLast(limit: number): Promise<Transaction[]>;
 
-  fetchTransactionConfig(): Promise<TransactionConfig>;
+  fetchTransactionConfig(): Promise<UserSettings>;
 }

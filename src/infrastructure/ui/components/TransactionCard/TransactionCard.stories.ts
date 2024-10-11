@@ -4,6 +4,7 @@ import {
   Category,
   Day,
   Id,
+  PaymentMethod,
   Transaction,
   TransactionOperation,
 } from "@domain/models";
@@ -29,7 +30,7 @@ export const OutTransaction: Story = {
     transaction: new Transaction({
       id: new Id(),
       date: new Day("2024-09-01"),
-      paymentMethod: "Credit card",
+      paymentMethod: new PaymentMethod({ icon: "💳", name: "Credit card" }),
       operation: TransactionOperation.Outcome,
       amount: 18.75,
       description: "SPAR",
@@ -47,7 +48,7 @@ export const InTransaction: Story = {
     transaction: new Transaction({
       id: new Id(),
       date: new Day("2024-09-01"),
-      paymentMethod: "Credit card",
+      paymentMethod: new PaymentMethod({ icon: "💳", name: "Credit card" }),
       operation: TransactionOperation.Income,
       amount: 1809.75,
       description: "SPAR",

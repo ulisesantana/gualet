@@ -1,6 +1,4 @@
-import { Id } from "./id";
-import { Category } from "./category";
-import { Day } from "./day";
+import { Id, Category, Day, PaymentMethod } from "@domain/models";
 
 export enum TransactionOperation {
   Income = "INCOME",
@@ -14,7 +12,7 @@ export interface TransactionParams {
   date: Day;
   description: string;
   operation: TransactionOperation;
-  paymentMethod: string;
+  paymentMethod: PaymentMethod;
 }
 
 export class Transaction {
@@ -24,7 +22,7 @@ export class Transaction {
   readonly date: Day;
   readonly description: string;
   readonly operation: TransactionOperation;
-  readonly paymentMethod: string;
+  readonly paymentMethod: PaymentMethod;
 
   constructor(input: TransactionParams) {
     this.id = input.id || new Id();
@@ -63,6 +61,6 @@ export class Transaction {
   }
 
   toString(): string {
-    return `Transaction for ${this.category.name} (${this.category.icon}) ${this.amountFormatted} on ${this.date.toString()} (${this.id.toString()}), via ${this.paymentMethod}`;
+    return `Transaction for ${this.category.title} (${this.amountFormatted}) on ${this.date.toString()} (${this.id.toString()}), via ${this.paymentMethod.title}`;
   }
 }

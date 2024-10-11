@@ -2,22 +2,17 @@ import {
   Category,
   Day,
   Transaction,
-  TransactionConfig,
   TransactionOperation,
+  UserSettings,
 } from "@domain/models";
 import React, { RefObject, useEffect, useRef } from "react";
 
+import { generateOnSubmitHandler } from "./submit-handler";
+
 export interface TransactionFormParams {
   transaction?: Transaction;
-  settings: TransactionConfig;
+  settings: UserSettings;
   onSubmit: (transaction: Transaction) => Promise<void>;
-}
-
-interface OnSubmitHandlerGeneratorParams {
-  originalTransaction?: Transaction;
-  categories: Category[];
-  onSubmit: (transaction: Transaction) => Promise<void>;
-  afterSubmit?: (transaction: Transaction) => void;
 }
 
 const dateSeparator = "-";
@@ -57,6 +52,7 @@ export function TransactionForm({
       setOperation(TransactionOperation.Outcome);
     },
     categories,
+    paymentMethods: settings.paymentMethods,
     onSubmit,
     originalTransaction: transaction,
   });
@@ -132,9 +128,12 @@ export function TransactionForm({
       <label>
         <span>Payment method:</span>
         <select name="payment-method" required>
-          {settings.types.map((type, index) => (
-            <option key={index} value={type}>
-              {type}
+          {settings.paymentMethods.map((paymentMethod) => (
+            <option
+              key={paymentMethod.id.toString()}
+              value={paymentMethod.title}
+            >
+              {paymentMethod.title}
             </option>
           ))}
         </select>
@@ -144,39 +143,4 @@ export function TransactionForm({
       </footer>
     </form>
   );
-}
-
-function generateOnSubmitHandler({
-  afterSubmit,
-  categories,
-  onSubmit,
-  originalTransaction,
-}: OnSubmitHandlerGeneratorParams) {
-  return (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const categoryTitle = formData.get("category") as string;
-    const category = categories.find((c) => c.title === categoryTitle);
-    if (!category) {
-      throw new Error(`Category ${categoryTitle} does not exist.`);
-    }
-
-    const transaction = new Transaction({
-      id: originalTransaction?.id,
-      amount: Number(formData.get("amount")),
-      category: category,
-      date: new Day(formData.get("date") as string),
-      description: formData.get("description") as string,
-      operation: formData.get("operation") as TransactionOperation,
-      paymentMethod: formData.get("payment-method") as string,
-    });
-
-    onSubmit(transaction).then(() => {
-      if (!originalTransaction && afterSubmit) {
-        form.reset();
-        afterSubmit(transaction);
-      }
-    });
-  };
 }

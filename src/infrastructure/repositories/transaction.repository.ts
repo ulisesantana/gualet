@@ -4,8 +4,9 @@ import {
   Category,
   Day,
   Id,
+  PaymentMethod,
   Transaction,
-  TransactionConfig,
+  UserSettings,
   TransactionOperation,
 } from "@domain/models";
 
@@ -57,7 +58,7 @@ export class TransactionRepositoryImplementation
         new Transaction({
           id: new Id(id),
           date: new Day(timestamp),
-          paymentMethod: type,
+          paymentMethod: new PaymentMethod({ name: type }),
           operation: operation as TransactionOperation,
           amount: Number(amount.replaceAll(".", "").replace(",", ".")),
           description,
@@ -75,18 +76,18 @@ export class TransactionRepositoryImplementation
     );
   }
 
-  async fetchTransactionConfig(): Promise<TransactionConfig> {
-    const settings: TransactionConfig = {
+  async fetchTransactionConfig(): Promise<UserSettings> {
+    const settings: UserSettings = {
       incomeCategories: [],
       outcomeCategories: [],
-      types: [],
+      paymentMethods: [],
     };
     const result = await this.gs.getValuesFromRange(`settings!A2:C100`);
 
     for (const [outcomeCategory, incomeCategory, type] of result) {
       outcomeCategory && settings.outcomeCategories.push(outcomeCategory);
       incomeCategory && settings.incomeCategories.push(incomeCategory);
-      type && settings.types.push(type);
+      type && settings.paymentMethods.push(type);
     }
 
     return settings;

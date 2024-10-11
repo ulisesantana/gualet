@@ -5,6 +5,7 @@ import {
   Category,
   Day,
   Id,
+  PaymentMethod,
   Transaction,
   TransactionOperation,
 } from "@domain/models";
@@ -24,7 +25,7 @@ describe("TransactionList", () => {
   const mockTransactions: Transaction[] = [
     new Transaction({
       date: new Day("2022/02/02"),
-      paymentMethod: "Credit card",
+      paymentMethod: new PaymentMethod({ icon: "💳", name: "Credit card" }),
       id: new Id("1"),
       amount: 100,
       category: new Category({
@@ -44,7 +45,7 @@ describe("TransactionList", () => {
         type: TransactionOperation.Income,
       }),
       operation: TransactionOperation.Income,
-      paymentMethod: "Bank transfer",
+      paymentMethod: new PaymentMethod({ icon: "🏦", name: "Bank transfer" }),
     }),
   ];
 

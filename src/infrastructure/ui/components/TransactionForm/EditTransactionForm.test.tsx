@@ -2,10 +2,13 @@ import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { EditTransactionForm, EditTransactionFormProps } from "@components";
 import {
-  Category,
   Day,
+  defaultIncomeCategories,
+  defaultOutcomeCategories,
+  defaultPaymentMethods,
   Transaction,
   TransactionOperation,
+  UserSettings,
 } from "@domain/models";
 import { Mock, vi } from "vitest";
 
@@ -13,19 +16,10 @@ describe("EditTransactionForm", () => {
   let mockOnSubmit: Mock;
   let element: HTMLElement;
 
-  const mockSettings = {
-    types: ["Cash", "Card"],
-    incomeCategories: [
-      new Category({ type: TransactionOperation.Income, name: "Salary" }),
-      new Category({ type: TransactionOperation.Income, name: "Investments" }),
-    ],
-    outcomeCategories: [
-      new Category({ type: TransactionOperation.Outcome, name: "Groceries" }),
-      new Category({
-        type: TransactionOperation.Outcome,
-        name: "Entertainment",
-      }),
-    ],
+  const mockSettings: UserSettings = {
+    paymentMethods: defaultPaymentMethods,
+    incomeCategories: defaultIncomeCategories,
+    outcomeCategories: defaultOutcomeCategories,
   };
 
   const mockTransaction = new Transaction({
@@ -34,7 +28,7 @@ describe("EditTransactionForm", () => {
     date: new Day("2023-09-08"),
     description: "",
     operation: TransactionOperation.Outcome,
-    paymentMethod: mockSettings.types[0],
+    paymentMethod: mockSettings.paymentMethods[0],
   });
 
   const setup = (overrides: Partial<EditTransactionFormProps> = {}) => {
@@ -70,7 +64,7 @@ describe("EditTransactionForm", () => {
       mockTransaction.description,
     );
     expect(screen.getByLabelText(/Payment method:/i)).toHaveValue(
-      mockTransaction.paymentMethod,
+      mockTransaction.paymentMethod.title,
     );
   });
 
@@ -126,7 +120,7 @@ describe("EditTransactionForm", () => {
       target: { value: "Test transaction" },
     });
     fireEvent.change(screen.getByLabelText(/Payment method:/i), {
-      target: { value: "Cash" },
+      target: { value: mockSettings.paymentMethods[1].title },
     });
 
     // Submit the form
@@ -135,12 +129,12 @@ describe("EditTransactionForm", () => {
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit.mock.lastCall![0].amount).toBe(10.5);
-      expect(mockOnSubmit.mock.lastCall![0].category.name).toBe("Groceries");
+      expect(mockOnSubmit.mock.lastCall![0].category.name).toBe("Rent");
       expect(mockOnSubmit.mock.lastCall![0].date.toString()).toBe("2023/09/08");
       expect(mockOnSubmit.mock.lastCall![0].description).toBe(
         "Test transaction",
       );
-      expect(mockOnSubmit.mock.lastCall![0].paymentMethod).toBe("Cash");
+      expect(mockOnSubmit.mock.lastCall![0].paymentMethod.name).toBe("Cash");
       expect(mockOnSubmit.mock.lastCall![0].operation).toBe(
         TransactionOperation.Outcome,
       );

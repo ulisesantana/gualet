@@ -11,7 +11,7 @@ import { useSettingsContext } from "@infrastructure/ui/contexts";
 import { TransactionRepository } from "@application/repositories";
 import { TransactionRepositoryImplementation } from "@infrastructure/repositories";
 import { GoogleSheetsDataSource } from "@infrastructure/data-sources";
-import { Transaction, TransactionConfig } from "@domain/models";
+import { Transaction, UserSettings } from "@domain/models";
 import {
   AddTransaction,
   GetLastTransactions,
@@ -26,13 +26,11 @@ export function LastTransactionsView({ onLogout }: HeaderProps) {
     ),
   );
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [transactionConfig, setTransactionConfig] = useState<TransactionConfig>(
-    {
-      incomeCategories: [],
-      outcomeCategories: [],
-      types: [],
-    },
-  );
+  const [transactionConfig, setTransactionConfig] = useState<UserSettings>({
+    incomeCategories: [],
+    outcomeCategories: [],
+    paymentMethods: [],
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

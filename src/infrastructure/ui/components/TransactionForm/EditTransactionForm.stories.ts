@@ -1,38 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import {
-  Category,
   Day,
+  defaultIncomeCategories,
+  defaultOutcomeCategories,
+  defaultPaymentMethods,
   Transaction,
   TransactionOperation,
 } from "@domain/models";
 import { EditTransactionForm } from "@components";
 
 const settings = {
-  incomeCategories: [
-    new Category({
-      icon: "💰",
-      type: TransactionOperation.Income,
-      name: "Salary",
-    }),
-    new Category({
-      icon: "🏷️",
-      type: TransactionOperation.Income,
-      name: "Sales",
-    }),
-  ],
-  outcomeCategories: [
-    new Category({
-      icon: "🚖",
-      type: TransactionOperation.Outcome,
-      name: "Taxi",
-    }),
-    new Category({
-      icon: "👨🏻‍🍳",
-      type: TransactionOperation.Outcome,
-      name: "Restaurant",
-    }),
-  ],
-  types: ["Credit card", "Cash", "Bizum", "Bank transfer"],
+  incomeCategories: defaultIncomeCategories,
+  outcomeCategories: defaultOutcomeCategories,
+  paymentMethods: defaultPaymentMethods,
 };
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -59,7 +39,7 @@ export const EditForm: Story = {
       date: new Day("2023-09-08"),
       description: "September salary",
       operation: TransactionOperation.Income,
-      paymentMethod: "Cash",
+      paymentMethod: settings.paymentMethods[0],
     }),
     async onSubmit() {},
     settings,

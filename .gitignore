@@ -24,6 +24,5 @@ yarn-error.log*
 
 .idea/
 .env
-misperrap*.json
 
 *storybook.log

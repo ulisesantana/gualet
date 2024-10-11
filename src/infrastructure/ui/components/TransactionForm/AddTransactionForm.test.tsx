@@ -1,26 +1,23 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { Category, TransactionOperation } from "@domain/models";
-import { vi, Mock } from "vitest";
+import {
+  defaultIncomeCategories,
+  defaultOutcomeCategories,
+  defaultPaymentMethods,
+  TransactionOperation,
+  UserSettings,
+} from "@domain/models";
+import { Mock, vi } from "vitest";
 import { AddTransactionForm, AddTransactionFormProps } from "@components";
 
 describe("AddTransactionForm", () => {
   let mockOnSubmit: Mock;
   let element: HTMLElement;
 
-  const mockSettings = {
-    types: ["Cash", "Card"],
-    incomeCategories: [
-      new Category({ type: TransactionOperation.Income, name: "Salary" }),
-      new Category({ type: TransactionOperation.Income, name: "Investments" }),
-    ],
-    outcomeCategories: [
-      new Category({ type: TransactionOperation.Outcome, name: "Groceries" }),
-      new Category({
-        type: TransactionOperation.Outcome,
-        name: "Entertainment",
-      }),
-    ],
+  const mockSettings: UserSettings = {
+    paymentMethods: defaultPaymentMethods,
+    incomeCategories: defaultIncomeCategories,
+    outcomeCategories: defaultOutcomeCategories,
   };
 
   const setup = (overrides: Partial<AddTransactionFormProps> = {}) => {
@@ -99,7 +96,7 @@ describe("AddTransactionForm", () => {
       target: { value: "Test transaction" },
     });
     fireEvent.change(screen.getByLabelText(/Payment method:/i), {
-      target: { value: "Cash" },
+      target: { value: mockSettings.paymentMethods[2].title },
     });
 
     // Submit the form
@@ -108,12 +105,12 @@ describe("AddTransactionForm", () => {
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit.mock.lastCall![0].amount).toBe(10.5);
-      expect(mockOnSubmit.mock.lastCall![0].category.name).toBe("Groceries");
+      expect(mockOnSubmit.mock.lastCall![0].category.name).toBe("Rent");
       expect(mockOnSubmit.mock.lastCall![0].date.toString()).toBe("2023/09/08");
       expect(mockOnSubmit.mock.lastCall![0].description).toBe(
         "Test transaction",
       );
-      expect(mockOnSubmit.mock.lastCall![0].paymentMethod).toBe("Cash");
+      expect(mockOnSubmit.mock.lastCall![0].paymentMethod.name).toBe("Bizum");
       expect(mockOnSubmit.mock.lastCall![0].operation).toBe(
         TransactionOperation.Outcome,
       );

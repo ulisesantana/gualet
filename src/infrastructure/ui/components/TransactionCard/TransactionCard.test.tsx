@@ -4,6 +4,7 @@ import {
   Category,
   Day,
   Id,
+  PaymentMethod,
   Transaction,
   TransactionOperation,
 } from "@domain/models";
@@ -24,7 +25,7 @@ describe("TransactionCard", () => {
     date: new Day("2024/09/12"),
     description: "Buying groceries",
     operation: TransactionOperation.Outcome,
-    paymentMethod: "Expense",
+    paymentMethod: new PaymentMethod({ icon: "💳", name: "Credit card" }),
   });
 
   it("renders transaction card with correct data", () => {

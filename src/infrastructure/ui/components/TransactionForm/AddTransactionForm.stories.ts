@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Category, TransactionOperation } from "@domain/models";
+import { Category, PaymentMethod, TransactionOperation } from "@domain/models";
 import { AddTransactionForm } from "@components";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -46,7 +46,12 @@ export const AddForm: Story = {
           name: "Restaurant",
         }),
       ],
-      types: ["Credit card", "Cash", "Bizum", "Bank transfer"],
+      types: [
+        new PaymentMethod({ icon: "💳", name: "Credit card" }),
+        new PaymentMethod({ icon: "💶", name: "Cash" }),
+        new PaymentMethod({ icon: "📱", name: "Bizum" }),
+        new PaymentMethod({ icon: "🏦", name: "Bank transfer" }),
+      ],
     },
   },
 };
