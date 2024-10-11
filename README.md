@@ -20,12 +20,12 @@
   - [ ] Read
   - [ ] Edit
   - [ ] Add
-  - [ ] Delete (let's skip this for now)
+  - [ ] Disable
 - [ ] READ payment methods
   - [ ] Read
   - [ ] Edit
   - [ ] Add
-  - [ ] Delete (let's skip this for now)
+  - [ ] Disable
 
 ### Development
 - [ ] Add husky for linting before commit and test before push.
