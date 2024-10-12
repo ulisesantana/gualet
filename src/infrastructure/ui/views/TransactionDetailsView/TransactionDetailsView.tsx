@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./TransactionDetailsView.css";
-import { EditCategoryForm, Loader } from "@components";
+import { EditTransactionForm, Loader } from "@components";
 import { Id, Transaction } from "@domain/models";
 import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
@@ -43,7 +43,8 @@ export function TransactionDetailsView() {
   const onRemove = () => {
     if (repository && transaction) {
       new RemoveTransactionUseCase(repository).exec(transaction.id).then(() => {
-        window.location.href = routes.root;
+        // @ts-ignore
+        window.location.href = import.meta.env.BASE_URL;
       });
     }
   };
@@ -59,7 +60,7 @@ export function TransactionDetailsView() {
           <div className="content">
             {transaction ? (
               <>
-                <EditCategoryForm
+                <EditTransactionForm
                   transaction={transaction}
                   settings={transactionConfig}
                   onSubmit={onSubmit}
