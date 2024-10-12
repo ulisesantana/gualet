@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import "./LastTransactionsView.css";
 import { AddTransactionForm, Loader, TransactionList } from "@components";
 import { Transaction } from "@domain/models";
-import { GetLastTransactions, SaveTransaction } from "@application/cases";
+import {
+  GetLastTransactionsUseCase,
+  SaveTransactionUseCase,
+} from "@application/cases";
 import { useTransactions } from "@infrastructure/ui/hooks";
 
 export function LastTransactionsView() {
@@ -13,7 +16,7 @@ export function LastTransactionsView() {
   useEffect(() => {
     if (isReady && repository) {
       setIsLoading(true);
-      new GetLastTransactions(repository)
+      new GetLastTransactionsUseCase(repository)
         .exec()
         .then(setTransactions)
         .catch((error) => {
@@ -28,7 +31,7 @@ export function LastTransactionsView() {
 
   const onSubmit = async (transaction: Transaction) => {
     if (repository) {
-      await new SaveTransaction(repository).exec(transaction);
+      await new SaveTransactionUseCase(repository).exec(transaction);
       setTransactions([transaction, ...transactions]);
     }
   };

@@ -1,0 +1,24 @@
+.category-details-view {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    width: 100%;
+}
+
+.category-details-view .loader-container {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: calc(100vh - 5rem);
+}
+
+.category-details-view .content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
+
+

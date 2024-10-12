@@ -1,5 +1,6 @@
 export const routes = {
   categories: {
+    add: "/categories/add",
     details: "/categories/details/:id",
     list: "/categories",
   },

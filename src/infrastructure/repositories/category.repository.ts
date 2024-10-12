@@ -1,14 +1,5 @@
 import { CategoryRepository } from "@application/repositories";
-import {
-  Category,
-  Day,
-  defaultIncomeCategories,
-  defaultOutcomeCategories,
-  defaultPaymentMethods,
-  Id,
-  PaymentMethod,
-  TransactionOperation,
-} from "@domain/models";
+import { Category, Id, TransactionOperation } from "@domain/models";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database, Tables } from "@infrastructure/data-sources/supabase";
 

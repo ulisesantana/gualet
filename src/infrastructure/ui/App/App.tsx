@@ -4,7 +4,9 @@ import {
   LastTransactionsView,
   LoginView,
   SettingsView,
+  CategoryDetailsView,
   TransactionDetailsView,
+  AddCategoryView,
 } from "@views";
 import { supabase } from "@infrastructure/data-sources";
 import { Header } from "@components";
@@ -38,11 +40,19 @@ export const App: React.FC = () => {
           {session ? (
             <>
               <Route path={routes.root} component={LastTransactionsView} />
+              {/*TRANSACTIONS*/}
               <Route
                 path={routes.transactions.details}
                 component={TransactionDetailsView}
               />
+              {/*CATEGORIES*/}
+              <Route path={routes.categories.add} component={AddCategoryView} />
+              <Route
+                path={routes.categories.details}
+                component={CategoryDetailsView}
+              />
               <Route path={routes.categories.list} component={CategoriesView} />
+              {/*SETTINGS*/}
               <Route path={routes.settings} component={SettingsView} />
             </>
           ) : (

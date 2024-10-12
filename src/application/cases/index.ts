@@ -7,4 +7,5 @@ export * from "./get-transaction-settings.use-case";
 export * from "./login.use-case";
 export * from "./logout.use-case";
 export * from "./save-transaction.use-case";
+export * from "./save-category.use-case";
 export * from "./sign-up.use-case";

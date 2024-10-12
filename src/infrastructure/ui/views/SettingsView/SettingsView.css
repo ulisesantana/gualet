@@ -5,7 +5,7 @@
     gap: 1rem;
     justify-content: center;
     list-style: none;
-    maring: 0;
+    margin: 0;
     padding: 0;
     width: 100%;
     max-width: 350px;
@@ -31,7 +31,7 @@
 .settings-view button.cta {
     color: initial;
     padding: 1rem;
-    width: 100%;
+    width: 320px;
 }
 
 @media (min-width: 768px) {

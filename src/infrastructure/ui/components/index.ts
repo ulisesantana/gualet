@@ -1,4 +1,5 @@
 export * from "./CategoryCard";
+export * from "./CategoryForm";
 export * from "./CategoryList";
 export * from "./Header";
 export * from "./Loader";

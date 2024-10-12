@@ -2,7 +2,7 @@ import { Transaction } from "@domain/models";
 import { TransactionRepository } from "@application/repositories";
 import { UseCase } from "@application/cases/use-case";
 
-export class GetLastTransactions
+export class GetLastTransactionsUseCase
   implements UseCase<number, Promise<Transaction[]>>
 {
   constructor(private readonly repository: TransactionRepository) {}

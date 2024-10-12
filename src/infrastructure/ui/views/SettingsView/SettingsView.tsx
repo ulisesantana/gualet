@@ -8,15 +8,20 @@ export function SettingsView() {
   return (
     <ul className="settings-view">
       <li>
-        <Link to={routes.categories.list}>
-          <button className="cta">Manage categories</button>
+        <Link to={routes.categories.add}>
+          <button className="cta">Add a new category</button>
         </Link>
       </li>
       <li>
         <Link to={routes.categories.list}>
-          <button className="cta">Manage payment methods</button>
+          <button className="cta">Manage categories</button>
         </Link>
       </li>
+      {/*<li>*/}
+      {/*  <Link to={routes.categories.list}>*/}
+      {/*    <button className="cta">Manage payment methods</button>*/}
+      {/*  </Link>*/}
+      {/*</li>*/}
       <li>
         <span>Logout</span>
         <LogoutButton />

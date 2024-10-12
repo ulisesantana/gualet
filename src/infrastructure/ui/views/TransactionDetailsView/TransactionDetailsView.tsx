@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "./TransactionDetailsView.css";
-import { EditTransactionForm, Loader } from "@components";
+import { EditCategoryForm, Loader } from "@components";
 import { Id, Transaction } from "@domain/models";
-import { GetTransaction, SaveTransaction } from "@application/cases";
 import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
 import { Transition } from "react-transition-group";
 import { useTransactions } from "@infrastructure/ui/hooks";
 import { RemoveTransactionUseCase } from "@application/cases/remove-transaction.use-case";
-import transactionCardStories from "@infrastructure/ui/components/TransactionCard/TransactionCard.stories";
+import {
+  GetTransactionUseCase,
+  SaveTransactionUseCase,
+} from "@application/cases";
 
 export function TransactionDetailsView() {
   const [match, params] = useRoute(routes.transactions.details);
@@ -18,7 +20,7 @@ export function TransactionDetailsView() {
 
   useEffect(() => {
     if (repository) {
-      new GetTransaction(repository)
+      new GetTransactionUseCase(repository)
         // @ts-ignore
         .exec(new Id(params?.id))
         .then(setTransaction)
@@ -34,7 +36,7 @@ export function TransactionDetailsView() {
 
   const onSubmit = async (transaction: Transaction) => {
     if (repository) {
-      await new SaveTransaction(repository).exec(transaction);
+      await new SaveTransactionUseCase(repository).exec(transaction);
     }
   };
 
@@ -57,7 +59,7 @@ export function TransactionDetailsView() {
           <div className="content">
             {transaction ? (
               <>
-                <EditTransactionForm
+                <EditCategoryForm
                   transaction={transaction}
                   settings={transactionConfig}
                   onSubmit={onSubmit}

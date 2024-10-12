@@ -3,7 +3,7 @@ import { useSession } from "@infrastructure/ui/contexts";
 import { TransactionRepositoryImplementation } from "@infrastructure/repositories";
 import { defaultTransactionConfig, TransactionConfig } from "@domain/models";
 import { supabase } from "@infrastructure/data-sources";
-import { GetTransactionConfig } from "@application/cases";
+import { GetTransactionConfigUseCase } from "@application/cases";
 
 export function useTransactions() {
   const { session } = useSession();
@@ -19,7 +19,7 @@ export function useTransactions() {
       const transactionRepositoryImplementation =
         new TransactionRepositoryImplementation(session.user.id, supabase);
       setRepository(transactionRepositoryImplementation);
-      new GetTransactionConfig(transactionRepositoryImplementation)
+      new GetTransactionConfigUseCase(transactionRepositoryImplementation)
         .exec()
         .then(setTransactionConfig)
         .finally(() => setIsReady(true));
