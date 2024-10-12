@@ -1,0 +1,43 @@
+.settings-view {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: center;
+    list-style: none;
+    maring: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 350px;
+}
+
+.settings-view li {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+}
+
+.settings-view li:last-child {
+    margin-top: 3rem;
+}
+
+.settings-view a {
+    color: initial;
+    text-decoration: none;
+}
+
+.settings-view button.cta {
+    color: initial;
+    padding: 1rem;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    max-width: 768px;
+}
+
+@media (min-width: 1200px) {
+    max-width: 960px;
+}

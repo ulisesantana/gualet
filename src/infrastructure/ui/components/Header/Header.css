@@ -37,6 +37,10 @@ header .logo-text {
     font-size: 1.5rem;
 }
 
+header .settings {
+    font-size: 2rem;
+}
+
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) {
     .content {

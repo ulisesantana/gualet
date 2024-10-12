@@ -12,7 +12,7 @@ import {
 import { vi } from "vitest";
 
 // Mock CSS import
-vi.mock("./TransactionList.css", () => ({ default: "irrelevant" }));
+vi.mock("./CategoryList.css", () => ({ default: "irrelevant" }));
 
 // Mock the TransactionCard component
 vi.mock("../TransactionCard", () => ({

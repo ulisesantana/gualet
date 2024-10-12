@@ -1,10 +1,10 @@
 export const routes = {
   categories: {
-    detail: "/categories/details/:id",
+    details: "/categories/details/:id",
     list: "/categories",
   },
   paymentMethods: {
-    detail: "/payment-methods/details/:id",
+    details: "/payment-methods/details/:id",
     list: "/payment-methods",
   },
   transactions: {

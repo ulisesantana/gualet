@@ -1,20 +1,7 @@
-import React, { RefObject, useRef, useState } from "react";
+import React, { useState } from "react";
 import { supabase } from "@infrastructure/data-sources";
 import "./LoginView.css";
-
-function signUpNewUser(email: string, password: string) {
-  return supabase.auth.signUp({
-    email,
-    password,
-  });
-}
-
-function signInWithEmail(email: string, password: string) {
-  return supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-}
+import { LoginUseCase, SignUpUseCase } from "@application/cases";
 
 interface GenerateOnSubmitHandlerParams {
   callback: () => void;
@@ -34,9 +21,9 @@ function generateOnSubmitHandler({
 
     if (email && password) {
       if (signUp) {
-        signUpNewUser(email, password).then(callback);
+        new SignUpUseCase(supabase).exec({ email, password }).then(callback);
       } else {
-        signInWithEmail(email, password);
+        new LoginUseCase(supabase).exec({ email, password });
       }
     }
   };

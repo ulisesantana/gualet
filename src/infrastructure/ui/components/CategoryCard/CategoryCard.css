@@ -1,0 +1,65 @@
+.category-card-container a {
+    text-decoration: none;
+    color: initial;
+}
+
+.category-card {
+    align-items: center;
+    background: #e3f9ff;  /* fallback for old browsers */
+    border-radius: 24px;
+    box-sizing: border-box;
+    display: grid;
+    font-size: 1rem;
+    grid-template-columns: 200px 100px;
+    grid-template-rows: 1fr;
+    gap: 8px;
+    grid-template-areas: "title type";
+    height: 80px;
+    padding: 8px 16px;
+    max-width: 100%;
+    width: 100%;
+}
+
+.category-card-title {
+    grid-area: title;
+}
+
+.category-card-type {
+    display: flex;
+    grid-area: type;
+    justify-content: center;
+    text-align: center;
+}
+
+.category-card .outcome, .category-card .income {
+    border-radius: 8px;
+    color: var(--light-primary-color);
+    font-weight: bolder;
+    padding: 8px;
+    text-transform: uppercase;
+}
+
+.category-card .outcome {
+    background-color: var(--danger-color);
+}
+
+.category-card .income {
+    background-color: var(--success-color);
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+}

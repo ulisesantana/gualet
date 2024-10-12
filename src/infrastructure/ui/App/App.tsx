@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
 import {
+  CategoriesView,
   LastTransactionsView,
   LoginView,
+  SettingsView,
   TransactionDetailsView,
 } from "@views";
 import { supabase } from "@infrastructure/data-sources";
@@ -40,6 +42,8 @@ export const App: React.FC = () => {
                 path={routes.transactions.details}
                 component={TransactionDetailsView}
               />
+              <Route path={routes.categories.list} component={CategoriesView} />
+              <Route path={routes.settings} component={SettingsView} />
             </>
           ) : (
             <LoginView />

@@ -3,7 +3,6 @@ import "./Header.css";
 import { Link } from "wouter";
 import { routes } from "@infrastructure/ui/routes";
 import { useSession } from "@infrastructure/ui/contexts";
-import { LogoutButton } from "@components";
 
 export function Header() {
   const { session } = useSession();
@@ -20,7 +19,11 @@ export function Header() {
             <span className="logo-text">Gualet</span>
           </span>
         </Link>
-        {session && <LogoutButton />}
+        {session && (
+          <span className="settings">
+            <Link to={routes.settings}>⚙️</Link>
+          </span>
+        )}
       </div>
     </header>
   );

@@ -1,0 +1,29 @@
+.category-card-list {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    grid-area: category-list;
+    justify-content: center;
+    list-style: none;
+    overflow: auto;
+    margin: 0;
+    padding: 0 0 1rem 0;
+    width: 100%;
+}
+
+.category-card-list li {
+    padding: 8px;
+}
+
+@media (min-width: 768px) {
+    .category-card-list {
+        justify-content: center;
+    }
+}
+
+@media (min-width: 1200px) {
+    .category-card-list {
+        justify-content: center;
+    }
+}
