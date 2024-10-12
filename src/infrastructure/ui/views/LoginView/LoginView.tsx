@@ -59,7 +59,7 @@ export function LoginForm() {
       </div>
       {showSignUp ? (
         <>
-          <form className="login-form" onSubmit={onSubmitHandler}>
+          <form className="sign-up-form" onSubmit={onSubmitHandler}>
             <label>
               <span>Email:</span>
               <input type="text" name="email" required />
@@ -68,6 +68,7 @@ export function LoginForm() {
               <span>Password:</span>
               <input type="password" name="password" required />
             </label>
+            <small>Password must contain at least 6 characters</small>
             <footer>
               <button type="submit">SIGN UP</button>
             </footer>

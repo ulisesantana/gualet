@@ -7,7 +7,7 @@
     width: 100%;
 }
 
-.success-message {
+.login-view .success-message {
     color: var(--success-color);
     font-size: 1.5rem;
     font-weight: bolder;
@@ -15,7 +15,7 @@
     text-align: center;
 }
 
-.form-selector {
+.login-view .login-view .form-selector {
     align-items: center;
     display: flex;
     justify-content: center;
@@ -23,26 +23,46 @@
     width: 100%;
 }
 
-.form-selector button {
+.login-view .form-selector button {
     background-color: var(--background-color);
     border: solid var(--primary-color) 2px;
+    color: var(--primary-color);
     font-size: 1rem;
     padding: 8px;
     width: 100px;
     transition: all ease-in-out 0.5s;
 }
 
-.form-selector button.selected {
+.login-view .form-selector button.selected {
     background-color: var(--primary-color);
     color: var(--background-color);
 }
 
-.form-selector button:nth-child(1) {
+.login-view .form-selector button:nth-child(1) {
     border-radius: 24px 0 0 24px;
 }
 
-.form-selector button:nth-child(2) {
+.login-view .form-selector button:nth-child(2) {
     border-radius: 0 24px 24px 0;
+}
+
+.login-view label {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-view form {
+    margin-top: 3rem;
+    width: 100%;
+}
+
+.login-view small {
+    color: gray;
+    width: calc(100% - 2rem);
+    text-align: center;
+    padding: 2rem 1rem 0;
 }
 
 @media (min-width: 768px) {
