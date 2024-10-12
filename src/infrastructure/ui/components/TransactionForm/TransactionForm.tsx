@@ -10,7 +10,7 @@ import React, { RefObject, useEffect, useRef } from "react";
 import { generateOnSubmitHandler } from "./submit-handler";
 
 export interface TransactionFormParams {
-  transaction: Transaction | undefined;
+  transaction?: Transaction | undefined;
   settings: TransactionConfig;
   onSubmit: (transaction: Transaction) => Promise<void>;
 }

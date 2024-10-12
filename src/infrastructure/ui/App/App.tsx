@@ -1,10 +1,13 @@
 import React, { useEffect } from "react";
-import { LastTransactionsView, LoginView } from "@views";
+import {
+  LastTransactionsView,
+  LoginView,
+  TransactionDetailsView,
+} from "@views";
 import { supabase } from "@infrastructure/data-sources";
 import { Header } from "@components";
 import { Route, Router } from "wouter";
 import { routes } from "@infrastructure/ui/routes";
-import { TransactionDetailsView } from "@infrastructure/ui/views/TransactionDetailsView";
 import { useSession } from "@infrastructure/ui/contexts";
 
 export const App: React.FC = () => {
@@ -25,6 +28,7 @@ export const App: React.FC = () => {
   }, []);
 
   return (
+    // @ts-ignore
     <Router base={import.meta.env.BASE_URL}>
       <div className="App">
         <Header />

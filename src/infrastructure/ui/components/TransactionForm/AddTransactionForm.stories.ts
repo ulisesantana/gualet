@@ -46,7 +46,7 @@ export const AddForm: Story = {
           name: "Restaurant",
         }),
       ],
-      types: [
+      paymentMethods: [
         new PaymentMethod({ icon: "💳", name: "Credit card" }),
         new PaymentMethod({ icon: "💶", name: "Cash" }),
         new PaymentMethod({ icon: "📱", name: "Bizum" }),
