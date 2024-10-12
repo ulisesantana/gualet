@@ -9,7 +9,7 @@ export interface TransactionListProps {
 }
 
 export function TransactionList({ transactions }: TransactionListProps) {
-  return (
+  return transactions.length ? (
     <ul className="transaction-card-list">
       {React.Children.toArray(
         transactions.map((transaction) => (
@@ -22,5 +22,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
         )),
       )}
     </ul>
+  ) : (
+    <span>There are no transactions</span>
   );
 }

@@ -1,12 +1,36 @@
-.transaction-details-view  {
+.transaction-details-view {
     align-items: center;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: start;
+    width: 100%;
 }
 
-.transaction-details-view  .loader-container {
+.transaction-details-view .loader-container {
     align-items: center;
     display: flex;
     justify-content: center;
     height: calc(100vh - 5rem);
 }
+
+.transaction-details-view .content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.transaction-details-view button.remove {
+    background-color: var(--danger-color);
+    border-color: transparent;
+    color: white;
+    font-size: 3rem;
+    font-weight: bold;
+    border-radius: 24px;
+    margin: 0;
+    padding: 8px 0;
+    width: 220px;
+    text-align: center;
+}
+

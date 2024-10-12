@@ -8,4 +8,6 @@ export interface TransactionRepository {
   findLast(limit: number): Promise<Transaction[]>;
 
   fetchTransactionConfig(): Promise<TransactionConfig>;
+
+  remove(id: Id): Promise<void>;
 }

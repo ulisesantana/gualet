@@ -7,6 +7,8 @@ import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
 import { Transition } from "react-transition-group";
 import { useTransactions } from "@infrastructure/ui/hooks";
+import { RemoveTransactionUseCase } from "@application/cases/remove-transaction.use-case";
+import transactionCardStories from "@infrastructure/ui/components/TransactionCard/TransactionCard.stories";
 
 export function TransactionDetailsView() {
   const [match, params] = useRoute(routes.transactions.details);
@@ -36,6 +38,14 @@ export function TransactionDetailsView() {
     }
   };
 
+  const onRemove = () => {
+    if (repository && transaction) {
+      new RemoveTransactionUseCase(repository).exec(transaction.id).then(() => {
+        window.location.href = routes.root;
+      });
+    }
+  };
+
   return (
     <Transition in={match} timeout={500}>
       <div className="transaction-details-view">
@@ -44,13 +54,22 @@ export function TransactionDetailsView() {
             <Loader />
           </div>
         ) : (
-          <>
-            <EditTransactionForm
-              transaction={transaction}
-              settings={transactionConfig}
-              onSubmit={onSubmit}
-            />
-          </>
+          <div className="content">
+            {transaction ? (
+              <>
+                <EditTransactionForm
+                  transaction={transaction}
+                  settings={transactionConfig}
+                  onSubmit={onSubmit}
+                />
+                <button className="remove" onClick={onRemove}>
+                  🚮
+                </button>
+              </>
+            ) : (
+              <h2>Transaction not found.</h2>
+            )}
+          </div>
         )}
       </div>
     </Transition>

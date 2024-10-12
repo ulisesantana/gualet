@@ -56,6 +56,19 @@ export class TransactionRepositoryImplementation
     }
   }
 
+  async remove(id: Id): Promise<void> {
+    const { error } = await this.sb
+      .from(this.dbName)
+      .delete()
+      .eq("user_id", this.userId)
+      .eq("id", id.toString());
+
+    if (error) {
+      console.error(`Error removing transaction ${id}`);
+      console.error(error);
+    }
+  }
+
   async findById(id: Id): Promise<Transaction> {
     const { data, error } = await this.sb
       .from(this.dbName)

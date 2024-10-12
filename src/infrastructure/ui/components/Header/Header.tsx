@@ -11,8 +11,13 @@ export function Header() {
     <header>
       <div className="content">
         <Link to={routes.root}>
-          <span>
-            <i>Gualet</i>
+          <span className="logo-container">
+            <img
+              className="logo-image"
+              src={"icons/gualet.png"}
+              alt="Gualet logo"
+            />
+            <span className="logo-text">Gualet</span>
           </span>
         </Link>
         {session && <LogoutButton />}

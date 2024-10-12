@@ -1,10 +1,15 @@
-import { defineConfig } from 'vitest/config';
+import {defineConfig} from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import {resolve} from "node:path";
+import {VitePWA} from "vite-plugin-pwa";
 
 export default defineConfig({
   base: '/gualet',
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+    })],
   test: {
     globals: true,
     environment: 'jsdom',

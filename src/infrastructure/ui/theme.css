@@ -1,5 +1,7 @@
 :root {
-    --light-gray: #f3f3f3; /* Light gray */
-    --primary-color: #0090ce; /* Blue */
-    --light-primary-color: #e3f9ff; /* Blue */
+    --light-gray: #f3f3f3;
+    --primary-color: #358A94;
+    --light-primary-color: #bdf0f9;
+    --background-color: #f9ffff;
+    --danger-color: #ff4f4f;
 }
