@@ -17,7 +17,7 @@ export function LastTransactionsView() {
     if (isReady && repository) {
       setIsLoading(true);
       new GetLastTransactionsUseCase(repository)
-        .exec()
+        .exec(25)
         .then(setTransactions)
         .catch((error) => {
           console.error("Error getting last transactions");

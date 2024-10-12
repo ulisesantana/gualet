@@ -60,6 +60,7 @@ export function TransactionDetailsView() {
           <div className="content">
             {transaction ? (
               <>
+                <p className="description">{transaction.toString()}</p>
                 <EditTransactionForm
                   transaction={transaction}
                   settings={transactionConfig}

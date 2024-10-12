@@ -80,10 +80,11 @@ export function TransactionForm({
         <span>Category:</span>
         <input
           list="category-options"
+          id="category-input"
           name="category"
           placeholder={transaction?.category.title || ""}
           defaultValue={transaction?.category.title || ""}
-          required
+          required={!transaction}
         />
         <datalist id="category-options">
           {categories.map((category) => (
@@ -127,7 +128,11 @@ export function TransactionForm({
 
       <label>
         <span>Payment method:</span>
-        <select name="payment-method" required>
+        <select
+          name="payment-method"
+          required
+          defaultValue={transaction?.paymentMethod.title}
+        >
           {settings.paymentMethods.map((paymentMethod) => (
             <option
               key={paymentMethod.id.toString()}

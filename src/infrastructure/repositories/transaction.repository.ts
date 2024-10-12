@@ -111,6 +111,7 @@ export class TransactionRepositoryImplementation
       )
       .eq("user_id", this.userId)
       .order("date", { ascending: false })
+      .order("created_at", { ascending: false })
       .limit(limit);
     if (error) {
       console.error(`Error retrieving last ${limit} transactions.`);

@@ -21,6 +21,12 @@
 }
 
 
+.transaction-details-view .content .description {
+    margin: 0;
+    padding: 1rem;
+}
+
+
 .transaction-details-view button.remove {
     background-color: var(--danger-color);
     border-color: transparent;

@@ -2,7 +2,7 @@
 
 ## Roadmap
 ### Features
-- [xxv] Create user
+- [x] Create user
   - [x] Use case
   - [x] UI
   - [x] Supabase
@@ -31,6 +31,9 @@
   - [ ] Add
   - [ ] Disable
 - [ ] Forgot password
+- [ ] Add feedback after editing 
+  - [ ] Transaction
+  - [ ] Category
 
 ### Development
 - [ ] Add husky for linting before commit and test before push.

@@ -44,7 +44,11 @@ export function generateOnSubmitHandler({
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const category = findCategory(formData.get("category") as string);
+    const categoryId = formData.get("category") as string;
+    const category =
+      originalTransaction && !categoryId
+        ? originalTransaction.category
+        : findCategory(categoryId);
     const paymentMethod = findPaymentMethod(
       formData.get("payment-method") as string,
     );
