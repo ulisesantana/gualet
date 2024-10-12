@@ -4,18 +4,18 @@
 ### Features
 - [ ] Create user
   - [ ] Use case
-  - [ ] UI
-  - [ ] Supabase
+  - [x] UI
+  - [x] Supabase
 - [ ] Login on the app
   - [ ] Use case
-  - [ ] UI
-  - [ ] Supabase
+  - [x] UI
+  - [x] Supabase
 - [ ] BREAD transactions
   - [ ] Browse
-  - [ ] Read
+  - [x] Read
   - [x] Edit
   - [x] Add
-  - [ ] Delete
+  - [x] Delete
 - [ ] READ categories
   - [ ] Read
   - [ ] Edit

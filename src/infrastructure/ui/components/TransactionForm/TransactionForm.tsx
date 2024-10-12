@@ -139,7 +139,7 @@ export function TransactionForm({
         </select>
       </label>
       <footer>
-        <button type="submit">{transaction ? "🔄" : "➕"}</button>
+        <button type="submit">{transaction ? "💾" : "➕"}</button>
       </footer>
     </form>
   );
