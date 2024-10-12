@@ -1,59 +1,61 @@
 form {
-  align-items: flex-end;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  list-style: none;
-  overflow: auto;
-  margin: 0;
-  padding: 0;
-  max-width: 350px;
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    list-style: none;
+    overflow: auto;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 350px;
 }
 
 form footer {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  padding: 3rem 0;
-  width: 100%;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+    width: 100%;
 }
 
 input,
 textarea,
 select,
 button {
-  font-size: 16px;
+    font-size: 16px;
 }
 
 input, datalist, select, button {
-  background-color: var(--light-primary-color);
-  border-color: transparent;
-  border-radius: 24px;
-  margin: 0;
-  padding: 8px 0;
-  width: 220px;
-  text-align: center;
+    background-color: var(--light-primary-color);
+    border-color: transparent;
+    border-radius: 24px;
+    margin: 0;
+    padding: 8px 0;
+    width: calc(100% - 150px);
+    text-align: center;
 }
 
 button[type=submit] {
-  background-color: var(--primary-color);
-  color: white;
-  font-weight: bold;
-  font-size: 3rem;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    font-size: 3rem;
+    width: 220px;
 }
 
 label {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  justify-content: space-between;
-  padding: 4px 0;
-  font-weight: bold;
-  width: 100%;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-weight: bold;
+    width: 100%;
 }
 
 label span {
-  text-align: left;
+    text-align: left;
 }
