@@ -2,12 +2,16 @@
 
 ## Roadmap
 ### Features
-- [ ] Create user
-  - [ ] Use case
+- [xxv] Create user
+  - [x] Use case
   - [x] UI
   - [x] Supabase
-- [ ] Login on the app
-  - [ ] Use case
+- [x] Login on the app
+  - [x] Use case
+  - [x] UI
+  - [x] Supabase
+- [x] Logout on the app
+  - [x] Use case
   - [x] UI
   - [x] Supabase
 - [ ] BREAD transactions
@@ -17,15 +21,16 @@
   - [x] Add
   - [x] Delete
 - [ ] READ categories
-  - [ ] Read
-  - [ ] Edit
-  - [ ] Add
+  - [x] Read
+  - [x] Edit
+  - [x] Add
   - [ ] Disable
 - [ ] READ payment methods
   - [ ] Read
   - [ ] Edit
   - [ ] Add
   - [ ] Disable
+- [ ] Forgot password
 
 ### Development
 - [ ] Add husky for linting before commit and test before push.
