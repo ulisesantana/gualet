@@ -17,8 +17,8 @@ import {
 
 interface Repositories {
   category: CategoryRepository;
-  paymentMethods: PaymentMethodRepository;
-  transactions: TransactionRepository;
+  paymentMethod: PaymentMethodRepository;
+  transaction: TransactionRepository;
   userPreferences: UserPreferencesRepository;
 }
 
@@ -35,11 +35,11 @@ export function useRepositories() {
           session.user.id,
           supabase,
         ),
-        paymentMethods: new PaymentMethodRepositoryImplementation(
+        paymentMethod: new PaymentMethodRepositoryImplementation(
           session.user.id,
           supabase,
         ),
-        transactions: new TransactionRepositoryImplementation(
+        transaction: new TransactionRepositoryImplementation(
           session.user.id,
           supabase,
         ),

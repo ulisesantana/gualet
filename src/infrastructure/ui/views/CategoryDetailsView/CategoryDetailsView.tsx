@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from "react";
 import "./CategoryDetailsView.css";
 import { EditCategoryForm, Loader } from "@components";
-import { Id, Category } from "@domain/models";
+import { Category, Id } from "@domain/models";
 import { GetCategoryUseCase, SaveCategoryUseCase } from "@application/cases";
 import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
 import { Transition } from "react-transition-group";
-import { useCategories } from "@infrastructure/ui/hooks";
+import { useRepositories } from "@infrastructure/ui/hooks";
 
 export function CategoryDetailsView() {
   const [match, params] = useRoute(routes.categories.details);
-  const { isReady, repository } = useCategories();
-  const [isLoading, setIsLoading] = useState(true);
+  const { isReady, repositories, isLoading, setIsLoading } = useRepositories();
   const [category, setCategory] = useState<Category | undefined>();
 
   useEffect(() => {
-    if (repository) {
-      new GetCategoryUseCase(repository)
+    if (repositories) {
+      new GetCategoryUseCase(repositories.category)
         // @ts-ignore
         .exec(new Id(params?.id))
         .then(setCategory)
@@ -31,8 +30,8 @@ export function CategoryDetailsView() {
   }, [isReady]);
 
   const onSubmit = async (category: Category) => {
-    if (repository) {
-      await new SaveCategoryUseCase(repository).exec(category);
+    if (repositories) {
+      await new SaveCategoryUseCase(repositories.category).exec(category);
     }
   };
 

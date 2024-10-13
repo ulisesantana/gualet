@@ -30,12 +30,12 @@ export function LastTransactionsView() {
   useEffect(() => {
     if (isReady && repositories) {
       setIsLoading(true);
-      new GetLastTransactionsUseCase(repositories.transactions)
+      new GetLastTransactionsUseCase(repositories.transaction)
         .exec(25)
         .then((transactions) => {
           setTransactions(transactions);
           return new GetTransactionConfigUseCase(
-            repositories.transactions,
+            repositories.transaction,
           ).exec();
         })
         .then((config) => {
@@ -57,7 +57,7 @@ export function LastTransactionsView() {
 
   const onSubmit = async (transaction: Transaction) => {
     if (repositories) {
-      await new SaveTransactionUseCase(repositories.transactions).exec(
+      await new SaveTransactionUseCase(repositories.transaction).exec(
         transaction,
       );
       setTransactions(

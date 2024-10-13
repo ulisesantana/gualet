@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
 import "./LastTransactionsView.css";
 import { CategoryList, Loader } from "@components";
-import { useCategories } from "@infrastructure/ui/hooks";
+import { useRepositories } from "@infrastructure/ui/hooks";
 import { Category } from "@domain/models";
 import { GetAllCategoriesUseCase } from "@application/cases";
 
 export function CategoriesView() {
-  const { isReady, repository } = useCategories();
+  const { isReady, repositories, isLoading, setIsLoading } = useRepositories();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isReady && repository) {
+    if (isReady && repositories) {
       setIsLoading(true);
-      new GetAllCategoriesUseCase(repository)
+      new GetAllCategoriesUseCase(repositories.category)
         .exec()
         .then(setCategories)
         .catch((error) => {

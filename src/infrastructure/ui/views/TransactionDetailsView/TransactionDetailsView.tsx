@@ -12,7 +12,7 @@ import {
 import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
 import { Transition } from "react-transition-group";
-import { useRepositories, useTransactions } from "@infrastructure/ui/hooks";
+import { useRepositories } from "@infrastructure/ui/hooks";
 import { RemoveTransactionUseCase } from "@application/cases/remove-transaction.use-case";
 import {
   GetTransactionConfigUseCase,
@@ -31,13 +31,13 @@ export function TransactionDetailsView() {
 
   useEffect(() => {
     if (repositories) {
-      new GetTransactionUseCase(repositories.transactions)
+      new GetTransactionUseCase(repositories.transaction)
         // @ts-ignore
         .exec(new Id(params?.id))
         .then((transaction) => {
           setTransaction(transaction);
           return new GetTransactionConfigUseCase(
-            repositories.transactions,
+            repositories.transaction,
           ).exec();
         })
         .then(setTransactionConfig)
@@ -53,7 +53,7 @@ export function TransactionDetailsView() {
 
   const onSubmit = async (transaction: Transaction) => {
     if (repositories) {
-      await new SaveTransactionUseCase(repositories.transactions).exec(
+      await new SaveTransactionUseCase(repositories.transaction).exec(
         transaction,
       );
     }
@@ -61,7 +61,7 @@ export function TransactionDetailsView() {
 
   const onRemove = () => {
     if (repositories && transaction) {
-      new RemoveTransactionUseCase(repositories.transactions)
+      new RemoveTransactionUseCase(repositories.transaction)
         .exec(transaction.id)
         .then(() => {
           // @ts-ignore

@@ -25,7 +25,7 @@ export function SettingsView() {
   useEffect(() => {
     if (isReady && repositories) {
       setIsLoading(true);
-      new GetAllPaymentMethodsUseCase(repositories.paymentMethods)
+      new GetAllPaymentMethodsUseCase(repositories.paymentMethod)
         .exec()
         .then((methods) => {
           setPaymentMethods(methods);
