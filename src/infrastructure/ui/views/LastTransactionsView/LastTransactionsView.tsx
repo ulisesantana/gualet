@@ -60,7 +60,17 @@ export function LastTransactionsView() {
       await new SaveTransactionUseCase(repositories.transactions).exec(
         transaction,
       );
-      setTransactions([transaction, ...transactions]);
+      setTransactions(
+        [transaction, ...transactions].sort((a, b) => {
+          if (a.date.toString() < b.date.toString()) {
+            return 1;
+          }
+          if (a.date.toString() > b.date.toString()) {
+            return -1;
+          }
+          return 0;
+        }),
+      );
     }
   };
 
