@@ -1,24 +1,50 @@
 import React, { useEffect, useState } from "react";
 import "./LastTransactionsView.css";
 import { AddTransactionForm, Loader, TransactionList } from "@components";
-import { Transaction } from "@domain/models";
+import {
+  defaultTransactionConfig,
+  defaultUserPreferences,
+  Transaction,
+  TransactionConfig,
+  UserPreferences,
+} from "@domain/models";
 import {
   GetLastTransactionsUseCase,
+  GetTransactionConfigUseCase,
+  GetUserPreferencesUseCase,
   SaveTransactionUseCase,
 } from "@application/cases";
-import { useTransactions } from "@infrastructure/ui/hooks";
+import { useRepositories, useTransactions } from "@infrastructure/ui/hooks";
 
 export function LastTransactionsView() {
-  const { isReady, repository, transactionConfig } = useTransactions();
+  const { isReady, repositories } = useRepositories();
+  const [transactionConfig, setTransactionConfig] = useState<TransactionConfig>(
+    defaultTransactionConfig,
+  );
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [preferences, setPreferences] = useState<UserPreferences>(
+    defaultUserPreferences,
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isReady && repository) {
+    if (isReady && repositories) {
       setIsLoading(true);
-      new GetLastTransactionsUseCase(repository)
+      new GetLastTransactionsUseCase(repositories.transactions)
         .exec(25)
-        .then(setTransactions)
+        .then((transactions) => {
+          setTransactions(transactions);
+          return new GetTransactionConfigUseCase(
+            repositories.transactions,
+          ).exec();
+        })
+        .then((config) => {
+          setTransactionConfig(config);
+          return new GetUserPreferencesUseCase(
+            repositories.userPreferences,
+          ).exec();
+        })
+        .then(setPreferences)
         .catch((error) => {
           console.error("Error getting last transactions");
           console.error(error);
@@ -30,8 +56,10 @@ export function LastTransactionsView() {
   }, [isReady]);
 
   const onSubmit = async (transaction: Transaction) => {
-    if (repository) {
-      await new SaveTransactionUseCase(repository).exec(transaction);
+    if (repositories) {
+      await new SaveTransactionUseCase(repositories.transactions).exec(
+        transaction,
+      );
       setTransactions([transaction, ...transactions]);
     }
   };
@@ -45,6 +73,7 @@ export function LastTransactionsView() {
       ) : (
         <>
           <AddTransactionForm
+            defaultPaymentMethod={preferences.defaultPaymentMethod.id.toString()}
             settings={transactionConfig}
             onSubmit={onSubmit}
           />

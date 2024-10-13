@@ -62,10 +62,10 @@ describe("AddTransactionForm", () => {
       mockSettings.outcomeCategories.length,
     );
     expect(initialCategories).toContain(
-      mockSettings.outcomeCategories[0].title,
+      mockSettings.outcomeCategories[0].id.toString(),
     );
     expect(initialCategories).toContain(
-      mockSettings.outcomeCategories[1].title,
+      mockSettings.outcomeCategories[1].id.toString(),
     );
 
     // Change operation to income
@@ -75,8 +75,12 @@ describe("AddTransactionForm", () => {
 
     const incomeCategories = getCategoryOptions();
     expect(incomeCategories).toHaveLength(mockSettings.incomeCategories.length);
-    expect(incomeCategories).toContain(mockSettings.incomeCategories[0].title);
-    expect(incomeCategories).toContain(mockSettings.incomeCategories[1].title);
+    expect(incomeCategories).toContain(
+      mockSettings.incomeCategories[0].id.toString(),
+    );
+    expect(incomeCategories).toContain(
+      mockSettings.incomeCategories[1].id.toString(),
+    );
   });
 
   it("calls onSubmit with correct transaction data on form submit", async () => {
@@ -87,7 +91,7 @@ describe("AddTransactionForm", () => {
       target: { value: 10.5 },
     });
     fireEvent.change(screen.getByLabelText(/Category:/i), {
-      target: { value: mockSettings.outcomeCategories[0].title },
+      target: { value: mockSettings.outcomeCategories[0].id.toString() },
     });
     fireEvent.change(screen.getByLabelText(/Date:/i), {
       target: { value: "2023-09-08" },
@@ -96,7 +100,7 @@ describe("AddTransactionForm", () => {
       target: { value: "Test transaction" },
     });
     fireEvent.change(screen.getByLabelText(/Payment method:/i), {
-      target: { value: mockSettings.paymentMethods[2].title },
+      target: { value: mockSettings.paymentMethods[2].id.toString() },
     });
 
     // Submit the form
@@ -126,7 +130,7 @@ describe("AddTransactionForm", () => {
       target: { value: 42.5 },
     });
     fireEvent.change(screen.getByLabelText(/Category:/i), {
-      target: { value: mockSettings.outcomeCategories[1].title },
+      target: { value: mockSettings.outcomeCategories[1].id.toString() },
     });
     fireEvent.change(screen.getByLabelText(/Date:/i), {
       target: { value: "2024-01-06" },

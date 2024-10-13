@@ -52,7 +52,7 @@ describe("EditTransactionForm", () => {
       mockTransaction.operation,
     );
     expect(
-      screen.findByDisplayValue(mockTransaction.category.title),
+      screen.findByDisplayValue(mockTransaction.category.id.toString()),
     ).not.toBeUndefined();
     expect(screen.getByLabelText(/Amount:/i)).toHaveValue(
       mockTransaction.amount,
@@ -64,7 +64,7 @@ describe("EditTransactionForm", () => {
       mockTransaction.description,
     );
     expect(screen.getByLabelText(/Payment method:/i)).toHaveValue(
-      mockTransaction.paymentMethod.title,
+      mockTransaction.paymentMethod.id.toString(),
     );
   });
 
@@ -86,10 +86,10 @@ describe("EditTransactionForm", () => {
       mockSettings.outcomeCategories.length,
     );
     expect(initialCategories).toContain(
-      mockSettings.outcomeCategories[0].title,
+      mockSettings.outcomeCategories[0].id.toString(),
     );
     expect(initialCategories).toContain(
-      mockSettings.outcomeCategories[1].title,
+      mockSettings.outcomeCategories[1].id.toString(),
     );
 
     // Change operation to income
@@ -99,8 +99,12 @@ describe("EditTransactionForm", () => {
 
     const incomeCategories = getCategoryOptions();
     expect(incomeCategories).toHaveLength(mockSettings.incomeCategories.length);
-    expect(incomeCategories).toContain(mockSettings.incomeCategories[0].title);
-    expect(incomeCategories).toContain(mockSettings.incomeCategories[1].title);
+    expect(incomeCategories).toContain(
+      mockSettings.incomeCategories[0].id.toString(),
+    );
+    expect(incomeCategories).toContain(
+      mockSettings.incomeCategories[1].id.toString(),
+    );
   });
 
   it("calls onSubmit with correct transaction data on form submit", async () => {
@@ -111,7 +115,7 @@ describe("EditTransactionForm", () => {
       target: { value: 10.5 },
     });
     fireEvent.change(screen.getByLabelText(/Category:/i), {
-      target: { value: mockSettings.outcomeCategories[0].title },
+      target: { value: mockSettings.outcomeCategories[0].id.toString() },
     });
     fireEvent.change(screen.getByLabelText(/Date:/i), {
       target: { value: "2023-09-08" },
@@ -120,7 +124,7 @@ describe("EditTransactionForm", () => {
       target: { value: "Test transaction" },
     });
     fireEvent.change(screen.getByLabelText(/Payment method:/i), {
-      target: { value: mockSettings.paymentMethods[1].title },
+      target: { value: mockSettings.paymentMethods[1].id.toString() },
     });
 
     // Submit the form

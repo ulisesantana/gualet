@@ -10,6 +10,7 @@ import React, { RefObject, useEffect, useRef } from "react";
 import { generateOnSubmitHandler } from "./submit-handler";
 
 export interface TransactionFormParams {
+  defaultPaymentMethod?: string;
   transaction?: Transaction | undefined;
   settings: TransactionConfig;
   onSubmit: (transaction: Transaction) => Promise<void>;
@@ -20,6 +21,7 @@ const dateSeparator = "-";
 export function TransactionForm({
   transaction,
   settings,
+  defaultPaymentMethod,
   onSubmit,
 }: TransactionFormParams) {
   const formRef: RefObject<HTMLFormElement> = useRef(null);
@@ -88,7 +90,9 @@ export function TransactionForm({
         />
         <datalist id="category-options">
           {categories.map((category) => (
-            <option key={category.id.toString()} value={category.title} />
+            <option key={category.id.toString()} value={category.id.toString()}>
+              {category.title}
+            </option>
           ))}
         </datalist>
       </label>
@@ -131,12 +135,14 @@ export function TransactionForm({
         <select
           name="payment-method"
           required
-          defaultValue={transaction?.paymentMethod.title}
+          defaultValue={
+            transaction?.paymentMethod.title || defaultPaymentMethod
+          }
         >
           {settings.paymentMethods.map((paymentMethod) => (
             <option
               key={paymentMethod.id.toString()}
-              value={paymentMethod.title}
+              value={paymentMethod.id.toString()}
             >
               {paymentMethod.title}
             </option>

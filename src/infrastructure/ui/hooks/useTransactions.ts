@@ -8,6 +8,7 @@ import { GetTransactionConfigUseCase } from "@application/cases";
 export function useTransactions() {
   const { session } = useSession();
   const [isReady, setIsReady] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [repository, setRepository] =
     useState<TransactionRepositoryImplementation | null>(null);
   const [transactionConfig, setTransactionConfig] = useState<TransactionConfig>(
@@ -30,5 +31,7 @@ export function useTransactions() {
     repository,
     transactionConfig,
     isReady,
+    isLoading,
+    setIsLoading,
   };
 }

@@ -4,3 +4,4 @@ export * from "./id";
 export * from "./payment-method";
 export * from "./transaction";
 export * from "./transaction-config";
+export * from "./user-preferences";

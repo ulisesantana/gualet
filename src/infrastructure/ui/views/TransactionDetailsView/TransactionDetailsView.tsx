@@ -1,31 +1,48 @@
 import React, { useEffect, useState } from "react";
 import "./TransactionDetailsView.css";
 import { EditTransactionForm, Loader } from "@components";
-import { Id, Transaction } from "@domain/models";
+import {
+  defaultTransactionConfig,
+  defaultUserPreferences,
+  Id,
+  Transaction,
+  TransactionConfig,
+  UserPreferences,
+} from "@domain/models";
 import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
 import { Transition } from "react-transition-group";
-import { useTransactions } from "@infrastructure/ui/hooks";
+import { useRepositories, useTransactions } from "@infrastructure/ui/hooks";
 import { RemoveTransactionUseCase } from "@application/cases/remove-transaction.use-case";
 import {
+  GetTransactionConfigUseCase,
   GetTransactionUseCase,
+  GetUserPreferencesUseCase,
   SaveTransactionUseCase,
 } from "@application/cases";
 
 export function TransactionDetailsView() {
   const [match, params] = useRoute(routes.transactions.details);
-  const { isReady, repository, transactionConfig } = useTransactions();
-  const [isLoading, setIsLoading] = useState(true);
+  const { isReady, repositories, isLoading, setIsLoading } = useRepositories();
   const [transaction, setTransaction] = useState<Transaction | undefined>();
+  const [transactionConfig, setTransactionConfig] = useState<TransactionConfig>(
+    defaultTransactionConfig,
+  );
 
   useEffect(() => {
-    if (repository) {
-      new GetTransactionUseCase(repository)
+    if (repositories) {
+      new GetTransactionUseCase(repositories.transactions)
         // @ts-ignore
         .exec(new Id(params?.id))
-        .then(setTransaction)
+        .then((transaction) => {
+          setTransaction(transaction);
+          return new GetTransactionConfigUseCase(
+            repositories.transactions,
+          ).exec();
+        })
+        .then(setTransactionConfig)
         .catch((error) => {
-          console.error("Error getting transaction");
+          console.error("Error getting data");
           console.error(error);
         })
         .finally(() => {
@@ -35,17 +52,21 @@ export function TransactionDetailsView() {
   }, [isReady]);
 
   const onSubmit = async (transaction: Transaction) => {
-    if (repository) {
-      await new SaveTransactionUseCase(repository).exec(transaction);
+    if (repositories) {
+      await new SaveTransactionUseCase(repositories.transactions).exec(
+        transaction,
+      );
     }
   };
 
   const onRemove = () => {
-    if (repository && transaction) {
-      new RemoveTransactionUseCase(repository).exec(transaction.id).then(() => {
-        // @ts-ignore
-        window.location.href = import.meta.env.BASE_URL;
-      });
+    if (repositories && transaction) {
+      new RemoveTransactionUseCase(repositories.transactions)
+        .exec(transaction.id)
+        .then(() => {
+          // @ts-ignore
+          window.location.href = import.meta.env.BASE_URL;
+        });
     }
   };
 

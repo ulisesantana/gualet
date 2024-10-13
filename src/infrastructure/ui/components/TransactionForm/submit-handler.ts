@@ -22,20 +22,20 @@ export function generateOnSubmitHandler({
   onSubmit,
   originalTransaction,
 }: OnSubmitHandlerGeneratorParams) {
-  function findCategory(categoryTitle: string) {
-    const category = categories.find((c) => c.title === categoryTitle);
+  function findCategory(categoryId: string) {
+    const category = categories.find((c) => c.id.equals(categoryId));
     if (!category) {
-      throw new Error(`Category ${categoryTitle} does not exist.`);
+      throw new Error(`Category ${categoryId} does not exist.`);
     }
     return category;
   }
 
-  function findPaymentMethod(paymentMethodTitle: string) {
-    const paymentMethod = paymentMethods.find(
-      (p) => p.title === paymentMethodTitle,
+  function findPaymentMethod(paymentMethodId: string) {
+    const paymentMethod = paymentMethods.find((p) =>
+      p.id.equals(paymentMethodId),
     );
     if (!paymentMethod) {
-      throw new Error(`Payment method ${paymentMethodTitle} does not exist.`);
+      throw new Error(`Payment method ${paymentMethodId} does not exist.`);
     }
     return paymentMethod;
   }
