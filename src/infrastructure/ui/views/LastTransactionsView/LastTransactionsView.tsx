@@ -14,7 +14,7 @@ import {
   GetUserPreferencesUseCase,
   SaveTransactionUseCase,
 } from "@application/cases";
-import { useRepositories, useTransactions } from "@infrastructure/ui/hooks";
+import { useRepositories } from "@infrastructure/ui/hooks";
 
 export function LastTransactionsView() {
   const { isReady, repositories } = useRepositories();
@@ -83,7 +83,7 @@ export function LastTransactionsView() {
       ) : (
         <>
           <AddTransactionForm
-            defaultPaymentMethod={preferences.defaultPaymentMethod.id.toString()}
+            defaultPaymentMethod={preferences.defaultPaymentMethod.title}
             settings={transactionConfig}
             onSubmit={onSubmit}
           />

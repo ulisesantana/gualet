@@ -90,9 +90,7 @@ export function TransactionForm({
         />
         <datalist id="category-options">
           {categories.map((category) => (
-            <option key={category.id.toString()} value={category.id.toString()}>
-              {category.title}
-            </option>
+            <option key={category.id.toString()} value={category.title} />
           ))}
         </datalist>
       </label>
@@ -142,7 +140,7 @@ export function TransactionForm({
           {settings.paymentMethods.map((paymentMethod) => (
             <option
               key={paymentMethod.id.toString()}
-              value={paymentMethod.id.toString()}
+              value={paymentMethod.title}
             >
               {paymentMethod.title}
             </option>
