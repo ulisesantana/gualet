@@ -34,6 +34,7 @@
 - [ ] Add feedback after editing 
   - [ ] Transaction
   - [ ] Category
+- [ ] Add cache to repository layer
 
 ### Development
 - [ ] Add husky for linting before commit and test before push.
