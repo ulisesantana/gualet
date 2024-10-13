@@ -23,6 +23,7 @@ describe("AddTransactionForm", () => {
   const setup = (overrides: Partial<AddTransactionFormProps> = {}) => {
     mockOnSubmit = vi.fn(async () => {});
     const props: AddTransactionFormProps = {
+      defaultPaymentMethod: defaultPaymentMethods[0].title,
       settings: mockSettings,
       onSubmit: mockOnSubmit,
       ...overrides,
@@ -62,10 +63,10 @@ describe("AddTransactionForm", () => {
       mockSettings.outcomeCategories.length,
     );
     expect(initialCategories).toContain(
-      mockSettings.outcomeCategories[0].id.toString(),
+      mockSettings.outcomeCategories[0].title,
     );
     expect(initialCategories).toContain(
-      mockSettings.outcomeCategories[1].id.toString(),
+      mockSettings.outcomeCategories[1].title,
     );
 
     // Change operation to income
@@ -75,12 +76,8 @@ describe("AddTransactionForm", () => {
 
     const incomeCategories = getCategoryOptions();
     expect(incomeCategories).toHaveLength(mockSettings.incomeCategories.length);
-    expect(incomeCategories).toContain(
-      mockSettings.incomeCategories[0].id.toString(),
-    );
-    expect(incomeCategories).toContain(
-      mockSettings.incomeCategories[1].id.toString(),
-    );
+    expect(incomeCategories).toContain(mockSettings.incomeCategories[0].title);
+    expect(incomeCategories).toContain(mockSettings.incomeCategories[1].title);
   });
 
   it("calls onSubmit with correct transaction data on form submit", async () => {
@@ -91,7 +88,7 @@ describe("AddTransactionForm", () => {
       target: { value: 10.5 },
     });
     fireEvent.change(screen.getByLabelText(/Category:/i), {
-      target: { value: mockSettings.outcomeCategories[0].id.toString() },
+      target: { value: mockSettings.outcomeCategories[0].title },
     });
     fireEvent.change(screen.getByLabelText(/Date:/i), {
       target: { value: "2023-09-08" },
@@ -100,7 +97,7 @@ describe("AddTransactionForm", () => {
       target: { value: "Test transaction" },
     });
     fireEvent.change(screen.getByLabelText(/Payment method:/i), {
-      target: { value: mockSettings.paymentMethods[2].id.toString() },
+      target: { value: mockSettings.paymentMethods[2].title },
     });
 
     // Submit the form
@@ -130,7 +127,7 @@ describe("AddTransactionForm", () => {
       target: { value: 42.5 },
     });
     fireEvent.change(screen.getByLabelText(/Category:/i), {
-      target: { value: mockSettings.outcomeCategories[1].id.toString() },
+      target: { value: mockSettings.outcomeCategories[1].title },
     });
     fireEvent.change(screen.getByLabelText(/Date:/i), {
       target: { value: "2024-01-06" },

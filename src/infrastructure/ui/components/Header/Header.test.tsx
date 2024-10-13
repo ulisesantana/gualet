@@ -12,7 +12,7 @@ vi.mock("./Header.css", () => ({}));
 // Mock the LogoutButton component
 vi.mock("@infrastructure/ui/components", () => ({
   // @ts-ignore
-  LogoutButton: () => <button>Mocked Logout</button>,
+  S: () => <button>Mocked Logout</button>,
 }));
 
 describe("Header", () => {
@@ -32,7 +32,7 @@ describe("Header", () => {
       </SessionContext.Provider>,
     );
 
-    const logoutButton = screen.getByText("Mocked Logout");
+    const logoutButton = screen.getByTestId("header-settings-cta");
     expect(logoutButton).toBeInTheDocument();
   });
 });

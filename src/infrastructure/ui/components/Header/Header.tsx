@@ -20,7 +20,7 @@ export function Header() {
           </span>
         </Link>
         {session && (
-          <span className="settings">
+          <span className="settings" data-testid="header-settings-cta">
             <Link to={routes.settings}>⚙️</Link>
           </span>
         )}

@@ -4,11 +4,6 @@ import { vi } from "vitest";
 import { LogoutButton } from "@components";
 import { supabase } from "@infrastructure/data-sources";
 
-// Mock the logout icon import
-vi.mock("./logout.png", () => ({
-  default: "mocked-logout-icon.png",
-}));
-
 vi.mock("@infrastructure/data-sources", () => ({
   supabase: {
     auth: {
@@ -27,7 +22,7 @@ describe("LogoutButton", () => {
     const image = screen.getByAltText("Logout");
 
     expect(button).toBeInTheDocument();
-    expect(image).toHaveAttribute("src", "mocked-logout-icon.png");
+    expect(image).toHaveAttribute("src", "/icons/logout.png");
   });
 
   it("calls the onLogout handler when clicked", () => {
