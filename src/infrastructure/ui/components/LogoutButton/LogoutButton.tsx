@@ -11,7 +11,7 @@ function onLogout() {
 export function LogoutButton() {
   return (
     <button className="logout-button" onClick={onLogout}>
-      <img src="icons/logout.png" alt="Logout" />
+      <img src="/icons/logout.png" alt="Logout" />
     </button>
   );
 }

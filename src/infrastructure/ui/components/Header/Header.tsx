@@ -13,7 +13,7 @@ export function Header() {
           <span className="logo-container">
             <img
               className="logo-image"
-              src={"icons/gualet.png"}
+              src={"/icons/gualet.png"}
               alt="Gualet logo"
             />
             <span className="logo-text">Gualet</span>
