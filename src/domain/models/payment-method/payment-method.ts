@@ -1,4 +1,4 @@
-import { Id } from "./id";
+import { Id } from "../id/id";
 
 export interface PaymentMethodParams {
   id?: Id;

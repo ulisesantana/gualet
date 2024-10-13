@@ -1,5 +1,5 @@
-import { Id } from "./id";
-import { TransactionOperation } from "./transaction";
+import { Id } from "../id/id";
+import { TransactionOperation } from "../transaction/transaction";
 
 export interface CategoryParams {
   id?: Id;

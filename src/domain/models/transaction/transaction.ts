@@ -1,5 +1,4 @@
 import { Id, Category, Day, PaymentMethod } from "@domain/models";
-import * as trace_events from "node:trace_events";
 
 export enum TransactionOperation {
   Income = "INCOME",
@@ -62,6 +61,6 @@ export class Transaction {
   }
 
   toString(): string {
-    return `Transaction ${this.description ? `"${this.description}"` : ""} in category ${this.category.title} with an amount of ${this.amountFormatted} on ${this.date.toString("/")}, via ${this.paymentMethod.title}`;
+    return `Transaction${this.description ? ` "${this.description}" ` : " "}in category ${this.category.title} with an amount of ${this.amountFormatted} on ${this.date.toString("/")}, via ${this.paymentMethod.title}`;
   }
 }
