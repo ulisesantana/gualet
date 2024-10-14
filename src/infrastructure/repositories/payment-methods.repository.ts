@@ -1,7 +1,8 @@
 import { PaymentMethodRepository } from "@application/repositories";
-import { PaymentMethod, Id, TransactionOperation } from "@domain/models";
+import { PaymentMethod, Id } from "@domain/models";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database, Tables } from "@infrastructure/data-sources/supabase";
+import { Nullable } from "@domain/types";
 
 type RawPaymentMethod = Tables<"payment_methods">;
 
@@ -29,17 +30,17 @@ export class PaymentMethodRepositoryImplementation
     }
   }
 
-  async findById(id: Id): Promise<PaymentMethod> {
+  async findById(id: Id): Promise<Nullable<PaymentMethod>> {
     const { data, error } = await this.sb
       .from(this.dbName)
       .select()
       .eq("user_id", this.userId)
       .eq("id", id.toString());
 
-    if (error) {
+    if (error || !data || !data[0]) {
       console.error(`Error fetching payment method ${id}.`);
       console.error(error);
-      throw new Error(`Payment method ${id} not found.`);
+      return null;
     }
 
     return PaymentMethodRepositoryImplementation.mapToPaymentMethod(data[0]);
@@ -55,7 +56,7 @@ export class PaymentMethodRepositoryImplementation
     if (error) {
       console.error(`Error fetching all payment methods.`);
       console.error(error);
-      throw new Error(`Payment methods not found.`);
+      return [];
     }
 
     return data.map(PaymentMethodRepositoryImplementation.mapToPaymentMethod);
