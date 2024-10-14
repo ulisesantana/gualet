@@ -34,6 +34,7 @@ export default defineConfig({
       "@components": resolve(__dirname, "src/infrastructure/ui/components"),
       "@domain": resolve(__dirname, "src/domain"),
       "@infrastructure": resolve(__dirname, "src/infrastructure"),
+      "@test": resolve(__dirname, "test"),
       "@views": resolve(__dirname, "src/infrastructure/ui/views"),
     },
   },

@@ -13,6 +13,7 @@
       "@components": ["src/infrastructure/ui/components/index.ts"],
       "@domain/*": ["src/domain/*"],
       "@infrastructure/*": ["src/infrastructure/*"],
+      "@test/*": ["test/*"],
       "@views": ["src/infrastructure/ui/views/index.ts"]
     },
     "skipLibCheck": true,
@@ -29,6 +30,7 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
+    "src",
+    "test"
   ]
 }
