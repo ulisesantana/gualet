@@ -1,6 +1,6 @@
 import { act } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { vi } from "vitest";
+import { vi, describe, it, beforeEach } from "vitest";
 import { LogoutButton } from "@components";
 import { supabase } from "@infrastructure/data-sources";
 
@@ -13,6 +13,10 @@ vi.mock("@infrastructure/data-sources", () => ({
 }));
 
 describe("LogoutButton", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("renders the button with the logout icon", () => {
     act(() => {
       render(<LogoutButton />);

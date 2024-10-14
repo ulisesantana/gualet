@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import { describe, expect, it, Mock, vi } from "vitest";
+import { describe, expect, it, Mock, vi, beforeEach } from "vitest";
 import { useSession } from "@infrastructure/ui/contexts";
 import { supabase } from "@infrastructure/data-sources";
 import {
@@ -12,7 +12,6 @@ import {
 
 import { useRepositories } from "./useRepositories";
 
-// Mock dependencies
 vi.mock("@infrastructure/ui/contexts", () => ({
   useSession: vi.fn(),
 }));
@@ -28,6 +27,10 @@ vi.mock("@infrastructure/repositories", () => ({
 }));
 
 describe("useRepositories", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("should initialize repositories when session is available", () => {
     // Mock session
     const mockSession = {
