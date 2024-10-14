@@ -1,4 +1,6 @@
 # gualet
+[![codecov](https://codecov.io/github/ulisesantana/gualet/graph/badge.svg?token=V6Dmg0n7al)](https://codecov.io/github/ulisesantana/gualet)
+
 
 ## Roadmap
 ### Features
