@@ -8,7 +8,13 @@ import prettierPlugin from "eslint-plugin-prettier";
 
 export default [
   {
-    files: ["src/**/*.ts", "src/**/*.tsx", ".storybook/**/*.ts"],
+    files: [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      ".storybook/**/*.ts",
+      "*.ts",
+      "*.js",
+    ],
     languageOptions: {
       parser: typescriptEslintParser,
       parserOptions: {
@@ -31,20 +37,29 @@ export default [
       "react/jsx-uses-react": "off", // React 17+ JSX
       "react/react-in-jsx-scope": "off", // React 17+ JSX
       "react/prop-types": "off", // Using TypeScript types instead of prop-types
-      "@typescript-eslint/no-unused-vars": ["warn", {argsIgnorePattern: "^_"}],
-      "import/order": ["error", {groups: [["builtin", "external", "internal"]], "newlines-between": "always"}],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_" },
+      ],
+      "import/order": [
+        "error",
+        {
+          groups: [["builtin", "external", "internal"]],
+          "newlines-between": "always",
+        },
+      ],
       "jsx-a11y/anchor-is-valid": "off", // Adjust for Next.js Link component
       "prettier/prettier": "error",
       "max-len": [
         "warn",
         {
-          "code": 80,
-          "tabWidth": 2,
-          "ignoreUrls": true,
-          "ignoreStrings": true,
-          "ignoreTemplateLiterals": true,
-          "ignoreComments": true
-        }
+          code: 80,
+          tabWidth: 2,
+          ignoreUrls: true,
+          ignoreStrings: true,
+          ignoreTemplateLiterals: true,
+          ignoreComments: true,
+        },
       ],
     },
     settings: {
