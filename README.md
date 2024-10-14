@@ -35,7 +35,9 @@
   - [ ] Transaction
   - [ ] Category
 - [ ] Add cache to repository layer
+- [ ] Add version on settings page
 
 ### Development
 - [ ] Add husky for linting before commit and test before push.
 - [x] Fix storybook
+- [ ] Automate versioning (standard-version)
