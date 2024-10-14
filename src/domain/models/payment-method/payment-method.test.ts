@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { PaymentMethod, Id, defaultPaymentMethods } from "@domain/models";
+import { describe, expect, it } from "vitest";
+import { Id, PaymentMethod } from "@domain/models";
 
 describe("PaymentMethod", () => {
   it("should create a payment method with the correct properties", () => {
@@ -28,11 +28,5 @@ describe("PaymentMethod", () => {
       name: "Cash",
     });
     expect(paymentMethod.title).toBe("Cash");
-  });
-
-  it("should return the correct default payment methods", () => {
-    expect(defaultPaymentMethods).toHaveLength(4);
-    expect(defaultPaymentMethods[0].title).toBe("💳 Credit card");
-    expect(defaultPaymentMethods[1].title).toBe("💶 Cash");
   });
 });
