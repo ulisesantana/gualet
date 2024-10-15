@@ -53,5 +53,7 @@ jobs:
       - name: 🚀 Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-      - name: Codecov
-        uses: codecov/codecov-action@v3.1.1
+      - name: ⏫ Upload results to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
