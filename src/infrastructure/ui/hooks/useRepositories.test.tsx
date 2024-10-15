@@ -15,9 +15,6 @@ import { useRepositories } from "./useRepositories";
 vi.mock("@infrastructure/ui/contexts", () => ({
   useSession: vi.fn(),
 }));
-vi.mock("@infrastructure/data-sources", () => ({
-  supabase: vi.fn(),
-}));
 vi.mock("@infrastructure/repositories", () => ({
   CategoryRepositoryImplementation: vi.fn(),
   PaymentMethodRepositoryImplementation: vi.fn(),

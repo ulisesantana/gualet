@@ -4,14 +4,6 @@ import { vi, describe, it, beforeEach } from "vitest";
 import { LogoutButton } from "@components";
 import { supabase } from "@infrastructure/data-sources";
 
-vi.mock("@infrastructure/data-sources", () => ({
-  supabase: {
-    auth: {
-      signOut: vi.fn(),
-    },
-  },
-}));
-
 describe("LogoutButton", () => {
   beforeEach(() => {
     vi.clearAllMocks();
