@@ -3,21 +3,18 @@ import "./TransactionDetailsView.css";
 import { EditTransactionForm, Loader } from "@components";
 import {
   defaultTransactionConfig,
-  defaultUserPreferences,
   Id,
   Transaction,
   TransactionConfig,
-  UserPreferences,
 } from "@domain/models";
 import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
 import { Transition } from "react-transition-group";
 import { useRepositories } from "@infrastructure/ui/hooks";
-import { RemoveTransactionUseCase } from "@application/cases/remove-transaction.use-case";
 import {
   GetTransactionConfigUseCase,
   GetTransactionUseCase,
-  GetUserPreferencesUseCase,
+  RemoveTransactionUseCase,
   SaveTransactionUseCase,
 } from "@application/cases";
 

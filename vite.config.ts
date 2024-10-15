@@ -9,6 +9,32 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
+      manifest: {
+        short_name: "Gualet",
+        name: "Gualet",
+        icons: [
+          {
+            src: "icons/gualet.png",
+            sizes: "64x64 32x32 24x24 16x16",
+            type: "image/png",
+          },
+          {
+            src: "icons/gualet.png",
+            type: "image/png",
+            sizes: "192x192",
+          },
+          {
+            src: "icons/gualet.png",
+            type: "image/png",
+            sizes: "512x512",
+          },
+        ],
+        display: "standalone",
+        start_url: ".",
+        theme_color: "#358A94",
+        background_color: "#f9ffff",
+        description: "Track your expenses.",
+      },
     }),
   ],
   test: {

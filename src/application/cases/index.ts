@@ -8,6 +8,7 @@ export * from "./get-transaction-settings/get-transaction-settings.use-case";
 export * from "./get-user-preferences/get-user-preferences.use-case";
 export * from "./login/login.use-case";
 export * from "./logout/logout.use-case";
+export * from "./remove-transaction/remove-transaction.use-case";
 export * from "./save-category/save-category.use-case";
 export * from "./save-transaction/save-transaction.use-case";
 export * from "./save-user-preferences/save-user-preferences.use-case";
