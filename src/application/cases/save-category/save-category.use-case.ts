@@ -1,7 +1,6 @@
 import { Category } from "@domain/models";
 import { CategoryRepository } from "@application/repositories";
-
-import { UseCase } from "./use-case";
+import { UseCase } from "@application/cases/use-case";
 
 export class SaveCategoryUseCase implements UseCase<Category, Promise<void>> {
   constructor(private readonly repository: CategoryRepository) {}
