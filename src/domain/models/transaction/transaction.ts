@@ -10,7 +10,7 @@ export interface TransactionParams {
   amount: number;
   category: Category;
   date: Day;
-  description: string;
+  description?: string;
   operation: TransactionOperation;
   paymentMethod: PaymentMethod;
 }
@@ -29,7 +29,7 @@ export class Transaction {
     this.amount = input.amount;
     this.category = input.category;
     this.date = input.date;
-    this.description = input.description;
+    this.description = input.description?.trim() || "";
     this.operation = input.operation;
     this.paymentMethod = input.paymentMethod;
   }

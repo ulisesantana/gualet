@@ -36,6 +36,25 @@ describe("Transaction", () => {
 
     expect(transaction.id).toBeInstanceOf(Id);
     expect(transaction.amount).toBe(1000);
+    expect(transaction.description).toBe("Supermarket shopping");
+    expect(transaction.category).toEqual(mockCategory);
+    expect(transaction.isOutcome()).toBe(true);
+    expect(transaction.paymentMethod).toEqual(mockPaymentMethod);
+  });
+
+  it("should trim given description", () => {
+    const transaction = new Transaction({
+      amount: 1000,
+      category: mockCategory,
+      date: mockDay,
+      description: "  Supermarket shopping  ",
+      operation: TransactionOperation.Outcome,
+      paymentMethod: mockPaymentMethod,
+    });
+
+    expect(transaction.id).toBeInstanceOf(Id);
+    expect(transaction.amount).toBe(1000);
+    expect(transaction.description).toBe("Supermarket shopping");
     expect(transaction.category).toEqual(mockCategory);
     expect(transaction.isOutcome()).toBe(true);
     expect(transaction.paymentMethod).toEqual(mockPaymentMethod);
