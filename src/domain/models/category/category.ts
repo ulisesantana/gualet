@@ -16,9 +16,9 @@ export class Category {
 
   constructor(input: CategoryParams) {
     this.id = input.id || new Id();
-    this.name = input.name;
+    this.name = input.name.trim();
     this.type = input.type;
-    this.icon = input.icon || "";
+    this.icon = input.icon?.trim() || "";
   }
 
   get title() {

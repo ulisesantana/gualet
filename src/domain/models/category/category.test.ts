@@ -22,6 +22,28 @@ describe("Category", () => {
     expect(category.title).toBe("🛒 Groceries");
   });
 
+  it("should trim given name", () => {
+    const category = new Category({
+      name: " Groceries ",
+      type: TransactionOperation.Outcome,
+      icon: "🛒",
+    });
+
+    expect(category.name).toBe("Groceries");
+    expect(category.title).toBe("🛒 Groceries");
+  });
+
+  it("should trim given icon", () => {
+    const category = new Category({
+      name: " Groceries ",
+      type: TransactionOperation.Outcome,
+      icon: "  🛒  ",
+    });
+
+    expect(category.icon).toBe("🛒");
+    expect(category.title).toBe("🛒 Groceries");
+  });
+
   it("should create a category without an icon", () => {
     const category = new Category({
       name: "Savings",
