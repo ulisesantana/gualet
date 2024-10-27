@@ -2,8 +2,9 @@ import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { CategoryRepository } from "@application/repositories";
 import { Category, Id, TransactionOperation } from "@domain/models";
 import { GetCategoryUseCase } from "@application/cases";
+import { CategoryNotFoundError } from "@domain/errors";
 
-const mockCategoryRepository: CategoryRepository = {
+const mockRepository: CategoryRepository = {
   save: vi.fn(),
   findById: vi.fn(),
   findAll: vi.fn(),
@@ -24,13 +25,26 @@ describe("GetCategoryUseCase", () => {
 
     const mockId = new Id("cat1");
 
-    (mockCategoryRepository.findById as Mock).mockResolvedValue(mockCategory);
+    (mockRepository.findById as Mock).mockResolvedValue(mockCategory);
 
-    const useCase = new GetCategoryUseCase(mockCategoryRepository);
+    const useCase = new GetCategoryUseCase(mockRepository);
     const category = await useCase.exec(mockId);
 
     expect(category).toEqual(mockCategory);
-    expect(mockCategoryRepository.findById).toHaveBeenCalledWith(mockId);
-    expect(mockCategoryRepository.findById).toHaveBeenCalledTimes(1);
+    expect(mockRepository.findById).toHaveBeenCalledWith(mockId);
+    expect(mockRepository.findById).toHaveBeenCalledTimes(1);
+  });
+
+  it("should throw CategoryNotFoundError if transaction is not found", async () => {
+    mockRepository.findById = vi.fn().mockResolvedValue(null);
+
+    const useCase = new GetCategoryUseCase(mockRepository);
+
+    await expect(useCase.exec(new Id("non-existent"))).rejects.toThrowError(
+      new CategoryNotFoundError(new Id("non-existent")),
+    );
+    expect(mockRepository.findById).toHaveBeenCalledWith(
+      new Id("non-existent"),
+    );
   });
 });
