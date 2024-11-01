@@ -20,6 +20,7 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const AddForm: Story = {
   args: {
+    defaultPaymentMethod: "💳 Credit card",
     async onSubmit() {},
     settings: {
       incomeCategories: [

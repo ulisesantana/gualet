@@ -1,7 +1,7 @@
 import { Transaction } from "@domain/models";
 import { TransactionRepository } from "@application/repositories";
 
-import { UseCase } from "./use-case";
+import { UseCase } from "../use-case";
 
 export class SaveTransactionUseCase
   implements UseCase<Transaction, Promise<void>>

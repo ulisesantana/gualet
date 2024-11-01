@@ -1,7 +1,7 @@
 import { UserPreferences } from "@domain/models";
 import { UserPreferencesRepository } from "@application/repositories";
 
-import { UseCase } from "./use-case";
+import { UseCase } from "../use-case";
 
 export class SaveUserPreferencesUseCase
   implements UseCase<UserPreferences, Promise<void>>
