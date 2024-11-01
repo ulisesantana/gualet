@@ -4,7 +4,7 @@ import { TransactionRepository } from "@application/repositories";
 import { Transaction } from "@domain/models";
 import { TransactionBuilder } from "@test/builders";
 
-describe("SaveTransactionUseCase", () => {
+describe("Save transaction use case", () => {
   let mockTransactionRepository: Mocked<TransactionRepository>;
   let saveTransactionUseCase: SaveTransactionUseCase;
 
