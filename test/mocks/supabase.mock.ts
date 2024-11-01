@@ -5,6 +5,7 @@ export class MockSupabaseClient {
     signIn: vi.fn().mockResolvedValue({user: null, session: null}),
     signInWithPassword: vi.fn().mockResolvedValue({user: null, session: null}),
     signOut: vi.fn().mockResolvedValue({error: null}),
+    signUp: vi.fn().mockResolvedValue({error: null}),
     session: vi.fn().mockReturnValue(null),
   };
   from = vi.fn(() => this);
