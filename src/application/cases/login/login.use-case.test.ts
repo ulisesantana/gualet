@@ -1,5 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { beforeEach, describe, it } from "vitest";
+import { describe, it, beforeEach } from "vitest";
 import { MockSupabaseClient } from "@test/mocks";
 
 import { LoginUseCase } from "./login.use-case";
@@ -36,5 +36,14 @@ describe("Login use case should", () => {
     await expect(loginUseCase.exec(input)).rejects.toThrow(
       "Authentication failed",
     );
+  });
+
+  it("completes without errors when credentials are valid and login succeeds", async () => {
+    const input = { email: "user@example.com", password: "password123" };
+
+    // Simulate a successful login response
+    mockSupabaseClient.auth.signInWithPassword.mockResolvedValue({});
+
+    await expect(loginUseCase.exec(input)).resolves.not.toThrow();
   });
 });
