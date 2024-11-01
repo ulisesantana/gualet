@@ -3,6 +3,7 @@ import {vi} from "vitest";
 export class MockSupabaseClient {
   auth = {
     signIn: vi.fn().mockResolvedValue({user: null, session: null}),
+    signInWithPassword: vi.fn().mockResolvedValue({user: null, session: null}),
     signOut: vi.fn().mockResolvedValue({error: null}),
     session: vi.fn().mockReturnValue(null),
   };
