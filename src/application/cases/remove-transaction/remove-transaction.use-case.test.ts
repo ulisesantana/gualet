@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TransactionRepository } from "@application/repositories";
 import { Id } from "@domain/models";
-
-import { RemoveTransactionUseCase } from "./remove-transaction.use-case";
+import { RemoveTransactionUseCase } from "@application/cases";
 
 describe("RemoveTransactionUseCase", () => {
   let mockTransactionRepository: TransactionRepository;
