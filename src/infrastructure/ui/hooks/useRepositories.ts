@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSession } from "@infrastructure/ui/contexts";
-import { supabase } from "@infrastructure/data-sources";
+import { LocalStorageDataSource, supabase } from "@infrastructure/data-sources";
 import {
   CategoryRepositoryImplementation,
-  LocalStorageRepository,
   PaymentMethodRepositoryImplementation,
   TransactionRepositoryImplementation,
   UserPreferencesRepositoryImplementation,
@@ -44,7 +43,7 @@ export function useRepositories() {
           supabase,
         ),
         userPreferences: new UserPreferencesRepositoryImplementation(
-          new LocalStorageRepository("user"),
+          new LocalStorageDataSource("user"),
         ),
       });
       setIsReady(true);

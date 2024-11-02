@@ -55,7 +55,10 @@ describe("CategoryRepositoryImplementation", () => {
         .spyOn(console, "error")
         .mockImplementation(() => {});
 
-      mockSupabaseClient.withResult({ error: new Error("Upsert failed") });
+      mockSupabaseClient.withResult({
+        data: [],
+        error: new Error("Upsert failed"),
+      });
 
       await categoryRepository.save(category);
 
@@ -77,7 +80,7 @@ describe("CategoryRepositoryImplementation", () => {
     });
 
     it("should throw an error if the category is not found", async () => {
-      mockSupabaseClient.withResult({ error: new Error("Boom!") });
+      mockSupabaseClient.withResult({ data: [], error: new Error("Boom!") });
 
       await expect(
         categoryRepository.findById(new Id("cat-1")),
@@ -86,7 +89,7 @@ describe("CategoryRepositoryImplementation", () => {
 
     it("should throw an error if fetching the category fails", async () => {
       mockSupabaseClient.withResult({
-        data: null,
+        data: [],
         error: new Error("Database error"),
       });
 
@@ -126,7 +129,7 @@ describe("CategoryRepositoryImplementation", () => {
 
     it("should throw an error if fetching all categories fails", async () => {
       mockSupabaseClient.withResult({
-        data: null,
+        data: [],
         error: new Error("Database error"),
       });
 

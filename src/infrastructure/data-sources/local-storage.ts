@@ -1,4 +1,4 @@
-export class LocalStorageRepository {
+export class LocalStorageDataSource {
   constructor(private namespace: string) {}
 
   get(itemName: string) {

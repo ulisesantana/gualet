@@ -1,5 +1,10 @@
 import {vi} from "vitest";
 
+interface SupabaseResult {
+  data: any[]
+  error?: any
+}
+
 export class MockSupabaseClient {
   auth = {
     signIn: vi.fn().mockResolvedValue({user: null, session: null}),
@@ -17,15 +22,22 @@ export class MockSupabaseClient {
   update = vi.fn(() => this);
   upsert = vi.fn(() => this);
   delete = vi.fn(() => this);
-  private result = {error: null}
+  private result: SupabaseResult[] = [{data: []}]
 
-  withResult(x: any) {
-    this.result = x
+  withResult(newResult: SupabaseResult | SupabaseResult[]) {
+    if (Array.isArray(newResult)) {
+      this.result = newResult
+    } else {
+      this.result = [newResult]
+    }
     return this
   }
 
   then(cb: Function) {
-    return cb(this.result)
+    if (this.result.length <= 1) {
+      return cb(this.result[0])
+    }
+    return cb(this.result.shift())
   }
 
   catch(cb: Function) {

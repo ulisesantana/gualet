@@ -1,10 +1,9 @@
 import { renderHook } from "@testing-library/react";
-import { describe, expect, it, Mock, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { useSession } from "@infrastructure/ui/contexts";
-import { supabase } from "@infrastructure/data-sources";
+import { LocalStorageDataSource, supabase } from "@infrastructure/data-sources";
 import {
   CategoryRepositoryImplementation,
-  LocalStorageRepository,
   PaymentMethodRepositoryImplementation,
   TransactionRepositoryImplementation,
   UserPreferencesRepositoryImplementation,
@@ -20,7 +19,6 @@ vi.mock("@infrastructure/repositories", () => ({
   PaymentMethodRepositoryImplementation: vi.fn(),
   TransactionRepositoryImplementation: vi.fn(),
   UserPreferencesRepositoryImplementation: vi.fn(),
-  LocalStorageRepository: vi.fn(),
 }));
 
 describe("useRepositories", () => {
@@ -52,7 +50,7 @@ describe("useRepositories", () => {
       supabase,
     );
     expect(UserPreferencesRepositoryImplementation).toHaveBeenCalledWith(
-      new LocalStorageRepository("user"),
+      new LocalStorageDataSource("user"),
     );
   });
 

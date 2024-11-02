@@ -1,19 +1,18 @@
 import { UserPreferencesRepository } from "@application/repositories";
 import {
-  defaultPaymentMethods,
   defaultUserPreferences,
   Id,
   PaymentMethod,
   UserPreferences,
 } from "@domain/models";
-import { LocalStorageRepository } from "@infrastructure/repositories/localStorage.repository";
+import { LocalStorageDataSource } from "@infrastructure/data-sources";
 
 export class UserPreferencesRepositoryImplementation
   implements UserPreferencesRepository
 {
   private readonly dbName = "preferences";
 
-  constructor(private readonly ls: LocalStorageRepository) {}
+  constructor(private readonly ls: LocalStorageDataSource) {}
 
   async save(preferences: UserPreferences): Promise<void> {
     this.ls.set(this.dbName, preferences);
