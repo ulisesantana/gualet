@@ -8,15 +8,16 @@ export class MockSupabaseClient {
     signUp: vi.fn().mockResolvedValue({error: null}),
     session: vi.fn().mockReturnValue(null),
   };
-  from = vi.fn(() => this);
+  from = vi.fn((x: string) => this);
   select = vi.fn(() => this);
   order = vi.fn(() => this);
   eq = vi.fn(() => this);
   limit = vi.fn(() => this);
   insert = vi.fn(() => this);
   update = vi.fn(() => this);
+  upsert = vi.fn(() => this);
   delete = vi.fn(() => this);
-  private result = null
+  private result = {error: null}
 
   withResult(x: any) {
     this.result = x

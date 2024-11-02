@@ -9,3 +9,6 @@ import { MockSupabaseClient } from "@test/mocks";
 vi.mock("@infrastructure/data-sources", () => ({
   supabase: new MockSupabaseClient(),
 }));
+
+console.log = () => {};
+console.error = () => {};

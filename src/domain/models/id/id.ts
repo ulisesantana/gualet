@@ -3,8 +3,8 @@ import { v4 as uuid } from "uuid";
 export class Id {
   private readonly value: string;
 
-  constructor(value?: string) {
-    this.value = value || uuid();
+  constructor(value?: string | Id) {
+    this.value = value?.toString() || uuid();
   }
 
   toString(): string {
