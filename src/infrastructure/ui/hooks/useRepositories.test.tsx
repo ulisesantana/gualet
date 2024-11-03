@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { useSession } from "@infrastructure/ui/contexts";
-import { LocalStorageDataSource, supabase } from "@infrastructure/data-sources";
+import { StorageDataSource, supabase } from "@infrastructure/data-sources";
 import {
   CategoryRepositoryImplementation,
   PaymentMethodRepositoryImplementation,
@@ -50,7 +50,7 @@ describe("useRepositories", () => {
       supabase,
     );
     expect(UserPreferencesRepositoryImplementation).toHaveBeenCalledWith(
-      new LocalStorageDataSource("user"),
+      new StorageDataSource("user"),
     );
   });
 

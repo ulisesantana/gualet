@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { LocalStorageDataSource } from "@infrastructure/data-sources";
+import { StorageDataSource } from "@infrastructure/data-sources";
 
 interface Settings {
   spreadsheetId: string;
@@ -24,7 +24,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 
 // Create a custom provider component
 const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const ls = useMemo(() => new LocalStorageDataSource("settings"), []);
+  const ls = useMemo(() => new StorageDataSource("settings"), []);
   const [settings, setSettings] = useState<Settings>({
     spreadsheetId: ls.get("spreadsheetId") || "",
   });

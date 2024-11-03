@@ -8,7 +8,7 @@ import { MockSupabaseClient } from "@test/mocks";
 
 vi.mock("@infrastructure/data-sources", () => ({
   supabase: new MockSupabaseClient(),
-  LocalStorageDataSource: vi.fn(),
+  StorageDataSource: vi.fn(),
 }));
 
 console.log = () => {};

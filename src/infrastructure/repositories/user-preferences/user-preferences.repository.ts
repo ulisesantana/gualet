@@ -5,14 +5,14 @@ import {
   PaymentMethod,
   UserPreferences,
 } from "@domain/models";
-import { LocalStorageDataSource } from "@infrastructure/data-sources";
+import { StorageDataSource } from "@infrastructure/data-sources";
 
 export class UserPreferencesRepositoryImplementation
   implements UserPreferencesRepository
 {
   private readonly dbName = "preferences";
 
-  constructor(private readonly ls: LocalStorageDataSource) {}
+  constructor(private readonly ls: StorageDataSource) {}
 
   async save(preferences: UserPreferences): Promise<void> {
     this.ls.set(this.dbName, preferences);
