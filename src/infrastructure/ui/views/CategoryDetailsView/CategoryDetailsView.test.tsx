@@ -18,7 +18,10 @@ vi.mock("@components", () => ({
 }));
 
 describe("CategoryDetailsView", () => {
+  const mockSetIsLoading = vi.fn();
+
   beforeEach(() => {
+    vi.clearAllMocks();
     (useRepositories as Mock).mockReturnValue({
       isReady: true,
       repositories: {
@@ -34,7 +37,7 @@ describe("CategoryDetailsView", () => {
         },
       },
       isLoading: false,
-      setIsLoading: vi.fn(),
+      setIsLoading: mockSetIsLoading,
     });
   });
 
@@ -43,7 +46,7 @@ describe("CategoryDetailsView", () => {
       isReady: true,
       repositories: { category: {} },
       isLoading: true,
-      setIsLoading: vi.fn(),
+      setIsLoading: mockSetIsLoading,
     });
 
     render(<CategoryDetailsView />);
@@ -73,10 +76,15 @@ describe("CategoryDetailsView", () => {
         },
       },
       isLoading: false,
-      setIsLoading: vi.fn(),
+      setIsLoading: mockSetIsLoading,
     });
 
-    render(<CategoryDetailsView />);
+    render(
+      <Router>
+        <TestRouter path="/categories/details/2" />
+        <CategoryDetailsView />
+      </Router>,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Category not found.")).toBeInTheDocument();
