@@ -70,7 +70,9 @@ export function LoginForm() {
             </label>
             <small>Password must contain at least 6 characters</small>
             <footer>
-              <button type="submit">SIGN UP</button>
+              <button type="submit" name="sign-up" data-testid="submit-sign-up">
+                SIGN UP
+              </button>
             </footer>
           </form>
           {successMessage && (
@@ -88,7 +90,9 @@ export function LoginForm() {
             <input type="password" name="password" required />
           </label>
           <footer>
-            <button type="submit">LOGIN</button>
+            <button type="submit" name="login" data-testid="submit-login">
+              LOGIN
+            </button>
           </footer>
         </form>
       )}
