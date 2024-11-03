@@ -16,6 +16,18 @@ import {
 } from "@application/cases";
 import { useRepositories } from "@infrastructure/ui/hooks";
 
+function sortByDay(transactions: Transaction[]) {
+  return Array.from(transactions).sort((a, b) => {
+    if (a.date.toString() < b.date.toString()) {
+      return 1;
+    }
+    if (a.date.toString() > b.date.toString()) {
+      return -1;
+    }
+    return 0;
+  });
+}
+
 export function LastTransactionsView() {
   const { isReady, repositories } = useRepositories();
   const [transactionConfig, setTransactionConfig] = useState<TransactionConfig>(
@@ -33,7 +45,7 @@ export function LastTransactionsView() {
       new GetLastTransactionsUseCase(repositories.transaction)
         .exec(25)
         .then((transactions) => {
-          setTransactions(transactions);
+          setTransactions(sortByDay(transactions));
           return new GetTransactionConfigUseCase(
             repositories.transaction,
           ).exec();
@@ -60,17 +72,7 @@ export function LastTransactionsView() {
       await new SaveTransactionUseCase(repositories.transaction).exec(
         transaction,
       );
-      setTransactions(
-        [transaction, ...transactions].sort((a, b) => {
-          if (a.date.toString() < b.date.toString()) {
-            return 1;
-          }
-          if (a.date.toString() > b.date.toString()) {
-            return -1;
-          }
-          return 0;
-        }),
-      );
+      setTransactions(sortByDay([transaction, ...transactions]));
     }
   };
 
