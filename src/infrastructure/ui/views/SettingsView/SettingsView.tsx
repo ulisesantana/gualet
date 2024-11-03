@@ -80,6 +80,7 @@ export function SettingsView() {
           Default payment method:
           <select
             name="default-payment-method"
+            data-testid="select-default-payment-method"
             onChange={onChangeDefaultPaymentMethod}
             defaultValue={userPreferences.defaultPaymentMethod.id.toString()}
           >
