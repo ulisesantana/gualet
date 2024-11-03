@@ -9,15 +9,14 @@ import { Transition } from "react-transition-group";
 import { useRepositories } from "@infrastructure/ui/hooks";
 
 export function CategoryDetailsView() {
-  const [match, params] = useRoute(routes.categories.details);
+  const [match, params] = useRoute<{ id: string }>(routes.categories.details);
   const { isReady, repositories, isLoading, setIsLoading } = useRepositories();
   const [category, setCategory] = useState<Category | undefined>();
 
   useEffect(() => {
-    if (repositories) {
+    if (repositories && params) {
       new GetCategoryUseCase(repositories.category)
-        // @ts-ignore
-        .exec(new Id(params?.id))
+        .exec(new Id(params.id))
         .then(setCategory)
         .catch((error) => {
           console.error("Error getting category");
@@ -27,7 +26,7 @@ export function CategoryDetailsView() {
           setIsLoading(false);
         });
     }
-  }, [isReady]);
+  }, [isReady, params]);
 
   const onSubmit = async (category: Category) => {
     if (repositories) {
