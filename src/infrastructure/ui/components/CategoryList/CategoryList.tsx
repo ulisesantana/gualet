@@ -13,7 +13,10 @@ export function CategoryList({ categories }: CategoryListProps) {
     <ul className="category-card-list">
       {React.Children.toArray(
         categories.map((category) => (
-          <li data-id={category.id.toString()} key={category.id.toString()}>
+          <li
+            data-testid={`category-item-${category.id}`}
+            key={category.id.toString()}
+          >
             <CategoryCard category={category} />
           </li>
         )),
