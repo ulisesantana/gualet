@@ -1,11 +1,12 @@
 import {
-  Id,
   Category,
   Day,
+  defaultOutcomeCategories,
+  defaultPaymentMethods,
+  Id,
   PaymentMethod,
-  TransactionOperation,
   Transaction,
-  defaultPaymentMethods, defaultOutcomeCategories
+  TransactionOperation
 } from "@domain/models";
 
 export class TransactionBuilder {
@@ -33,8 +34,8 @@ export class TransactionBuilder {
     });
   }
 
-  withId(id: Id): this {
-    this.id = id;
+  withId(id: Id | string): this {
+    this.id = new Id(id);
     return this;
   }
 
