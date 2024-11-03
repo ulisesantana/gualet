@@ -7,6 +7,15 @@ interface SupabaseResult {
 
 export class MockSupabaseClient {
   auth = {
+    getSession: vi.fn().mockResolvedValue({error: null, data: {session: {}}}),
+    onAuthStateChange: vi.fn().mockReturnValue({
+      error: null,
+      data: {
+        subscription: {
+          unsubscribe: vi.fn()
+        }
+      },
+    }),
     signIn: vi.fn().mockResolvedValue({user: null, session: null}),
     signInWithPassword: vi.fn().mockResolvedValue({user: null, session: null}),
     signOut: vi.fn().mockResolvedValue({error: null}),

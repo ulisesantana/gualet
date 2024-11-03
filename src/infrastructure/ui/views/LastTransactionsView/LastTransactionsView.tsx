@@ -75,7 +75,10 @@ export function LastTransactionsView() {
   };
 
   return (
-    <div className="last-transactions-view">
+    <div
+      className="last-transactions-view"
+      data-testid="last-transactions-view"
+    >
       {isLoading ? (
         <div className="loader-container">
           <Loader />
