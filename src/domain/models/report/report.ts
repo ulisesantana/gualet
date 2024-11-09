@@ -17,15 +17,13 @@ class CategoryReport {
     totalByCategories: Array<CategoryTotalTuple>;
   } {
     const totalByCategories = Object.values(
-      transactions.reduce<Record<string, CategoryTotalTuple>>(
-        (dict, transaction) => {
-          const categoryId = transaction.category.id.toString();
-          const total = dict[categoryId]?.[0] ?? 0;
-          dict[categoryId] = [transaction.amount + total, transaction.category];
-          return dict;
-        },
-        {},
-      ),
+      transactions.reduce<Record<string, CategoryTotalTuple>>((dict, t) => {
+        const categoryId = t.category.id.toString();
+        const total = dict[categoryId]?.[0] ?? 0;
+        const amount = t.isIncome() ? t.amount : t.amount * -1;
+        dict[categoryId] = [amount + total, t.category];
+        return dict;
+      }, {}),
     );
 
     return {

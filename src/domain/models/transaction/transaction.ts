@@ -1,4 +1,4 @@
-import { Id, Category, Day, PaymentMethod } from "@domain/models";
+import { Category, Day, Id, PaymentMethod } from "@domain/models";
 
 export enum TransactionOperation {
   Income = "INCOME",

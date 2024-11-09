@@ -19,11 +19,11 @@ describe("Report", () => {
         .withCategory(defaultIncomeCategories[0])
         .build(),
       new TransactionBuilder()
-        .withAmount(-50)
+        .withAmount(50)
         .withCategory(defaultOutcomeCategories[1])
         .build(),
       new TransactionBuilder()
-        .withAmount(-150)
+        .withAmount(150)
         .withCategory(defaultOutcomeCategories[3])
         .build(),
       new TransactionBuilder()
@@ -65,7 +65,7 @@ describe("Report", () => {
       [1500, defaultIncomeCategories[0]],
     ]);
     expect(report.outcomeReport.totalByCategories).toEqual([
-      [150, defaultOutcomeCategories[1]],
+      [-150, defaultOutcomeCategories[1]],
     ]);
   });
 
@@ -108,8 +108,8 @@ describe("Report", () => {
       [1500, defaultIncomeCategories[0]],
     ]);
     expect(report.outcomeReport.totalByCategories).toEqual([
-      [350, defaultOutcomeCategories[1]],
-      [300, defaultOutcomeCategories[3]],
+      [-350, defaultOutcomeCategories[1]],
+      [-300, defaultOutcomeCategories[3]],
     ]);
   });
 });
