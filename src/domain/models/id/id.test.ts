@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Id } from "@domain/models";
 import { v4 as uuid } from "uuid";
 
@@ -7,7 +7,7 @@ vi.mock("uuid", () => ({
 }));
 
 describe("Id", () => {
-  it("should create a new Id with a generated UUID when no value is provided", () => {
+  it("should create a new Report with a generated UUID when no value is provided", () => {
     const mockUUID = "123e4567-e89b-12d3-a456-426614174000";
     (uuid as any).mockReturnValue(mockUUID);
 
@@ -16,7 +16,7 @@ describe("Id", () => {
     expect(id.toString()).toBe(mockUUID);
   });
 
-  it("should create a new Id with the provided value", () => {
+  it("should create a new Report with the provided value", () => {
     const value = "custom-id-value";
     const id = new Id(value);
 
@@ -30,7 +30,7 @@ describe("Id", () => {
     expect(id1.equals(id2)).toBe(true);
   });
 
-  it("should compare Id with given string", () => {
+  it("should compare Report with given string", () => {
     const id = new Id("123");
 
     expect(id.equals("123")).toBe(true);
