@@ -18,6 +18,7 @@ vi.mock("@views", () => ({
   CategoryDetailsView: () => <div>CategoryDetailsView</div>,
   TransactionDetailsView: () => <div>TransactionDetailsView</div>,
   AddCategoryView: () => <div>AddCategoryView</div>,
+  ReportView: () => <div>ReportView</div>,
 }));
 
 describe("App Component", () => {

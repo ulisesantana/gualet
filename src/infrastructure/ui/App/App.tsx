@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import {
+  AddCategoryView,
   CategoriesView,
+  CategoryDetailsView,
   LastTransactionsView,
   LoginView,
+  ReportView,
   SettingsView,
-  CategoryDetailsView,
   TransactionDetailsView,
-  AddCategoryView,
 } from "@views";
 import { supabase } from "@infrastructure/data-sources";
 import { Header } from "@components";
@@ -52,6 +53,8 @@ export const App: React.FC = () => {
                 component={CategoryDetailsView}
               />
               <Route path={routes.categories.list} component={CategoriesView} />
+              {/*REPORTS*/}
+              <Route path={routes.reports} component={ReportView} />
               {/*SETTINGS*/}
               <Route path={routes.settings} component={SettingsView} />
             </>

@@ -33,3 +33,11 @@ button {
     justify-content: center;
     height: calc(100vh - 5rem);
 }
+
+.outcome {
+    color: #ff5a5a;
+}
+
+.income {
+    color: #2bc800;
+}

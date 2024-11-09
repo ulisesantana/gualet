@@ -73,6 +73,11 @@ export function SettingsView() {
         </Link>
       </li>
       <li>
+        <Link to={routes.reports}>
+          <button className="cta">Reports</button>
+        </Link>
+      </li>
+      <li>
         <label
           style={{ flexDirection: "column" }}
           htmlFor="default-payment-method"

@@ -8,6 +8,9 @@ export class Day {
     const [year, month, day] = date.split(/\D+/).map((x) => Number(x));
     this.date = new Date();
     this.date.setUTCHours(12);
+    this.date.setUTCMinutes(0);
+    this.date.setUTCSeconds(0);
+    this.date.setUTCMilliseconds(0);
     this.date.setUTCDate(day);
     this.date.setUTCMonth(month - 1);
     this.date.setUTCFullYear(year);
@@ -35,6 +38,12 @@ export class Day {
 
   earlierThan(day: Day) {
     return this.toString() < day.toString();
+  }
+
+  cloneWithPreviousMonth() {
+    const date = new Date(this.toString());
+    date.setUTCMonth(this.date.getUTCMonth() - 1);
+    return new Day(date.toISOString());
   }
 
   toString(separator = "-") {

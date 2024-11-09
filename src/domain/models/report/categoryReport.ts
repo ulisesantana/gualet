@@ -27,11 +27,14 @@ export class CategoryReport {
     );
 
     return {
-      total: totalByCategories.reduce(
-        (total, [categoryTotal]) => total + categoryTotal,
-        0,
+      total: Number(
+        totalByCategories
+          .reduce((total, [categoryTotal]) => total + categoryTotal, 0)
+          .toFixed(2),
       ),
-      totalByCategories,
+      totalByCategories: totalByCategories
+        .sort(([a], [b]) => a - b)
+        .map(([total, category]) => [Number(total.toFixed(2)), category]),
     };
   }
 }

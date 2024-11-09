@@ -1,4 +1,7 @@
-import { TransactionRepository } from "@application/repositories";
+import {
+  FindTransactionsCriteria,
+  TransactionRepository,
+} from "@application/repositories";
 import {
   Category,
   Day,
@@ -8,8 +11,8 @@ import {
   Id,
   PaymentMethod,
   Transaction,
-  TransactionOperation,
   TransactionConfig,
+  TransactionOperation,
 } from "@domain/models";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database, Tables } from "@infrastructure/data-sources/supabase";
@@ -67,6 +70,40 @@ export class TransactionRepositoryImplementation
       console.error(`Error removing transaction ${id}`);
       console.error(error);
     }
+  }
+
+  async find(criteria: FindTransactionsCriteria) {
+    if (!criteria.from) {
+      criteria.from = new Day("1970-01-01");
+    }
+    if (!criteria.to) {
+      criteria.to = new Day();
+    }
+    const { data, error } = await this.sb
+      .from(this.dbName)
+      .select(
+        `
+        id,
+        date,
+        type,
+        amount,
+        description,
+        categories (id, name, icon, type),
+        payment_methods (id, name, icon)
+      `,
+      )
+      .eq("user_id", this.userId)
+      .gte("date", criteria.from.toString())
+      .lte("date", criteria.to.toString());
+
+    if (error) {
+      console.error(`Error fetching transactions.`);
+      console.error(error);
+      console.error(`Given criteria:`, JSON.stringify(criteria, null, 2));
+      throw new Error(`Transactions not fetched.`);
+    }
+
+    return data.map(TransactionRepositoryImplementation.mapToTransaction);
   }
 
   async findById(id: Id): Promise<Transaction> {

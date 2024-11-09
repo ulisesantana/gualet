@@ -1,0 +1,42 @@
+.report-view {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 320px;
+}
+
+.report-view .loader-container {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: calc(100vh - 5rem);
+}
+
+.report-view h2, .report-view h3 {
+    text-align: center;
+    width: 100%;
+}
+
+.report-view form {
+    align-items: center;
+    justify-content: center;
+    max-width: 350px;
+}
+
+.report-view input {
+    padding: 8px 0;
+    width: 100%;
+    text-align: center;
+}
+
+.report-view button[type="submit"] {
+    margin: 1rem;
+    padding: 8px 0;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.report-view li {
+    width: 100%;
+}

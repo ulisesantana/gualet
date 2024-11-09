@@ -11,6 +11,7 @@ export const routes = {
   transactions: {
     details: "/transactions/details/:id",
   },
+  reports: "/reports",
   root: "/",
   settings: "/settings",
 };
