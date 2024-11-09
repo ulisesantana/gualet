@@ -32,7 +32,7 @@ describe("Report", () => {
         .build(),
     ];
 
-    const report = new Report(from, to, transactions);
+    const report = new Report({ from, to, transactions });
 
     expect(report.incomeReport.total).toBe(1500);
     expect(report.outcomeReport.total).toBe(-200);
@@ -59,7 +59,7 @@ describe("Report", () => {
         .build(),
     ];
 
-    const report = new Report(from, to, transactions);
+    const report = new Report({ from, to, transactions });
 
     expect(report.incomeReport.totalByCategories).toEqual([
       [1500, defaultIncomeCategories[0]],
@@ -71,7 +71,7 @@ describe("Report", () => {
 
   it("handles empty transactions list correctly", () => {
     const transactions = [] as Transaction[];
-    const report = new Report(from, to, transactions);
+    const report = new Report({ from, to, transactions });
 
     expect(report.incomeReport.total).toBe(0);
     expect(report.outcomeReport.total).toBe(0);
@@ -102,7 +102,7 @@ describe("Report", () => {
         .build(),
     ];
 
-    const report = new Report(from, to, transactions);
+    const report = new Report({ from, to, transactions });
 
     expect(report.incomeReport.totalByCategories).toEqual([
       [1500, defaultIncomeCategories[0]],

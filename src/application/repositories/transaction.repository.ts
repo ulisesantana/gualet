@@ -1,5 +1,10 @@
-import { Id, Transaction, TransactionConfig } from "@domain/models";
+import { Day, Id, Transaction, TransactionConfig } from "@domain/models";
 import { Nullable } from "@domain/types";
+
+export interface FindTransactionsCriteria {
+  from?: Day;
+  to?: Day;
+}
 
 export interface TransactionRepository {
   save(transaction: Transaction): Promise<void>;
@@ -7,6 +12,8 @@ export interface TransactionRepository {
   findById(id: Id): Promise<Nullable<Transaction>>;
 
   findLast(limit: number): Promise<Transaction[]>;
+
+  find(criteria: FindTransactionsCriteria): Promise<Transaction[]>;
 
   fetchTransactionConfig(): Promise<TransactionConfig>;
 

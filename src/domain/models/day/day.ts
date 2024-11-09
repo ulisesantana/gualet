@@ -33,6 +33,10 @@ export class Day {
     return this.date.getUTCFullYear();
   }
 
+  earlierThan(day: Day) {
+    return this.toString() < day.toString();
+  }
+
   toString(separator = "-") {
     return (
       this.getYear() +

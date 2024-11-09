@@ -1,51 +1,22 @@
-import { Category, Day, Transaction } from "@domain/models";
+import { Day, Transaction } from "@domain/models";
+import { CategoryReport } from "@domain/models/report/categoryReport";
 
-type CategoryTotalTuple = [number, Category];
-
-class CategoryReport {
-  readonly total: number;
-  readonly totalByCategories: Array<CategoryTotalTuple>;
-
-  constructor(transactions: Transaction[]) {
-    const { total, totalByCategories } = CategoryReport.compute(transactions);
-    this.total = total;
-    this.totalByCategories = totalByCategories;
-  }
-
-  private static compute(transactions: Transaction[]): {
-    total: number;
-    totalByCategories: Array<CategoryTotalTuple>;
-  } {
-    const totalByCategories = Object.values(
-      transactions.reduce<Record<string, CategoryTotalTuple>>((dict, t) => {
-        const categoryId = t.category.id.toString();
-        const total = dict[categoryId]?.[0] ?? 0;
-        const amount = t.isIncome() ? t.amount : t.amount * -1;
-        dict[categoryId] = [amount + total, t.category];
-        return dict;
-      }, {}),
-    );
-
-    return {
-      total: totalByCategories.reduce(
-        (total, [categoryTotal]) => total + categoryTotal,
-        0,
-      ),
-      totalByCategories,
-    };
-  }
+interface ReportParams {
+  from: Day;
+  to: Day;
+  transactions: Transaction[];
 }
 
 export class Report {
+  readonly from: Day;
+  readonly to: Day;
   readonly incomeReport: CategoryReport;
   readonly outcomeReport: CategoryReport;
   readonly total: number;
 
-  constructor(
-    readonly from: Day,
-    readonly to: Day,
-    transactions: Transaction[],
-  ) {
+  constructor({ from, to, transactions }: ReportParams) {
+    this.from = from;
+    this.to = to;
     const { income, outcome } = Report.groupByOperation(transactions);
     this.incomeReport = new CategoryReport(income);
     this.outcomeReport = new CategoryReport(outcome);
