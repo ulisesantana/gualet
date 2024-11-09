@@ -47,6 +47,7 @@ export default defineConfig({
       exclude: [
         "src/infrastructure/data-sources",
         "src/application/repositories",
+        "src/infrastructure/ui/main.tsx",
         "src/**/index.ts",
         "src/**/*.stories.ts",
         "src/**/*.test.ts",
