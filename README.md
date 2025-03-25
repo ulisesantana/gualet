@@ -24,3 +24,40 @@
 - [ ] POST   /api/v1/auth/login
 - [ ] POST   /api/v1/auth/logout
 - [ ] POST   /api/v1/auth/register
+
+## Roadmap
+### Features
+- [x] Create user
+    - [x] Use case
+    - [x] UI
+    - [x] Supabase
+- [x] Login on the app
+    - [x] Use case
+    - [x] UI
+    - [x] Supabase
+- [x] Logout on the app
+    - [x] Use case
+    - [x] UI
+    - [x] Supabase
+- [ ] BREAD transactions
+    - [ ] Browse
+    - [x] Read
+    - [x] Edit
+    - [x] Add
+    - [x] Delete
+- [ ] READ categories
+    - [x] Read
+    - [x] Edit
+    - [x] Add
+    - [ ] Disable
+- [ ] READ payment methods
+    - [ ] Read
+    - [ ] Edit
+    - [ ] Add
+    - [ ] Disable
+- [ ] Forgot password
+- [ ] Add feedback after editing
+    - [ ] Transaction
+    - [ ] Category
+- [ ] Add cache to repository layer
+- [ ] Add version on settings page
