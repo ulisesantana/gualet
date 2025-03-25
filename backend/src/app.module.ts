@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './users/entities';
 import { JwtService } from '@nestjs/jwt';
 import { resolve } from 'node:path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
@@ -31,6 +32,15 @@ import { resolve } from 'node:path';
         synchronize: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
+    }),
+    ServeStaticModule.forRootAsync({
+      useFactory: () => [
+        {
+          rootPath: resolve(__dirname, '../public'),
+          exclude: ['/api*'],
+          serveRoot: '/',
+        },
+      ],
     }),
     AuthModule,
     UserModule,
