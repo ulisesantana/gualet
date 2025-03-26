@@ -13,8 +13,6 @@ interface ValidatePayload extends TokenPayload {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  private readonly secret: string;
-
   constructor(configService: ConfigService) {
     const secret = configService.get('JWT_SECRET') || 'secret';
     super({
@@ -27,7 +25,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       ignoreExpiration: false,
       secretOrKey: secret,
     });
-    this.secret = secret;
   }
 
   async validate(payload: {

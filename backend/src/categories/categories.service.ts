@@ -17,4 +17,8 @@ export class CategoriesService {
   create(category: Omit<CategoryEntity, 'id'>) {
     return this.categoryRepository.save(category);
   }
+
+  save(category: CategoryEntity) {
+    return this.categoryRepository.save(category);
+  }
 }

@@ -1,22 +1,23 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Request } from 'express';
-
-interface AuthenticatedRequest extends Request {
-  user: { userId: string };
-}
 
 import { CategoriesService } from './categories.service';
-import { CreateCategoryRequestDto } from './dto';
-import { OperationType } from '../common/types';
+import {
+  CategoriesResponseDto,
+  CategoryResponseDto,
+  CreateCategoryRequestDto,
+  SaveCategoryRequestDto,
+} from './dto';
+import { AuthenticatedRequest } from '../common/types';
+import { ApiResponse } from '@nestjs/swagger';
 
 @Controller('me/categories')
 export class CategoriesController {
@@ -24,26 +25,40 @@ export class CategoriesController {
 
   @Get('/')
   @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: CategoriesResponseDto })
   async findAll(@Req() req: AuthenticatedRequest) {
-    return this.categoryService.findAllForUser(req.user.userId);
+    const categories = await this.categoryService.findAllForUser(
+      req.user.userId,
+    );
+    return new CategoriesResponseDto(categories);
   }
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: CategoryResponseDto })
   async create(
     @Req() req: AuthenticatedRequest,
     @Body() category: CreateCategoryRequestDto,
   ) {
-    if (
-      category.type !== OperationType.Income &&
-      category.type !== OperationType.Outcome
-    ) {
-      throw new BadRequestException('Invalid operation type');
-    }
-
-    return this.categoryService.create({
+    const newCategory = await this.categoryService.create({
       ...category,
       user_id: req.user.userId,
     });
+
+    return new CategoryResponseDto(newCategory);
+  }
+
+  @Put('/')
+  @UseGuards(JwtAuthGuard)
+  async save(
+    @Req() req: AuthenticatedRequest,
+    @Body() category: SaveCategoryRequestDto,
+  ): Promise<CategoryResponseDto> {
+    const newCategory = await this.categoryService.save({
+      ...category,
+      user_id: req.user.userId,
+    });
+
+    return new CategoryResponseDto(newCategory);
   }
 }

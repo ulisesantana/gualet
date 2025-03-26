@@ -1,13 +1,15 @@
 import { OperationType } from '../../common/types';
-import { ApiProperty } from '@nestjs/swagger';
+import { Optional, Required } from '../../common/decorators';
+import { IsEnum } from 'class-validator';
 
 export class CreateCategoryRequestDto {
-  @ApiProperty({ example: 'Groceries' })
+  @Required('Groceries')
   name: string;
 
-  @ApiProperty({ example: 'OUTCOME' })
+  @Required('OUTCOME')
+  @IsEnum(OperationType)
   type: OperationType;
 
-  @ApiProperty({ example: '🛒' })
+  @Optional('🛒')
   icon?: string;
 }
