@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './users/user.service';
-import { UserController } from './users/user.controller';
 import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
@@ -11,6 +10,10 @@ import { UserEntity } from './users/entities';
 import { JwtService } from '@nestjs/jwt';
 import { resolve } from 'node:path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { CategoriesModule } from './categories/categories.module';
+import { CategoriesController } from './categories/categories.controller';
+import { CategoriesService } from './categories/categories.service';
+import { CategoryEntity } from './categories/entities';
 
 @Module({
   imports: [
@@ -28,7 +31,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
-        entities: [UserEntity],
+        entities: [UserEntity, CategoryEntity],
         synchronize: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
@@ -44,8 +47,9 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     }),
     AuthModule,
     UserModule,
+    CategoriesModule,
   ],
-  controllers: [UserController, AuthController],
-  providers: [UserService, AuthService, JwtService],
+  controllers: [AuthController, CategoriesController],
+  providers: [UserService, AuthService, JwtService, CategoriesService],
 })
 export class AppModule {}

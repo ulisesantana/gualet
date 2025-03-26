@@ -2,6 +2,7 @@
 import { configDotenv } from 'dotenv';
 import { DataSource } from 'typeorm';
 import { UserEntity } from './src/users/entities';
+import { CategoryEntity } from './src/categories/entities';
 
 configDotenv({
   path: '../.env',
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  entities: [UserEntity],
+  entities: [UserEntity, CategoryEntity],
   migrations: ['src/migrations/*.ts'],
   synchronize: false,
 });
