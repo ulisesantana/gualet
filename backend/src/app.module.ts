@@ -1,19 +1,18 @@
 import { Module } from '@nestjs/common';
-import { UserService } from './users/user.service';
-import { AuthService } from './auth/auth.service';
-import { AuthController } from './auth/auth.controller';
-import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { UserModule } from './users/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from './users/entities';
 import { JwtService } from '@nestjs/jwt';
 import { resolve } from 'node:path';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { CategoriesModule } from './categories/categories.module';
-import { CategoriesController } from './categories/categories.controller';
-import { CategoriesService } from './categories/categories.service';
-import { CategoryEntity } from './categories/entities';
+import { PaymentMethodsModule } from './payment-methods/payment-methods.module';
+import { AuthController, AuthModule, AuthService } from '@src/auth';
+import { UserEntity, UserModule, UserService } from '@src/users';
+import {
+  CategoriesController,
+  CategoriesModule,
+  CategoriesService,
+  CategoryEntity,
+} from '@src/categories';
 
 @Module({
   imports: [
@@ -48,6 +47,7 @@ import { CategoryEntity } from './categories/entities';
     AuthModule,
     UserModule,
     CategoriesModule,
+    PaymentMethodsModule,
   ],
   controllers: [AuthController, CategoriesController],
   providers: [UserService, AuthService, JwtService, CategoriesService],

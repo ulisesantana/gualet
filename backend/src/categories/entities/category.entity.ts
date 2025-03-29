@@ -1,5 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { OperationType } from '../../common/types';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { OperationType } from '@src/common/domain';
 
 @Entity('categories')
 export class CategoryEntity {
@@ -15,9 +20,18 @@ export class CategoryEntity {
   @Column({ nullable: true })
   icon?: string;
 
+  @Column({ nullable: true })
+  color?: string;
+
   @Column({
     enum: OperationType,
     default: OperationType.Outcome,
   })
   type: OperationType;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @CreateDateColumn()
+  updatedAt: Date;
 }

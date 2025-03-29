@@ -1,15 +1,24 @@
-interface UserInput {
-  id: string;
+import { Id } from '@src/common/domain';
+
+export interface UserInput {
+  id?: Id | string;
   email: string;
 }
 
 export class User {
-  id: string;
+  id: Id;
 
   email: string;
 
   constructor(user: UserInput) {
-    this.id = user.id;
+    this.id = new Id(user.id);
     this.email = user.email;
+  }
+
+  toJSON() {
+    return {
+      id: this.id.toString(),
+      email: this.email,
+    };
   }
 }

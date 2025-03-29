@@ -1,6 +1,6 @@
-import { User } from './user.model';
+import { User, UserInput } from './user.model';
 
-interface UserWithPasswordInput extends User {
+interface UserWithPasswordInput extends UserInput {
   password: string;
 }
 
@@ -9,5 +9,12 @@ export class UserWithPassword extends User {
   constructor(user: UserWithPasswordInput) {
     super(user);
     this.password = user.password;
+  }
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      password: this.password,
+    };
   }
 }

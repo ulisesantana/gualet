@@ -18,4 +18,7 @@ export class UserEntity {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @CreateDateColumn()
+  updatedAt: Date;
 }

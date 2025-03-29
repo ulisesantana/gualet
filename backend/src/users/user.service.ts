@@ -6,6 +6,7 @@ import { UserEntity } from './entities';
 import { User, UserWithPassword } from './models';
 import { UserMapper } from './mappers';
 import { UserNotFoundError } from './errors';
+import { Id } from '@src/common/domain';
 
 @Injectable()
 export class UserService {
@@ -14,8 +15,14 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async findById(id: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
+  static mapToDomain(user: UserWithPassword | UserEntity): User {
+    return UserMapper.toDomain(user);
+  }
+
+  async findById(id: Id): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id: id.toString() },
+    });
     if (!user) {
       throw new UserNotFoundError(id);
     }
@@ -35,15 +42,10 @@ export class UserService {
   async create(userData: { email: string; password: string }): Promise<User> {
     // TODO: Check if user exists before doing anything
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const user = this.userRepository.create({
+    const newUser = await this.userRepository.save({
       ...userData,
       password: hashedPassword,
     });
-    const newUser = await this.userRepository.save(user);
     return UserService.mapToDomain(newUser);
-  }
-
-  static mapToDomain(user: UserWithPassword | UserEntity): User {
-    return UserMapper.toDomain(user);
   }
 }

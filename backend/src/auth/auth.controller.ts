@@ -22,7 +22,7 @@ export class AuthController {
       loginData.email,
       loginData.password,
     );
-    const { access_token } = await this.authService.login(user);
+    const { access_token } = await this.authService.login(user.toJSON());
 
     res.cookie(this.cookieName, access_token, {
       httpOnly: true,
