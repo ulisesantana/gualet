@@ -1,16 +1,15 @@
 import { generateRandomId } from './generate-random-id';
 import { UserEntity } from '@src/users';
 
-export function buildUserEntity({
-  id = generateRandomId(),
-  email = 'test@gualet.app',
-  password = 'password123',
-}: Partial<UserEntity> = {}): UserEntity {
+export function buildUserEntity(
+  overrides: Partial<UserEntity> = {},
+): UserEntity {
   return {
-    id,
-    email,
-    password,
+    id: generateRandomId(),
+    email: 'test@gualet.app',
+    password: 'password123',
     createdAt: new Date(),
     updatedAt: new Date(),
+    ...overrides,
   } as UserEntity;
 }

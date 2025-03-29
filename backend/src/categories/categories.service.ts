@@ -20,7 +20,7 @@ export class CategoriesService {
     return new Category(category);
   }
 
-  async findById(id: Id, userId: Id): Promise<Category> {
+  async findOne(id: Id, userId: Id): Promise<Category> {
     const category = await this.categoryRepository.findOneBy({
       id: id.toString(),
     });
@@ -36,7 +36,7 @@ export class CategoriesService {
     return CategoriesService.mapToDomain(category);
   }
 
-  async findAllForUser(userId: string): Promise<Category[]> {
+  async findAll(userId: string): Promise<Category[]> {
     const categories = await this.categoryRepository.find({
       where: { user_id: userId },
     });

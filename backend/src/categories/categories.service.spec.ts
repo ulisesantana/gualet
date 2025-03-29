@@ -50,7 +50,7 @@ describe('CategoriesService', () => {
 
     jest.spyOn(categoryRepository, 'find').mockResolvedValue(categoryEntities);
 
-    const result = await service.findAllForUser(userId);
+    const result = await service.findAll(userId);
 
     expect(categoryRepository.find).toHaveBeenCalledWith({
       where: { user_id: userId },
@@ -67,7 +67,7 @@ describe('CategoriesService', () => {
   it('should return empty array when user has no categories', async () => {
     jest.spyOn(categoryRepository, 'find').mockResolvedValue([]);
 
-    const result = await service.findAllForUser('user-123');
+    const result = await service.findAll('user-123');
 
     expect(result).toEqual([]);
   });
@@ -125,7 +125,7 @@ describe('CategoriesService', () => {
     const categoryId = new Id(category.id);
     const userId = new Id(category.user_id);
 
-    const result = await service.findById(categoryId, userId);
+    const result = await service.findOne(categoryId, userId);
 
     expect(categoryRepository.findOneBy).toHaveBeenCalledWith({
       id: categoryId.toString(),
@@ -142,7 +142,7 @@ describe('CategoriesService', () => {
     const categoryId = new Id();
     const userId = new Id();
 
-    await expect(service.findById(categoryId, userId)).rejects.toThrow(
+    await expect(service.findOne(categoryId, userId)).rejects.toThrow(
       CategoryNotFoundError,
     );
   });
@@ -156,7 +156,7 @@ describe('CategoriesService', () => {
         buildCategoryEntity({ user_id: 'a-different-user-456' }),
       );
 
-    await expect(service.findById(categoryId, userId)).rejects.toThrow(
+    await expect(service.findOne(categoryId, userId)).rejects.toThrow(
       NotAuthorizedForCategoryError,
     );
   });

@@ -2,6 +2,10 @@ const IDS = {};
 const characters =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
+export function getAllIds(): string[] {
+  return Object.keys(IDS);
+}
+
 export function generateRandomId(length: number = 16): string {
   let result = '';
   for (let i = 0; i < length; i++) {

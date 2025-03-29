@@ -1,25 +1,22 @@
-import { Id, OperationType } from '@src/common/domain';
+import { Id } from '@src/common/domain';
 import { Nullable } from '@src/common/types';
 
-interface CategoryInput {
+export interface PaymentMethodInput {
   id?: Id | string;
   name: string;
-  type: OperationType;
   icon?: Nullable<string>;
   color?: Nullable<string>;
 }
 
-export class Category {
-  id: Id;
-  name: string;
-  type: OperationType;
-  icon: Nullable<string>;
-  color: Nullable<string>;
+export class PaymentMethod {
+  readonly id: Id;
+  readonly name: string;
+  readonly icon: Nullable<string>;
+  readonly color: Nullable<string>;
 
-  constructor(input: CategoryInput) {
+  constructor(input: PaymentMethodInput) {
     this.id = new Id(input.id);
     this.name = input.name;
-    this.type = input.type;
     this.icon = input.icon || null;
     this.color = input.color || null;
   }
@@ -28,7 +25,6 @@ export class Category {
     return {
       id: this.id.toString(),
       name: this.name,
-      type: this.type,
       icon: this.icon,
       color: this.color,
     };

@@ -24,8 +24,8 @@ describe('CategoriesController', () => {
         {
           provide: CategoriesService,
           useValue: {
-            findById: jest.fn(),
-            findAllForUser: jest.fn(),
+            findOne: jest.fn(),
+            findAll: jest.fn(),
             create: jest.fn(),
             save: jest.fn(),
           },
@@ -47,14 +47,14 @@ describe('CategoriesController', () => {
       buildCategoryEntity({ user_id: '1' }),
       buildCategoryEntity({ user_id: '1' }),
     ].map(CategoriesService.mapToDomain);
-    jest.spyOn(service, 'findAllForUser').mockResolvedValue(categories);
+    jest.spyOn(service, 'findAll').mockResolvedValue(categories);
 
     const result = await controller.findAll(req);
 
     expect(result.categories).toStrictEqual(
       categories.map((c) => new Category(c).toJSON()),
     );
-    expect(service.findAllForUser).toHaveBeenCalledWith(1);
+    expect(service.findAll).toHaveBeenCalledWith(1);
   });
 
   it('should create a new category', async () => {
@@ -78,12 +78,12 @@ describe('CategoriesController', () => {
     it('should find an existing category', async () => {
       const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
       const category = new Category(buildCategoryEntity());
-      jest.spyOn(service, 'findById').mockResolvedValue(category);
+      jest.spyOn(service, 'findOne').mockResolvedValue(category);
 
-      const result = await controller.findById(req, category.id.toString());
+      const result = await controller.findOne(req, category.id.toString());
 
       expect(result).toStrictEqual(new CategoryResponseDto(category));
-      expect(service.findById).toHaveBeenCalledWith(
+      expect(service.findOne).toHaveBeenCalledWith(
         category.id,
         new Id(req.user.userId),
       );
@@ -101,10 +101,10 @@ describe('CategoriesController', () => {
 
       it('should handle 403 errors when throwing NotAuthorizedForCategoryError', async () => {
         const error = new NotAuthorizedForCategoryError(new Id('irrelevant'));
-        jest.spyOn(service, 'findById').mockRejectedValue(error);
+        jest.spyOn(service, 'findOne').mockRejectedValue(error);
 
         try {
-          await controller.findById(req, id);
+          await controller.findOne(req, id);
           throwError = false;
         } catch (error) {
           expect(error).toBeInstanceOf(ForbiddenException);
@@ -115,7 +115,7 @@ describe('CategoriesController', () => {
           });
         } finally {
           expect(throwError).toEqual(true);
-          expect(service.findById).toHaveBeenCalledWith(
+          expect(service.findOne).toHaveBeenCalledWith(
             category.id,
             new Id(req.user.userId),
           );
@@ -124,10 +124,10 @@ describe('CategoriesController', () => {
 
       it('should handle 404 errors when throwing CategoryNotFoundError', async () => {
         const error = new CategoryNotFoundError(new Id('irrelevant'));
-        jest.spyOn(service, 'findById').mockRejectedValue(error);
+        jest.spyOn(service, 'findOne').mockRejectedValue(error);
 
         try {
-          await controller.findById(req, id);
+          await controller.findOne(req, id);
           throwError = false;
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
@@ -138,7 +138,7 @@ describe('CategoriesController', () => {
           });
         } finally {
           expect(throwError).toEqual(true);
-          expect(service.findById).toHaveBeenCalledWith(
+          expect(service.findOne).toHaveBeenCalledWith(
             category.id,
             new Id(req.user.userId),
           );
@@ -147,17 +147,17 @@ describe('CategoriesController', () => {
 
       it('should handle 500 errors for the rest of errors', async () => {
         const error = new Error('💥 Boom!!');
-        jest.spyOn(service, 'findById').mockRejectedValue(error);
+        jest.spyOn(service, 'findOne').mockRejectedValue(error);
 
         try {
-          await controller.findById(req, id);
+          await controller.findOne(req, id);
           throwError = false;
         } catch (error) {
           expect(error).toBeInstanceOf(InternalServerErrorException);
           expect(error.response).toEqual(error);
         } finally {
           expect(throwError).toEqual(true);
-          expect(service.findById).toHaveBeenCalledWith(
+          expect(service.findOne).toHaveBeenCalledWith(
             category.id,
             new Id(req.user.userId),
           );

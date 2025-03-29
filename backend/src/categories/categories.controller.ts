@@ -39,18 +39,16 @@ export class CategoriesController extends BaseController {
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: CategoriesResponseDto })
   async findAll(@Req() req: AuthenticatedRequest) {
-    const categories = await this.categoryService.findAllForUser(
-      req.user.userId,
-    );
+    const categories = await this.categoryService.findAll(req.user.userId);
     return new CategoriesResponseDto(categories);
   }
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: CategoriesResponseDto })
-  async findById(@Req() req: AuthenticatedRequest, @Param() id: string) {
+  async findOne(@Req() req: AuthenticatedRequest, @Param() id: string) {
     try {
-      const category = await this.categoryService.findById(
+      const category = await this.categoryService.findOne(
         new Id(id),
         new Id(req.user.userId),
       );
