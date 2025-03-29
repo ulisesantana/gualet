@@ -9,6 +9,7 @@ import {
 } from './errors';
 import { Id } from '@src/common/domain';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
 describe('PaymentMethodsController', () => {
   let controller: PaymentMethodsController;
@@ -79,6 +80,11 @@ describe('PaymentMethodsController', () => {
   });
 
   describe('find a payment method by id', () => {
+    let throwError = true;
+
+    beforeEach(() => {
+      throwError = true;
+    });
     it('should find an existing payment method', async () => {
       const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
       const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
@@ -86,7 +92,7 @@ describe('PaymentMethodsController', () => {
 
       const result = await controller.findOne(paymentMethod.id.toString(), req);
 
-      expect(result).toStrictEqual(paymentMethod);
+      expect(result.paymentMethod).toStrictEqual(paymentMethod.toJSON());
       expect(service.findOne).toHaveBeenCalledWith(
         paymentMethod.id,
         new Id(req.user.userId),
@@ -102,9 +108,19 @@ describe('PaymentMethodsController', () => {
           new NotAuthorizedForPaymentMethodError(new Id(paymentMethodId)),
         );
 
-      await expect(controller.findOne(paymentMethodId, req)).rejects.toThrow(
-        NotAuthorizedForPaymentMethodError,
-      );
+      try {
+        await controller.findOne(paymentMethodId, req);
+        throwError = false;
+      } catch (error) {
+        expect(error).toBeInstanceOf(ForbiddenException);
+        expect(error.response).toEqual({
+          statusCode: 403,
+          message: `Not authorized for payment method with id "${paymentMethodId}".`,
+          error: 'Forbidden',
+        });
+      } finally {
+        expect(throwError).toEqual(true);
+      }
     });
 
     it('should throw PaymentMethodNotFoundError when payment method does not exist', async () => {
@@ -116,26 +132,43 @@ describe('PaymentMethodsController', () => {
           new PaymentMethodNotFoundError(new Id(paymentMethodId)),
         );
 
-      await expect(controller.findOne(paymentMethodId, req)).rejects.toThrow(
-        PaymentMethodNotFoundError,
-      );
+      try {
+        await controller.findOne(paymentMethodId, req);
+        throwError = false;
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException);
+        expect(error.response).toEqual({
+          statusCode: 404,
+          message: `Payment method with id "${paymentMethodId}" not found.`,
+          error: 'Not Found',
+        });
+      } finally {
+        expect(throwError).toEqual(true);
+      }
     });
   });
 
   describe('save a payment method', () => {
+    let throwError = true;
+    const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
+
+    beforeEach(() => {
+      throwError = true;
+    });
+
     it('should save an existing payment method', async () => {
       const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
       jest.spyOn(service, 'save').mockResolvedValue(paymentMethod);
 
-      const result = await controller.save(paymentMethod.id.toString(), {
+      const result = await controller.save(paymentMethod.id.toString(), req, {
         name: paymentMethod.name,
         icon: paymentMethod.icon as string,
         color: paymentMethod.color as string,
       });
 
-      expect(result).toStrictEqual(paymentMethod);
+      expect(result.paymentMethod).toStrictEqual(paymentMethod.toJSON());
       expect(service.save).toHaveBeenCalledWith(
-        paymentMethod.id,
+        new Id(req.user.userId),
         paymentMethod,
       );
     });
@@ -144,13 +177,13 @@ describe('PaymentMethodsController', () => {
       const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
       jest.spyOn(service, 'save').mockResolvedValue(paymentMethod);
 
-      const result = await controller.save(paymentMethod.id.toString(), {
+      const result = await controller.save(paymentMethod.id.toString(), req, {
         name: paymentMethod.name,
       });
 
-      expect(result).toStrictEqual(paymentMethod);
+      expect(result.paymentMethod).toStrictEqual(paymentMethod.toJSON());
       expect(service.save).toHaveBeenCalledWith(
-        paymentMethod.id,
+        new Id(req.user.userId),
         expect.objectContaining({
           name: paymentMethod.name,
         }),
@@ -165,11 +198,21 @@ describe('PaymentMethodsController', () => {
           new NotAuthorizedForPaymentMethodError(new Id(paymentMethodId)),
         );
 
-      await expect(
-        controller.save(paymentMethodId, {
+      try {
+        await controller.save(paymentMethodId, req, {
           name: 'Test Payment Method',
-        }),
-      ).rejects.toThrow(NotAuthorizedForPaymentMethodError);
+        });
+        throwError = false;
+      } catch (error) {
+        expect(error).toBeInstanceOf(ForbiddenException);
+        expect(error.response).toEqual({
+          statusCode: 403,
+          message: `Not authorized for payment method with id "${paymentMethodId}".`,
+          error: 'Forbidden',
+        });
+      } finally {
+        expect(throwError).toEqual(true);
+      }
     });
 
     it('should throw PaymentMethodNotFoundError when payment method does not exist', async () => {
@@ -180,11 +223,21 @@ describe('PaymentMethodsController', () => {
           new PaymentMethodNotFoundError(new Id(paymentMethodId)),
         );
 
-      await expect(
-        controller.save(paymentMethodId, {
+      try {
+        await controller.save(paymentMethodId, req, {
           name: 'Test Payment Method',
-        }),
-      ).rejects.toThrow(PaymentMethodNotFoundError);
+        });
+        throwError = false;
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException);
+        expect(error.response).toEqual({
+          statusCode: 404,
+          message: `Payment method with id "${paymentMethodId}" not found.`,
+          error: 'Not Found',
+        });
+      } finally {
+        expect(throwError).toEqual(true);
+      }
     });
   });
 });
