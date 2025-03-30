@@ -3,7 +3,9 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
+import { DateString } from '@src/common/types';
 
 @Entity('users')
 export class UserEntity {
@@ -17,8 +19,8 @@ export class UserEntity {
   password: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: DateString;
 
-  @CreateDateColumn()
-  updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: DateString;
 }

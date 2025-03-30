@@ -3,7 +3,9 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
+import { DateString } from '@src/common/types';
 
 @Entity('payment_methods')
 export class PaymentMethodEntity {
@@ -23,8 +25,8 @@ export class PaymentMethodEntity {
   color?: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: DateString;
 
-  @CreateDateColumn()
-  updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: DateString;
 }

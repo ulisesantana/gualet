@@ -3,8 +3,10 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { OperationType } from '@src/common/domain';
+import { DateString } from '@src/common/types';
 
 @Entity('categories')
 export class CategoryEntity {
@@ -30,8 +32,8 @@ export class CategoryEntity {
   type: OperationType;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: DateString;
 
-  @CreateDateColumn()
-  updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: DateString;
 }

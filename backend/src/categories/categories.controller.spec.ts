@@ -173,7 +173,6 @@ describe('CategoriesController', () => {
       jest.spyOn(service, 'save').mockResolvedValue(category);
 
       const result = await controller.save(req, category.id.toString(), {
-        id: category.id.toString(),
         name: category.name,
         type: category.type,
         icon: category.icon as string,
@@ -190,7 +189,6 @@ describe('CategoriesController', () => {
       jest.spyOn(service, 'save').mockResolvedValue(category);
 
       const result = await controller.save(req, category.id.toString(), {
-        id: category.id.toString(),
         name: category.name,
         type: category.type,
       });

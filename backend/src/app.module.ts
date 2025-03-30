@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { resolve } from 'node:path';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { PaymentMethodsModule } from './payment-methods/payment-methods.module';
 import { AuthController, AuthModule, AuthService } from '@src/auth';
 import { UserEntity, UserModule, UserService } from '@src/users';
 import {
@@ -13,6 +12,16 @@ import {
   CategoriesService,
   CategoryEntity,
 } from '@src/categories';
+import {
+  PaymentMethodsController,
+  PaymentMethodsModule,
+  PaymentMethodsService,
+} from '@src/payment-methods';
+import {
+  TransactionsController,
+  TransactionsModule,
+  TransactionsService,
+} from '@src/transactions';
 
 @Module({
   imports: [
@@ -48,8 +57,21 @@ import {
     UserModule,
     CategoriesModule,
     PaymentMethodsModule,
+    TransactionsModule,
   ],
-  controllers: [AuthController, CategoriesController],
-  providers: [UserService, AuthService, JwtService, CategoriesService],
+  controllers: [
+    AuthController,
+    CategoriesController,
+    PaymentMethodsController,
+    TransactionsController,
+  ],
+  providers: [
+    UserService,
+    AuthService,
+    JwtService,
+    CategoriesService,
+    PaymentMethodsService,
+    TransactionsService,
+  ],
 })
 export class AppModule {}
