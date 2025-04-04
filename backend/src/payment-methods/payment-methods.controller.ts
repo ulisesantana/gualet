@@ -7,7 +7,9 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { PaymentMethodsService } from './payment-methods.service';
 import { Id } from '@src/common/domain';
@@ -23,6 +25,8 @@ import {
   SavePaymentMethodDto,
 } from '@src/payment-methods/dto';
 import { PaymentMethodsErrorCodes } from './errors';
+import { JwtAuthGuard } from '@src/auth';
+import { ApiResponse } from '@nestjs/swagger';
 
 @Controller('me/payment-methods')
 export class PaymentMethodsController extends BaseController {
@@ -31,6 +35,8 @@ export class PaymentMethodsController extends BaseController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: CreatePaymentMethodDto })
   async create(
     @Body() createPaymentMethodDto: CreatePaymentMethodDto,
     @Req() req: AuthenticatedRequest,
@@ -43,6 +49,8 @@ export class PaymentMethodsController extends BaseController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: PaymentMethodsResponseDto })
   async findAll(
     @Req() req: AuthenticatedRequest,
   ): Promise<PaymentMethodsResponseDto> {
@@ -53,6 +61,8 @@ export class PaymentMethodsController extends BaseController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: PaymentMethodResponseDto })
   async findOne(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
@@ -69,7 +79,9 @@ export class PaymentMethodsController extends BaseController {
     }
   }
 
-  @Post(':id')
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: PaymentMethodResponseDto })
   async save(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,

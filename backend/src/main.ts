@@ -3,12 +3,18 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
-import { ValidationPipe } from '@nestjs/common';
+import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
+import { LoggingInterceptor } from '@src/common/interceptors';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const config: ConfigService = app.get(ConfigService);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({
+      prefix: 'Gualet',
+    }),
+  });
+
   app.setGlobalPrefix('api');
+  app.useGlobalInterceptors(new LoggingInterceptor());
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -18,6 +24,7 @@ async function bootstrap() {
     }),
   );
 
+  const config: ConfigService = app.get(ConfigService);
   if (config.get('NODE_ENV') === 'development') {
     const docsRoute = 'api/docs';
     const config = new DocumentBuilder()

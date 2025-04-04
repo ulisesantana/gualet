@@ -9,7 +9,7 @@ export function buildPaymentMethodEntity(
     name: 'Default Payment Method',
     icon: '💳',
     color: '#00AAFF',
-    user_id: 'user-123',
+    user: 'user-123',
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,

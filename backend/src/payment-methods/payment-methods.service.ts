@@ -24,21 +24,20 @@ export class PaymentMethodsService {
     userId: Id,
     pm: Omit<PaymentMethod, 'id'>,
   ): Promise<PaymentMethod> {
-    const newPaymentMethod = await this.repository.save({
+    const entity = this.repository.create({
       ...pm,
-      user_id: userId.toString(),
+      user: { id: userId.toString() },
       id: new Id().toString(),
       icon: pm.icon ?? undefined,
       color: pm.color ?? undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     });
+    const newPaymentMethod = await this.repository.save(entity);
     return PaymentMethodsService.mapToDomain(newPaymentMethod);
   }
 
   async findAll(userId: Id): Promise<PaymentMethod[]> {
     const categories = await this.repository.find({
-      where: { user_id: userId.toString() },
+      where: { user: { id: userId.toString() } },
     });
 
     return categories.map(PaymentMethodsService.mapToDomain);
@@ -53,7 +52,7 @@ export class PaymentMethodsService {
       throw new PaymentMethodNotFoundError(id);
     }
 
-    if (!userId.equals(pm.user_id)) {
+    if (!userId.equals(pm.user.id)) {
       throw new NotAuthorizedForPaymentMethodError(id);
     }
 
@@ -69,7 +68,7 @@ export class PaymentMethodsService {
       throw new PaymentMethodNotFoundError(pm.id);
     }
 
-    if (!userId.equals(existingPaymentMethod.user_id)) {
+    if (!userId.equals(existingPaymentMethod.user.id)) {
       throw new NotAuthorizedForPaymentMethodError(pm.id);
     }
 
@@ -78,7 +77,6 @@ export class PaymentMethodsService {
       id: pm.id.toString(),
       icon: pm.icon ?? undefined,
       color: pm.color ?? undefined,
-      updatedAt: new Date().toISOString(),
     });
     return PaymentMethodsService.mapToDomain(savedPaymentMethod);
   }

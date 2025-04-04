@@ -13,11 +13,13 @@ import {
   CategoryEntity,
 } from '@src/categories';
 import {
+  PaymentMethodEntity,
   PaymentMethodsController,
   PaymentMethodsModule,
   PaymentMethodsService,
 } from '@src/payment-methods';
 import {
+  TransactionEntity,
   TransactionsController,
   TransactionsModule,
   TransactionsService,
@@ -39,7 +41,12 @@ import {
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
-        entities: [UserEntity, CategoryEntity],
+        entities: [
+          UserEntity,
+          CategoryEntity,
+          PaymentMethodEntity,
+          TransactionEntity,
+        ],
         synchronize: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],

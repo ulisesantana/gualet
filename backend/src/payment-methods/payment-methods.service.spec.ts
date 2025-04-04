@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentMethodsService } from './payment-methods.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { PaymentMethodEntity } from './entities/payment-method.entity';
+import { PaymentMethodEntity } from '@src/payment-methods';
 import { Repository } from 'typeorm';
 import { PaymentMethod } from './payment-method.model';
 import { Id } from '@src/common/domain';
@@ -39,9 +39,9 @@ describe('PaymentMethodsService', () => {
 
   it('should find all payment methods for a user', async () => {
     const paymentMethodEntities = [
-      buildPaymentMethodEntity({ user_id: userId.toString() }),
+      buildPaymentMethodEntity({ user: userId.toString() }),
       buildPaymentMethodEntity({
-        user_id: userId.toString(),
+        user: userId.toString(),
         name: 'Credit Card',
         icon: '💳',
         color: '#FF0000',
@@ -74,7 +74,7 @@ describe('PaymentMethodsService', () => {
 
   it('should create a new payment method', async () => {
     const newPaymentMethodData = buildPaymentMethodEntity({
-      user_id: userId.toString(),
+      user: userId.toString(),
       name: 'Debit Card',
       icon: '💵',
       color: '#00FF00',
@@ -106,7 +106,7 @@ describe('PaymentMethodsService', () => {
       .mockResolvedValue(paymentMethodWithoutOptionals);
 
     const result = await service.create(
-      new Id(paymentMethodWithoutOptionals.user_id),
+      new Id(paymentMethodWithoutOptionals.user),
       new PaymentMethod(paymentMethodWithoutOptionals),
     );
 
@@ -119,7 +119,7 @@ describe('PaymentMethodsService', () => {
       name: 'Cash',
       icon: '💰',
       color: '#00FFFF',
-      user_id: userId.toString(),
+      user: userId.toString(),
     });
     jest.spyOn(repository, 'findOneBy').mockResolvedValue(paymentMethod);
     const paymentMethodId = new Id(paymentMethod.id);
@@ -150,7 +150,7 @@ describe('PaymentMethodsService', () => {
     jest
       .spyOn(repository, 'findOneBy')
       .mockResolvedValue(
-        buildPaymentMethodEntity({ user_id: 'a-different-user-456' }),
+        buildPaymentMethodEntity({ user: 'a-different-user-456' }),
       );
 
     await expect(service.findOne(paymentMethodId, userId)).rejects.toThrow(
@@ -163,7 +163,7 @@ describe('PaymentMethodsService', () => {
       name: 'Updated Payment Method',
       icon: '💵',
       color: '#0000FF',
-      user_id: userId.toString(),
+      user: userId.toString(),
     });
 
     // Mock the Date functionality
@@ -204,7 +204,7 @@ describe('PaymentMethodsService', () => {
 
   it('should save a payment method handling missing optional fields', async () => {
     const paymentMethodWithoutOptionals = buildPaymentMethodEntity({
-      user_id: userId.toString(),
+      user: userId.toString(),
     });
     paymentMethodWithoutOptionals.icon = undefined;
     paymentMethodWithoutOptionals.color = undefined;
@@ -247,7 +247,7 @@ describe('PaymentMethodsService', () => {
     jest
       .spyOn(repository, 'findOne')
       .mockResolvedValue(
-        buildPaymentMethodEntity({ user_id: 'a-different-user-456' }),
+        buildPaymentMethodEntity({ user: 'a-different-user-456' }),
       );
 
     await expect(service.save(userId, paymentMethod)).rejects.toThrow(

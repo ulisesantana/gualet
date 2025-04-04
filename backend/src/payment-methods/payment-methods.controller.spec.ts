@@ -42,8 +42,8 @@ describe('PaymentMethodsController', () => {
   it('should return all payment methods for a user', async () => {
     const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
     const paymentMethods = [
-      buildPaymentMethodEntity({ user_id: '1' }),
-      buildPaymentMethodEntity({ user_id: '1' }),
+      buildPaymentMethodEntity({ user: '1' }),
+      buildPaymentMethodEntity({ user: '1' }),
     ].map(PaymentMethodsService.mapToDomain);
     jest.spyOn(service, 'findAll').mockResolvedValue(paymentMethods);
 
