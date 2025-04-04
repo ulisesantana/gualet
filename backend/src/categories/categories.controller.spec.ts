@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
 import { CategoryResponseDto } from './dto';
-import { buildCategoryEntity } from '@test/builders';
+import { buildCategoryEntity, buildUserEntity } from '@test/builders';
 import { Category } from './category.model';
 import { CategoryNotFoundError, NotAuthorizedForCategoryError } from './errors';
 import { Id } from '@src/common/domain';
@@ -44,8 +44,8 @@ describe('CategoriesController', () => {
   it('should return all categories for a user', async () => {
     const req = { user: { userId: 1 } } as unknown as AuthenticatedRequest;
     const categories = [
-      buildCategoryEntity({ user_id: '1' }),
-      buildCategoryEntity({ user_id: '1' }),
+      buildCategoryEntity({ user: buildUserEntity({ id: '1' }) }),
+      buildCategoryEntity({ user: buildUserEntity({ id: '1' }) }),
     ].map(CategoriesService.mapToDomain);
     jest.spyOn(service, 'findAll').mockResolvedValue(categories);
 

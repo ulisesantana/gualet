@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentMethodsController } from './payment-methods.controller';
 import { PaymentMethodsService } from './payment-methods.service';
-import { buildPaymentMethodEntity, getAllIds } from '@test/builders';
+import {
+  buildPaymentMethodEntity,
+  buildUserEntity,
+  getAllIds,
+} from '@test/builders';
 import { PaymentMethod } from './payment-method.model';
 import {
   NotAuthorizedForPaymentMethodError,
@@ -42,8 +46,8 @@ describe('PaymentMethodsController', () => {
   it('should return all payment methods for a user', async () => {
     const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
     const paymentMethods = [
-      buildPaymentMethodEntity({ user_id: '1' }),
-      buildPaymentMethodEntity({ user_id: '1' }),
+      buildPaymentMethodEntity({ user: buildUserEntity({ id: '1' }) }),
+      buildPaymentMethodEntity({ user: buildUserEntity({ id: '1' }) }),
     ].map(PaymentMethodsService.mapToDomain);
     jest.spyOn(service, 'findAll').mockResolvedValue(paymentMethods);
 

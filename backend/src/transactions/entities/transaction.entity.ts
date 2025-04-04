@@ -2,25 +2,33 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { OperationType } from '@src/common/domain';
 import { TimeString } from '@src/common/types';
+import { UserEntity } from '@src/users';
+import { CategoryEntity } from '@src/categories';
+import { PaymentMethodEntity } from '@src/payment-methods';
 
 @Entity('transactions')
 export class TransactionEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
-  @Column()
-  user_id: string;
+  @ManyToOne(() => UserEntity)
+  @JoinColumn()
+  user: UserEntity;
 
-  @Column()
-  category_id: string;
+  @ManyToOne(() => CategoryEntity)
+  @JoinColumn()
+  category: CategoryEntity;
 
-  @Column()
-  payment_method_id: string;
+  @ManyToOne(() => PaymentMethodEntity)
+  @JoinColumn()
+  payment_method: PaymentMethodEntity;
 
   @Column('decimal', { precision: 10, scale: 2 })
   amount: number;

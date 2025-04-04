@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentMethodsService } from './payment-methods.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { PaymentMethodEntity } from './entities/payment-method.entity';
+import { PaymentMethodEntity } from '@src/payment-methods';
 import { Repository } from 'typeorm';
 import { PaymentMethod } from './payment-method.model';
 import { Id } from '@src/common/domain';
@@ -9,7 +9,8 @@ import {
   NotAuthorizedForPaymentMethodError,
   PaymentMethodNotFoundError,
 } from './errors';
-import { buildPaymentMethodEntity } from '@test/builders';
+import { buildPaymentMethodEntity, buildUserEntity } from '@test/builders';
+import { TimeString } from '@src/common/types';
 
 describe('PaymentMethodsService', () => {
   let service: PaymentMethodsService;
@@ -39,9 +40,9 @@ describe('PaymentMethodsService', () => {
 
   it('should find all payment methods for a user', async () => {
     const paymentMethodEntities = [
-      buildPaymentMethodEntity({ user_id: userId.toString() }),
+      buildPaymentMethodEntity({ user: buildUserEntity({ id: 'user-234' }) }),
       buildPaymentMethodEntity({
-        user_id: userId.toString(),
+        user: buildUserEntity(),
         name: 'Credit Card',
         icon: '💳',
         color: '#FF0000',
@@ -53,7 +54,7 @@ describe('PaymentMethodsService', () => {
     const result = await service.findAll(userId);
 
     expect(repository.find).toHaveBeenCalledWith({
-      where: { user_id: userId.toString() },
+      where: { user: { id: 'user-234' } },
     });
     expect(result).toHaveLength(2);
     expect(result[0]).toBeInstanceOf(PaymentMethod);
@@ -74,7 +75,7 @@ describe('PaymentMethodsService', () => {
 
   it('should create a new payment method', async () => {
     const newPaymentMethodData = buildPaymentMethodEntity({
-      user_id: userId.toString(),
+      user: buildUserEntity(),
       name: 'Debit Card',
       icon: '💵',
       color: '#00FF00',
@@ -106,7 +107,7 @@ describe('PaymentMethodsService', () => {
       .mockResolvedValue(paymentMethodWithoutOptionals);
 
     const result = await service.create(
-      new Id(paymentMethodWithoutOptionals.user_id),
+      new Id(paymentMethodWithoutOptionals.user.id),
       new PaymentMethod(paymentMethodWithoutOptionals),
     );
 
@@ -119,7 +120,7 @@ describe('PaymentMethodsService', () => {
       name: 'Cash',
       icon: '💰',
       color: '#00FFFF',
-      user_id: userId.toString(),
+      user: buildUserEntity(),
     });
     jest.spyOn(repository, 'findOneBy').mockResolvedValue(paymentMethod);
     const paymentMethodId = new Id(paymentMethod.id);
@@ -147,11 +148,11 @@ describe('PaymentMethodsService', () => {
 
   it('should throw error when trying to find a payment method from another user', async () => {
     const paymentMethodId = new Id();
-    jest
-      .spyOn(repository, 'findOneBy')
-      .mockResolvedValue(
-        buildPaymentMethodEntity({ user_id: 'a-different-user-456' }),
-      );
+    jest.spyOn(repository, 'findOneBy').mockResolvedValue(
+      buildPaymentMethodEntity({
+        user: buildUserEntity({ id: 'a-different-user-456' }),
+      }),
+    );
 
     await expect(service.findOne(paymentMethodId, userId)).rejects.toThrow(
       NotAuthorizedForPaymentMethodError,
@@ -163,7 +164,7 @@ describe('PaymentMethodsService', () => {
       name: 'Updated Payment Method',
       icon: '💵',
       color: '#0000FF',
-      user_id: userId.toString(),
+      user: buildUserEntity(),
     });
 
     // Mock the Date functionality
@@ -174,7 +175,7 @@ describe('PaymentMethodsService', () => {
     jest.spyOn(repository, 'findOne').mockResolvedValue(paymentMethodToSave);
     jest.spyOn(repository, 'save').mockResolvedValue({
       ...paymentMethodToSave,
-      updatedAt: mockDate,
+      updatedAt: mockISOString as TimeString,
     });
 
     const result = await service.save(
@@ -204,7 +205,7 @@ describe('PaymentMethodsService', () => {
 
   it('should save a payment method handling missing optional fields', async () => {
     const paymentMethodWithoutOptionals = buildPaymentMethodEntity({
-      user_id: userId.toString(),
+      user: buildUserEntity(),
     });
     paymentMethodWithoutOptionals.icon = undefined;
     paymentMethodWithoutOptionals.color = undefined;
@@ -244,11 +245,11 @@ describe('PaymentMethodsService', () => {
       name: 'Payment Method From Another User',
     });
 
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValue(
-        buildPaymentMethodEntity({ user_id: 'a-different-user-456' }),
-      );
+    jest.spyOn(repository, 'findOne').mockResolvedValue(
+      buildPaymentMethodEntity({
+        user: buildUserEntity({ id: 'a-different-user-456' }),
+      }),
+    );
 
     await expect(service.save(userId, paymentMethod)).rejects.toThrow(
       NotAuthorizedForPaymentMethodError,

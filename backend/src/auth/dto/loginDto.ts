@@ -1,9 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { Required } from '@src/common/decorators';
 
 export class LoginDto {
-  @ApiProperty({ example: 'test@gualet.app' })
+  @Required('test@gualet.app')
   email: string;
 
-  @ApiProperty({ example: '1234' })
+  @Required('1234')
   password: string;
 }

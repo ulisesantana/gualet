@@ -3,7 +3,7 @@ import { Category } from '@src/categories';
 import { PaymentMethod } from '@src/payment-methods/payment-method.model';
 import { TimeString } from '@src/common/types';
 
-export interface TransactionInput {
+interface Input {
   id?: Id | string;
   amount: number;
   category: Category;
@@ -22,7 +22,7 @@ export class Transaction {
   readonly operation: OperationType;
   readonly paymentMethod: PaymentMethod;
 
-  constructor(input: TransactionInput) {
+  constructor(input: Input) {
     this.id = new Id(input.id);
     this.amount = input.amount;
     this.category = input.category;

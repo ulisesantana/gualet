@@ -29,7 +29,7 @@ export class CategoriesService {
       throw new CategoryNotFoundError(id);
     }
 
-    if (!userId.equals(category.user_id)) {
+    if (!userId.equals(category.user.id)) {
       throw new NotAuthorizedForCategoryError(id);
     }
 
@@ -38,7 +38,7 @@ export class CategoriesService {
 
   async findAll(userId: string): Promise<Category[]> {
     const categories = await this.categoryRepository.find({
-      where: { user_id: userId },
+      where: { user: { id: userId } },
     });
 
     return categories.map(CategoriesService.mapToDomain);
@@ -48,15 +48,15 @@ export class CategoriesService {
     userId: string,
     category: Omit<Category, 'id'>,
   ): Promise<Category> {
-    const newCategory = await this.categoryRepository.save({
+    const categoryEntity: CategoryEntity = this.categoryRepository.create({
       ...category,
-      user_id: userId,
+      user: { id: userId },
       id: new Id().toString(),
       icon: category.icon ?? undefined,
       color: category.color ?? undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     });
+
+    const newCategory = await this.categoryRepository.save(categoryEntity);
     return CategoriesService.mapToDomain(newCategory);
   }
 
@@ -69,16 +69,16 @@ export class CategoriesService {
       throw new CategoryNotFoundError(category.id);
     }
 
-    if (existingCategory.user_id !== userId) {
+    if (existingCategory.user.id !== userId) {
       throw new NotAuthorizedForCategoryError(category.id);
     }
 
     const savedCategory = await this.categoryRepository.save({
       ...category,
+      user: existingCategory.user,
       id: category.id.toString(),
       icon: category.icon ?? undefined,
       color: category.color ?? undefined,
-      updatedAt: new Date().toISOString(),
     });
     return CategoriesService.mapToDomain(savedCategory);
   }

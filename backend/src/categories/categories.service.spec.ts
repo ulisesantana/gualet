@@ -5,7 +5,7 @@ import { CategoryEntity } from './entities';
 import { Repository } from 'typeorm';
 import { Category } from './category.model';
 import { Id, OperationType } from '@src/common/domain';
-import { buildCategoryEntity } from '@test/builders';
+import { buildCategoryEntity, buildUserEntity } from '@test/builders';
 import {
   CategoryNotFoundError,
   NotAuthorizedForCategoryError,
@@ -39,9 +39,9 @@ describe('CategoriesService', () => {
   it('should find all categories for a user', async () => {
     const userId = 'user-123';
     const categoryEntities = [
-      buildCategoryEntity({ user_id: userId }),
+      buildCategoryEntity({ user: buildUserEntity({ id: userId }) }),
       buildCategoryEntity({
-        user_id: userId,
+        user: buildUserEntity({ id: userId }),
         name: 'Food',
         icon: '🍔',
         color: '#FF0000',
@@ -53,7 +53,9 @@ describe('CategoriesService', () => {
     const result = await service.findAll(userId);
 
     expect(categoryRepository.find).toHaveBeenCalledWith({
-      where: { user_id: userId },
+      where: {
+        user: { id: userId },
+      },
     });
     expect(result).toHaveLength(2);
     expect(result[0]).toBeInstanceOf(Category);
@@ -74,7 +76,9 @@ describe('CategoriesService', () => {
 
   it('should create a new category', async () => {
     const newCategoryData = buildCategoryEntity({
-      user_id: 'user-123',
+      user: buildUserEntity({
+        id: 'user-123',
+      }),
       name: 'Shopping',
       icon: '🛒',
       color: '#00FF00',
@@ -107,7 +111,7 @@ describe('CategoriesService', () => {
       .mockResolvedValue(categoryWithoutOptionals);
 
     const result = await service.create(
-      categoryWithoutOptionals.user_id,
+      categoryWithoutOptionals.user.id,
       new Category(categoryWithoutOptionals),
     );
 
@@ -123,7 +127,7 @@ describe('CategoriesService', () => {
     });
     jest.spyOn(categoryRepository, 'findOneBy').mockResolvedValue(category);
     const categoryId = new Id(category.id);
-    const userId = new Id(category.user_id);
+    const userId = new Id(category.user.id);
 
     const result = await service.findOne(categoryId, userId);
 
@@ -150,11 +154,11 @@ describe('CategoriesService', () => {
   it('should throw error when trying to find a category from another user', async () => {
     const categoryId = new Id();
     const userId = new Id();
-    jest
-      .spyOn(categoryRepository, 'findOneBy')
-      .mockResolvedValue(
-        buildCategoryEntity({ user_id: 'a-different-user-456' }),
-      );
+    jest.spyOn(categoryRepository, 'findOneBy').mockResolvedValue(
+      buildCategoryEntity({
+        user: buildUserEntity({ id: 'a-different-user-456' }),
+      }),
+    );
 
     await expect(service.findOne(categoryId, userId)).rejects.toThrow(
       NotAuthorizedForCategoryError,
@@ -174,7 +178,7 @@ describe('CategoriesService', () => {
     jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(categoryToSave);
 
     const result = await service.save(
-      categoryToSave.user_id,
+      categoryToSave.user.id,
       new Category(categoryToSave),
     );
 
@@ -202,7 +206,7 @@ describe('CategoriesService', () => {
       .mockResolvedValue(categoryWithoutOptionals);
 
     const result = await service.save(
-      categoryWithoutOptionals.user_id,
+      categoryWithoutOptionals.user.id,
       new Category(categoryWithoutOptionals),
     );
 
@@ -231,11 +235,11 @@ describe('CategoriesService', () => {
       type: OperationType.Outcome,
     });
 
-    jest
-      .spyOn(categoryRepository, 'findOne')
-      .mockResolvedValue(
-        buildCategoryEntity({ user_id: 'a-different-user-456' }),
-      );
+    jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(
+      buildCategoryEntity({
+        user: buildUserEntity({ id: 'a-different-user-456' }),
+      }),
+    );
 
     await expect(service.save('user-123', category)).rejects.toThrow(
       NotAuthorizedForCategoryError,

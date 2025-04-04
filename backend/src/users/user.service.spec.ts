@@ -86,7 +86,7 @@ describe('UserService', () => {
 
     expect(bcrypt.hash).toHaveBeenCalledWith(userData.password, 10);
     expect(repository.save).toHaveBeenCalledWith({
-      ...userData,
+      ...user,
       password: hashedPassword,
     });
     expect(result).toEqual(UserService.mapToDomain(user));

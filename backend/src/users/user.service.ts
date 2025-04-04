@@ -44,6 +44,7 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     const newUser = await this.userRepository.save({
       ...userData,
+      id: new Id().toString(),
       password: hashedPassword,
     });
     return UserService.mapToDomain(newUser);

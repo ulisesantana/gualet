@@ -2,18 +2,22 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { DateString } from '@src/common/types';
+import { TimeString } from '@src/common/types';
+import { UserEntity } from '@src/users';
 
 @Entity('payment_methods')
 export class PaymentMethodEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
-  @Column()
-  user_id: string;
+  @ManyToOne(() => UserEntity)
+  @JoinColumn()
+  user: UserEntity;
 
   @Column()
   name: string;
@@ -25,8 +29,8 @@ export class PaymentMethodEntity {
   color?: string;
 
   @CreateDateColumn()
-  createdAt: DateString;
+  createdAt: TimeString;
 
   @UpdateDateColumn()
-  updatedAt: DateString;
+  updatedAt: TimeString;
 }
