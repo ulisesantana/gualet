@@ -13,7 +13,7 @@ import {
 export class CategoriesService {
   constructor(
     @InjectRepository(CategoryEntity)
-    private readonly categoryRepository: Repository<CategoryEntity>,
+    private readonly repository: Repository<CategoryEntity>,
   ) {}
 
   static mapToDomain(category: CategoryEntity): Category {
@@ -21,7 +21,7 @@ export class CategoriesService {
   }
 
   async findOne(id: Id, userId: Id): Promise<Category> {
-    const category = await this.categoryRepository.findOneBy({
+    const category = await this.repository.findOneBy({
       id: id.toString(),
     });
 
@@ -37,7 +37,7 @@ export class CategoriesService {
   }
 
   async findAll(userId: string): Promise<Category[]> {
-    const categories = await this.categoryRepository.find({
+    const categories = await this.repository.find({
       where: { user: { id: userId } },
     });
 
@@ -48,7 +48,7 @@ export class CategoriesService {
     userId: string,
     category: Omit<Category, 'id'>,
   ): Promise<Category> {
-    const categoryEntity: CategoryEntity = this.categoryRepository.create({
+    const categoryEntity: CategoryEntity = this.repository.create({
       ...category,
       user: { id: userId },
       id: new Id().toString(),
@@ -56,12 +56,12 @@ export class CategoriesService {
       color: category.color ?? undefined,
     });
 
-    const newCategory = await this.categoryRepository.save(categoryEntity);
+    const newCategory = await this.repository.save(categoryEntity);
     return CategoriesService.mapToDomain(newCategory);
   }
 
   async save(userId: string, category: Category): Promise<Category> {
-    const existingCategory = await this.categoryRepository.findOne({
+    const existingCategory = await this.repository.findOne({
       where: { id: category.id.toString() },
     });
 
@@ -73,7 +73,7 @@ export class CategoriesService {
       throw new NotAuthorizedForCategoryError(category.id);
     }
 
-    const savedCategory = await this.categoryRepository.save({
+    const savedCategory = await this.repository.save({
       ...category,
       user: existingCategory.user,
       id: category.id.toString(),

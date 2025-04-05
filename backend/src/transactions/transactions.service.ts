@@ -4,7 +4,7 @@ import { Transaction } from './transaction.model';
 import { TransactionNotFoundError } from './errors';
 import { TimeString } from '@src/common/types';
 import { FindTransactionsCriteria } from './dto';
-import { TransactionRepository } from './transactions.repository';
+import { TransactionsRepository } from './transactions.repository';
 
 export interface TransactionToCreate {
   amount: number;
@@ -19,7 +19,7 @@ export type TransactionToUpdate = Partial<TransactionToCreate> & { id: Id };
 
 @Injectable()
 export class TransactionsService {
-  constructor(private readonly repository: TransactionRepository) {}
+  constructor(private readonly repository: TransactionsRepository) {}
 
   create(userId: Id, transaction: TransactionToCreate): Promise<Transaction> {
     const id = new Id();
@@ -36,7 +36,7 @@ export class TransactionsService {
   }
 
   find(userId: Id, id: Id): Promise<Transaction> {
-    return this.repository.finById(userId, id);
+    return this.repository.findById(userId, id);
   }
 
   async update(
@@ -44,7 +44,7 @@ export class TransactionsService {
     transaction: TransactionToUpdate,
   ): Promise<Transaction> {
     const id = new Id(transaction.id);
-    const existingTransaction = await this.repository.finById(userId, id);
+    const existingTransaction = await this.repository.findById(userId, id);
 
     if (!existingTransaction) {
       throw new TransactionNotFoundError(transaction.id);

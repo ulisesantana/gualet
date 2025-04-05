@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
+import { User } from './models';
 import { UserMapper } from './mappers';
 import { UserNotFoundError } from './errors';
 import * as bcrypt from 'bcrypt';
@@ -80,15 +81,19 @@ describe('UserService', () => {
     const userData = { email: user.email, password: user.password };
     // @ts-expect-error for some reason TypeScript doesn't recognize the mock
     jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword);
+    jest.spyOn(repository, 'create').mockReturnValue(user);
     jest.spyOn(repository, 'save').mockResolvedValue(user);
 
     const result = await service.create(userData);
 
     expect(bcrypt.hash).toHaveBeenCalledWith(userData.password, 10);
-    expect(repository.save).toHaveBeenCalledWith({
-      ...user,
-      password: hashedPassword,
-    });
+    expect(repository.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ...new User(user).toJSON(),
+        id: expect.any(String),
+        password: hashedPassword,
+      }),
+    );
     expect(result).toEqual(UserService.mapToDomain(user));
   });
 });

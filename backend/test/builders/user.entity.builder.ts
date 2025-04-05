@@ -8,8 +8,8 @@ export function buildUserEntity(
     id: generateRandomId(),
     email: 'test@gualet.app',
     password: 'password123',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     ...overrides,
   } as UserEntity;
 }

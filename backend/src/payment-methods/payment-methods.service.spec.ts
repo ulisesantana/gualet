@@ -40,9 +40,11 @@ describe('PaymentMethodsService', () => {
 
   it('should find all payment methods for a user', async () => {
     const paymentMethodEntities = [
-      buildPaymentMethodEntity({ user: buildUserEntity({ id: 'user-234' }) }),
       buildPaymentMethodEntity({
-        user: buildUserEntity(),
+        user: buildUserEntity({ id: userId.toString() }),
+      }),
+      buildPaymentMethodEntity({
+        user: buildUserEntity({ id: userId.toString() }),
         name: 'Credit Card',
         icon: '💳',
         color: '#FF0000',
@@ -54,7 +56,7 @@ describe('PaymentMethodsService', () => {
     const result = await service.findAll(userId);
 
     expect(repository.find).toHaveBeenCalledWith({
-      where: { user: { id: 'user-234' } },
+      where: { user: { id: userId.toString() } },
     });
     expect(result).toHaveLength(2);
     expect(result[0]).toBeInstanceOf(PaymentMethod);
@@ -82,6 +84,7 @@ describe('PaymentMethodsService', () => {
     });
 
     const savedPaymentMethod = { ...newPaymentMethodData, id: 'new-id' };
+    jest.spyOn(repository, 'create').mockReturnValue(savedPaymentMethod);
     jest.spyOn(repository, 'save').mockResolvedValue(savedPaymentMethod);
 
     const result = await service.create(
@@ -103,6 +106,9 @@ describe('PaymentMethodsService', () => {
     paymentMethodWithoutOptionals.color = undefined;
 
     jest
+      .spyOn(repository, 'create')
+      .mockReturnValue(paymentMethodWithoutOptionals);
+    jest
       .spyOn(repository, 'save')
       .mockResolvedValue(paymentMethodWithoutOptionals);
 
@@ -120,7 +126,7 @@ describe('PaymentMethodsService', () => {
       name: 'Cash',
       icon: '💰',
       color: '#00FFFF',
-      user: buildUserEntity(),
+      user: buildUserEntity({ id: userId.toString() }),
     });
     jest.spyOn(repository, 'findOneBy').mockResolvedValue(paymentMethod);
     const paymentMethodId = new Id(paymentMethod.id);
@@ -164,7 +170,7 @@ describe('PaymentMethodsService', () => {
       name: 'Updated Payment Method',
       icon: '💵',
       color: '#0000FF',
-      user: buildUserEntity(),
+      user: buildUserEntity({ id: userId.toString() }),
     });
 
     // Mock the Date functionality
@@ -189,7 +195,6 @@ describe('PaymentMethodsService', () => {
         name: 'Updated Payment Method',
         icon: '💵',
         color: '#0000FF',
-        updatedAt: mockISOString,
       }),
     );
 
@@ -205,7 +210,7 @@ describe('PaymentMethodsService', () => {
 
   it('should save a payment method handling missing optional fields', async () => {
     const paymentMethodWithoutOptionals = buildPaymentMethodEntity({
-      user: buildUserEntity(),
+      user: buildUserEntity({ id: userId.toString() }),
     });
     paymentMethodWithoutOptionals.icon = undefined;
     paymentMethodWithoutOptionals.color = undefined;
@@ -213,6 +218,9 @@ describe('PaymentMethodsService', () => {
     jest
       .spyOn(repository, 'findOne')
       .mockResolvedValue(paymentMethodWithoutOptionals);
+    jest
+      .spyOn(repository, 'create')
+      .mockReturnValue(paymentMethodWithoutOptionals);
     jest
       .spyOn(repository, 'save')
       .mockResolvedValue(paymentMethodWithoutOptionals);

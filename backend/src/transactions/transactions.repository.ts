@@ -23,24 +23,20 @@ import { TransactionToCreate } from './transactions.service';
 
 type TransactionPayload = TransactionToCreate & { id: Id };
 
-export interface TransactionRepository {
-  create(userId: Id, transaction: TransactionPayload): Promise<Transaction>;
-
-  find(userId: Id, criteria: FindTransactionsCriteria): Promise<Transaction[]>;
-
-  finById(userId: Id, id: Id): Promise<Transaction>;
-
-  update(userId: Id, transaction: TransactionPayload): Promise<Transaction>;
-
-  // delete(userId: Id, id: Id): Promise<void>;
-}
-
 @Injectable()
-export class TransactionsRepositoryImpl implements TransactionRepository {
+export class TransactionsRepository {
+  private readonly categoryRepository: Repository<CategoryEntity>;
+  private readonly paymentMethodRepository: Repository<PaymentMethodEntity>;
+
   constructor(
     @InjectRepository(TransactionEntity)
     private readonly entityRepository: Repository<TransactionEntity>,
-  ) {}
+  ) {
+    this.categoryRepository =
+      this.entityRepository.manager.getRepository(CategoryEntity);
+    this.paymentMethodRepository =
+      this.entityRepository.manager.getRepository(PaymentMethodEntity);
+  }
 
   static mapToDomain(transaction: TransactionEntity) {
     return new Transaction({
@@ -65,10 +61,10 @@ export class TransactionsRepositoryImpl implements TransactionRepository {
       operation: transaction.operation,
       date: transaction.date,
     });
-    return this.finById(userId, transaction.id);
+    return this.findById(userId, transaction.id);
   }
 
-  async finById(userId: Id, id: Id): Promise<Transaction> {
+  async findById(userId: Id, id: Id): Promise<Transaction> {
     const transaction = await this.entityRepository.findOne({
       where: {
         id: id.toString(),
@@ -84,7 +80,7 @@ export class TransactionsRepositoryImpl implements TransactionRepository {
       throw new NotAuthorizedForTransactionError(id);
     }
 
-    return TransactionsRepositoryImpl.mapToDomain(transaction);
+    return TransactionsRepository.mapToDomain(transaction);
   }
 
   async find(
@@ -98,7 +94,7 @@ export class TransactionsRepositoryImpl implements TransactionRepository {
       relations: ['category', 'payment_method', 'user'],
     });
 
-    return transactions.map(TransactionsRepositoryImpl.mapToDomain);
+    return transactions.map(TransactionsRepository.mapToDomain);
   }
 
   async update(
@@ -109,8 +105,6 @@ export class TransactionsRepositoryImpl implements TransactionRepository {
       where: { id: transaction.id.toString() },
     });
 
-    await this.validateTransactionRelationship(userId, transaction);
-
     if (!existingTransaction) {
       throw new TransactionNotFoundError(transaction.id);
     }
@@ -118,6 +112,8 @@ export class TransactionsRepositoryImpl implements TransactionRepository {
     if (!userId.equals(existingTransaction.user.id)) {
       throw new NotAuthorizedForTransactionError(transaction.id);
     }
+
+    await this.validateTransactionRelationship(userId, transaction);
 
     const savedTransaction: TransactionEntity =
       await this.entityRepository.save({
@@ -127,23 +123,18 @@ export class TransactionsRepositoryImpl implements TransactionRepository {
         category: { id: transaction.categoryId },
         payment_method: { id: transaction.paymentMethodId },
       });
-    return TransactionsRepositoryImpl.mapToDomain(savedTransaction);
+    return TransactionsRepository.mapToDomain(savedTransaction);
   }
 
   private async validateTransactionRelationship(
     userId: Id,
     transaction: TransactionPayload,
   ): Promise<void> {
-    const categoryRepo =
-      this.entityRepository.manager.getRepository(CategoryEntity);
-    const paymentMethodRepo =
-      this.entityRepository.manager.getRepository(PaymentMethodEntity);
-
     const [category, paymentMethod] = await Promise.all([
-      categoryRepo.findOne({
+      this.categoryRepository.findOne({
         where: { id: transaction.categoryId },
       }),
-      paymentMethodRepo.findOne({
+      this.paymentMethodRepository.findOne({
         where: {
           id: transaction.paymentMethodId,
         },

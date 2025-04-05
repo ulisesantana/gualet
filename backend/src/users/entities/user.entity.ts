@@ -5,7 +5,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { DateString } from '@src/common/types';
+import { TimeString } from '@src/common/types';
 
 @Entity('users')
 export class UserEntity {
@@ -19,8 +19,8 @@ export class UserEntity {
   password: string;
 
   @CreateDateColumn()
-  createdAt: DateString;
+  createdAt: TimeString;
 
   @UpdateDateColumn()
-  updatedAt: DateString;
+  updatedAt: TimeString;
 }

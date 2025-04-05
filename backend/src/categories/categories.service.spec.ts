@@ -86,6 +86,7 @@ describe('CategoriesService', () => {
     });
 
     const savedCategory = { ...newCategoryData, id: 'new-id' };
+    jest.spyOn(categoryRepository, 'create').mockReturnValue(savedCategory);
     jest.spyOn(categoryRepository, 'save').mockResolvedValue(savedCategory);
 
     const result = await service.create(
@@ -106,6 +107,9 @@ describe('CategoriesService', () => {
     categoryWithoutOptionals.icon = undefined;
     categoryWithoutOptionals.color = undefined;
 
+    jest
+      .spyOn(categoryRepository, 'create')
+      .mockReturnValue(categoryWithoutOptionals);
     jest
       .spyOn(categoryRepository, 'save')
       .mockResolvedValue(categoryWithoutOptionals);
@@ -166,25 +170,27 @@ describe('CategoriesService', () => {
   });
 
   it('should save an existing category', async () => {
-    const categoryToSave = buildCategoryEntity({
+    const categoryEntityToSave = buildCategoryEntity({
       name: 'Updated Category',
       icon: '💰',
       color: '#0000FF',
     });
-    const mockDate = new Date('2023-01-01T00:00:00Z');
-    const mockISOString = mockDate.toISOString();
-    jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
-    jest.spyOn(categoryRepository, 'save').mockResolvedValue(categoryToSave);
-    jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(categoryToSave);
+    const categoryToSave = new Category(categoryEntityToSave);
+    jest
+      .spyOn(categoryRepository, 'save')
+      .mockResolvedValue(categoryEntityToSave);
+    jest
+      .spyOn(categoryRepository, 'findOne')
+      .mockResolvedValue(categoryEntityToSave);
 
     const result = await service.save(
-      categoryToSave.user.id,
-      new Category(categoryToSave),
+      categoryEntityToSave.user.id,
+      categoryToSave,
     );
 
     expect(categoryRepository.save).toHaveBeenCalledWith({
-      ...new Category(categoryToSave).toJSON(),
-      updatedAt: mockISOString,
+      ...categoryToSave.toJSON(),
+      user: categoryEntityToSave.user,
     });
     expect(result).toBeInstanceOf(Category);
     expect(result.id.equals(categoryToSave.id)).toBe(true);
