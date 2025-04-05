@@ -6,6 +6,8 @@ import * as cookieParser from 'cookie-parser';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { LoggingInterceptor } from '@src/common/interceptors';
 
+const logger = new ConsoleLogger('Start');
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new ConsoleLogger({
@@ -34,11 +36,11 @@ async function bootstrap() {
       .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup(docsRoute, app, documentFactory);
-    console.debug(`🔍 Check docs on ${docsRoute}`);
+    logger.debug(`🔍 Check docs on ${docsRoute}`);
   }
 
   await app.listen(process.env.PORT ?? 3000);
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 
-bootstrap().catch(console.error);
+bootstrap().catch(logger.error);
