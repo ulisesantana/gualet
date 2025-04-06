@@ -24,7 +24,8 @@ module.exports = {
     'src/main.ts',
     'src/.*index.ts',
     'src/.*\\.module\\.ts',
-    'src/migrations/.*'
+    'src/migrations/.*',
+    'src/tests/builders/.*'
   ],
   coverageDirectory: './coverage',
   setupFilesAfterEnv: ['./test/setup.ts'],

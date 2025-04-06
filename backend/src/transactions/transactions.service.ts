@@ -28,11 +28,14 @@ export class TransactionsService {
 
   findAll(
     userId: Id,
-    criteria: FindTransactionsCriteria,
+    { sort, page, pageSize, ...criteria }: FindTransactionsCriteria,
   ): Promise<Transaction[]> {
-    console.debug(criteria);
-    // TODO: Use criteria to filter transactions
-    return this.repository.find(userId, criteria);
+    return this.repository.find(userId, {
+      ...criteria,
+      sort: sort || 'asc',
+      page: page || 1,
+      pageSize: pageSize || 10,
+    });
   }
 
   find(userId: Id, id: Id): Promise<Transaction> {

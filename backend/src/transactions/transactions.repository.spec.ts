@@ -2,7 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionsRepository } from './transactions.repository';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TransactionEntity } from './entities';
-import { Repository } from 'typeorm';
+import {
+  Between,
+  DeleteResult,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import {
   buildCategoryEntity,
   buildPaymentMethodEntity,
@@ -53,6 +59,7 @@ describe('TransactionsRepository', () => {
             findOne: jest.fn(),
             find: jest.fn(),
             save: jest.fn(),
+            delete: jest.fn(),
             manager: {
               getRepository: jest.fn((entity) => {
                 if (entity === CategoryEntity) {
@@ -140,8 +147,69 @@ describe('TransactionsRepository', () => {
   });
 
   describe('find', () => {
-    it('should return all transactions for the user', async () => {
-      // Arrange
+    it('should return transactions filtered by date from only', async () => {
+      const userId = new Id('user-123');
+      const transactions = [
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+      ];
+
+      const criteria: FindTransactionsCriteria = { from: '2023-01-01' };
+
+      jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
+
+      const result = await repository.find(userId, criteria);
+
+      expect(entityRepository.find).toHaveBeenCalledWith({
+        where: {
+          user: { id: userId.toString() },
+          date: MoreThanOrEqual(new Date('2023-01-01')),
+        },
+        order: { date: 'ASC' },
+        skip: 0,
+        take: 10,
+        relations: ['category', 'payment_method', 'user'],
+      });
+
+      expect(result).toHaveLength(2);
+    });
+
+    it('should return transactions filtered by date to only', async () => {
+      const userId = new Id('user-123');
+      const transactions = [
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+      ];
+
+      const criteria: FindTransactionsCriteria = { to: '2023-01-31' };
+
+      jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
+
+      const result = await repository.find(userId, criteria);
+
+      expect(entityRepository.find).toHaveBeenCalledWith({
+        where: {
+          user: { id: userId.toString() },
+          date: LessThanOrEqual(new Date('2023-01-31')),
+        },
+        order: { date: 'ASC' },
+        skip: 0,
+        take: 10,
+        relations: ['category', 'payment_method', 'user'],
+      });
+
+      expect(result).toHaveLength(2);
+    });
+
+    it('should return transactions with default pagination when page and pageSize are not provided', async () => {
       const userId = new Id('user-123');
       const transactions = [
         buildTransactionEntity({
@@ -156,12 +224,205 @@ describe('TransactionsRepository', () => {
 
       jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
 
-      // Act
       const result = await repository.find(userId, criteria);
 
-      // Assert
       expect(entityRepository.find).toHaveBeenCalledWith({
         where: { user: { id: userId.toString() } },
+        order: { date: 'ASC' },
+        skip: 0,
+        take: 10,
+        relations: ['category', 'payment_method', 'user'],
+      });
+
+      expect(result).toHaveLength(2);
+    });
+
+    it('should return paginated transactions for the user', async () => {
+      const userId = new Id('user-123');
+      const transactions = [
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+      ];
+
+      const criteria: FindTransactionsCriteria = { page: 1, pageSize: 1 };
+
+      jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
+
+      const result = await repository.find(userId, criteria);
+
+      expect(entityRepository.find).toHaveBeenCalledWith({
+        where: { user: { id: userId.toString() } },
+        order: { date: 'ASC' },
+        skip: 0,
+        take: 1,
+        relations: ['category', 'payment_method', 'user'],
+      });
+
+      expect(result).toHaveLength(2);
+    });
+
+    it('should return sorted transactions for the user', async () => {
+      const userId = new Id('user-123');
+      const transactions = [
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+      ];
+
+      const criteria: FindTransactionsCriteria = { sort: 'desc' };
+
+      jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
+
+      const result = await repository.find(userId, criteria);
+
+      expect(entityRepository.find).toHaveBeenCalledWith({
+        where: { user: { id: userId.toString() } },
+        order: { date: 'desc' },
+        skip: 0,
+        take: 10,
+        relations: ['category', 'payment_method', 'user'],
+      });
+
+      expect(result).toHaveLength(2);
+    });
+
+    it('should return transactions within date range', async () => {
+      const userId = new Id('user-123');
+      const transactions = [
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+      ];
+
+      const criteria: FindTransactionsCriteria = {
+        from: '2023-01-01',
+        to: '2023-01-31',
+      };
+
+      jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
+
+      const result = await repository.find(userId, criteria);
+
+      expect(entityRepository.find).toHaveBeenCalledWith({
+        where: {
+          user: { id: userId.toString() },
+          date: Between(new Date('2023-01-01'), new Date('2023-01-31')),
+        },
+        order: { date: 'ASC' },
+        skip: 0,
+        take: 10,
+        relations: ['category', 'payment_method', 'user'],
+      });
+
+      expect(result).toHaveLength(2);
+    });
+
+    it('should return transactions filtered by category', async () => {
+      const userId = new Id('user-123');
+      const categoryId = 'category-123';
+      const transactions = [
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+          category: buildCategoryEntity({ id: categoryId }),
+        }),
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+          category: buildCategoryEntity({ id: categoryId }),
+        }),
+      ];
+
+      const criteria: FindTransactionsCriteria = { categoryId };
+
+      jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
+
+      const result = await repository.find(userId, criteria);
+
+      expect(entityRepository.find).toHaveBeenCalledWith({
+        where: {
+          user: { id: userId.toString() },
+          category: { id: categoryId },
+        },
+        order: { date: 'ASC' },
+        skip: 0,
+        take: 10,
+        relations: ['category', 'payment_method', 'user'],
+      });
+
+      expect(result).toHaveLength(2);
+    });
+
+    it('should return transactions filtered by payment method', async () => {
+      const userId = new Id('user-123');
+      const paymentMethodId = 'payment-method-123';
+      const transactions = [
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+          payment_method: buildPaymentMethodEntity({ id: paymentMethodId }),
+        }),
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+          payment_method: buildPaymentMethodEntity({ id: paymentMethodId }),
+        }),
+      ];
+
+      const criteria: FindTransactionsCriteria = { paymentMethodId };
+
+      jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
+
+      const result = await repository.find(userId, criteria);
+
+      expect(entityRepository.find).toHaveBeenCalledWith({
+        where: {
+          user: { id: userId.toString() },
+          payment_method: { id: paymentMethodId },
+        },
+        order: { date: 'ASC' },
+        skip: 0,
+        take: 10,
+        relations: ['category', 'payment_method', 'user'],
+      });
+
+      expect(result).toHaveLength(2);
+    });
+
+    it('should return transactions filtered by operation type', async () => {
+      const userId = new Id('user-123');
+      const operation = OperationType.Income;
+      const transactions = [
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+          operation,
+        }),
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+          operation,
+        }),
+      ];
+
+      const criteria: FindTransactionsCriteria = { operation };
+
+      jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
+
+      const result = await repository.find(userId, criteria);
+
+      expect(entityRepository.find).toHaveBeenCalledWith({
+        where: {
+          user: { id: userId.toString() },
+          operation,
+        },
+        order: { date: 'ASC' },
+        skip: 0,
+        take: 10,
         relations: ['category', 'payment_method', 'user'],
       });
 
@@ -498,5 +759,72 @@ describe('TransactionsRepository', () => {
 
     // The validation tests for category and payment method are similar to create method
     // and would be duplicative, so they're omitted for brevity
+  });
+
+  describe('delete', () => {
+    it('should delete a transaction successfully', async () => {
+      // Arrange
+      const userId = new Id('user-123');
+      const transactionId = new Id('transaction-123');
+
+      const transactionToDelete = buildTransactionEntity({
+        id: transactionId.toString(),
+        user: buildUserEntity({ id: userId.toString() }),
+      });
+
+      jest
+        .spyOn(entityRepository, 'findOne')
+        .mockResolvedValueOnce(transactionToDelete);
+      jest
+        .spyOn(entityRepository, 'delete')
+        .mockResolvedValueOnce(undefined as unknown as DeleteResult);
+
+      // Act
+      await repository.delete(userId, transactionId);
+
+      // Assert
+      expect(entityRepository.findOne).toHaveBeenCalledWith({
+        where: { id: transactionId.toString() },
+      });
+
+      expect(entityRepository.delete).toHaveBeenCalledWith({
+        id: transactionId.toString(),
+      });
+    });
+
+    it('should throw TransactionNotFoundError when transaction does not exist', async () => {
+      // Arrange
+      const userId = new Id('user-123');
+      const transactionId = new Id('transaction-123');
+      jest.spyOn(entityRepository, 'findOne').mockResolvedValueOnce(null);
+
+      // Act & Assert
+      await expect(repository.delete(userId, transactionId)).rejects.toThrow(
+        TransactionNotFoundError,
+      );
+      expect(entityRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotAuthorizedForTransactionError when transaction does not belong to user', async () => {
+      // Arrange
+      const userId = new Id('user-123');
+      const transactionId = new Id('transaction-123');
+      const transactionToDelete = buildTransactionEntity({
+        id: transactionId.toString(),
+        user: buildUserEntity({ id: 'another-user' }),
+      });
+      jest
+        .spyOn(entityRepository, 'findOne')
+        .mockResolvedValueOnce(transactionToDelete);
+      jest
+        .spyOn(entityRepository, 'delete')
+        .mockResolvedValueOnce(undefined as unknown as DeleteResult);
+
+      // Act & Assert
+      await expect(repository.delete(userId, transactionId)).rejects.toThrow(
+        NotAuthorizedForTransactionError,
+      );
+      expect(entityRepository.delete).not.toHaveBeenCalled();
+    });
   });
 });

@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TransactionEntity } from './entities';
-import { Repository } from 'typeorm';
+import {
+  Between,
+  FindManyOptions,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { Id } from '@src/common/domain';
 import { Transaction } from './transaction.model';
 import {
@@ -20,6 +26,7 @@ import {
   PaymentMethodNotFoundError,
 } from '@src/payment-methods/errors';
 import { TransactionToCreate } from './transactions.service';
+import { Pagination } from '@src/common/infrastructure';
 
 type TransactionPayload = TransactionToCreate & { id: Id };
 
@@ -85,16 +92,64 @@ export class TransactionsRepository {
 
   async find(
     userId: Id,
-    criteria: FindTransactionsCriteria,
-  ): Promise<Transaction[]> {
-    console.debug(criteria);
-    // TODO: Use criteria to filter transactions
+    criteria: FindTransactionsCriteria & {
+      sort: 'asc' | 'desc';
+      page: number;
+      pageSize: number;
+    },
+  ): Promise<{ pagination: Pagination; transactions: Transaction[] }> {
+    const where: FindManyOptions<TransactionEntity>['where'] = {
+      user: { id: userId.toString() },
+    };
+    const {
+      from,
+      to,
+      categoryId,
+      paymentMethodId,
+      operation,
+      sort,
+      page,
+      pageSize,
+    } = criteria;
+    if (categoryId) {
+      where.category = { id: categoryId };
+    }
+    if (paymentMethodId) {
+      where.payment_method = { id: paymentMethodId };
+    }
+    if (operation) {
+      where.operation = operation;
+    }
+    if (from && !to) {
+      where.date = MoreThanOrEqual(new Date(from)) as any;
+    }
+    if (from && to) {
+      where.date = Between(new Date(from), new Date(to)) as any;
+    }
+    if (!from && to) {
+      where.date = LessThanOrEqual(new Date(to)) as any;
+    }
+
+    const order = { date: sort } as any;
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+
     const transactions = await this.entityRepository.find({
-      where: { user: { id: userId.toString() } },
+      where,
+      order,
+      skip,
+      take,
       relations: ['category', 'payment_method', 'user'],
     });
 
-    return transactions.map(TransactionsRepository.mapToDomain);
+    return {
+      pagination: {
+        total: await this.entityRepository.count({ where }),
+        page,
+        pageSize,
+      },
+      transactions: transactions.map(TransactionsRepository.mapToDomain),
+    };
   }
 
   async update(
@@ -124,6 +179,22 @@ export class TransactionsRepository {
         payment_method: { id: transaction.paymentMethodId },
       });
     return TransactionsRepository.mapToDomain(savedTransaction);
+  }
+
+  async delete(userId: Id, transactionId: Id): Promise<void> {
+    const existingTransaction = await this.entityRepository.findOne({
+      where: { id: transactionId.toString() },
+    });
+
+    if (!existingTransaction) {
+      throw new TransactionNotFoundError(transactionId);
+    }
+
+    if (!userId.equals(existingTransaction.user.id)) {
+      throw new NotAuthorizedForTransactionError(transactionId);
+    }
+
+    await this.entityRepository.delete({ id: transactionId.toString() });
   }
 
   private async validateTransactionRelationship(
