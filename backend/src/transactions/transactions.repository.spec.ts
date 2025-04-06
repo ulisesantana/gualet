@@ -260,7 +260,7 @@ describe('TransactionsRepository', () => {
       });
     });
 
-    it('should return all transactions when page size is -1', async () => {
+    it('should return all transactions when page size is 0', async () => {
       const userId = new Id('user-123');
       const transactions = [
         buildTransactionEntity({
@@ -272,7 +272,7 @@ describe('TransactionsRepository', () => {
       ];
 
       const criteria = buildFindTransactionsCriteria({
-        pageSize: -1,
+        pageSize: 0,
         sort: 'asc',
       });
 

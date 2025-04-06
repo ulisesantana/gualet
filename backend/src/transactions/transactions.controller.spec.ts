@@ -13,6 +13,7 @@ import { buildFindTransactionsCriteria } from '@test/builders/dto/find-transacti
 import { buildTransaction } from '@test/builders/entities/transaction.entity.builder';
 import { TimeString } from '@src/common/types';
 import { AuthenticatedRequest, Pagination } from '@src/common/infrastructure';
+import { TransactionNotFoundError } from '@src/transactions/errors';
 
 describe('TransactionsController', () => {
   let controller: TransactionsController;
@@ -306,5 +307,157 @@ describe('TransactionsController', () => {
         expect(errorHasBeenThrown).toBe(true);
       }
     });
+  });
+
+  it('should handle not finding transaction by id', async () => {
+    const req = { user: { userId: 'user-123' } };
+    const transactionId = new Id('transaction-123');
+    const transactionError = new TransactionNotFoundError(transactionId);
+
+    jest
+      .spyOn(transactionsService, 'findById')
+      .mockRejectedValue(transactionError);
+
+    try {
+      await controller.findOne(
+        transactionId.toString(),
+        req as AuthenticatedRequest,
+      );
+    } catch (error) {
+      errorHasBeenThrown = true;
+      expect(error.status).toBe(404);
+      expect(error.response).toBeInstanceOf(TransactionResponseDto);
+      expect(error.response.success).toBe(false);
+      expect(error.response.error).toBe(transactionError);
+      expect(error.response.data).toBeNull();
+      expect(error.response.pagination).toBeNull();
+    } finally {
+      expect(errorHasBeenThrown).toBe(true);
+    }
+  });
+
+  it('should handle empty transactions list in find method', async () => {
+    const criteria = buildFindTransactionsCriteria();
+    const req = { user: { userId: 'user-123' } };
+    const transactions = [];
+    const pagination = new Pagination({ total: 0, page: 1, pageSize: 25 });
+
+    jest.spyOn(transactionsService, 'find').mockResolvedValue({
+      transactions,
+      pagination,
+    });
+
+    const result = await controller.findAll(
+      criteria,
+      req as AuthenticatedRequest,
+    );
+
+    expect(result).toBeInstanceOf(TransactionsResponseDto);
+    expect(result.data).toEqual({ transactions: [] });
+    expect(result.pagination).toEqual(pagination);
+  });
+
+  it('should handle specific domain error in create method', async () => {
+    const createDto: CreateTransactionDto = {
+      amount: 100,
+      operation: OperationType.Outcome,
+      description: 'Test transaction',
+      categoryId: 'category-123',
+      paymentMethodId: 'payment-123',
+      date: '2023-01-01' as TimeString,
+    };
+    const req = { user: { userId: 'user-123' } };
+    const domainError = {
+      code: 'TRANSACTION_NOT_FOUND',
+      message: 'Transaction not found',
+    };
+
+    jest.spyOn(transactionsService, 'create').mockRejectedValue(domainError);
+
+    try {
+      await controller.create(createDto, req as AuthenticatedRequest);
+    } catch (error) {
+      errorHasBeenThrown = true;
+      expect(error.status).toBe(404);
+      expect(error?.response.success).toBe(false);
+      expect(error?.response.data).toBeNull();
+      expect(error?.response.error).toEqual(domainError);
+    } finally {
+      expect(errorHasBeenThrown).toBe(true);
+    }
+  });
+
+  it('should handle forbidden error in update method', async () => {
+    const transactionId = 'transaction-123';
+    const updateDto: UpdateTransactionDto = { amount: 200 };
+    const req = { user: { userId: 'user-123' } };
+    const domainError = {
+      code: 'NOT_AUTHORIZED_FOR_TRANSACTION',
+      message: 'Not authorized to access this transaction',
+    };
+
+    jest.spyOn(transactionsService, 'update').mockRejectedValue(domainError);
+
+    try {
+      await controller.update(
+        transactionId,
+        req as AuthenticatedRequest,
+        updateDto,
+      );
+    } catch (error) {
+      errorHasBeenThrown = true;
+      expect(error.status).toBe(403);
+      expect(error?.response.success).toBe(false);
+      expect(error?.response.data).toBeNull();
+      expect(error?.response.error).toEqual(domainError);
+    } finally {
+      expect(errorHasBeenThrown).toBe(true);
+    }
+  });
+
+  it('should handle payment method not found error', async () => {
+    const transactionId = 'transaction-123';
+    const req = { user: { userId: 'user-123' } };
+    const domainError = {
+      code: 'PAYMENT_METHOD_NOT_FOUND',
+      message: 'Payment method not found',
+    };
+
+    jest.spyOn(transactionsService, 'findById').mockRejectedValue(domainError);
+
+    try {
+      await controller.findOne(transactionId, req as AuthenticatedRequest);
+    } catch (error) {
+      errorHasBeenThrown = true;
+      expect(error.status).toBe(404);
+      expect(error?.response.success).toBe(false);
+      expect(error?.response.data).toBeNull();
+      expect(error?.response.error).toEqual(domainError);
+    } finally {
+      expect(errorHasBeenThrown).toBe(true);
+    }
+  });
+
+  it('should handle category not authorized error in delete method', async () => {
+    const transactionId = 'transaction-123';
+    const req = { user: { userId: 'user-123' } };
+    const domainError = {
+      code: 'NOT_AUTHORIZED_FOR_CATEGORY',
+      message: 'Not authorized to access this category',
+    };
+
+    jest.spyOn(transactionsService, 'delete').mockRejectedValue(domainError);
+
+    try {
+      await controller.remove(transactionId, req as AuthenticatedRequest);
+    } catch (error) {
+      errorHasBeenThrown = true;
+      expect(error.status).toBe(403);
+      expect(error?.response.success).toBe(false);
+      expect(error?.response.data).toBeNull();
+      expect(error?.response.error).toEqual(domainError);
+    } finally {
+      expect(errorHasBeenThrown).toBe(true);
+    }
   });
 });

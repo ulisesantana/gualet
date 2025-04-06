@@ -45,7 +45,7 @@ export class FindTransactionsCriteria {
   @IsNumber()
   @ApiProperty({
     description:
-      'Number of transactions per page. If set to -1, all matching transactions will be returned.',
+      'Number of transactions per page. If set to 0, all matching transactions will be returned.',
     required: false,
     type: Number,
     example: 10,

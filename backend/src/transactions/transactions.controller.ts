@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   InternalServerErrorException,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -20,15 +22,23 @@ import {
   TransactionsResponseDto,
   UpdateTransactionDto,
 } from './dto';
-import { AuthenticatedRequest } from '@src/common/infrastructure';
+import {
+  AuthenticatedRequest,
+  BaseController,
+} from '@src/common/infrastructure';
 import { Id } from '@src/common/domain';
 import { JwtAuthGuard } from '@src/auth';
 import { ApiResponse } from '@nestjs/swagger';
+import { TransactionsErrorCodes } from '@src/transactions/errors';
+import { CategoriesErrorCodes } from '@src/categories/errors';
+import { PaymentMethodsErrorCodes } from '@src/payment-methods/errors';
 
 @Controller('me/transactions')
 @UseGuards(JwtAuthGuard)
-export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) {}
+export class TransactionsController extends BaseController {
+  constructor(private readonly transactionsService: TransactionsService) {
+    super();
+  }
 
   @Post()
   @ApiResponse({ type: TransactionResponseDto })
@@ -43,9 +53,7 @@ export class TransactionsController {
       );
       return new TransactionResponseDto(transaction);
     } catch (error) {
-      throw new InternalServerErrorException(
-        new TransactionResponseDto(null, error),
-      );
+      this.handleTransactionsError(error, TransactionResponseDto);
     }
   }
 
@@ -62,9 +70,7 @@ export class TransactionsController {
       );
       return new TransactionsResponseDto(transactions, null, pagination);
     } catch (error) {
-      throw new InternalServerErrorException(
-        new TransactionsResponseDto(null, error),
-      );
+      this.handleTransactionsError(error, TransactionsResponseDto);
     }
   }
 
@@ -78,9 +84,7 @@ export class TransactionsController {
       );
       return new TransactionResponseDto(transaction);
     } catch (error) {
-      throw new InternalServerErrorException(
-        new TransactionResponseDto(null, error),
-      );
+      this.handleTransactionsError(error, TransactionResponseDto);
     }
   }
 
@@ -101,9 +105,7 @@ export class TransactionsController {
       );
       return new TransactionResponseDto(transaction);
     } catch (error) {
-      throw new InternalServerErrorException(
-        new TransactionResponseDto(null, error),
-      );
+      this.handleTransactionsError(error, TransactionResponseDto);
     }
   }
 
@@ -117,9 +119,26 @@ export class TransactionsController {
       );
       return new DeleteTransactionResponseDto();
     } catch (error) {
-      throw new InternalServerErrorException(
-        new DeleteTransactionResponseDto(error),
-      );
+      this.handleTransactionsError(error, DeleteTransactionResponseDto);
     }
+  }
+
+  private handleTransactionsError(
+    error: any,
+    DtoConstructor: new (...args: any[]) => any,
+  ): never {
+    if (this.isBaseError(error)) {
+      switch (error.code) {
+        case TransactionsErrorCodes.TransactionNotFound:
+        case CategoriesErrorCodes.CategoryNotFound:
+        case PaymentMethodsErrorCodes.PaymentMethodNotFound:
+          throw new NotFoundException(new DtoConstructor(null, error));
+        case TransactionsErrorCodes.NotAuthorizedForTransaction:
+        case CategoriesErrorCodes.NotAuthorizedForCategory:
+        case PaymentMethodsErrorCodes.NotAuthorizedForPaymentMethod:
+          throw new ForbiddenException(new DtoConstructor(null, error));
+      }
+    }
+    throw new InternalServerErrorException(new DtoConstructor(null, error));
   }
 }

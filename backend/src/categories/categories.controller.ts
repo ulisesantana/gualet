@@ -30,13 +30,13 @@ import { Id } from '@src/common/domain';
 import { CategoriesErrorCodes } from './errors';
 
 @Controller('me/categories')
+@UseGuards(JwtAuthGuard)
 export class CategoriesController extends BaseController {
   constructor(private readonly categoryService: CategoriesService) {
     super();
   }
 
   @Get('/')
-  @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: CategoriesResponseDto })
   async findAll(@Req() req: AuthenticatedRequest) {
     const categories = await this.categoryService.findAll(req.user.userId);
@@ -44,7 +44,6 @@ export class CategoriesController extends BaseController {
   }
 
   @Get('/:id')
-  @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: CategoriesResponseDto })
   async findOne(@Req() req: AuthenticatedRequest, @Param() id: string) {
     try {
@@ -60,7 +59,6 @@ export class CategoriesController extends BaseController {
   }
 
   @Post('/')
-  @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: CategoryResponseDto })
   async create(
     @Req() req: AuthenticatedRequest,
@@ -75,7 +73,6 @@ export class CategoriesController extends BaseController {
   }
 
   @Put('/:id')
-  @UseGuards(JwtAuthGuard)
   async save(
     @Req() req: AuthenticatedRequest,
     @Param() id: string,
@@ -94,6 +91,7 @@ export class CategoriesController extends BaseController {
 
       return new CategoryResponseDto(newCategory);
     } catch (error) {
+      // TODO: Add logging service
       console.error('Error saving category:', error);
       this.handleCategoriesError(error);
     }

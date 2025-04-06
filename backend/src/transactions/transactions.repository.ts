@@ -130,13 +130,13 @@ export class TransactionsRepository {
       where.date = LessThanOrEqual(new Date(to)) as any;
     }
 
-    if (pageSize === -1) {
-      const order = { date: sort } as any;
-
+    const order = { date: sort } as any;
+    const relations = ['category', 'payment_method', 'user'];
+    if (pageSize === 0) {
       const transactions = await this.entityRepository.find({
         where,
         order,
-        relations: ['category', 'payment_method', 'user'],
+        relations,
       });
 
       return {
@@ -149,7 +149,6 @@ export class TransactionsRepository {
       };
     }
 
-    const order = { date: sort } as any;
     const skip = (page - 1) * pageSize;
     const take = pageSize;
 
@@ -158,7 +157,7 @@ export class TransactionsRepository {
       order,
       skip,
       take,
-      relations: ['category', 'payment_method', 'user'],
+      relations,
     });
 
     return {
