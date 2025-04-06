@@ -1,16 +1,25 @@
 import { Nullable } from '../types';
 import { Pagination } from '../infrastructure';
+import { ApiProperty } from '@nestjs/swagger';
 
-export type BaseResponse<Data, Error> =
-  | {
-      success: true;
-      data: Data;
-      error: null;
-      pagination: Nullable<Pagination>;
-    }
-  | {
-      success: false;
-      data: null;
-      error: Error;
-      pagination: Nullable<Pagination>;
-    };
+export class BaseResponse<Data, Error = string> {
+  @ApiProperty()
+  readonly success: boolean;
+  @ApiProperty()
+  readonly data: Nullable<Data>;
+  @ApiProperty()
+  readonly error: Nullable<Error>;
+  @ApiProperty()
+  readonly pagination: Nullable<Pagination>;
+
+  constructor(
+    data: Nullable<Data> = null,
+    error: Nullable<Error> = null,
+    pagination: Nullable<Pagination> = null,
+  ) {
+    this.success = !error;
+    this.data = data;
+    this.error = error;
+    this.pagination = pagination;
+  }
+}

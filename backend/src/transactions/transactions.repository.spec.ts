@@ -260,6 +260,41 @@ describe('TransactionsRepository', () => {
       });
     });
 
+    it('should return all transactions when page size is -1', async () => {
+      const userId = new Id('user-123');
+      const transactions = [
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+        buildTransactionEntity({
+          user: buildUserEntity({ id: userId.toString() }),
+        }),
+      ];
+
+      const criteria = buildFindTransactionsCriteria({
+        pageSize: -1,
+        sort: 'asc',
+      });
+
+      jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
+
+      const result = await repository.find(userId, criteria);
+
+      expect(entityRepository.find).toHaveBeenCalledWith({
+        where: { user: { id: userId.toString() } },
+        order: { date: 'asc' },
+        relations: ['category', 'payment_method', 'user'],
+      });
+
+      expect(result.transactions).toHaveLength(2);
+      expect(result.pagination).toEqual({
+        page: 1,
+        pageSize: 2,
+        total: 2,
+        pages: 1,
+      });
+    });
+
     it('should return sorted transactions for the user', async () => {
       const userId = new Id('user-123');
       const transactions = [
