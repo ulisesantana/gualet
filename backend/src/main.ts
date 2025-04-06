@@ -6,7 +6,10 @@ import * as cookieParser from 'cookie-parser';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { LoggingInterceptor } from '@src/common/interceptors';
 
-const logger = new ConsoleLogger('Start');
+const logger = new ConsoleLogger({
+  context: 'Bootstrap',
+  prefix: 'Gualet',
+});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {

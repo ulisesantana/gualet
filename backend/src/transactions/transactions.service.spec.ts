@@ -3,7 +3,6 @@ import { TransactionsService } from './transactions.service';
 import { TransactionsRepository } from './transactions.repository';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TransactionEntity } from './entities';
-import { Repository } from 'typeorm';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;
@@ -15,7 +14,14 @@ describe('TransactionsService', () => {
         TransactionsRepository,
         {
           provide: getRepositoryToken(TransactionEntity),
-          useClass: Repository,
+          useValue: {
+            findOne: jest.fn(),
+            find: jest.fn(),
+            save: jest.fn(),
+            manager: {
+              getRepository: jest.fn().mockReturnValue({ findOne: jest.fn() }),
+            },
+          },
         },
       ],
     }).compile();

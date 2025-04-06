@@ -28,18 +28,22 @@ import { CategoryEntity } from '@src/categories';
 import { PaymentMethodEntity } from '@src/payment-methods';
 import { FindTransactionsCriteria } from './dto';
 import { TimeString } from '@src/common/types';
+import Mocked = jest.Mocked;
 
 describe('TransactionsRepository', () => {
   let repository: TransactionsRepository;
   let entityRepository: Repository<TransactionEntity>;
-  let categoryRepository: Repository<CategoryEntity>;
-  let paymentMethodRepository: Repository<PaymentMethodEntity>;
-
-  const mockEntityManager = {
-    getRepository: jest.fn(),
-  };
+  let categoryRepository: Mocked<Repository<CategoryEntity>>;
+  let paymentMethodRepository: Mocked<Repository<PaymentMethodEntity>>;
 
   beforeEach(async () => {
+    categoryRepository = {
+      findOne: jest.fn(),
+    } as unknown as Mocked<Repository<CategoryEntity>>;
+    paymentMethodRepository = {
+      findOne: jest.fn(),
+    } as unknown as Mocked<Repository<PaymentMethodEntity>>;
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TransactionsRepository,
@@ -49,7 +53,17 @@ describe('TransactionsRepository', () => {
             findOne: jest.fn(),
             find: jest.fn(),
             save: jest.fn(),
-            manager: mockEntityManager,
+            manager: {
+              getRepository: jest.fn((entity) => {
+                if (entity === CategoryEntity) {
+                  return categoryRepository;
+                }
+                if (entity === PaymentMethodEntity) {
+                  return paymentMethodRepository;
+                }
+                throw new Error(`Unknown entity: ${entity}`);
+              }),
+            },
           },
         },
       ],
@@ -59,20 +73,6 @@ describe('TransactionsRepository', () => {
     entityRepository = module.get<Repository<TransactionEntity>>(
       getRepositoryToken(TransactionEntity),
     );
-
-    categoryRepository = {
-      findOne: jest.fn(),
-    } as unknown as Repository<CategoryEntity>;
-
-    paymentMethodRepository = {
-      findOne: jest.fn(),
-    } as unknown as Repository<PaymentMethodEntity>;
-
-    mockEntityManager.getRepository.mockImplementation((entity) => {
-      if (entity === CategoryEntity) return categoryRepository;
-      if (entity === PaymentMethodEntity) return paymentMethodRepository;
-      return null;
-    });
   });
 
   afterEach(() => {
@@ -211,6 +211,9 @@ describe('TransactionsRepository', () => {
         .mockResolvedValueOnce(paymentMethod);
       jest.spyOn(entityRepository, 'save').mockResolvedValueOnce({} as any);
       jest.spyOn(repository, 'findById').mockResolvedValueOnce(newTransaction);
+      jest
+        .spyOn(paymentMethodRepository, 'findOne')
+        .mockResolvedValueOnce(paymentMethod);
 
       // Act
       const result = await repository.create(userId, transactionToCreate);

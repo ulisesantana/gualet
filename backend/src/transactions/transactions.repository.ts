@@ -33,9 +33,9 @@ export class TransactionsRepository {
     private readonly entityRepository: Repository<TransactionEntity>,
   ) {
     this.categoryRepository =
-      this.entityRepository.manager.getRepository(CategoryEntity);
+      entityRepository.manager.getRepository(CategoryEntity);
     this.paymentMethodRepository =
-      this.entityRepository.manager.getRepository(PaymentMethodEntity);
+      entityRepository.manager.getRepository(PaymentMethodEntity);
   }
 
   static mapToDomain(transaction: TransactionEntity) {
