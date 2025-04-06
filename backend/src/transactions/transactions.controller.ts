@@ -41,13 +41,16 @@ export class TransactionsController {
     @Req() req: AuthenticatedRequest,
     @Query() criteria: FindTransactionsCriteria,
   ) {
-    return this.transactionsService.findAll(new Id(req.user.userId), criteria);
+    return this.transactionsService.find(new Id(req.user.userId), criteria);
   }
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    return this.transactionsService.find(new Id(req.user.userId), new Id(id));
+    return this.transactionsService.findById(
+      new Id(req.user.userId),
+      new Id(id),
+    );
   }
 
   @Patch(':id')

@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import {
   buildCategoryEntity,
+  buildFindTransactionsCriteria,
   buildPaymentMethodEntity,
   buildTransaction,
   buildTransactionEntity,
@@ -32,8 +33,7 @@ import {
 
 import { CategoryEntity } from '@src/categories';
 import { PaymentMethodEntity } from '@src/payment-methods';
-import { FindTransactionsCriteria } from './dto';
-import { TimeString } from '@src/common/types';
+import { DateString, TimeString } from '@src/common/types';
 import Mocked = jest.Mocked;
 
 describe('TransactionsRepository', () => {
@@ -60,6 +60,7 @@ describe('TransactionsRepository', () => {
             find: jest.fn(),
             save: jest.fn(),
             delete: jest.fn(),
+            count: jest.fn().mockResolvedValueOnce(100),
             manager: {
               getRepository: jest.fn((entity) => {
                 if (entity === CategoryEntity) {
@@ -158,7 +159,9 @@ describe('TransactionsRepository', () => {
         }),
       ];
 
-      const criteria: FindTransactionsCriteria = { from: '2023-01-01' };
+      const criteria = buildFindTransactionsCriteria({
+        from: '2023-01-01' as DateString,
+      });
 
       jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
 
@@ -169,13 +172,19 @@ describe('TransactionsRepository', () => {
           user: { id: userId.toString() },
           date: MoreThanOrEqual(new Date('2023-01-01')),
         },
-        order: { date: 'ASC' },
+        order: { date: 'asc' },
         skip: 0,
-        take: 10,
+        take: 25,
         relations: ['category', 'payment_method', 'user'],
       });
 
-      expect(result).toHaveLength(2);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.pagination).toEqual({
+        page: 1,
+        pageSize: 25,
+        total: 100,
+        pages: 4,
+      });
     });
 
     it('should return transactions filtered by date to only', async () => {
@@ -189,7 +198,9 @@ describe('TransactionsRepository', () => {
         }),
       ];
 
-      const criteria: FindTransactionsCriteria = { to: '2023-01-31' };
+      const criteria = buildFindTransactionsCriteria({
+        to: '2023-01-31',
+      });
 
       jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
 
@@ -200,41 +211,19 @@ describe('TransactionsRepository', () => {
           user: { id: userId.toString() },
           date: LessThanOrEqual(new Date('2023-01-31')),
         },
-        order: { date: 'ASC' },
+        order: { date: 'asc' },
         skip: 0,
-        take: 10,
+        take: 25,
         relations: ['category', 'payment_method', 'user'],
       });
 
-      expect(result).toHaveLength(2);
-    });
-
-    it('should return transactions with default pagination when page and pageSize are not provided', async () => {
-      const userId = new Id('user-123');
-      const transactions = [
-        buildTransactionEntity({
-          user: buildUserEntity({ id: userId.toString() }),
-        }),
-        buildTransactionEntity({
-          user: buildUserEntity({ id: userId.toString() }),
-        }),
-      ];
-
-      const criteria: FindTransactionsCriteria = {};
-
-      jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
-
-      const result = await repository.find(userId, criteria);
-
-      expect(entityRepository.find).toHaveBeenCalledWith({
-        where: { user: { id: userId.toString() } },
-        order: { date: 'ASC' },
-        skip: 0,
-        take: 10,
-        relations: ['category', 'payment_method', 'user'],
+      expect(result.transactions).toHaveLength(2);
+      expect(result.pagination).toEqual({
+        page: 1,
+        pageSize: 25,
+        total: 100,
+        pages: 4,
       });
-
-      expect(result).toHaveLength(2);
     });
 
     it('should return paginated transactions for the user', async () => {
@@ -248,7 +237,7 @@ describe('TransactionsRepository', () => {
         }),
       ];
 
-      const criteria: FindTransactionsCriteria = { page: 1, pageSize: 1 };
+      const criteria = buildFindTransactionsCriteria({ page: 3, pageSize: 33 });
 
       jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
 
@@ -256,13 +245,19 @@ describe('TransactionsRepository', () => {
 
       expect(entityRepository.find).toHaveBeenCalledWith({
         where: { user: { id: userId.toString() } },
-        order: { date: 'ASC' },
-        skip: 0,
-        take: 1,
+        order: { date: 'asc' },
+        skip: 66,
+        take: 33,
         relations: ['category', 'payment_method', 'user'],
       });
 
-      expect(result).toHaveLength(2);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.pagination).toEqual({
+        page: 3,
+        pageSize: 33,
+        pages: 4,
+        total: 100,
+      });
     });
 
     it('should return sorted transactions for the user', async () => {
@@ -276,7 +271,7 @@ describe('TransactionsRepository', () => {
         }),
       ];
 
-      const criteria: FindTransactionsCriteria = { sort: 'desc' };
+      const criteria = buildFindTransactionsCriteria({ sort: 'desc' });
 
       jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
 
@@ -286,11 +281,17 @@ describe('TransactionsRepository', () => {
         where: { user: { id: userId.toString() } },
         order: { date: 'desc' },
         skip: 0,
-        take: 10,
+        take: 25,
         relations: ['category', 'payment_method', 'user'],
       });
 
-      expect(result).toHaveLength(2);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.pagination).toEqual({
+        page: 1,
+        pageSize: 25,
+        total: 100,
+        pages: 4,
+      });
     });
 
     it('should return transactions within date range', async () => {
@@ -304,10 +305,10 @@ describe('TransactionsRepository', () => {
         }),
       ];
 
-      const criteria: FindTransactionsCriteria = {
+      const criteria = buildFindTransactionsCriteria({
         from: '2023-01-01',
         to: '2023-01-31',
-      };
+      });
 
       jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
 
@@ -318,13 +319,19 @@ describe('TransactionsRepository', () => {
           user: { id: userId.toString() },
           date: Between(new Date('2023-01-01'), new Date('2023-01-31')),
         },
-        order: { date: 'ASC' },
+        order: { date: 'asc' },
         skip: 0,
-        take: 10,
+        take: 25,
         relations: ['category', 'payment_method', 'user'],
       });
 
-      expect(result).toHaveLength(2);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.pagination).toEqual({
+        page: 1,
+        pageSize: 25,
+        total: 100,
+        pages: 4,
+      });
     });
 
     it('should return transactions filtered by category', async () => {
@@ -341,7 +348,7 @@ describe('TransactionsRepository', () => {
         }),
       ];
 
-      const criteria: FindTransactionsCriteria = { categoryId };
+      const criteria = buildFindTransactionsCriteria({ categoryId });
 
       jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
 
@@ -352,13 +359,19 @@ describe('TransactionsRepository', () => {
           user: { id: userId.toString() },
           category: { id: categoryId },
         },
-        order: { date: 'ASC' },
+        order: { date: 'asc' },
         skip: 0,
-        take: 10,
+        take: 25,
         relations: ['category', 'payment_method', 'user'],
       });
 
-      expect(result).toHaveLength(2);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.pagination).toEqual({
+        page: 1,
+        pageSize: 25,
+        total: 100,
+        pages: 4,
+      });
     });
 
     it('should return transactions filtered by payment method', async () => {
@@ -375,7 +388,7 @@ describe('TransactionsRepository', () => {
         }),
       ];
 
-      const criteria: FindTransactionsCriteria = { paymentMethodId };
+      const criteria = buildFindTransactionsCriteria({ paymentMethodId });
 
       jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
 
@@ -386,13 +399,19 @@ describe('TransactionsRepository', () => {
           user: { id: userId.toString() },
           payment_method: { id: paymentMethodId },
         },
-        order: { date: 'ASC' },
+        order: { date: 'asc' },
         skip: 0,
-        take: 10,
+        take: 25,
         relations: ['category', 'payment_method', 'user'],
       });
 
-      expect(result).toHaveLength(2);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.pagination).toEqual({
+        page: 1,
+        pageSize: 25,
+        total: 100,
+        pages: 4,
+      });
     });
 
     it('should return transactions filtered by operation type', async () => {
@@ -409,7 +428,7 @@ describe('TransactionsRepository', () => {
         }),
       ];
 
-      const criteria: FindTransactionsCriteria = { operation };
+      const criteria = buildFindTransactionsCriteria({ operation });
 
       jest.spyOn(entityRepository, 'find').mockResolvedValueOnce(transactions);
 
@@ -420,13 +439,19 @@ describe('TransactionsRepository', () => {
           user: { id: userId.toString() },
           operation,
         },
-        order: { date: 'ASC' },
+        order: { date: 'asc' },
         skip: 0,
-        take: 10,
+        take: 25,
         relations: ['category', 'payment_method', 'user'],
       });
 
-      expect(result).toHaveLength(2);
+      expect(result.transactions).toHaveLength(2);
+      expect(result.pagination).toEqual({
+        page: 1,
+        pageSize: 25,
+        total: 100,
+        pages: 4,
+      });
     });
   });
 

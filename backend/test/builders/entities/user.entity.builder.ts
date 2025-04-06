@@ -1,4 +1,4 @@
-import { generateRandomId } from './generate-random-id';
+import { generateRandomId } from '../generate-random-id';
 import { UserEntity } from '@src/users';
 
 export function buildUserEntity(

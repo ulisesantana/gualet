@@ -143,11 +143,11 @@ export class TransactionsRepository {
     });
 
     return {
-      pagination: {
+      pagination: new Pagination({
         total: await this.entityRepository.count({ where }),
         page,
         pageSize,
-      },
+      }),
       transactions: transactions.map(TransactionsRepository.mapToDomain),
     };
   }

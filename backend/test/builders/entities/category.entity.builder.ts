@@ -1,4 +1,4 @@
-import { generateRandomId } from './generate-random-id';
+import { generateRandomId } from '../generate-random-id';
 import { CategoryEntity } from '@src/categories';
 import { OperationType } from '@src/common/domain';
 import { buildUserEntity } from './user.entity.builder';

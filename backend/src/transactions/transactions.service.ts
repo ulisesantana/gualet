@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Id, OperationType } from '@src/common/domain';
 import { Transaction } from './transaction.model';
-import { TransactionNotFoundError } from './errors';
 import { TimeString } from '@src/common/types';
 import { FindTransactionsCriteria } from './dto';
 import { TransactionsRepository } from './transactions.repository';
+import { Pagination } from '@src/common/infrastructure';
 
 export interface TransactionToCreate {
   amount: number;
@@ -17,6 +17,11 @@ export interface TransactionToCreate {
 
 export type TransactionToUpdate = Partial<TransactionToCreate> & { id: Id };
 
+export interface FindTransactionsResult {
+  transactions: Transaction[];
+  pagination: Pagination;
+}
+
 @Injectable()
 export class TransactionsService {
   constructor(private readonly repository: TransactionsRepository) {}
@@ -26,10 +31,10 @@ export class TransactionsService {
     return this.repository.create(userId, { ...transaction, id });
   }
 
-  findAll(
+  find(
     userId: Id,
     { sort, page, pageSize, ...criteria }: FindTransactionsCriteria,
-  ): Promise<Transaction[]> {
+  ): Promise<FindTransactionsResult> {
     return this.repository.find(userId, {
       ...criteria,
       sort: sort || 'asc',
@@ -38,7 +43,7 @@ export class TransactionsService {
     });
   }
 
-  find(userId: Id, id: Id): Promise<Transaction> {
+  findById(userId: Id, id: Id): Promise<Transaction> {
     return this.repository.findById(userId, id);
   }
 
@@ -48,10 +53,6 @@ export class TransactionsService {
   ): Promise<Transaction> {
     const id = new Id(transaction.id);
     const existingTransaction = await this.repository.findById(userId, id);
-
-    if (!existingTransaction) {
-      throw new TransactionNotFoundError(transaction.id);
-    }
 
     return this.repository.update(userId, {
       ...existingTransaction,
@@ -64,5 +65,7 @@ export class TransactionsService {
     });
   }
 
-  // TODO: Implement remove method
+  async delete(userId: Id, id: Id): Promise<void> {
+    return this.repository.delete(userId, id);
+  }
 }
