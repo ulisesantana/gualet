@@ -65,7 +65,7 @@ export class TransactionsService {
     });
   }
 
-  async delete(userId: Id, id: Id): Promise<void> {
+  delete(userId: Id, id: Id): Promise<void> {
     return this.repository.delete(userId, id);
   }
 }

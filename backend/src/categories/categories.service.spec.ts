@@ -1,35 +1,31 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriesService } from './categories.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { CategoryEntity } from './entities';
-import { Repository } from 'typeorm';
 import { Category } from './category.model';
 import { Id, OperationType } from '@src/common/domain';
-import { buildCategoryEntity, buildUserEntity } from '@test/builders';
-import {
-  CategoryNotFoundError,
-  NotAuthorizedForCategoryError,
-} from '@src/categories/errors';
+import { buildCategory, buildUserEntity } from '@test/builders';
+import { CategoriesRepository } from './categories.repository';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { CategoryEntity } from '@src/categories/entities';
 
 describe('CategoriesService', () => {
+  const userId = new Id('user-123');
   let service: CategoriesService;
-  let categoryRepository: Repository<CategoryEntity>;
+  let categoryRepository: CategoriesRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CategoriesService,
+        CategoriesRepository,
         {
           provide: getRepositoryToken(CategoryEntity),
-          useClass: Repository,
+          useValue: {},
         },
       ],
     }).compile();
 
     service = module.get<CategoriesService>(CategoriesService);
-    categoryRepository = module.get<Repository<CategoryEntity>>(
-      getRepositoryToken(CategoryEntity),
-    );
+    categoryRepository = module.get<CategoriesRepository>(CategoriesRepository);
   });
 
   it('should be defined', () => {
@@ -37,47 +33,43 @@ describe('CategoriesService', () => {
   });
 
   it('should find all categories for a user', async () => {
-    const userId = 'user-123';
     const categoryEntities = [
-      buildCategoryEntity({ user: buildUserEntity({ id: userId }) }),
-      buildCategoryEntity({
-        user: buildUserEntity({ id: userId }),
+      buildCategory(),
+      buildCategory({
         name: 'Food',
         icon: '🍔',
         color: '#FF0000',
       }),
     ];
 
-    jest.spyOn(categoryRepository, 'find').mockResolvedValue(categoryEntities);
+    jest
+      .spyOn(categoryRepository, 'findAll')
+      .mockResolvedValue(categoryEntities);
 
     const result = await service.findAll(userId);
 
-    expect(categoryRepository.find).toHaveBeenCalledWith({
-      where: {
-        user: { id: userId },
-      },
-    });
+    expect(categoryRepository.findAll).toHaveBeenCalledWith(userId);
     expect(result).toHaveLength(2);
     expect(result[0]).toBeInstanceOf(Category);
     expect(result[0].id).toBeInstanceOf(Id);
-    expect(result[0].id.toString()).toBe(categoryEntities[0].id);
+    expect(result[0].id).toBe(categoryEntities[0].id);
     expect(result[1].name).toBe('Food');
     expect(result[1].icon).toBe('🍔');
     expect(result[1].color).toBe('#FF0000');
   });
 
   it('should return empty array when user has no categories', async () => {
-    jest.spyOn(categoryRepository, 'find').mockResolvedValue([]);
+    jest.spyOn(categoryRepository, 'findAll').mockResolvedValue([]);
 
-    const result = await service.findAll('user-123');
+    const result = await service.findAll(userId);
 
     expect(result).toEqual([]);
   });
 
   it('should create a new category', async () => {
-    const newCategoryData = buildCategoryEntity({
+    const newCategoryData = buildCategory({
       user: buildUserEntity({
-        id: 'user-123',
+        id: userId.toString(),
       }),
       name: 'Shopping',
       icon: '🛒',
@@ -85,37 +77,32 @@ describe('CategoriesService', () => {
       type: OperationType.Outcome,
     });
 
-    const savedCategory = { ...newCategoryData, id: 'new-id' };
-    jest.spyOn(categoryRepository, 'create').mockReturnValue(savedCategory);
-    jest.spyOn(categoryRepository, 'save').mockResolvedValue(savedCategory);
+    const savedCategory = new Category({ ...newCategoryData, id: 'new-id' });
+    jest.spyOn(categoryRepository, 'create').mockResolvedValue(savedCategory);
 
-    const result = await service.create(
-      'user-123',
-      new Category(newCategoryData),
-    );
+    const result = await service.create(userId, new Category(newCategoryData));
 
-    expect(categoryRepository.save).toHaveBeenCalled();
+    expect(categoryRepository.create).toHaveBeenCalled();
     expect(result).toBeInstanceOf(Category);
-    expect(result.id.toString()).toBe('new-id');
+    expect(result.id).toStrictEqual(new Id('new-id'));
     expect(result.name).toBe('Shopping');
     expect(result.icon).toBe('🛒');
     expect(result.color).toBe('#00FF00');
   });
 
   it('should create a category handling missing optional fields', async () => {
-    const categoryWithoutOptionals = buildCategoryEntity();
-    categoryWithoutOptionals.icon = undefined;
-    categoryWithoutOptionals.color = undefined;
+    const categoryWithoutOptionals = buildCategory({
+      user: buildUserEntity({ id: userId.toString() }),
+    });
+    categoryWithoutOptionals.icon = null;
+    categoryWithoutOptionals.color = null;
 
     jest
       .spyOn(categoryRepository, 'create')
-      .mockReturnValue(categoryWithoutOptionals);
-    jest
-      .spyOn(categoryRepository, 'save')
       .mockResolvedValue(categoryWithoutOptionals);
 
     const result = await service.create(
-      categoryWithoutOptionals.user.id,
+      userId,
       new Category(categoryWithoutOptionals),
     );
 
@@ -124,20 +111,17 @@ describe('CategoriesService', () => {
   });
 
   it('should find an existing category by id', async () => {
-    const category = buildCategoryEntity({
+    const category = buildCategory({
       name: 'Updated Category',
       icon: '💰',
       color: '#0000FF',
     });
-    jest.spyOn(categoryRepository, 'findOneBy').mockResolvedValue(category);
+    jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(category);
     const categoryId = new Id(category.id);
-    const userId = new Id(category.user.id);
 
-    const result = await service.findOne(categoryId, userId);
+    const result = await service.findOne(userId, categoryId);
 
-    expect(categoryRepository.findOneBy).toHaveBeenCalledWith({
-      id: categoryId.toString(),
-    });
+    expect(categoryRepository.findOne).toHaveBeenCalledWith(userId, categoryId);
     expect(result).toBeInstanceOf(Category);
     expect(result.id.equals(category.id)).toBe(true);
     expect(result.name).toBe('Updated Category');
@@ -145,53 +129,24 @@ describe('CategoriesService', () => {
     expect(result.color).toBe('#0000FF');
   });
 
-  it('should throw error when trying to find a non-existing category', async () => {
-    jest.spyOn(categoryRepository, 'findOneBy').mockResolvedValue(null);
-    const categoryId = new Id();
-    const userId = new Id();
-
-    await expect(service.findOne(categoryId, userId)).rejects.toThrow(
-      CategoryNotFoundError,
-    );
-  });
-
-  it('should throw error when trying to find a category from another user', async () => {
-    const categoryId = new Id();
-    const userId = new Id();
-    jest.spyOn(categoryRepository, 'findOneBy').mockResolvedValue(
-      buildCategoryEntity({
-        user: buildUserEntity({ id: 'a-different-user-456' }),
-      }),
-    );
-
-    await expect(service.findOne(categoryId, userId)).rejects.toThrow(
-      NotAuthorizedForCategoryError,
-    );
-  });
-
-  it('should save an existing category', async () => {
-    const categoryEntityToSave = buildCategoryEntity({
+  it('should update an existing category', async () => {
+    const categoryEntityToSave = buildCategory({
       name: 'Updated Category',
       icon: '💰',
       color: '#0000FF',
+      user: buildUserEntity({ id: userId.toString() }),
     });
     const categoryToSave = new Category(categoryEntityToSave);
     jest
-      .spyOn(categoryRepository, 'save')
-      .mockResolvedValue(categoryEntityToSave);
-    jest
-      .spyOn(categoryRepository, 'findOne')
+      .spyOn(categoryRepository, 'update')
       .mockResolvedValue(categoryEntityToSave);
 
-    const result = await service.save(
-      categoryEntityToSave.user.id,
+    const result = await service.update(userId, categoryToSave);
+
+    expect(categoryRepository.update).toHaveBeenCalledWith(
+      userId,
       categoryToSave,
     );
-
-    expect(categoryRepository.save).toHaveBeenCalledWith({
-      ...categoryToSave.toJSON(),
-      user: categoryEntityToSave.user,
-    });
     expect(result).toBeInstanceOf(Category);
     expect(result.id.equals(categoryToSave.id)).toBe(true);
     expect(result.name).toBe('Updated Category');
@@ -199,56 +154,25 @@ describe('CategoriesService', () => {
     expect(result.color).toBe('#0000FF');
   });
 
-  it('should save a category handling missing optional fields', async () => {
-    const categoryWithoutOptionals = buildCategoryEntity();
-    categoryWithoutOptionals.icon = undefined;
-    categoryWithoutOptionals.color = undefined;
+  it('should update a category handling missing optional fields', async () => {
+    const categoryWithoutOptionals = buildCategory({
+      user: buildUserEntity({ id: userId.toString() }),
+      name: 'Updated Category',
+      type: OperationType.Outcome,
+    });
+    categoryWithoutOptionals.icon = null;
+    categoryWithoutOptionals.color = null;
 
     jest
-      .spyOn(categoryRepository, 'findOne')
-      .mockResolvedValue(categoryWithoutOptionals);
-    jest
-      .spyOn(categoryRepository, 'save')
+      .spyOn(categoryRepository, 'update')
       .mockResolvedValue(categoryWithoutOptionals);
 
-    const result = await service.save(
-      categoryWithoutOptionals.user.id,
+    const result = await service.update(
+      userId,
       new Category(categoryWithoutOptionals),
     );
 
     expect(result.icon).toBeNull();
     expect(result.color).toBeNull();
-  });
-
-  it('should throw error when trying to save a non-existing category', async () => {
-    const nonExistingCategory = new Category({
-      id: new Id().toString(),
-      name: 'Non-existing Category',
-      type: OperationType.Outcome,
-    });
-
-    jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(null);
-
-    await expect(service.save('user-123', nonExistingCategory)).rejects.toThrow(
-      CategoryNotFoundError,
-    );
-  });
-
-  it('should throw error when trying to save a category from another user', async () => {
-    const category = new Category({
-      id: new Id().toString(),
-      name: 'Non-existing Category',
-      type: OperationType.Outcome,
-    });
-
-    jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(
-      buildCategoryEntity({
-        user: buildUserEntity({ id: 'a-different-user-456' }),
-      }),
-    );
-
-    await expect(service.save('user-123', category)).rejects.toThrow(
-      NotAuthorizedForCategoryError,
-    );
   });
 });

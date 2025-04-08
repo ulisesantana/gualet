@@ -1,14 +1,14 @@
-import { Optional, Required } from '@src/common/decorators';
+import { Optional } from '@src/common/decorators';
 import { IsEnum } from 'class-validator';
 import { OperationType } from '@src/common/domain';
 
-export class CreateCategoryDto {
-  @Required('Groceries')
-  name: string;
+export class UpdateCategoryDto {
+  @Optional('Groceries')
+  name?: string;
 
-  @Required('OUTCOME')
+  @Optional('OUTCOME')
   @IsEnum(OperationType)
-  type: OperationType;
+  type?: OperationType;
 
   @Optional('🛒')
   icon?: string;

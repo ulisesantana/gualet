@@ -1,7 +1,6 @@
-import { generateRandomId } from '../generate-random-id';
-import { CategoryEntity } from '@src/categories';
+import { buildUserEntity, generateRandomId } from '@test/builders';
+import { Category, CategoryEntity } from '@src/categories';
 import { OperationType } from '@src/common/domain';
-import { buildUserEntity } from './user.entity.builder';
 
 export function buildCategoryEntity(
   overrides: Partial<CategoryEntity> = {},
@@ -18,4 +17,13 @@ export function buildCategoryEntity(
 
     ...overrides,
   } as CategoryEntity;
+}
+
+export function buildCategory(
+  overrides: Partial<CategoryEntity> = {},
+): Category {
+  const entity = buildCategoryEntity(overrides);
+  return new Category({
+    ...entity,
+  });
 }
