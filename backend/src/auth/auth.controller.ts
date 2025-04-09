@@ -34,16 +34,16 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() registerData: RegisterDto) {
+  register(@Body() registerData: RegisterDto) {
     return this.authService.register(registerData);
   }
 
   @Post('logout')
-  async logout(@Res({ passthrough: true }) res: Response) {
+  logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie(this.cookieName);
   }
 
   @Post('verify')
   @UseGuards(JwtAuthGuard)
-  async verify() {}
+  verify() {}
 }
