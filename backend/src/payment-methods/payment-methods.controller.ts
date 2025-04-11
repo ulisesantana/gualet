@@ -6,8 +6,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  Patch,
   Post,
-  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -29,13 +29,13 @@ import { JwtAuthGuard } from '@src/auth';
 import { ApiResponse } from '@nestjs/swagger';
 
 @Controller('me/payment-methods')
+@UseGuards(JwtAuthGuard)
 export class PaymentMethodsController extends BaseController {
   constructor(private readonly paymentMethodsService: PaymentMethodsService) {
     super();
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: CreatePaymentMethodDto })
   async create(
     @Body() createPaymentMethodDto: CreatePaymentMethodDto,
@@ -49,7 +49,6 @@ export class PaymentMethodsController extends BaseController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: PaymentMethodsResponseDto })
   async findAll(
     @Req() req: AuthenticatedRequest,
@@ -61,7 +60,6 @@ export class PaymentMethodsController extends BaseController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   @ApiResponse({ type: PaymentMethodResponseDto })
   async findOne(
     @Param('id') id: string,
@@ -69,8 +67,8 @@ export class PaymentMethodsController extends BaseController {
   ): Promise<PaymentMethodResponseDto> {
     try {
       const pm = await this.paymentMethodsService.findOne(
-        new Id(id),
         new Id(req.user.userId),
+        new Id(id),
       );
       return new PaymentMethodResponseDto(pm);
     } catch (error) {
@@ -79,8 +77,7 @@ export class PaymentMethodsController extends BaseController {
     }
   }
 
-  @Put(':id')
-  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
   @ApiResponse({ type: PaymentMethodResponseDto })
   async save(
     @Param('id') id: string,
@@ -88,7 +85,7 @@ export class PaymentMethodsController extends BaseController {
     @Body() savePaymentMethodDto: SavePaymentMethodDto,
   ): Promise<PaymentMethodResponseDto> {
     try {
-      const pm = await this.paymentMethodsService.save(
+      const pm = await this.paymentMethodsService.update(
         new Id(req.user.userId),
         new PaymentMethod({ ...savePaymentMethodDto, id: new Id(id) }),
       );

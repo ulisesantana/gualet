@@ -12,7 +12,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@src/auth';
-
 import { CategoriesService } from './categories.service';
 import {
   CategoriesResponseDto,

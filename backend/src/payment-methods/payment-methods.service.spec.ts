@@ -131,7 +131,7 @@ describe('PaymentMethodsService', () => {
     jest.spyOn(repository, 'findOneBy').mockResolvedValue(paymentMethod);
     const paymentMethodId = new Id(paymentMethod.id);
 
-    const result = await service.findOne(paymentMethodId, userId);
+    const result = await service.findOne(userId, paymentMethodId);
 
     expect(repository.findOneBy).toHaveBeenCalledWith({
       id: paymentMethodId.toString(),
@@ -147,7 +147,7 @@ describe('PaymentMethodsService', () => {
     jest.spyOn(repository, 'findOneBy').mockResolvedValue(null);
     const paymentMethodId = new Id();
 
-    await expect(service.findOne(paymentMethodId, userId)).rejects.toThrow(
+    await expect(service.findOne(userId, paymentMethodId)).rejects.toThrow(
       PaymentMethodNotFoundError,
     );
   });
@@ -160,7 +160,7 @@ describe('PaymentMethodsService', () => {
       }),
     );
 
-    await expect(service.findOne(paymentMethodId, userId)).rejects.toThrow(
+    await expect(service.findOne(userId, paymentMethodId)).rejects.toThrow(
       NotAuthorizedForPaymentMethodError,
     );
   });
@@ -184,7 +184,7 @@ describe('PaymentMethodsService', () => {
       updatedAt: mockISOString as TimeString,
     });
 
-    const result = await service.save(
+    const result = await service.update(
       userId,
       new PaymentMethod(paymentMethodToSave),
     );
@@ -225,7 +225,7 @@ describe('PaymentMethodsService', () => {
       .spyOn(repository, 'save')
       .mockResolvedValue(paymentMethodWithoutOptionals);
 
-    const result = await service.save(
+    const result = await service.update(
       userId,
       new PaymentMethod(paymentMethodWithoutOptionals),
     );
@@ -243,7 +243,7 @@ describe('PaymentMethodsService', () => {
     jest.spyOn(repository, 'findOne').mockResolvedValue(null);
 
     await expect(
-      service.save(userId, nonExistingPaymentMethod),
+      service.update(userId, nonExistingPaymentMethod),
     ).rejects.toThrow(PaymentMethodNotFoundError);
   });
 
@@ -259,7 +259,7 @@ describe('PaymentMethodsService', () => {
       }),
     );
 
-    await expect(service.save(userId, paymentMethod)).rejects.toThrow(
+    await expect(service.update(userId, paymentMethod)).rejects.toThrow(
       NotAuthorizedForPaymentMethodError,
     );
   });

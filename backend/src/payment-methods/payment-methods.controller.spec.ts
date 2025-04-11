@@ -162,7 +162,7 @@ describe('PaymentMethodsController', () => {
 
     it('should save an existing payment method', async () => {
       const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
-      jest.spyOn(service, 'save').mockResolvedValue(paymentMethod);
+      jest.spyOn(service, 'update').mockResolvedValue(paymentMethod);
 
       const result = await controller.save(paymentMethod.id.toString(), req, {
         name: paymentMethod.name,
@@ -171,7 +171,7 @@ describe('PaymentMethodsController', () => {
       });
 
       expect(result.paymentMethod).toStrictEqual(paymentMethod.toJSON());
-      expect(service.save).toHaveBeenCalledWith(
+      expect(service.update).toHaveBeenCalledWith(
         new Id(req.user.userId),
         paymentMethod,
       );
@@ -179,14 +179,14 @@ describe('PaymentMethodsController', () => {
 
     it('should save a payment method with missing icon and color on payload', async () => {
       const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
-      jest.spyOn(service, 'save').mockResolvedValue(paymentMethod);
+      jest.spyOn(service, 'update').mockResolvedValue(paymentMethod);
 
       const result = await controller.save(paymentMethod.id.toString(), req, {
         name: paymentMethod.name,
       });
 
       expect(result.paymentMethod).toStrictEqual(paymentMethod.toJSON());
-      expect(service.save).toHaveBeenCalledWith(
+      expect(service.update).toHaveBeenCalledWith(
         new Id(req.user.userId),
         expect.objectContaining({
           name: paymentMethod.name,
@@ -197,7 +197,7 @@ describe('PaymentMethodsController', () => {
     it('should throw NotAuthorizedForPaymentMethodError when user is not authorized', async () => {
       const paymentMethodId = new Id().toString();
       jest
-        .spyOn(service, 'save')
+        .spyOn(service, 'update')
         .mockRejectedValue(
           new NotAuthorizedForPaymentMethodError(new Id(paymentMethodId)),
         );
@@ -222,7 +222,7 @@ describe('PaymentMethodsController', () => {
     it('should throw PaymentMethodNotFoundError when payment method does not exist', async () => {
       const paymentMethodId = new Id().toString();
       jest
-        .spyOn(service, 'save')
+        .spyOn(service, 'update')
         .mockRejectedValue(
           new PaymentMethodNotFoundError(new Id(paymentMethodId)),
         );
