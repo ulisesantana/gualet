@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@src/auth';
@@ -22,10 +23,12 @@ import {
 import {
   AuthenticatedRequest,
   BaseController,
+  BaseResponse,
 } from '@src/common/infrastructure';
 import { ApiResponse } from '@nestjs/swagger';
 import { Id } from '@src/common/domain';
 import { CategoriesErrorCodes } from './errors';
+import { Response } from 'express';
 
 @Controller('me/categories')
 @UseGuards(JwtAuthGuard)
@@ -45,16 +48,20 @@ export class CategoriesController extends BaseController {
 
   @Get('/:id')
   @ApiResponse({ type: CategoriesResponseDto })
-  async findOne(@Req() req: AuthenticatedRequest, @Param() id: string) {
+  async findOne(
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+    @Param() id: string,
+  ) {
     try {
       const category = await this.categoryService.findOne(
         new Id(req.user.userId),
         new Id(id),
       );
-      return new CategoryResponseDto(category);
+      res.status(200).send(new CategoryResponseDto(category));
     } catch (error) {
       console.error('Error finding category:', error);
-      this.handleCategoriesError(error);
+      this.handleCategoriesError(res, error);
     }
   }
 
@@ -73,11 +80,13 @@ export class CategoriesController extends BaseController {
   }
 
   @Patch('/:id')
+  @ApiResponse({ type: CategoryResponseDto })
   async update(
     @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
     @Param() id: string,
     @Body() category: UpdateCategoryDto,
-  ): Promise<CategoryResponseDto> {
+  ) {
     try {
       const newCategory = await this.categoryService.update(
         new Id(req.user.userId),
@@ -87,23 +96,29 @@ export class CategoriesController extends BaseController {
         },
       );
 
-      return new CategoryResponseDto(newCategory);
+      return res.status(200).send(new CategoryResponseDto(newCategory));
     } catch (error) {
       // TODO: Add logging service
       console.error('Error saving category:', error);
-      this.handleCategoriesError(error);
+      return this.handleCategoriesError(res, error);
     }
   }
 
-  private handleCategoriesError(error: any): never {
+  private handleCategoriesError(res: Response, error: any) {
     if (this.isBaseError(error)) {
       switch (error.code) {
         case CategoriesErrorCodes.CategoryNotFound:
-          throw new NotFoundException(error.message);
+          return res
+            .status(404)
+            .send(new BaseResponse(null, new NotFoundException(error)));
         case CategoriesErrorCodes.NotAuthorizedForCategory:
-          throw new ForbiddenException(error.message);
+          return res
+            .status(403)
+            .send(new BaseResponse(null, new ForbiddenException(error)));
       }
     }
-    throw new InternalServerErrorException(error);
+    return res
+      .status(500)
+      .send(new BaseResponse(null, new InternalServerErrorException(error)));
   }
 }
