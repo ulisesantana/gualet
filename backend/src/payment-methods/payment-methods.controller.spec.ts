@@ -15,10 +15,13 @@ import { Id } from '@src/common/domain';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PaymentMethodsRepository } from '@src/payment-methods/payment-methods.repository';
+import { Response } from 'express';
+import Mocked = jest.Mocked;
 
 describe('PaymentMethodsController', () => {
   let controller: PaymentMethodsController;
   let service: PaymentMethodsService;
+  let res: Mocked<Response>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,6 +41,10 @@ describe('PaymentMethodsController', () => {
 
     controller = module.get<PaymentMethodsController>(PaymentMethodsController);
     service = module.get<PaymentMethodsService>(PaymentMethodsService);
+    res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn((x: unknown) => x),
+    } as unknown as Mocked<Response>;
   });
 
   it('should be defined', () => {
@@ -95,19 +102,16 @@ describe('PaymentMethodsController', () => {
   });
 
   describe('find a payment method by id', () => {
-    let throwError = true;
-
-    beforeEach(() => {
-      throwError = true;
-    });
+    beforeEach(() => {});
     it('should find an existing payment method', async () => {
       const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
       const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
       jest.spyOn(service, 'findOne').mockResolvedValue(paymentMethod);
 
-      const result = await controller.findOne(paymentMethod.id.toString(), req);
+      await controller.findOne(paymentMethod.id.toString(), req, res);
 
-      expect(result).toEqual({
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
         success: true,
         error: null,
         data: {
@@ -124,71 +128,55 @@ describe('PaymentMethodsController', () => {
     it('should throw NotAuthorizedForPaymentMethodError when user is not authorized', async () => {
       const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
       const paymentMethodId = new Id().toString();
-      jest
-        .spyOn(service, 'findOne')
-        .mockRejectedValue(
-          new NotAuthorizedForPaymentMethodError(new Id(paymentMethodId)),
-        );
+      const error = new NotAuthorizedForPaymentMethodError(
+        new Id(paymentMethodId),
+      );
+      jest.spyOn(service, 'findOne').mockRejectedValue(error);
 
-      try {
-        await controller.findOne(paymentMethodId, req);
-        throwError = false;
-      } catch (error) {
-        expect(error).toBeInstanceOf(ForbiddenException);
-        expect(error.response).toEqual({
-          statusCode: 403,
-          message: `Not authorized for payment method with id "${paymentMethodId}".`,
-          error: 'Forbidden',
-        });
-      } finally {
-        expect(throwError).toEqual(true);
-      }
+      await controller.findOne(paymentMethodId, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: new ForbiddenException(error),
+        data: null,
+        pagination: null,
+      });
     });
 
     it('should throw PaymentMethodNotFoundError when payment method does not exist', async () => {
       const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
       const paymentMethodId = new Id().toString();
-      jest
-        .spyOn(service, 'findOne')
-        .mockRejectedValue(
-          new PaymentMethodNotFoundError(new Id(paymentMethodId)),
-        );
+      const error = new PaymentMethodNotFoundError(new Id(paymentMethodId));
+      jest.spyOn(service, 'findOne').mockRejectedValue(error);
 
-      try {
-        await controller.findOne(paymentMethodId, req);
-        throwError = false;
-      } catch (error) {
-        expect(error).toBeInstanceOf(NotFoundException);
-        expect(error.response).toEqual({
-          statusCode: 404,
-          message: `Payment method with id "${paymentMethodId}" not found.`,
-          error: 'Not Found',
-        });
-      } finally {
-        expect(throwError).toEqual(true);
-      }
+      await controller.findOne(paymentMethodId, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: new NotFoundException(error),
+        data: null,
+        pagination: null,
+      });
     });
   });
 
   describe('update a payment method', () => {
-    let throwError = true;
     const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
-
-    beforeEach(() => {
-      throwError = true;
-    });
 
     it('should update an existing payment method', async () => {
       const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
       jest.spyOn(service, 'update').mockResolvedValue(paymentMethod);
 
-      const result = await controller.update(paymentMethod.id.toString(), req, {
+      await controller.update(paymentMethod.id.toString(), req, res, {
         name: paymentMethod.name,
         icon: paymentMethod.icon as string,
         color: paymentMethod.color as string,
       });
 
-      expect(result).toEqual({
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
         success: true,
         error: null,
         data: {
@@ -206,11 +194,12 @@ describe('PaymentMethodsController', () => {
       const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
       jest.spyOn(service, 'update').mockResolvedValue(paymentMethod);
 
-      const result = await controller.update(paymentMethod.id.toString(), req, {
+      await controller.update(paymentMethod.id.toString(), req, res, {
         name: paymentMethod.name,
       });
 
-      expect(result).toEqual({
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
         success: true,
         error: null,
         data: {
@@ -228,52 +217,40 @@ describe('PaymentMethodsController', () => {
 
     it('should throw NotAuthorizedForPaymentMethodError when user is not authorized', async () => {
       const paymentMethodId = new Id().toString();
-      jest
-        .spyOn(service, 'update')
-        .mockRejectedValue(
-          new NotAuthorizedForPaymentMethodError(new Id(paymentMethodId)),
-        );
+      const error = new NotAuthorizedForPaymentMethodError(
+        new Id(paymentMethodId),
+      );
+      jest.spyOn(service, 'update').mockRejectedValue(error);
 
-      try {
-        await controller.update(paymentMethodId, req, {
-          name: 'Test Payment Method',
-        });
-        throwError = false;
-      } catch (error) {
-        expect(error).toBeInstanceOf(ForbiddenException);
-        expect(error.response).toEqual({
-          statusCode: 403,
-          message: `Not authorized for payment method with id "${paymentMethodId}".`,
-          error: 'Forbidden',
-        });
-      } finally {
-        expect(throwError).toEqual(true);
-      }
+      await controller.update(paymentMethodId, req, res, {
+        name: 'Test Payment Method',
+      });
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: new ForbiddenException(error),
+        data: null,
+        pagination: null,
+      });
     });
 
     it('should throw PaymentMethodNotFoundError when payment method does not exist', async () => {
       const paymentMethodId = new Id().toString();
-      jest
-        .spyOn(service, 'update')
-        .mockRejectedValue(
-          new PaymentMethodNotFoundError(new Id(paymentMethodId)),
-        );
+      const error = new PaymentMethodNotFoundError(new Id(paymentMethodId));
+      jest.spyOn(service, 'update').mockRejectedValue(error);
 
-      try {
-        await controller.update(paymentMethodId, req, {
-          name: 'Test Payment Method',
-        });
-        throwError = false;
-      } catch (error) {
-        expect(error).toBeInstanceOf(NotFoundException);
-        expect(error.response).toEqual({
-          statusCode: 404,
-          message: `Payment method with id "${paymentMethodId}" not found.`,
-          error: 'Not Found',
-        });
-      } finally {
-        expect(throwError).toEqual(true);
-      }
+      await controller.update(paymentMethodId, req, res, {
+        name: 'Test Payment Method',
+      });
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: new NotFoundException(error),
+        data: null,
+        pagination: null,
+      });
     });
   });
 });

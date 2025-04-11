@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { PaymentMethodsService } from './payment-methods.service';
@@ -16,6 +17,7 @@ import { Id } from '@src/common/domain';
 import {
   AuthenticatedRequest,
   BaseController,
+  ErrorResponse,
 } from '@src/common/infrastructure';
 import {
   CreatePaymentMethodDto,
@@ -26,6 +28,7 @@ import {
 import { PaymentMethodsErrorCodes } from './errors';
 import { JwtAuthGuard } from '@src/auth';
 import { ApiResponse } from '@nestjs/swagger';
+import { Response } from 'express';
 
 @Controller('me/payment-methods')
 @UseGuards(JwtAuthGuard)
@@ -63,16 +66,17 @@ export class PaymentMethodsController extends BaseController {
   async findOne(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
-  ): Promise<PaymentMethodResponseDto> {
+    @Res() res: Response,
+  ) {
     try {
       const pm = await this.paymentMethodsService.findOne(
         new Id(req.user.userId),
         new Id(id),
       );
-      return new PaymentMethodResponseDto(pm);
+      res.status(200).send(new PaymentMethodResponseDto(pm));
     } catch (error) {
       console.error(`Error fetching payment method ${id.toString()}:`, error);
-      this.handlePaymentMethodsError(error);
+      this.handlePaymentMethodsError(res, error);
     }
   }
 
@@ -81,29 +85,36 @@ export class PaymentMethodsController extends BaseController {
   async update(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
     @Body() updatePaymentMethodDto: UpdatePaymentMethodDto,
-  ): Promise<PaymentMethodResponseDto> {
+  ) {
     try {
       const pm = await this.paymentMethodsService.update(
         new Id(req.user.userId),
         { ...updatePaymentMethodDto, id: new Id(id) },
       );
-      return new PaymentMethodResponseDto(pm);
+      res.status(200).send(new PaymentMethodResponseDto(pm));
     } catch (error) {
       console.error(`Error saving payment method ${id.toString()}:`, error);
-      this.handlePaymentMethodsError(error);
+      this.handlePaymentMethodsError(res, error);
     }
   }
 
-  private handlePaymentMethodsError(error: any): never {
+  private handlePaymentMethodsError(res: Response, error: any) {
     if (this.isBaseError(error)) {
       switch (error.code) {
         case PaymentMethodsErrorCodes.PaymentMethodNotFound:
-          throw new NotFoundException(error.message);
+          return res
+            .status(404)
+            .send(new ErrorResponse(new NotFoundException(error.message)));
         case PaymentMethodsErrorCodes.NotAuthorizedForPaymentMethod:
-          throw new ForbiddenException(error.message);
+          return res
+            .status(403)
+            .send(new ErrorResponse(new ForbiddenException(error.message)));
       }
     }
-    throw new InternalServerErrorException(error);
+    return res
+      .status(500)
+      .send(new ErrorResponse(new InternalServerErrorException(error.message)));
   }
 }

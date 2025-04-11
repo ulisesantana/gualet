@@ -23,6 +23,7 @@ module.exports = {
     '/node_modules/',
     'src/main.ts',
     'src/.*index.ts',
+    'src/.*entity.ts',
     'src/.*\\.module\\.ts',
     'src/migrations/.*',
     'test/builders/.*'

@@ -2,7 +2,7 @@ import { Nullable } from '../types';
 import { Pagination } from '../infrastructure';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class BaseResponse<Data, Error = string> {
+export abstract class BaseResponse<Data, Error = string> {
   @ApiProperty()
   readonly success: boolean;
   @ApiProperty()
@@ -12,7 +12,7 @@ export class BaseResponse<Data, Error = string> {
   @ApiProperty()
   readonly pagination: Nullable<Pagination>;
 
-  constructor(
+  protected constructor(
     data: Nullable<Data> = null,
     error: Nullable<Error> = null,
     pagination: Nullable<Pagination> = null,

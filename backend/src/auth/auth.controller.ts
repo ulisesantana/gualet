@@ -1,13 +1,16 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { LoginDto, RegisterDto } from './dto';
+import { LoginDto, RegisterDto, UserResponseDto } from './dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { AuthenticatedRequest } from '@src/common/infrastructure';
+import { User } from '@src/users';
 
 @Controller('auth')
 export class AuthController {
-  private readonly cookieName = 'access_token';
+  private readonly accessToken = 'access_token';
+
   constructor(
     private readonly authService: AuthService,
     private readonly config: ConfigService,
@@ -24,26 +27,46 @@ export class AuthController {
     );
     const { access_token } = await this.authService.login(user.toJSON());
 
-    res.cookie(this.cookieName, access_token, {
-      httpOnly: true,
-      secure: this.config.get('NODE_ENV') !== 'development',
-      sameSite: 'lax',
-    });
+    this.saveAccessToken(res, access_token);
 
-    return user;
+    return res.status(200).send(new UserResponseDto(user));
   }
 
   @Post('register')
-  register(@Body() registerData: RegisterDto) {
-    return this.authService.register(registerData);
+  async register(
+    @Body() registerData: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = await this.authService.register(registerData);
+
+    const { access_token } = await this.authService.login(user.toJSON());
+    this.saveAccessToken(res, access_token);
+
+    return res.status(200).send(new UserResponseDto(user));
   }
 
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie(this.cookieName);
+    res.clearCookie(this.accessToken);
+    return res.status(200);
   }
 
   @Post('verify')
   @UseGuards(JwtAuthGuard)
-  verify() {}
+  verify(@Req() req: AuthenticatedRequest) {
+    return new UserResponseDto(
+      new User({
+        id: req.user.userId,
+        email: req.user.email,
+      }),
+    );
+  }
+
+  private saveAccessToken(res: Response, access_token: string) {
+    res.cookie(this.accessToken, access_token, {
+      httpOnly: true,
+      secure: this.config.get('NODE_ENV') !== 'development',
+      sameSite: 'lax',
+    });
+  }
 }

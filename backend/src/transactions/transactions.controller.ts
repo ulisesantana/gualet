@@ -11,6 +11,7 @@ import {
   Post,
   Query,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
@@ -25,6 +26,7 @@ import {
 import {
   AuthenticatedRequest,
   BaseController,
+  ErrorResponse,
 } from '@src/common/infrastructure';
 import { Id } from '@src/common/domain';
 import { JwtAuthGuard } from '@src/auth';
@@ -32,6 +34,7 @@ import { ApiResponse } from '@nestjs/swagger';
 import { TransactionsErrorCodes } from '@src/transactions/errors';
 import { CategoriesErrorCodes } from '@src/categories/errors';
 import { PaymentMethodsErrorCodes } from '@src/payment-methods/errors';
+import { Response } from 'express';
 
 @Controller('me/transactions')
 @UseGuards(JwtAuthGuard)
@@ -45,15 +48,16 @@ export class TransactionsController extends BaseController {
   async create(
     @Body() createTransactionDto: CreateTransactionDto,
     @Req() req: AuthenticatedRequest,
-  ): Promise<TransactionResponseDto> {
+    @Res() res: Response,
+  ) {
     try {
       const transaction = await this.transactionsService.create(
         new Id(req.user.userId),
         createTransactionDto,
       );
-      return new TransactionResponseDto(transaction);
+      return res.status(200).send(new TransactionResponseDto(transaction));
     } catch (error) {
-      this.handleTransactionsError(error, TransactionResponseDto);
+      this.handleTransactionsError(res, error);
     }
   }
 
@@ -62,29 +66,36 @@ export class TransactionsController extends BaseController {
   async findAll(
     @Query() criteria: FindTransactionsCriteria,
     @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
   ) {
     try {
       const { transactions, pagination } = await this.transactionsService.find(
         new Id(req.user.userId),
         criteria,
       );
-      return new TransactionsResponseDto(transactions, null, pagination);
+      return res
+        .status(200)
+        .send(new TransactionsResponseDto(transactions, pagination));
     } catch (error) {
-      this.handleTransactionsError(error, TransactionsResponseDto);
+      this.handleTransactionsError(res, error);
     }
   }
 
   @Get('/:id')
   @ApiResponse({ type: TransactionResponseDto })
-  async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async findOne(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+  ) {
     try {
       const transaction = await this.transactionsService.findById(
         new Id(req.user.userId),
         new Id(id),
       );
-      return new TransactionResponseDto(transaction);
+      return res.status(200).send(new TransactionResponseDto(transaction));
     } catch (error) {
-      this.handleTransactionsError(error, TransactionResponseDto);
+      this.handleTransactionsError(res, error);
     }
   }
 
@@ -93,6 +104,7 @@ export class TransactionsController extends BaseController {
   async update(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
     @Body() transactionDto: UpdateTransactionDto,
   ) {
     try {
@@ -103,42 +115,49 @@ export class TransactionsController extends BaseController {
           id: new Id(id),
         },
       );
-      return new TransactionResponseDto(transaction);
+      return res.status(200).send(new TransactionResponseDto(transaction));
     } catch (error) {
-      this.handleTransactionsError(error, TransactionResponseDto);
+      this.handleTransactionsError(res, error);
     }
   }
 
   @Delete(':id')
   @ApiResponse({ type: DeleteTransactionResponseDto })
-  async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+  async remove(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+  ) {
     try {
       await this.transactionsService.delete(
         new Id(req.user.userId),
         new Id(id),
       );
-      return new DeleteTransactionResponseDto();
+      return res.status(200).send(new DeleteTransactionResponseDto());
     } catch (error) {
-      this.handleTransactionsError(error, DeleteTransactionResponseDto);
+      this.handleTransactionsError(res, error);
     }
   }
 
-  private handleTransactionsError(
-    error: any,
-    DtoConstructor: new (...args: any[]) => any,
-  ): never {
+  private handleTransactionsError(res: Response, error: any) {
     if (this.isBaseError(error)) {
       switch (error.code) {
         case TransactionsErrorCodes.TransactionNotFound:
         case CategoriesErrorCodes.CategoryNotFound:
         case PaymentMethodsErrorCodes.PaymentMethodNotFound:
-          throw new NotFoundException(new DtoConstructor(null, error));
+          return res
+            .status(404)
+            .send(new ErrorResponse(new NotFoundException(error)));
         case TransactionsErrorCodes.NotAuthorizedForTransaction:
         case CategoriesErrorCodes.NotAuthorizedForCategory:
         case PaymentMethodsErrorCodes.NotAuthorizedForPaymentMethod:
-          throw new ForbiddenException(new DtoConstructor(null, error));
+          return res
+            .status(403)
+            .send(new ErrorResponse(new ForbiddenException(error)));
       }
     }
-    throw new InternalServerErrorException(new DtoConstructor(null, error));
+    return res
+      .status(500)
+      .send(new ErrorResponse(new InternalServerErrorException(error)));
   }
 }

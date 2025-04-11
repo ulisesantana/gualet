@@ -23,7 +23,7 @@ import {
 import {
   AuthenticatedRequest,
   BaseController,
-  BaseResponse,
+  ErrorResponse,
 } from '@src/common/infrastructure';
 import { ApiResponse } from '@nestjs/swagger';
 import { Id } from '@src/common/domain';
@@ -47,7 +47,13 @@ export class CategoriesController extends BaseController {
   }
 
   @Get('/:id')
-  @ApiResponse({ type: CategoriesResponseDto })
+  @ApiResponse({ status: 200, type: CategoryResponseDto })
+  @ApiResponse({ status: 403, type: ErrorResponse<ForbiddenException> })
+  @ApiResponse({ status: 404, type: ErrorResponse<NotFoundException> })
+  @ApiResponse({
+    status: 500,
+    type: ErrorResponse<InternalServerErrorException>,
+  })
   async findOne(
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
@@ -80,7 +86,13 @@ export class CategoriesController extends BaseController {
   }
 
   @Patch('/:id')
-  @ApiResponse({ type: CategoryResponseDto })
+  @ApiResponse({ status: 200, type: CategoryResponseDto })
+  @ApiResponse({ status: 403, type: ErrorResponse<ForbiddenException> })
+  @ApiResponse({ status: 404, type: ErrorResponse<NotFoundException> })
+  @ApiResponse({
+    status: 500,
+    type: ErrorResponse<InternalServerErrorException>,
+  })
   async update(
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
@@ -110,15 +122,15 @@ export class CategoriesController extends BaseController {
         case CategoriesErrorCodes.CategoryNotFound:
           return res
             .status(404)
-            .send(new BaseResponse(null, new NotFoundException(error)));
+            .send(new ErrorResponse(new NotFoundException(error)));
         case CategoriesErrorCodes.NotAuthorizedForCategory:
           return res
             .status(403)
-            .send(new BaseResponse(null, new ForbiddenException(error)));
+            .send(new ErrorResponse(new ForbiddenException(error)));
       }
     }
     return res
       .status(500)
-      .send(new BaseResponse(null, new InternalServerErrorException(error)));
+      .send(new ErrorResponse(new InternalServerErrorException(error)));
   }
 }

@@ -24,9 +24,8 @@ export class PaymentMethodsRepository {
   async create(userId: Id, pm: PaymentMethod): Promise<PaymentMethod> {
     const entity = this.repository.create({
       ...pm.toJSON(),
+      ...this.handleNullableFields(pm),
       user: { id: userId.toString() },
-      icon: pm.icon ?? undefined,
-      color: pm.color ?? undefined,
     });
     const newPaymentMethod = await this.repository.save(entity);
     return PaymentMethodsRepository.mapToDomain(newPaymentMethod);
@@ -72,20 +71,21 @@ export class PaymentMethodsRepository {
     const savedPaymentMethod = await this.repository.save({
       ...existingPaymentMethod,
       ...pm,
-      ...this.handleNullableFields(existingPaymentMethod, pm),
+      ...this.handleNullableFields(pm, existingPaymentMethod),
       id: pm.id.toString(),
     });
     return PaymentMethodsRepository.mapToDomain(savedPaymentMethod);
   }
 
   private handleNullableFields(
-    existing: PaymentMethodEntity,
     toUpdate: PaymentMethodToUpdate,
+    existing?: PaymentMethodEntity,
   ) {
     return {
-      icon: toUpdate.icon === null ? undefined : toUpdate.icon || existing.icon,
+      icon:
+        toUpdate.icon === null ? undefined : toUpdate.icon || existing?.icon,
       color:
-        toUpdate.color === null ? undefined : toUpdate.color || existing.color,
+        toUpdate.color === null ? undefined : toUpdate.color || existing?.color,
     };
   }
 }

@@ -1,27 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
-import {
-  CreateTransactionDto,
-  DeleteTransactionResponseDto,
-  TransactionResponseDto,
-  TransactionsResponseDto,
-  UpdateTransactionDto,
-} from './dto';
+import { CreateTransactionDto, UpdateTransactionDto } from './dto';
 import { Id, OperationType } from '@src/common/domain';
 import { buildFindTransactionsCriteria } from '@test/builders/dto/find-transactions-criteria.dto.builder';
 import { buildTransaction } from '@test/builders/entities/transaction.entity.builder';
 import { TimeString } from '@src/common/types';
 import { AuthenticatedRequest, Pagination } from '@src/common/infrastructure';
 import { TransactionNotFoundError } from '@src/transactions/errors';
+import { Response } from 'express';
+import {
+  ForbiddenException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import Mocked = jest.Mocked;
 
 describe('TransactionsController', () => {
   let controller: TransactionsController;
   let transactionsService: TransactionsService;
-  let errorHasBeenThrown = false;
+  let res: Mocked<Response>;
 
   beforeEach(async () => {
-    errorHasBeenThrown = false;
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TransactionsController],
       providers: [
@@ -40,6 +40,10 @@ describe('TransactionsController', () => {
 
     controller = module.get<TransactionsController>(TransactionsController);
     transactionsService = module.get<TransactionsService>(TransactionsService);
+    res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn((x: unknown) => x),
+    } as unknown as Mocked<Response>;
   });
 
   describe('create', () => {
@@ -57,17 +61,19 @@ describe('TransactionsController', () => {
 
       jest.spyOn(transactionsService, 'create').mockResolvedValue(transaction);
 
-      const result = await controller.create(
-        createDto,
-        req as AuthenticatedRequest,
-      );
+      await controller.create(createDto, req as AuthenticatedRequest, res);
 
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        error: null,
+        data: { transaction: transaction.toJSON() },
+        pagination: null,
+      });
       expect(transactionsService.create).toHaveBeenCalledWith(
         expect.any(Id),
         createDto,
       );
-      expect(result).toBeInstanceOf(TransactionResponseDto);
-      expect(result).toEqual(new TransactionResponseDto(transaction));
     });
 
     it('should throw InternalServerErrorException when service fails', async () => {
@@ -86,17 +92,15 @@ describe('TransactionsController', () => {
         .spyOn(transactionsService, 'create')
         .mockRejectedValue(expectedError);
 
-      try {
-        await controller.create(createDto, req as AuthenticatedRequest);
-      } catch (error) {
-        errorHasBeenThrown = true;
-        expect(error?.response.success).toBe(false);
-        expect(error?.response.data).toBeNull();
-        expect(error?.response.error).toEqual(expectedError);
-        expect(error?.response.pagination).toBeNull();
-      } finally {
-        expect(errorHasBeenThrown).toBe(true);
-      }
+      await controller.create(createDto, req as AuthenticatedRequest, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: new InternalServerErrorException(expectedError),
+        data: null,
+        pagination: null,
+      });
     });
   });
 
@@ -112,21 +116,19 @@ describe('TransactionsController', () => {
         pagination,
       });
 
-      const result = await controller.findAll(
-        criteria,
-        req as AuthenticatedRequest,
-      );
+      await controller.findAll(criteria, req as AuthenticatedRequest, res);
 
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        error: null,
+        data: { transactions: transactions.map((t) => t.toJSON()) },
+        pagination,
+      });
       expect(transactionsService.find).toHaveBeenCalledWith(
         expect.any(Id),
         criteria,
       );
-      expect(result).toBeInstanceOf(TransactionsResponseDto);
-      expect(result.data).toEqual({
-        transactions: transactions.map((t) => t.toJSON()),
-      });
-      expect(result.error).toBeNull();
-      expect(result.pagination).toEqual(pagination);
     });
 
     it('should throw InternalServerErrorException when service fails', async () => {
@@ -136,17 +138,15 @@ describe('TransactionsController', () => {
 
       jest.spyOn(transactionsService, 'find').mockRejectedValue(expectedError);
 
-      try {
-        await controller.findAll(criteria, req as AuthenticatedRequest);
-      } catch (error) {
-        errorHasBeenThrown = true;
-        expect(error?.response.success).toBe(false);
-        expect(error?.response.data).toBeNull();
-        expect(error?.response.error).toEqual(expectedError);
-        expect(error?.response.pagination).toBeNull();
-      } finally {
-        expect(errorHasBeenThrown).toBe(true);
-      }
+      await controller.findAll(criteria, req as AuthenticatedRequest, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: new InternalServerErrorException(expectedError),
+        data: null,
+        pagination: null,
+      });
     });
   });
 
@@ -160,20 +160,19 @@ describe('TransactionsController', () => {
         .spyOn(transactionsService, 'findById')
         .mockResolvedValue(transaction);
 
-      const result = await controller.findOne(
-        transactionId,
-        req as AuthenticatedRequest,
-      );
+      await controller.findOne(transactionId, req as AuthenticatedRequest, res);
 
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        error: null,
+        data: { transaction: transaction.toJSON() },
+        pagination: null,
+      });
       expect(transactionsService.findById).toHaveBeenCalledWith(
         new Id(req.user.userId),
         new Id(transactionId),
       );
-      expect(result).toBeInstanceOf(TransactionResponseDto);
-      expect(result.success).toBe(true);
-      expect(result.data).toEqual({ transaction: transaction.toJSON() });
-      expect(result.error).toBeNull();
-      expect(result.pagination).toBeNull();
     });
 
     it('should throw InternalServerErrorException when service fails', async () => {
@@ -185,17 +184,15 @@ describe('TransactionsController', () => {
         .spyOn(transactionsService, 'findById')
         .mockRejectedValue(expectedError);
 
-      try {
-        await controller.findOne(transactionId, req as AuthenticatedRequest);
-      } catch (error) {
-        errorHasBeenThrown = true;
-        expect(error?.response.success).toBe(false);
-        expect(error?.response.data).toBeNull();
-        expect(error?.response.error).toEqual(expectedError);
-        expect(error?.response.pagination).toBeNull();
-      } finally {
-        expect(errorHasBeenThrown).toBe(true);
-      }
+      await controller.findOne(transactionId, req as AuthenticatedRequest, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: new InternalServerErrorException(expectedError),
+        data: null,
+        pagination: null,
+      });
     });
   });
 
@@ -215,12 +212,20 @@ describe('TransactionsController', () => {
 
       jest.spyOn(transactionsService, 'update').mockResolvedValue(transaction);
 
-      const result = await controller.update(
+      await controller.update(
         transactionId,
         req as AuthenticatedRequest,
+        res,
         updateDto,
       );
 
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        error: null,
+        data: { transaction: transaction.toJSON() },
+        pagination: null,
+      });
       expect(transactionsService.update).toHaveBeenCalledWith(
         expect.any(Id),
         expect.objectContaining({
@@ -228,11 +233,6 @@ describe('TransactionsController', () => {
           id: expect.any(Id),
         }),
       );
-      expect(result).toBeInstanceOf(TransactionResponseDto);
-      expect(result.success).toBe(true);
-      expect(result.data).toEqual({ transaction: transaction.toJSON() });
-      expect(result.error).toBeNull();
-      expect(result.pagination).toBeNull();
     });
 
     it('should throw InternalServerErrorException when service fails', async () => {
@@ -245,21 +245,20 @@ describe('TransactionsController', () => {
         .spyOn(transactionsService, 'update')
         .mockRejectedValue(expectedError);
 
-      try {
-        await controller.update(
-          transactionId,
-          req as AuthenticatedRequest,
-          updateDto,
-        );
-      } catch (error) {
-        errorHasBeenThrown = true;
-        expect(error?.response.success).toBe(false);
-        expect(error?.response.data).toBeNull();
-        expect(error?.response.error).toEqual(expectedError);
-        expect(error?.response.pagination).toBeNull();
-      } finally {
-        expect(errorHasBeenThrown).toBe(true);
-      }
+      await controller.update(
+        transactionId,
+        req as AuthenticatedRequest,
+        res,
+        updateDto,
+      );
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: new InternalServerErrorException(expectedError),
+        data: null,
+        pagination: null,
+      });
     });
   });
 
@@ -270,20 +269,19 @@ describe('TransactionsController', () => {
 
       jest.spyOn(transactionsService, 'delete').mockResolvedValue(undefined);
 
-      const result = await controller.remove(
-        transactionId,
-        req as AuthenticatedRequest,
-      );
+      await controller.remove(transactionId, req as AuthenticatedRequest, res);
 
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        error: null,
+        data: null,
+        pagination: null,
+      });
       expect(transactionsService.delete).toHaveBeenCalledWith(
         new Id(req.user.userId),
         new Id(transactionId),
       );
-      expect(result).toBeInstanceOf(DeleteTransactionResponseDto);
-      expect(result.success).toBe(true);
-      expect(result.data).toBeNull();
-      expect(result.error).toBeNull();
-      expect(result.pagination).toBeNull();
     });
 
     it('should throw InternalServerErrorException when service fails', async () => {
@@ -295,17 +293,15 @@ describe('TransactionsController', () => {
         .spyOn(transactionsService, 'delete')
         .mockRejectedValue(expectedError);
 
-      try {
-        await controller.remove(transactionId, req as AuthenticatedRequest);
-      } catch (error) {
-        errorHasBeenThrown = true;
-        expect(error?.response.success).toBe(false);
-        expect(error?.response.data).toBeNull();
-        expect(error?.response.error).toEqual(expectedError);
-        expect(error?.response.pagination).toBeNull();
-      } finally {
-        expect(errorHasBeenThrown).toBe(true);
-      }
+      await controller.remove(transactionId, req as AuthenticatedRequest, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: new InternalServerErrorException(expectedError),
+        data: null,
+        pagination: null,
+      });
     });
   });
 
@@ -318,22 +314,19 @@ describe('TransactionsController', () => {
       .spyOn(transactionsService, 'findById')
       .mockRejectedValue(transactionError);
 
-    try {
-      await controller.findOne(
-        transactionId.toString(),
-        req as AuthenticatedRequest,
-      );
-    } catch (error) {
-      errorHasBeenThrown = true;
-      expect(error.status).toBe(404);
-      expect(error.response).toBeInstanceOf(TransactionResponseDto);
-      expect(error.response.success).toBe(false);
-      expect(error.response.error).toBe(transactionError);
-      expect(error.response.data).toBeNull();
-      expect(error.response.pagination).toBeNull();
-    } finally {
-      expect(errorHasBeenThrown).toBe(true);
-    }
+    await controller.findOne(
+      transactionId.toString(),
+      req as AuthenticatedRequest,
+      res,
+    );
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      error: new NotFoundException(transactionError),
+      data: null,
+      pagination: null,
+    });
   });
 
   it('should handle empty transactions list in find method', async () => {
@@ -347,14 +340,15 @@ describe('TransactionsController', () => {
       pagination,
     });
 
-    const result = await controller.findAll(
-      criteria,
-      req as AuthenticatedRequest,
-    );
+    await controller.findAll(criteria, req as AuthenticatedRequest, res);
 
-    expect(result).toBeInstanceOf(TransactionsResponseDto);
-    expect(result.data).toEqual({ transactions: [] });
-    expect(result.pagination).toEqual(pagination);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.send).toHaveBeenCalledWith({
+      success: true,
+      error: null,
+      data: { transactions: [] },
+      pagination,
+    });
   });
 
   it('should handle specific domain error in create method', async () => {
@@ -374,17 +368,15 @@ describe('TransactionsController', () => {
 
     jest.spyOn(transactionsService, 'create').mockRejectedValue(domainError);
 
-    try {
-      await controller.create(createDto, req as AuthenticatedRequest);
-    } catch (error) {
-      errorHasBeenThrown = true;
-      expect(error.status).toBe(404);
-      expect(error?.response.success).toBe(false);
-      expect(error?.response.data).toBeNull();
-      expect(error?.response.error).toEqual(domainError);
-    } finally {
-      expect(errorHasBeenThrown).toBe(true);
-    }
+    await controller.create(createDto, req as AuthenticatedRequest, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      error: new InternalServerErrorException(domainError),
+      data: null,
+      pagination: null,
+    });
   });
 
   it('should handle forbidden error in update method', async () => {
@@ -398,21 +390,20 @@ describe('TransactionsController', () => {
 
     jest.spyOn(transactionsService, 'update').mockRejectedValue(domainError);
 
-    try {
-      await controller.update(
-        transactionId,
-        req as AuthenticatedRequest,
-        updateDto,
-      );
-    } catch (error) {
-      errorHasBeenThrown = true;
-      expect(error.status).toBe(403);
-      expect(error?.response.success).toBe(false);
-      expect(error?.response.data).toBeNull();
-      expect(error?.response.error).toEqual(domainError);
-    } finally {
-      expect(errorHasBeenThrown).toBe(true);
-    }
+    await controller.update(
+      transactionId,
+      req as AuthenticatedRequest,
+      res,
+      updateDto,
+    );
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      error: new ForbiddenException(domainError),
+      data: null,
+      pagination: null,
+    });
   });
 
   it('should handle payment method not found error', async () => {
@@ -425,17 +416,15 @@ describe('TransactionsController', () => {
 
     jest.spyOn(transactionsService, 'findById').mockRejectedValue(domainError);
 
-    try {
-      await controller.findOne(transactionId, req as AuthenticatedRequest);
-    } catch (error) {
-      errorHasBeenThrown = true;
-      expect(error.status).toBe(404);
-      expect(error?.response.success).toBe(false);
-      expect(error?.response.data).toBeNull();
-      expect(error?.response.error).toEqual(domainError);
-    } finally {
-      expect(errorHasBeenThrown).toBe(true);
-    }
+    await controller.findOne(transactionId, req as AuthenticatedRequest, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      error: new NotFoundException(domainError),
+      data: null,
+      pagination: null,
+    });
   });
 
   it('should handle category not authorized error in delete method', async () => {
@@ -448,16 +437,14 @@ describe('TransactionsController', () => {
 
     jest.spyOn(transactionsService, 'delete').mockRejectedValue(domainError);
 
-    try {
-      await controller.remove(transactionId, req as AuthenticatedRequest);
-    } catch (error) {
-      errorHasBeenThrown = true;
-      expect(error.status).toBe(403);
-      expect(error?.response.success).toBe(false);
-      expect(error?.response.data).toBeNull();
-      expect(error?.response.error).toEqual(domainError);
-    } finally {
-      expect(errorHasBeenThrown).toBe(true);
-    }
+    await controller.remove(transactionId, req as AuthenticatedRequest, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      error: new ForbiddenException(domainError),
+      data: null,
+      pagination: null,
+    });
   });
 });

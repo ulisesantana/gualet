@@ -48,9 +48,8 @@ export class CategoriesRepository {
   async create(userId: Id, category: Category): Promise<Category> {
     const categoryEntity: CategoryEntity = this.repository.create({
       ...category.toJSON(),
+      ...this.handleNullableFields(category),
       user: { id: userId.toString() },
-      icon: category.icon ?? undefined,
-      color: category.color ?? undefined,
     });
 
     const newCategory = await this.repository.save(categoryEntity);
@@ -73,11 +72,22 @@ export class CategoriesRepository {
     const savedCategory = await this.repository.save({
       ...existingCategory,
       ...category,
+      ...this.handleNullableFields(category, existingCategory),
       user: existingCategory.user,
       id: category.id.toString(),
-      icon: category.icon ?? undefined,
-      color: category.color ?? undefined,
     });
     return CategoriesRepository.mapToDomain(savedCategory);
+  }
+
+  private handleNullableFields(
+    toUpdate: CategoryToUpdate,
+    existing?: CategoryEntity,
+  ) {
+    return {
+      icon:
+        toUpdate.icon === null ? undefined : toUpdate.icon || existing?.icon,
+      color:
+        toUpdate.color === null ? undefined : toUpdate.color || existing?.color,
+    };
   }
 }
