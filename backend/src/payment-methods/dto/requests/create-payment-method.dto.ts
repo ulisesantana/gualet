@@ -1,12 +1,12 @@
-import { Required } from '@src/common/decorators';
+import { Optional, Required } from '@src/common/decorators';
 
 export class CreatePaymentMethodDto {
   @Required('Groceries')
   name: string;
 
-  @Required('🏦')
+  @Optional('🏦')
   icon?: string;
 
-  @Required('#ffa200')
+  @Optional('#ffa200')
   color?: string;
 }

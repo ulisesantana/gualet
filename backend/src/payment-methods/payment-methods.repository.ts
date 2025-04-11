@@ -72,10 +72,20 @@ export class PaymentMethodsRepository {
     const savedPaymentMethod = await this.repository.save({
       ...existingPaymentMethod,
       ...pm,
+      ...this.handleNullableFields(existingPaymentMethod, pm),
       id: pm.id.toString(),
-      icon: (pm.icon || existingPaymentMethod.icon) ?? undefined,
-      color: (pm.color || existingPaymentMethod.color) ?? undefined,
     });
     return PaymentMethodsRepository.mapToDomain(savedPaymentMethod);
+  }
+
+  private handleNullableFields(
+    existing: PaymentMethodEntity,
+    toUpdate: PaymentMethodToUpdate,
+  ) {
+    return {
+      icon: toUpdate.icon === null ? undefined : toUpdate.icon || existing.icon,
+      color:
+        toUpdate.color === null ? undefined : toUpdate.color || existing.color,
+    };
   }
 }

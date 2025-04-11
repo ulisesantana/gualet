@@ -17,12 +17,11 @@ import {
   AuthenticatedRequest,
   BaseController,
 } from '@src/common/infrastructure';
-import { PaymentMethod } from '@src/payment-methods/payment-method.model';
 import {
   CreatePaymentMethodDto,
   PaymentMethodResponseDto,
   PaymentMethodsResponseDto,
-  SavePaymentMethodDto,
+  UpdatePaymentMethodDto,
 } from '@src/payment-methods/dto';
 import { PaymentMethodsErrorCodes } from './errors';
 import { JwtAuthGuard } from '@src/auth';
@@ -43,7 +42,7 @@ export class PaymentMethodsController extends BaseController {
   ): Promise<PaymentMethodResponseDto> {
     const pm = await this.paymentMethodsService.create(
       new Id(req.user.userId),
-      new PaymentMethod(createPaymentMethodDto),
+      createPaymentMethodDto,
     );
     return new PaymentMethodResponseDto(pm);
   }
@@ -79,15 +78,15 @@ export class PaymentMethodsController extends BaseController {
 
   @Patch(':id')
   @ApiResponse({ type: PaymentMethodResponseDto })
-  async save(
+  async update(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
-    @Body() savePaymentMethodDto: SavePaymentMethodDto,
+    @Body() updatePaymentMethodDto: UpdatePaymentMethodDto,
   ): Promise<PaymentMethodResponseDto> {
     try {
       const pm = await this.paymentMethodsService.update(
         new Id(req.user.userId),
-        new PaymentMethod({ ...savePaymentMethodDto, id: new Id(id) }),
+        { ...updatePaymentMethodDto, id: new Id(id) },
       );
       return new PaymentMethodResponseDto(pm);
     } catch (error) {

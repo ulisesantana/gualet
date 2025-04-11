@@ -14,6 +14,7 @@ import {
 import { Id } from '@src/common/domain';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { PaymentMethodsRepository } from '@src/payment-methods/payment-methods.repository';
 
 describe('PaymentMethodsController', () => {
   let controller: PaymentMethodsController;
@@ -29,7 +30,7 @@ describe('PaymentMethodsController', () => {
             findOne: jest.fn(),
             findAll: jest.fn(),
             create: jest.fn(),
-            save: jest.fn(),
+            update: jest.fn(),
           },
         },
       ],
@@ -48,20 +49,25 @@ describe('PaymentMethodsController', () => {
     const paymentMethods = [
       buildPaymentMethodEntity({ user: buildUserEntity({ id: '1' }) }),
       buildPaymentMethodEntity({ user: buildUserEntity({ id: '1' }) }),
-    ].map(PaymentMethodsService.mapToDomain);
+    ].map(PaymentMethodsRepository.mapToDomain);
     jest.spyOn(service, 'findAll').mockResolvedValue(paymentMethods);
 
     const result = await controller.findAll(req);
 
-    expect(result.paymentMethods).toStrictEqual(
-      paymentMethods.map((pm) => pm.toJSON()),
-    );
+    expect(result).toEqual({
+      success: true,
+      error: null,
+      data: {
+        paymentMethods: paymentMethods.map((pm) => pm.toJSON()),
+      },
+      pagination: null,
+    });
     expect(service.findAll).toHaveBeenCalledWith(new Id('1'));
   });
 
   it('should create a new payment method', async () => {
     const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
-    const paymentMethod = PaymentMethodsService.mapToDomain(
+    const paymentMethod = PaymentMethodsRepository.mapToDomain(
       buildPaymentMethodEntity(),
     );
     const payload = {
@@ -73,10 +79,15 @@ describe('PaymentMethodsController', () => {
 
     const result = await controller.create(payload, req);
 
-    expect(getAllIds().includes(result.paymentMethod.id)).toBe(true);
-    expect(result.paymentMethod).toStrictEqual(
-      expect.objectContaining(paymentMethod.toJSON()),
-    );
+    expect(result.success).toBe(true);
+    expect(result.error).toBe(null);
+    expect(result.data).toStrictEqual({
+      paymentMethod: {
+        ...paymentMethod.toJSON(),
+        id: expect.any(String),
+      },
+    });
+    expect(getAllIds().includes(result.data!.paymentMethod.id)).toBe(true);
     expect(service.create).toHaveBeenCalledWith(
       new Id('1'),
       expect.objectContaining(payload),
@@ -96,10 +107,17 @@ describe('PaymentMethodsController', () => {
 
       const result = await controller.findOne(paymentMethod.id.toString(), req);
 
-      expect(result.paymentMethod).toStrictEqual(paymentMethod.toJSON());
+      expect(result).toEqual({
+        success: true,
+        error: null,
+        data: {
+          paymentMethod: paymentMethod.toJSON(),
+        },
+        pagination: null,
+      });
       expect(service.findOne).toHaveBeenCalledWith(
-        paymentMethod.id,
         new Id(req.user.userId),
+        paymentMethod.id,
       );
     });
 
@@ -152,7 +170,7 @@ describe('PaymentMethodsController', () => {
     });
   });
 
-  describe('save a payment method', () => {
+  describe('update a payment method', () => {
     let throwError = true;
     const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
 
@@ -160,32 +178,46 @@ describe('PaymentMethodsController', () => {
       throwError = true;
     });
 
-    it('should save an existing payment method', async () => {
+    it('should update an existing payment method', async () => {
       const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
       jest.spyOn(service, 'update').mockResolvedValue(paymentMethod);
 
-      const result = await controller.save(paymentMethod.id.toString(), req, {
+      const result = await controller.update(paymentMethod.id.toString(), req, {
         name: paymentMethod.name,
         icon: paymentMethod.icon as string,
         color: paymentMethod.color as string,
       });
 
-      expect(result.paymentMethod).toStrictEqual(paymentMethod.toJSON());
+      expect(result).toEqual({
+        success: true,
+        error: null,
+        data: {
+          paymentMethod: paymentMethod.toJSON(),
+        },
+        pagination: null,
+      });
       expect(service.update).toHaveBeenCalledWith(
         new Id(req.user.userId),
         paymentMethod,
       );
     });
 
-    it('should save a payment method with missing icon and color on payload', async () => {
+    it('should update a payment method with missing icon and color on payload', async () => {
       const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
       jest.spyOn(service, 'update').mockResolvedValue(paymentMethod);
 
-      const result = await controller.save(paymentMethod.id.toString(), req, {
+      const result = await controller.update(paymentMethod.id.toString(), req, {
         name: paymentMethod.name,
       });
 
-      expect(result.paymentMethod).toStrictEqual(paymentMethod.toJSON());
+      expect(result).toEqual({
+        success: true,
+        error: null,
+        data: {
+          paymentMethod: paymentMethod.toJSON(),
+        },
+        pagination: null,
+      });
       expect(service.update).toHaveBeenCalledWith(
         new Id(req.user.userId),
         expect.objectContaining({
@@ -203,7 +235,7 @@ describe('PaymentMethodsController', () => {
         );
 
       try {
-        await controller.save(paymentMethodId, req, {
+        await controller.update(paymentMethodId, req, {
           name: 'Test Payment Method',
         });
         throwError = false;
@@ -228,7 +260,7 @@ describe('PaymentMethodsController', () => {
         );
 
       try {
-        await controller.save(paymentMethodId, req, {
+        await controller.update(paymentMethodId, req, {
           name: 'Test Payment Method',
         });
         throwError = false;
