@@ -1,17 +1,16 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { SignUpUseCase } from "@application/cases";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { MockSupabaseClient } from "@test/mocks"; // Import your custom mock
+import { UserRepository } from "@application/repositories"; // Import your custom mock
 
 describe("Sign up use case", () => {
-  let mockSupabaseClient: MockSupabaseClient;
+  let repository: Mocked<UserRepository>;
   let signUpUseCase: SignUpUseCase;
 
   beforeEach(() => {
-    mockSupabaseClient = new MockSupabaseClient();
-    signUpUseCase = new SignUpUseCase(
-      mockSupabaseClient as unknown as SupabaseClient,
-    );
+    repository = {
+      register: vi.fn(),
+    } as unknown as Mocked<UserRepository>;
+    signUpUseCase = new SignUpUseCase(repository);
   });
 
   it("should sign up a user with the provided credentials", async () => {
@@ -19,16 +18,14 @@ describe("Sign up use case", () => {
 
     await signUpUseCase.exec(input);
 
-    expect(mockSupabaseClient.auth.signUp).toHaveBeenCalledWith(input);
+    expect(repository.register).toHaveBeenCalledWith(input);
   });
 
   it("should throw an error if sign up fails", async () => {
     const input = { email: "user@example.com", password: "password123" };
 
     // Simulate an error during sign up
-    mockSupabaseClient.auth.signUp.mockRejectedValue(
-      new Error("Sign up failed"),
-    );
+    repository.register.mockRejectedValue(new Error("Sign up failed"));
 
     await expect(signUpUseCase.exec(input)).rejects.toThrow("Sign up failed");
   });

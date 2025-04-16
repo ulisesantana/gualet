@@ -42,7 +42,7 @@ async function bootstrap() {
     logger.debug(`🔍 Check docs on ${docsRoute}`);
   }
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 5050);
   logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 

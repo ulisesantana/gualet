@@ -1,12 +1,12 @@
 import { UseCase } from "@application/cases/use-case";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { UserRepository } from "@application/repositories";
 
 type Input = { email: string; password: string };
 
 export class SignUpUseCase implements UseCase<Input, Promise<void>> {
-  constructor(private readonly sb: SupabaseClient) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async exec(input: Input): Promise<void> {
-    await this.sb.auth.signUp(input);
+    await this.userRepository.register(input);
   }
 }
