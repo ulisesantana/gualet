@@ -9,7 +9,8 @@
     "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      "@gualet/backend/*": ["../backend/*"]
+      "@fixtures": ["helpers/fixtures.ts"],
+      "@pages": ["pages/index.ts"]
     },
     "types": ["node", "jest", "pg"],
   }

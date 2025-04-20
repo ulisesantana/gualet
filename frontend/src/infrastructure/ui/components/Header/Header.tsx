@@ -21,7 +21,9 @@ export function Header() {
         </Link>
         {isProtectedRoute && (
           <span className="settings" data-testid="header-settings-cta">
-            <Link to={routes.settings}>⚙️</Link>
+            <Link to={routes.settings} aria-label="Settings">
+              ⚙️
+            </Link>
           </span>
         )}
       </div>

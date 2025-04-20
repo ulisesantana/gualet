@@ -1,29 +1,39 @@
 import {expect} from '@playwright/test';
-import {test} from '../helpers/fixtures';
+import {test} from '@fixtures';
+import {LoginPage} from "@pages";
 
-test('login flow', async ({ page, db }) => {
-  const user = {email: "test@gualet.app", password: "testTEST1"}
-  await db.createUser(user)
+const user = {email: "test@gualet.app", password: "testTEST1"}
+test.describe('login success', () => {
+  test('should redirect to login page if not logged in', async ({page}) => {
+    await page.goto('/');
 
-  // Navigate to home page
-  await page.goto('/');
+    await expect(page).toHaveURL('/login');
+    await expect(page.locator('header').getByRole('link', {name: 'Settings'})).not.toBeVisible();
+  })
 
-  // Wait for the page to be fully loaded
-  await page.waitForLoadState('networkidle');
+  test('should not show settings link on header', async ({page}) => {
+    await new LoginPage(page).goto();
 
-  // Must be redirected to login page
-  await expect(page).toHaveURL('/login');
+    await expect(page.locator('header').getByRole('link', {name: 'Settings'})).not.toBeVisible();
+  })
 
-  // Click on the login button
-  await page.click('text=Login');
+  test('should login successfully', async ({page, db}) => {
+    await db.createUser(user)
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
 
-  // Fill the form
-  await page.fill('input[name="email"]', user.email);
-  await page.fill('input[name="password"]', user.password);
+    await loginPage.login(user);
 
-  // Submit form
-  await page.click('button[type="submit"]');
-
-  // Verify successful login
-  await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/');
+    await expect(page.locator('header').getByRole('link', {name: 'Settings'})).toBeVisible();
+  })
 });
+
+test.fixme('handle login error', async ({page}) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+
+  await loginPage.login(user);
+
+  await expect(loginPage.error).toHaveText('User not found');
+})
