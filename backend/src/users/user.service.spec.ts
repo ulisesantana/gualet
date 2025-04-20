@@ -5,10 +5,10 @@ import { UserMapper } from './mappers';
 import { UserNotFoundError } from './errors';
 import * as bcrypt from 'bcrypt';
 import { buildUserEntity } from '@test/builders';
-import { UserEntity } from './entities';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Id } from '@src/common/domain';
+import { UserEntity } from '@src/db';
 
 describe('UserService', () => {
   let service: UserService;

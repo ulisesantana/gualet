@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TransactionEntity } from './entities';
 import {
   Between,
   FindManyOptions,
@@ -14,8 +13,8 @@ import {
   NotAuthorizedForTransactionError,
   TransactionNotFoundError,
 } from './errors';
-import { Category, CategoryEntity } from '@src/categories';
-import { PaymentMethod, PaymentMethodEntity } from '@src/payment-methods';
+import { Category } from '@src/categories';
+import { PaymentMethod } from '@src/payment-methods';
 import { FindTransactionsCriteria } from './dto';
 import {
   CategoryNotFoundError,
@@ -27,6 +26,11 @@ import {
 } from '@src/payment-methods/errors';
 import { TransactionToCreate } from './transactions.service';
 import { Pagination } from '@src/common/infrastructure';
+import {
+  CategoryEntity,
+  PaymentMethodEntity,
+  TransactionEntity,
+} from '@src/db';
 
 type TransactionPayload = TransactionToCreate & { id: Id };
 

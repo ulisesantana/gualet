@@ -5,30 +5,39 @@ import { JwtService } from '@nestjs/jwt';
 import { resolve } from 'node:path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthController, AuthModule, AuthService } from '@src/auth';
-import { UserEntity, UserModule, UserService } from '@src/users';
+import { UserModule, UserService } from '@src/users';
 import {
   CategoriesController,
   CategoriesModule,
   CategoriesService,
-  CategoryEntity,
 } from '@src/categories';
 import {
-  PaymentMethodEntity,
   PaymentMethodsController,
   PaymentMethodsModule,
   PaymentMethodsService,
 } from '@src/payment-methods';
 import {
-  TransactionEntity,
   TransactionsController,
   TransactionsModule,
   TransactionsService,
 } from '@src/transactions';
+import { HealthController } from './health/health.controller';
+import {
+  CategoryEntity,
+  PaymentMethodEntity,
+  TransactionEntity,
+  UserEntity,
+} from '@src/db';
 
+const envFilePath = resolve(
+  __dirname,
+  `../../${process.env.ENV_FILE || '.env'}`,
+);
+console.debug('🔍 envFilePath', envFilePath);
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: resolve(__dirname, '../../../.env'),
+      envFilePath: envFilePath,
       isGlobal: true,
       ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
@@ -47,7 +56,9 @@ import {
           PaymentMethodEntity,
           TransactionEntity,
         ],
-        synchronize: configService.get('NODE_ENV') === 'development',
+        synchronize: ['development', 'test'].includes(
+          configService.get('NODE_ENV')!,
+        ),
       }),
       inject: [ConfigService],
     }),
@@ -71,6 +82,7 @@ import {
     CategoriesController,
     PaymentMethodsController,
     TransactionsController,
+    HealthController,
   ],
   providers: [
     UserService,

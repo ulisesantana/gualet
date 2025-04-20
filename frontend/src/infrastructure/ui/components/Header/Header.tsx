@@ -1,11 +1,11 @@
 import React from "react";
 import "./Header.css";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { routes } from "@infrastructure/ui/routes";
-import { useSession } from "@infrastructure/ui/contexts";
 
 export function Header() {
-  const { session } = useSession();
+  const [location] = useLocation();
+  const isProtectedRoute = !location.startsWith(routes.login);
   return (
     <header>
       <div className="content">
@@ -19,7 +19,7 @@ export function Header() {
             <span className="logo-text">Gualet</span>
           </span>
         </Link>
-        {session && (
+        {isProtectedRoute && (
           <span className="settings" data-testid="header-settings-cta">
             <Link to={routes.settings}>⚙️</Link>
           </span>

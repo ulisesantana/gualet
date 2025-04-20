@@ -1,11 +1,9 @@
 import React from "react";
-import { supabase } from "@infrastructure/data-sources";
-import { LogoutUseCase } from "@application/cases";
 
 import "./LogoutButton.css";
 
 function onLogout() {
-  new LogoutUseCase(supabase).exec();
+  // new LogoutUseCase(userRepository).exec();
 }
 
 export function LogoutButton() {

@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { CategoriesRepository } from './categories.repository';
-import { CategoryEntity } from './entities';
+import { CategoryEntity } from '@src/db';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Id } from '@src/common/domain';

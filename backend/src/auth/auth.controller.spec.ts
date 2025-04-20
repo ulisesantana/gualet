@@ -54,7 +54,7 @@ describe('AuthController', () => {
     jest.mocked(authService.login).mockResolvedValue({ access_token });
     jest.mocked(configService.get).mockReturnValue('production');
 
-    await controller.login(loginData, response);
+    const result = await controller.login(loginData, response);
 
     expect(authService.validateUser).toHaveBeenCalledWith(
       loginData.email,
@@ -67,7 +67,7 @@ describe('AuthController', () => {
       sameSite: 'lax',
     });
     expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
+    expect(result).toEqual({
       success: true,
       data: { user: user.toJSON() },
       error: null,
@@ -84,7 +84,7 @@ describe('AuthController', () => {
     jest.mocked(authService.register).mockResolvedValue(newUser);
     jest.mocked(authService.login).mockResolvedValue({ access_token: 't0k3n' });
 
-    await controller.register(registerData, response);
+    const result = await controller.register(registerData, response);
 
     expect(authService.register).toHaveBeenCalledWith(registerData);
     expect(response.cookie).toHaveBeenCalledWith('access_token', 't0k3n', {
@@ -93,7 +93,7 @@ describe('AuthController', () => {
       sameSite: 'lax',
     });
     expect(response.status).toHaveBeenCalledWith(200);
-    expect(response.send).toHaveBeenCalledWith({
+    expect(result).toEqual({
       success: true,
       data: { user: newUser.toJSON() },
       error: null,

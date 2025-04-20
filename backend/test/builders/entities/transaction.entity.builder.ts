@@ -1,11 +1,14 @@
-import { generateRandomId } from '../generate-random-id';
-import { Transaction, TransactionEntity } from '@src/transactions';
-import { OperationType } from '@src/common/domain';
-import { buildUserEntity } from './user.entity.builder';
-import { buildCategoryEntity } from './category.entity.builder';
-import { buildPaymentMethodEntity } from './payment-method.entity.builder';
 import { Category } from '@src/categories';
 import { PaymentMethod } from '@src/payment-methods';
+import { TransactionEntity } from '@src/db';
+import {
+  buildCategoryEntity,
+  buildPaymentMethodEntity,
+  buildUserEntity,
+  generateRandomId,
+} from '@test/builders';
+import { OperationType } from '@src/common/domain';
+import { Transaction } from '@src/transactions';
 
 export function buildTransactionEntity(
   overrides: Partial<TransactionEntity> = {},

@@ -5,7 +5,7 @@ import { Id, OperationType } from '@src/common/domain';
 import { buildCategory, buildUserEntity } from '@test/builders';
 import { CategoriesRepository } from './categories.repository';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CategoryEntity } from '@src/categories/entities';
+import { CategoryEntity } from '@src/db';
 
 describe('CategoriesService', () => {
   const userId = new Id('user-123');

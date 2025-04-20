@@ -1,13 +1,20 @@
-// data-source.ts
 import { configDotenv } from 'dotenv';
 import { DataSource } from 'typeorm';
-import { UserEntity } from '@src/users';
-import { CategoryEntity } from '@src/categories';
-import { PaymentMethodEntity } from '@src/payment-methods';
-import { TransactionEntity } from '@src/transactions';
+import { resolve } from 'node:path';
+import 'tsconfig-paths/register';
+import {
+  CategoryEntity,
+  PaymentMethodEntity,
+  TransactionEntity,
+  UserEntity,
+} from '@src/db/entities';
 
+const envFilePath = resolve(
+  __dirname,
+  `../../../${process.env.ENV_FILE || '.env'}`,
+);
 configDotenv({
-  path: '../.env',
+  path: envFilePath,
 });
 
 export const AppDataSource = new DataSource({
@@ -24,5 +31,5 @@ export const AppDataSource = new DataSource({
     TransactionEntity,
   ],
   migrations: ['src/migrations/*.ts'],
-  synchronize: false,
+  synchronize: process.env.NODE_ENV === 'development',
 });

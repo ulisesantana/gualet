@@ -108,7 +108,7 @@ export class CategoriesController extends BaseController {
         },
       );
 
-      return res.status(200).send(new CategoryResponseDto(newCategory));
+      res.status(200).send(new CategoryResponseDto(newCategory));
     } catch (error) {
       // TODO: Add logging service
       console.error('Error saving category:', error);
@@ -119,18 +119,21 @@ export class CategoriesController extends BaseController {
   private handleCategoriesError(res: Response, error: any) {
     if (this.isBaseError(error)) {
       switch (error.code) {
-        case CategoriesErrorCodes.CategoryNotFound:
-          return res
-            .status(404)
-            .send(new ErrorResponse(new NotFoundException(error)));
-        case CategoriesErrorCodes.NotAuthorizedForCategory:
-          return res
+        case CategoriesErrorCodes.CategoryNotFound: {
+          res.status(404).send(new ErrorResponse(new NotFoundException(error)));
+          break;
+        }
+        case CategoriesErrorCodes.NotAuthorizedForCategory: {
+          res
             .status(403)
             .send(new ErrorResponse(new ForbiddenException(error)));
+          break;
+        }
       }
+    } else {
+      res
+        .status(500)
+        .send(new ErrorResponse(new InternalServerErrorException(error)));
     }
-    return res
-      .status(500)
-      .send(new ErrorResponse(new InternalServerErrorException(error)));
   }
 }

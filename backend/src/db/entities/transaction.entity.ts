@@ -9,16 +9,14 @@ import {
 } from 'typeorm';
 import { OperationType } from '@src/common/domain';
 import { TimeString } from '@src/common/types';
-import { UserEntity } from '@src/users';
-import { CategoryEntity } from '@src/categories';
-import { PaymentMethodEntity } from '@src/payment-methods';
+import { CategoryEntity, PaymentMethodEntity, UserEntity } from './index';
 
 @Entity('transactions')
 export class TransactionEntity {
   @PrimaryColumn('uuid')
   id: string;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: UserEntity;
 

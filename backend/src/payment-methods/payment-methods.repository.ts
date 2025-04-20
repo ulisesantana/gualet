@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Id } from '@src/common/domain';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaymentMethodEntity } from '@src/payment-methods/entities/payment-method.entity';
 import { Repository } from 'typeorm';
 import { PaymentMethod } from './payment-method.model';
 import {
@@ -9,6 +8,7 @@ import {
   PaymentMethodNotFoundError,
 } from './errors';
 import { PaymentMethodToUpdate } from '@src/payment-methods';
+import { PaymentMethodEntity } from '@src/db';
 
 @Injectable()
 export class PaymentMethodsRepository {

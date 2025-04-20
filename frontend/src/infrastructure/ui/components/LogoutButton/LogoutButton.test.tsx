@@ -1,8 +1,7 @@
 import { act } from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { vi, describe, it, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, it, vi } from "vitest";
 import { LogoutButton } from "@components";
-import { supabase } from "@infrastructure/data-sources";
 
 describe("LogoutButton", () => {
   beforeEach(() => {

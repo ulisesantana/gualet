@@ -1,0 +1,115 @@
+import { UserCredentials } from "@application/repositories";
+import { HttpDataSource } from "@infrastructure/data-sources";
+import { BaseResponse } from "@infrastructure/types";
+import { beforeEach, describe, it, Mocked, vi } from "vitest";
+
+import { UserRepositoryImplementation, UserResponse } from "./user.repository";
+
+describe("UserRepositoryImplementation", () => {
+  let repository: UserRepositoryImplementation;
+  let mockHttp: Mocked<HttpDataSource>;
+
+  beforeEach(() => {
+    mockHttp = {
+      get: vi.fn().mockResolvedValue({ success: true } as UserResponse),
+      post: vi.fn().mockResolvedValue({ success: true } as UserResponse),
+    } as unknown as Mocked<HttpDataSource>;
+    repository = new UserRepositoryImplementation(mockHttp);
+  });
+
+  describe("isLoggedIn", () => {
+    it("should return true when the request is successful", async () => {
+      mockHttp.get.mockResolvedValue({ success: true } as BaseResponse);
+
+      const result = await repository.isLoggedIn();
+
+      expect(mockHttp.get).toHaveBeenCalledWith("/api/auth/verify");
+      expect(result).toBe(true);
+    });
+
+    it("should return false when the request is unsuccessful", async () => {
+      mockHttp.get.mockResolvedValue({ success: false } as BaseResponse);
+
+      const result = await repository.isLoggedIn();
+
+      expect(mockHttp.get).toHaveBeenCalledWith("/api/auth/verify");
+      expect(result).toBe(false);
+    });
+
+    it("should propagate the exception if the request fails", async () => {
+      const error = new Error("Network error");
+      mockHttp.get.mockRejectedValue(error);
+
+      await expect(repository.isLoggedIn()).rejects.toThrow(error);
+    });
+  });
+
+  describe("login", () => {
+    it("should call the post method with the correct credentials", async () => {
+      const credentials: UserCredentials = {
+        email: "user@example.com",
+        password: "password123",
+      };
+
+      await repository.login(credentials);
+
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        "/api/auth/login",
+        credentials,
+      );
+    });
+
+    it("should propagate the exception if the request fails", async () => {
+      const error = new Error("Authentication error");
+      mockHttp.post.mockRejectedValue(error);
+      const credentials: UserCredentials = {
+        email: "user@example.com",
+        password: "password123",
+      };
+
+      await expect(repository.login(credentials)).rejects.toThrow(error);
+    });
+  });
+
+  describe("logout", () => {
+    it("should call the post method with the correct path", async () => {
+      await repository.logout();
+
+      expect(mockHttp.post).toHaveBeenCalledWith("/api/auth/logout");
+    });
+
+    it("should propagate the exception if the request fails", async () => {
+      const error = new Error("Logout error");
+      mockHttp.post.mockRejectedValue(error);
+
+      await expect(repository.logout()).rejects.toThrow(error);
+    });
+  });
+
+  describe("register", () => {
+    it("should call the post method with the correct credentials", async () => {
+      const credentials: UserCredentials = {
+        email: "new_user@example.com",
+        password: "password123",
+      };
+
+      await repository.register(credentials);
+
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        "/api/auth/register",
+        credentials,
+      );
+    });
+
+    it("should propagate the exception if the request fails", async () => {
+      const error = new Error("Registration error");
+      mockHttp.post.mockRejectedValue(error);
+      const credentials: UserCredentials = {
+        email: "new_user@example.com",
+        password: "password123",
+      };
+
+      await expect(repository.register(credentials)).rejects.toThrow(error);
+    });
+  });
+});

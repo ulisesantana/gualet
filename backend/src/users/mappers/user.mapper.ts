@@ -1,5 +1,6 @@
-import { User, UserEntity, UserWithPassword } from '../index';
+import { User, UserWithPassword } from '../index';
 import { Id } from '@src/common/domain';
+import { UserEntity } from '@src/db';
 
 export class UserMapper {
   static toDomain(user: UserWithPassword | UserEntity): User {

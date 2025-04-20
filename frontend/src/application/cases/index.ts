@@ -14,3 +14,4 @@ export * from "./save-category/save-category.use-case";
 export * from "./save-transaction/save-transaction.use-case";
 export * from "./save-user-preferences/save-user-preferences.use-case";
 export * from "./sign-up/sign-up.use-case";
+export * from "./verify-session/verify-session.use-case";

@@ -29,7 +29,8 @@ export class AuthController {
 
     this.saveAccessToken(res, access_token);
 
-    return res.status(200).send(new UserResponseDto(user));
+    res.status(200);
+    return new UserResponseDto(user);
   }
 
   @Post('register')
@@ -42,13 +43,14 @@ export class AuthController {
     const { access_token } = await this.authService.login(user.toJSON());
     this.saveAccessToken(res, access_token);
 
-    return res.status(200).send(new UserResponseDto(user));
+    res.status(200);
+    return new UserResponseDto(user);
   }
 
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie(this.accessToken);
-    return res.status(200);
+    res.status(200);
   }
 
   @Post('verify')

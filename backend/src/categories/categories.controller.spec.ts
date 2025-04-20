@@ -190,14 +190,14 @@ describe('CategoriesController', () => {
       const category = buildCategory();
       jest.spyOn(service, 'update').mockResolvedValue(category);
 
-      const result = await controller.update(req, res, category.id.toString(), {
+      await controller.update(req, res, category.id.toString(), {
         name: category.name,
         type: category.type,
         icon: category.icon as string,
         color: category.color as string,
       });
 
-      expect(result).toStrictEqual(new CategoryResponseDto(category));
+      expect(res.send).toHaveBeenCalledWith(new CategoryResponseDto(category));
       expect(service.update).toHaveBeenCalledWith(new Id('1'), category);
     });
 

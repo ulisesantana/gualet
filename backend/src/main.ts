@@ -30,6 +30,9 @@ async function bootstrap() {
   );
 
   const config: ConfigService = app.get(ConfigService);
+  if (config.get('NODE_ENV') === 'test') {
+    app.enableShutdownHooks();
+  }
   if (config.get('NODE_ENV') === 'development') {
     const docsRoute = 'api/docs';
     const config = new DocumentBuilder()

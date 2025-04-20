@@ -7,3 +7,4 @@ export * from "./LogoutButton";
 export * from "./TransactionCard";
 export * from "./TransactionForm";
 export * from "./TransactionList";
+export * from "./ProtectedRoute";

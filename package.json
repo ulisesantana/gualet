@@ -1,24 +1,36 @@
 {
   "name": "gualet",
   "version": "1.0.0",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "e2e"
+  ],
   "description": "Gualet is an app designed to help you manage your finances easily.",
   "main": "backend/dist/main.js",
   "scripts": {
     "dev": "run-p dev:backend dev:frontend",
-    "dev:backend": "npm --prefix ./backend run start:dev",
-    "dev:frontend": "npm --prefix ./frontend run dev",
-    "build": "npm --prefix ./backend run build && npm --prefix ./frontend run build && cp -r ./frontend/dist ./backend/dist/public",
-    "install": "npm --prefix ./backend install && npm --prefix ./frontend install",
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "build": "npm run build -w backend && npm run build -w frontend && cp -r ./frontend/dist ./backend/dist/public",
     "test": "npm run test:backend && npm run test:frontend",
-    "test:backend": "npm --prefix ./backend run test",
-    "test:backend:cov": "npm --prefix ./backend run test:cov",
-    "test:frontend": "npm --prefix ./frontend run test",
-    "test:frontend:cov": "npm --prefix ./frontend run test:cov"
+    "test:backend": "npm run test -w backend",
+    "test:backend:cov": "npm run test:cov -w backend",
+    "test:frontend": "npm run test -w frontend",
+    "test:frontend:cov": "npm run test:cov -w frontend",
+    "test:e2e": "npm run test -w e2e",
+    "test:e2e:ui": "npm run test:ui -w e2e"
   },
   "author": "Ulises Santana Suárez <ulisesantana@gmail.com>",
   "license": "ISC",
   "packageManager": "npm@10.9.2",
   "devDependencies": {
     "npm-run-all": "^4.1.5"
+  },
+  "dependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.5.0",
+    "uuid": "^11.1.0"
   }
 }

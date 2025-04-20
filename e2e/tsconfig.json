@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictNullChecks": true,
+    "baseUrl": ".",
+    "paths": {
+      "@gualet/backend/*": ["../backend/*"]
+    },
+    "types": ["node", "jest", "pg"],
+  }
+}

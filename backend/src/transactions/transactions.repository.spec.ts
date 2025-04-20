@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionsRepository } from './transactions.repository';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { TransactionEntity } from './entities';
 import {
   Between,
   DeleteResult,
@@ -31,9 +30,12 @@ import {
   PaymentMethodNotFoundError,
 } from '@src/payment-methods/errors';
 
-import { CategoryEntity } from '@src/categories';
-import { PaymentMethodEntity } from '@src/payment-methods';
 import { DateString, TimeString } from '@src/common/types';
+import {
+  CategoryEntity,
+  PaymentMethodEntity,
+  TransactionEntity,
+} from '@src/db';
 import Mocked = jest.Mocked;
 
 describe('TransactionsRepository', () => {

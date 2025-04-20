@@ -4,6 +4,7 @@ export const routes = {
     details: "/categories/details/:id",
     list: "/categories",
   },
+  login: "/login",
   paymentMethods: {
     details: "/payment-methods/details/:id",
     list: "/payment-methods",
@@ -12,7 +13,7 @@ export const routes = {
     details: "/transactions/details/:id",
   },
   reports: "/reports",
-  root: "/",
+  root: "",
   settings: "/settings",
 };
 

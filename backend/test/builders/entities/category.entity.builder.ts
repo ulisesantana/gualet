@@ -1,6 +1,7 @@
 import { buildUserEntity, generateRandomId } from '@test/builders';
-import { Category, CategoryEntity } from '@src/categories';
+import { Category } from '@src/categories';
 import { OperationType } from '@src/common/domain';
+import { CategoryEntity } from '@src/db';
 
 export function buildCategoryEntity(
   overrides: Partial<CategoryEntity> = {},

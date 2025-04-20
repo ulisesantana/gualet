@@ -1,7 +1,7 @@
-import { PaymentMethod, PaymentMethodEntity } from '@src/payment-methods';
+import { PaymentMethod } from '@src/payment-methods';
 import { TimeString } from '@src/common/types';
-import { generateRandomId } from '../generate-random-id';
-import { buildUserEntity } from './user.entity.builder';
+import { PaymentMethodEntity } from '@src/db';
+import { buildUserEntity, generateRandomId } from '@test/builders';
 
 export function buildPaymentMethodEntity(
   overrides: Partial<PaymentMethodEntity> = {},

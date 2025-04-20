@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaymentMethodsRepository } from './payment-methods.repository';
-import { PaymentMethodEntity } from './entities';
 import {
   buildPaymentMethod,
   buildPaymentMethodEntity,
@@ -14,6 +13,7 @@ import {
   PaymentMethodNotFoundError,
 } from './errors';
 import { PaymentMethod } from './payment-method.model';
+import { PaymentMethodEntity } from '@src/db';
 
 describe('PaymentMethodsRepository', () => {
   let repository: PaymentMethodsRepository;

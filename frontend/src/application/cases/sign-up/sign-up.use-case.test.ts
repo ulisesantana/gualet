@@ -8,7 +8,7 @@ describe("Sign up use case", () => {
 
   beforeEach(() => {
     repository = {
-      register: vi.fn(),
+      register: vi.fn().mockResolvedValue(true),
     } as unknown as Mocked<UserRepository>;
     signUpUseCase = new SignUpUseCase(repository);
   });
@@ -16,17 +16,30 @@ describe("Sign up use case", () => {
   it("should sign up a user with the provided credentials", async () => {
     const input = { email: "user@example.com", password: "password123" };
 
-    await signUpUseCase.exec(input);
+    const result = await signUpUseCase.exec(input);
 
+    expect(result).toBe(true);
     expect(repository.register).toHaveBeenCalledWith(input);
   });
 
-  it("should throw an error if sign up fails", async () => {
+  it("should return false if server can't process the sign up", async () => {
+    repository.register.mockResolvedValue(false);
+    const input = { email: "user@example.com", password: "password123" };
+
+    const result = await signUpUseCase.exec(input);
+
+    expect(result).toBe(false);
+    expect(repository.register).toHaveBeenCalledWith(input);
+  });
+
+  it("should return false sign up fails", async () => {
     const input = { email: "user@example.com", password: "password123" };
 
     // Simulate an error during sign up
     repository.register.mockRejectedValue(new Error("Sign up failed"));
 
-    await expect(signUpUseCase.exec(input)).rejects.toThrow("Sign up failed");
+    const result = await signUpUseCase.exec(input);
+
+    expect(result).toBe(false);
   });
 });

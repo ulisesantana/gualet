@@ -8,7 +8,6 @@ import {
 import { TransactionsRepository } from '@src/transactions/transactions.repository';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { TransactionEntity } from '@src/transactions/entities';
 import { TimeString } from '@src/common/types';
 import {
   buildCategoryEntity,
@@ -19,6 +18,7 @@ import {
 import { Category } from '@src/categories';
 import { PaymentMethod } from '@src/payment-methods';
 import { Pagination } from '@src/common/infrastructure';
+import { TransactionEntity } from '@src/db';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;

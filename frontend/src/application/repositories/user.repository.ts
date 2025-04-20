@@ -4,11 +4,13 @@ export interface UserCredentials {
 }
 
 export interface UserRepository {
-  register(credentials: UserCredentials): Promise<void>;
+  register(credentials: UserCredentials): Promise<boolean>;
 
-  login(credentials: UserCredentials): Promise<void>;
+  login(credentials: UserCredentials): Promise<boolean>;
 
-  logout(): Promise<void>;
+  logout(): Promise<boolean>;
 
   isLoggedIn(): Promise<boolean>;
+
+  verify(): Promise<boolean>;
 }

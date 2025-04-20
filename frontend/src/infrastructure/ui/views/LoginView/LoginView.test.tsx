@@ -1,11 +1,22 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, Mocked, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { LoginView } from "@views";
-import { supabase } from "@infrastructure/data-sources";
+import { LoginUseCase, SignUpUseCase } from "@application/cases";
 
 describe("LoginView should", () => {
+  const signUpMock = {
+    exec: vi.fn().mockResolvedValue(true),
+  } as unknown as Mocked<SignUpUseCase>;
+  const loginMock = {
+    exec: vi.fn().mockResolvedValue(true),
+  } as unknown as Mocked<LoginUseCase>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("renders login form by default", async () => {
-    render(<LoginView />);
+    render(<LoginView loginUseCase={loginMock} signUpUseCase={signUpMock} />);
 
     await waitFor(() => {
       expect(screen.getByTestId("submit-login")).toBeInTheDocument();
@@ -15,7 +26,7 @@ describe("LoginView should", () => {
   });
 
   it("renders signup form when SignUp is selected", () => {
-    render(<LoginView />);
+    render(<LoginView loginUseCase={loginMock} signUpUseCase={signUpMock} />);
 
     fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
 
@@ -26,7 +37,7 @@ describe("LoginView should", () => {
   });
 
   it("calls signIn on login form submission", async () => {
-    render(<LoginView />);
+    render(<LoginView loginUseCase={loginMock} signUpUseCase={signUpMock} />);
 
     fireEvent.input(screen.getByLabelText(/email/i), {
       target: { value: "user@example.com" },
@@ -38,7 +49,7 @@ describe("LoginView should", () => {
     fireEvent.submit(screen.getByTestId("submit-login"));
 
     await waitFor(() => {
-      expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
+      expect(loginMock.exec).toHaveBeenCalledWith({
         email: "user@example.com",
         password: "password123",
       });
@@ -46,7 +57,7 @@ describe("LoginView should", () => {
   });
 
   it("calls signUp on signup form submission and displays success message", async () => {
-    render(<LoginView />);
+    render(<LoginView loginUseCase={loginMock} signUpUseCase={signUpMock} />);
 
     fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
 
@@ -60,7 +71,7 @@ describe("LoginView should", () => {
     fireEvent.submit(screen.getByTestId("submit-sign-up"));
 
     await waitFor(() => {
-      expect(supabase.auth.signUp).toHaveBeenCalledWith({
+      expect(signUpMock.exec).toHaveBeenCalledWith({
         email: "newuser@example.com",
         password: "newpassword",
       });
@@ -71,7 +82,7 @@ describe("LoginView should", () => {
   });
 
   it("toggles between login and signup forms", () => {
-    render(<LoginView />);
+    render(<LoginView loginUseCase={loginMock} signUpUseCase={signUpMock} />);
 
     // Initially in login form
     expect(screen.queryByTestId("submit-login")).toBeInTheDocument();

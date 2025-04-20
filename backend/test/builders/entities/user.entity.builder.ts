@@ -1,5 +1,5 @@
-import { generateRandomId } from '../generate-random-id';
-import { UserEntity } from '@src/users';
+import { generateRandomId } from '@test/builders';
+import { UserEntity } from '@src/db';
 
 export function buildUserEntity(
   overrides: Partial<UserEntity> = {},

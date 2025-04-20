@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserEntity } from './entities';
 import { User, UserWithPassword } from './models';
 import { UserMapper } from './mappers';
 import { UserNotFoundError } from './errors';
 import { Id } from '@src/common/domain';
+import { UserEntity } from '@src/db';
 
 @Injectable()
 export class UserService {

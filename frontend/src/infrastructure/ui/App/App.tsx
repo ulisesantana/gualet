@@ -1,66 +1,84 @@
-import React, { useEffect } from "react";
-import {
-  AddCategoryView,
-  CategoriesView,
-  CategoryDetailsView,
-  LastTransactionsView,
-  LoginView,
-  ReportView,
-  SettingsView,
-  TransactionDetailsView,
-} from "@views";
-import { supabase } from "@infrastructure/data-sources";
-import { Header } from "@components";
+import React from "react";
+import { LastTransactionsView, LoginView } from "@views";
+import { Header, ProtectedRoute } from "@components";
 import { Route, Router } from "wouter";
 import { routes } from "@infrastructure/ui/routes";
-import { useSession } from "@infrastructure/ui/contexts";
+import {
+  LoginUseCase,
+  SignUpUseCase,
+  VerifySessionUseCase,
+} from "@application/cases";
 
-export const App: React.FC = () => {
-  const { session, setSession } = useSession();
+export interface AppProps {
+  cases: {
+    loginUseCase: LoginUseCase;
+    signUpUseCase: SignUpUseCase;
+    verifySessionUseCase: VerifySessionUseCase;
+  };
+}
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
+export const App: React.FC<AppProps> = ({
+  cases: { loginUseCase, signUpUseCase, verifySessionUseCase },
+}) => {
   return (
     // @ts-ignore
     <Router base={import.meta.env.BASE_URL}>
       <div className="App">
         <Header />
         <main className="App-main">
-          {session ? (
-            <>
-              <Route path={routes.root} component={LastTransactionsView} />
-              {/*TRANSACTIONS*/}
-              <Route
-                path={routes.transactions.details}
-                component={TransactionDetailsView}
-              />
-              {/*CATEGORIES*/}
-              <Route path={routes.categories.add} component={AddCategoryView} />
-              <Route
-                path={routes.categories.details}
-                component={CategoryDetailsView}
-              />
-              <Route path={routes.categories.list} component={CategoriesView} />
-              {/*REPORTS*/}
-              <Route path={routes.reports} component={ReportView} />
-              {/*SETTINGS*/}
-              <Route path={routes.settings} component={SettingsView} />
-            </>
-          ) : (
-            <LoginView />
-          )}
+          <ProtectedRoute
+            path={routes.root}
+            verifySessionUseCase={verifySessionUseCase}
+          >
+            <LastTransactionsView />
+          </ProtectedRoute>
+          {/*/!*TRANSACTIONS*!/*/}
+          {/*<ProtectedRoute*/}
+          {/*  path={routes.transactions.details}*/}
+          {/*  verifySessionUseCase={verifySessionUseCase}*/}
+          {/*>*/}
+          {/*  <TransactionDetailsView />*/}
+          {/*</ProtectedRoute>*/}
+          {/*/!*CATEGORIES*!/*/}
+          {/*<ProtectedRoute*/}
+          {/*  path={routes.categories.add}*/}
+          {/*  verifySessionUseCase={verifySessionUseCase}*/}
+          {/*>*/}
+          {/*  <AddCategoryView />*/}
+          {/*</ProtectedRoute>*/}
+          {/*<ProtectedRoute*/}
+          {/*  path={routes.categories.details}*/}
+          {/*  verifySessionUseCase={verifySessionUseCase}*/}
+          {/*>*/}
+          {/*  <CategoryDetailsView />*/}
+          {/*</ProtectedRoute>*/}
+          {/*<ProtectedRoute*/}
+          {/*  path={routes.categories.list}*/}
+          {/*  verifySessionUseCase={verifySessionUseCase}*/}
+          {/*>*/}
+          {/*  <CategoriesView />*/}
+          {/*</ProtectedRoute>*/}
+          {/*/!*REPORTS*!/*/}
+          {/*<ProtectedRoute*/}
+          {/*  path={routes.reports}*/}
+          {/*  verifySessionUseCase={verifySessionUseCase}*/}
+          {/*>*/}
+          {/*  <ReportView />*/}
+          {/*</ProtectedRoute>*/}
+          {/*/!*SETTINGS*!/*/}
+          {/*<ProtectedRoute*/}
+          {/*  path={routes.settings}*/}
+          {/*  verifySessionUseCase={verifySessionUseCase}*/}
+          {/*>*/}
+          {/*  <SettingsView />*/}
+          {/*</ProtectedRoute>*/}
+          {/*LOGIN*/}
+          <Route path={routes.login}>
+            <LoginView
+              loginUseCase={loginUseCase}
+              signUpUseCase={signUpUseCase}
+            />
+          </Route>
         </main>
       </div>
     </Router>

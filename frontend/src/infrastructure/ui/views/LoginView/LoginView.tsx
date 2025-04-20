@@ -1,16 +1,25 @@
 import React, { useState } from "react";
-import { supabase } from "@infrastructure/data-sources";
 import "./LoginView.css";
 import { LoginUseCase, SignUpUseCase } from "@application/cases";
+import { routes } from "@infrastructure/ui/routes";
 
 interface GenerateOnSubmitHandlerParams {
   callback: () => void;
-  signUp: boolean;
+  isSignUp: boolean;
+  signUpUseCase: SignUpUseCase;
+  loginUseCase: LoginUseCase;
+}
+
+export interface LoginFormProps {
+  signUpUseCase: SignUpUseCase;
+  loginUseCase: LoginUseCase;
 }
 
 function generateOnSubmitHandler({
-  signUp,
+  isSignUp,
   callback,
+  signUpUseCase,
+  loginUseCase,
 }: GenerateOnSubmitHandlerParams) {
   return (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -20,20 +29,24 @@ function generateOnSubmitHandler({
     const password = formData.get("password") as string;
 
     if (email && password) {
-      if (signUp) {
-        new SignUpUseCase(supabase).exec({ email, password }).then(callback);
+      if (isSignUp) {
+        signUpUseCase.exec({ email, password }).then(callback);
       } else {
-        new LoginUseCase(supabase).exec({ email, password });
+        loginUseCase.exec({ email, password }).then(() => {
+          window.location.pathname = routes.root;
+        });
       }
     }
   };
 }
 
-export function LoginForm() {
+export function LoginForm({ signUpUseCase, loginUseCase }: LoginFormProps) {
   const [showSignUp, setShowSignUp] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const onSubmitHandler = generateOnSubmitHandler({
-    signUp: showSignUp,
+    signUpUseCase,
+    loginUseCase,
+    isSignUp: showSignUp,
     callback: () => {
       setSuccessMessage(
         "Your email needs to be confirmed. Please, check your email and click on confirm link.",
@@ -100,6 +113,6 @@ export function LoginForm() {
   );
 }
 
-export function LoginView() {
-  return <LoginForm />;
+export function LoginView(props: LoginFormProps) {
+  return <LoginForm {...props} />;
 }
