@@ -1,18 +1,14 @@
 import { UseCase } from "@application/cases/use-case";
 import { UserRepository } from "@application/repositories";
+import { CommandResponse } from "@domain/types";
 
 type Input = { email: string; password: string };
-type Output = Promise<boolean>;
+type Output = Promise<CommandResponse>;
 
 export class SignUpUseCase implements UseCase<Input, Output> {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async exec(input: Input) {
-    try {
-      return await this.userRepository.register(input);
-    } catch (error) {
-      console.error("Error during sign up:", error);
-      return false;
-    }
+  exec(input: Input) {
+    return this.userRepository.register(input);
   }
 }

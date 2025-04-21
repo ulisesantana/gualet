@@ -21,7 +21,9 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({
     const verifyAuth = () => {
       verifySessionUseCase
         .exec()
-        .then(setIsAuthenticated)
+        .then(({ success }) => {
+          setIsAuthenticated(success);
+        })
         .catch(() => {
           setIsAuthenticated(false);
         })

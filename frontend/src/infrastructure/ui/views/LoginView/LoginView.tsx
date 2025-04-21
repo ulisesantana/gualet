@@ -4,7 +4,7 @@ import { LoginUseCase, SignUpUseCase } from "@application/cases";
 import { routes } from "@infrastructure/ui/routes";
 
 interface GenerateOnSubmitHandlerParams {
-  callback: () => void;
+  callback: (error?: string) => void;
   isSignUp: boolean;
   signUpUseCase: SignUpUseCase;
   loginUseCase: LoginUseCase;
@@ -30,11 +30,27 @@ function generateOnSubmitHandler({
 
     if (email && password) {
       if (isSignUp) {
-        signUpUseCase.exec({ email, password }).then(callback);
+        signUpUseCase
+          .exec({ email, password })
+          .then(({ success, reason }) => {
+            if (success) {
+              callback();
+            } else {
+              callback(reason);
+            }
+          })
+          .catch(callback);
       } else {
-        loginUseCase.exec({ email, password }).then(() => {
-          window.location.pathname = routes.root;
-        });
+        loginUseCase
+          .exec({ email, password })
+          .then(({ success, reason }) => {
+            if (success) {
+              callback();
+            } else {
+              callback(reason);
+            }
+          })
+          .catch(callback);
       }
     }
   };
@@ -43,14 +59,25 @@ function generateOnSubmitHandler({
 export function LoginForm({ signUpUseCase, loginUseCase }: LoginFormProps) {
   const [showSignUp, setShowSignUp] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const onSubmitHandler = generateOnSubmitHandler({
     signUpUseCase,
     loginUseCase,
     isSignUp: showSignUp,
-    callback: () => {
-      setSuccessMessage(
-        "Your email needs to be confirmed. Please, check your email and click on confirm link.",
-      );
+    callback: (error?: string) => {
+      if (error) {
+        setSuccessMessage("");
+        setErrorMessage(error);
+      } else {
+        setErrorMessage("");
+        if (showSignUp) {
+          setSuccessMessage(
+            "Your email needs to be confirmed. Please, check your email and click on confirm link.",
+          );
+        } else {
+          window.location.pathname = routes.root;
+        }
+      }
     },
   });
 
@@ -88,9 +115,6 @@ export function LoginForm({ signUpUseCase, loginUseCase }: LoginFormProps) {
               </button>
             </footer>
           </form>
-          {successMessage && (
-            <span className="success-message">{successMessage}</span>
-          )}
         </>
       ) : (
         <form className="login-form" onSubmit={onSubmitHandler}>
@@ -109,6 +133,10 @@ export function LoginForm({ signUpUseCase, loginUseCase }: LoginFormProps) {
           </footer>
         </form>
       )}
+      {successMessage && (
+        <span className="success-message">{successMessage}</span>
+      )}
+      {errorMessage && <span className="error-message">{errorMessage}</span>}
     </div>
   );
 }

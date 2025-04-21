@@ -7,12 +7,19 @@
     width: 100%;
 }
 
-.login-view .success-message {
-    color: var(--success-color);
+.login-view .success-message, .login-view .error-message {
     font-size: 1.5rem;
     font-weight: bolder;
     max-width: 80%;
     text-align: center;
+}
+
+.login-view .success-message {
+    color: var(--success-color);
+}
+
+.login-view .error-message {
+    color: var(--danger-color);
 }
 
 .login-view .login-view .form-selector {

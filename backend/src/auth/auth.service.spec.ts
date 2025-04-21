@@ -1,7 +1,11 @@
-import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { User, UserService, UserWithPassword } from '@src/users';
+import {
+  InvalidCredentialsError,
+  User,
+  UserService,
+  UserWithPassword,
+} from '@src/users';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -60,7 +64,7 @@ describe('AuthService', () => {
     expect(result).toEqual(UserService.mapToDomain(user));
   });
 
-  it('should throw UnauthorizedException with incorrect credentials', async () => {
+  it('should throw InvalidCredentialsError with incorrect credentials', async () => {
     const email = 'test@example.com';
     const password = 'password';
     const user = new UserWithPassword({
@@ -72,7 +76,7 @@ describe('AuthService', () => {
     jest.spyOn(bcrypt, 'compare').mockImplementation(async () => false);
 
     await expect(service.validateUser(email, password)).rejects.toThrow(
-      UnauthorizedException,
+      InvalidCredentialsError,
     );
   });
 

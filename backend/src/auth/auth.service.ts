@@ -1,8 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { User, UserService } from '@src/users';
+import { InvalidCredentialsError, User, UserService } from '@src/users';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +23,7 @@ export class AuthService {
       return UserService.mapToDomain(user);
     }
 
-    throw new UnauthorizedException('Invalid credentials');
+    throw new InvalidCredentialsError();
   }
 
   async login(user: {

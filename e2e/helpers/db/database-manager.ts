@@ -29,8 +29,9 @@ export class DatabaseManager {
       console.error('Unexpected error on idle client', err)
       process.exit(-1)
     })
-    await pool.query(`DELETE FROM users`);
-    return new DatabaseManager(pool);
+    const db = new DatabaseManager(pool);
+    await db.reset()
+    return db
   }
 
   async createUser(user: User): Promise<void> {
@@ -41,5 +42,9 @@ export class DatabaseManager {
     `;
     const values = [user.id || generateRandomId(), user.email, hash];
     await this.pool.query(query, values);
+  }
+
+  async reset() {
+    await this.pool.query(`DELETE FROM users`);
   }
 }

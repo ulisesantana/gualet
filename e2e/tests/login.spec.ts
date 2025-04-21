@@ -29,11 +29,24 @@ test.describe('login success', () => {
   })
 });
 
-test.fixme('handle login error', async ({page}) => {
-  const loginPage = new LoginPage(page);
-  await loginPage.goto();
+test.describe('handle login errors', () => {
+  test('user not found', async ({page}) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
 
-  await loginPage.login(user);
+    await loginPage.login(user);
 
-  await expect(loginPage.error).toHaveText('User not found');
+    await expect(loginPage.error).toHaveText('User not found.');
+  })
+
+  test('invalid credentials', async ({page, db}) => {
+    await db.createUser(user)
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+
+    await loginPage.login({email: user.email, password: 'wrongPassword'});
+
+    await expect(loginPage.error).toHaveText('Invalid credentials.');
+  })
+
 })

@@ -1,27 +1,30 @@
 import { UserCredentials, UserRepository } from "@application/repositories";
 import { HttpDataSource } from "@infrastructure/data-sources";
 import { BaseResponse } from "@infrastructure/types";
+import { CommandResponse } from "@domain/types";
 
-export type UserResponse = BaseResponse<{
-  user: {
-    id: string;
-    email: string;
-  };
-}>;
+export type UserResponse = BaseResponse<
+  {
+    user: {
+      id: string;
+      email: string;
+    };
+  },
+  Error
+>;
 
 export class UserRepositoryImplementation implements UserRepository {
   private readonly path = "/api/auth";
 
   constructor(private readonly http: HttpDataSource) {}
 
-  isLoggedIn() {
-    return this.forwardSuccess(
-      this.http.get<UserResponse>(`${this.path}/verify`),
-    );
+  async isLoggedIn() {
+    const result = await this.http.get<UserResponse>(`${this.path}/verify`);
+    return result.success;
   }
 
   login(credentials: UserCredentials) {
-    return this.forwardSuccess(
+    return this.handleCommandResponse(
       this.http.post<UserCredentials, UserResponse>(
         `${this.path}/login`,
         credentials,
@@ -30,13 +33,13 @@ export class UserRepositoryImplementation implements UserRepository {
   }
 
   logout() {
-    return this.forwardSuccess(
+    return this.handleCommandResponse(
       this.http.post<undefined, UserResponse>(`${this.path}/logout`),
     );
   }
 
   register(credentials: UserCredentials) {
-    return this.forwardSuccess(
+    return this.handleCommandResponse(
       this.http.post<UserCredentials, UserResponse>(
         `${this.path}/register`,
         credentials,
@@ -45,13 +48,25 @@ export class UserRepositoryImplementation implements UserRepository {
   }
 
   verify() {
-    return this.forwardSuccess(
+    return this.handleCommandResponse(
       this.http.post<undefined, UserResponse>(`${this.path}/verify`),
     );
   }
 
-  private async forwardSuccess(request: Promise<UserResponse>) {
-    const result = await request;
-    return result.success;
+  private async handleCommandResponse(
+    request: Promise<UserResponse>,
+  ): Promise<CommandResponse> {
+    try {
+      const { success, error } = await request;
+      return success
+        ? { success: true, reason: null }
+        : { success: false, reason: error.message };
+    } catch (error: any) {
+      return {
+        success: false,
+        reason:
+          error?.response?.data?.error?.message || "An unknown error occurred",
+      };
+    }
   }
 }
