@@ -59,13 +59,26 @@ export class AuthController extends BaseController {
     @Body() registerData: RegisterDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = await this.authService.register(registerData);
+    try {
+      const user = await this.authService.register(registerData);
 
-    const { access_token } = await this.authService.login(user.toJSON());
-    this.saveAccessToken(res, access_token);
+      const { access_token } = await this.authService.login(user.toJSON());
+      this.saveAccessToken(res, access_token);
 
-    res.status(200);
-    return new UserResponseDto(user);
+      res.status(200);
+      return new UserResponseDto(user);
+    } catch (error: any) {
+      if (
+        this.isBaseError(error) &&
+        error.code === UserErrorCodes.UserAlreadyExists
+      ) {
+        res
+          .status(409)
+          .send(new ErrorResponse(new UnauthorizedException(error)));
+      } else {
+        this.handleAuthError(res, error);
+      }
+    }
   }
 
   @Post('logout')

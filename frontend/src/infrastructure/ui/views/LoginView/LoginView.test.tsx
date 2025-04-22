@@ -1,100 +1,175 @@
-import { describe, expect, it, Mocked, vi } from "vitest";
+import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { LoginView } from "@views";
-import { LoginUseCase, SignUpUseCase } from "@application/cases";
+import { LoginForm, LoginView } from "@views";
+import { LoginUseCase } from "@application/cases";
+import "@testing-library/jest-dom";
+import { describe, expect, it, vi } from "vitest";
+import { routes } from "@infrastructure/ui/routes";
 
-describe("LoginView should", () => {
-  const signUpMock = {
-    exec: vi.fn().mockResolvedValue(true),
-  } as unknown as Mocked<SignUpUseCase>;
-  const loginMock = {
-    exec: vi.fn().mockResolvedValue(true),
-  } as unknown as Mocked<LoginUseCase>;
+// Mock para useLocation
+const mockSetLocation = vi.fn();
+vi.mock("wouter", () => ({
+  useLocation: () => ["/login", mockSetLocation],
+  Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
+    <a href={to}>{children}</a>
+  ),
+}));
 
-  beforeEach(() => {
-    vi.clearAllMocks();
+// Mock para LoginUseCase
+const createMockLoginUseCase = (mockResponse: {
+  success: boolean;
+  reason?: string;
+}) => {
+  return {
+    exec: vi.fn().mockResolvedValue(mockResponse),
+  } as unknown as LoginUseCase;
+};
+
+describe("LoginForm", () => {
+  it("renders login form with email and password inputs", () => {
+    const mockLoginUseCase = createMockLoginUseCase({ success: true });
+    render(<LoginForm loginUseCase={mockLoginUseCase} />);
+
+    expect(screen.getByLabelText(/email:/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password:/i)).toBeInTheDocument();
+    expect(screen.getByTestId("submit-login")).toBeInTheDocument();
   });
 
-  it("renders login form by default", async () => {
-    render(<LoginView loginUseCase={loginMock} signUpUseCase={signUpMock} />);
+  it("calls loginUseCase and redirects when login is successful", async () => {
+    const mockLoginUseCase = createMockLoginUseCase({ success: true });
+    render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("submit-login")).toBeInTheDocument();
-      expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/email:/i), {
+      target: { value: "test@example.com" },
     });
-  });
-
-  it("renders signup form when SignUp is selected", () => {
-    render(<LoginView loginUseCase={loginMock} signUpUseCase={signUpMock} />);
-
-    fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
-
-    expect(screen.getByTestId("submit-sign-up")).toBeInTheDocument();
-    expect(
-      screen.getByText(/password must contain at least 6 characters/i),
-    ).toBeInTheDocument();
-  });
-
-  it("calls signIn on login form submission", async () => {
-    render(<LoginView loginUseCase={loginMock} signUpUseCase={signUpMock} />);
-
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: "user@example.com" },
-    });
-    fireEvent.input(screen.getByLabelText(/password/i), {
+    fireEvent.change(screen.getByLabelText(/password:/i), {
       target: { value: "password123" },
     });
-
-    fireEvent.submit(screen.getByTestId("submit-login"));
+    fireEvent.click(screen.getByTestId("submit-login"));
 
     await waitFor(() => {
-      expect(loginMock.exec).toHaveBeenCalledWith({
-        email: "user@example.com",
+      expect(mockLoginUseCase.exec).toHaveBeenCalledWith({
+        email: "test@example.com",
         password: "password123",
       });
+      expect(mockSetLocation).toHaveBeenCalledWith(routes.home);
     });
   });
 
-  it("calls signUp on signup form submission and displays success message", async () => {
-    render(<LoginView loginUseCase={loginMock} signUpUseCase={signUpMock} />);
-
-    fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
-
-    fireEvent.input(screen.getByLabelText(/email/i), {
-      target: { value: "newuser@example.com" },
+  it("shows error message when login fails", async () => {
+    const errorMessage = "Invalid credentials";
+    const mockLoginUseCase = createMockLoginUseCase({
+      success: false,
+      reason: errorMessage,
     });
-    fireEvent.input(screen.getByLabelText(/password/i), {
-      target: { value: "newpassword" },
-    });
+    render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
-    fireEvent.submit(screen.getByTestId("submit-sign-up"));
+    fireEvent.change(screen.getByLabelText(/email:/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/password:/i), {
+      target: { value: "password123" },
+    });
+    fireEvent.click(screen.getByTestId("submit-login"));
 
     await waitFor(() => {
-      expect(signUpMock.exec).toHaveBeenCalledWith({
-        email: "newuser@example.com",
-        password: "newpassword",
-      });
-      expect(
-        screen.getByText(/your email needs to be confirmed/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(errorMessage)).toBeInTheDocument();
     });
   });
 
-  it("toggles between login and signup forms", () => {
-    render(<LoginView loginUseCase={loginMock} signUpUseCase={signUpMock} />);
+  it("does not call loginUseCase if email is missing", async () => {
+    const mockLoginUseCase = createMockLoginUseCase({ success: true });
+    render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
-    // Initially in login form
-    expect(screen.queryByTestId("submit-login")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/password:/i), {
+      target: { value: "password123" },
+    });
+    fireEvent.click(screen.getByTestId("submit-login"));
 
-    // Toggle to signup form
-    fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
-    expect(screen.queryByTestId("submit-sign-up")).toBeInTheDocument();
-    expect(screen.queryByTestId("submit-login")).not.toBeInTheDocument();
+    expect(mockLoginUseCase.exec).not.toHaveBeenCalled();
+  });
 
-    // Toggle back to login form
-    fireEvent.click(screen.getByRole("button", { name: /login/i }));
-    expect(screen.queryByTestId("submit-login")).toBeInTheDocument();
-    expect(screen.queryByTestId("submit-sign-up")).not.toBeInTheDocument();
+  it("does not call loginUseCase if password is missing", async () => {
+    const mockLoginUseCase = createMockLoginUseCase({ success: true });
+    render(<LoginForm loginUseCase={mockLoginUseCase} />);
+
+    fireEvent.change(screen.getByLabelText(/email:/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.click(screen.getByTestId("submit-login"));
+
+    expect(mockLoginUseCase.exec).not.toHaveBeenCalled();
+  });
+
+  it("shows error message when login throws an exception", async () => {
+    const errorMessage = "Server error";
+    const mockLoginUseCase = {
+      exec: vi.fn().mockRejectedValue(errorMessage),
+    } as unknown as LoginUseCase;
+
+    render(<LoginForm loginUseCase={mockLoginUseCase} />);
+
+    fireEvent.change(screen.getByLabelText(/email:/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/password:/i), {
+      target: { value: "password123" },
+    });
+    fireEvent.click(screen.getByTestId("submit-login"));
+
+    await waitFor(() => {
+      expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    });
+  });
+
+  it("displays register link that points to register route", () => {
+    const mockLoginUseCase = createMockLoginUseCase({ success: true });
+    render(<LoginForm loginUseCase={mockLoginUseCase} />);
+
+    expect(screen.getByText(/register!/i)).toBeInTheDocument();
+    const registerLink = screen.getByText(/register!/i).closest("a");
+    expect(registerLink).toHaveAttribute("href", routes.register);
+  });
+
+  it("clears error message on successful login", async () => {
+    const mockLoginUseCase = {
+      exec: vi
+        .fn()
+        .mockResolvedValueOnce({ success: false, reason: "Error message" })
+        .mockResolvedValueOnce({ success: true }),
+    } as unknown as LoginUseCase;
+
+    render(<LoginForm loginUseCase={mockLoginUseCase} />);
+
+    // Primera llamada - error
+    fireEvent.change(screen.getByLabelText(/email:/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/password:/i), {
+      target: { value: "password123" },
+    });
+    fireEvent.click(screen.getByTestId("submit-login"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Error message")).toBeInTheDocument();
+    });
+
+    // Segunda llamada - éxito
+    fireEvent.click(screen.getByTestId("submit-login"));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Error message")).not.toBeInTheDocument();
+    });
+  });
+});
+
+describe("LoginView", () => {
+  it("renders LoginForm with provided props", () => {
+    const mockLoginUseCase = createMockLoginUseCase({ success: true });
+    render(<LoginView loginUseCase={mockLoginUseCase} />);
+
+    expect(screen.getByLabelText(/email:/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password:/i)).toBeInTheDocument();
+    expect(screen.getByTestId("submit-login")).toBeInTheDocument();
   });
 });

@@ -54,5 +54,5 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({
     return null;
   }
 
-  return <Route path={path}>{children}</Route>;
+  return <Route path={path} children={children} />;
 };

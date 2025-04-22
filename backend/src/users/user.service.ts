@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { User, UserWithPassword } from './models';
 import { UserMapper } from './mappers';
-import { UserNotFoundError } from './errors';
+import { UserAlreadyExistsError, UserNotFoundError } from './errors';
 import { Id } from '@src/common/domain';
 import { UserEntity } from '@src/db';
 
@@ -40,7 +40,13 @@ export class UserService {
   }
 
   async create(userData: { email: string; password: string }): Promise<User> {
-    // TODO: Check if user exists before doing anything
+    const user = await this.userRepository.findOne({
+      where: { email: userData.email },
+    });
+    if (user) {
+      throw new UserAlreadyExistsError(userData.email);
+    }
+
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     const newUser = await this.userRepository.save({
       ...userData,

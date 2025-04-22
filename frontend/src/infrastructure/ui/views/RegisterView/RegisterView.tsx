@@ -1,26 +1,24 @@
 import React, { useState } from "react";
-import "./LoginView.css";
-import { LoginUseCase } from "@application/cases";
-import { routes } from "@infrastructure/ui/routes";
-import { Link, useLocation } from "wouter";
+import "./RegisterView.css";
+import { SignUpUseCase } from "@application/cases";
 
-export interface LoginFormProps {
-  loginUseCase: LoginUseCase;
+export interface RegisterFormProps {
+  signUpUseCase: SignUpUseCase;
 }
 
-export function LoginForm({ loginUseCase }: LoginFormProps) {
+export function RegisterForm({ signUpUseCase }: RegisterFormProps) {
+  const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [_location, setLocation] = useLocation();
   const callback = (error?: string) => {
-    console.log("error", error, error === undefined);
     if (error) {
+      setSuccessMessage("");
       setErrorMessage(error);
     } else {
-      setErrorMessage("");
-      setLocation(routes.home);
+      setSuccessMessage(
+        "Your email needs to be confirmed. Please, check your email and click on confirm link.",
+      );
     }
   };
-
   const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -29,7 +27,7 @@ export function LoginForm({ loginUseCase }: LoginFormProps) {
     const password = formData.get("password") as string;
 
     if (email && password) {
-      loginUseCase
+      signUpUseCase
         .exec({ email, password })
         .then(({ success, reason }) => {
           if (success) {
@@ -43,8 +41,8 @@ export function LoginForm({ loginUseCase }: LoginFormProps) {
   };
 
   return (
-    <div className="login-view">
-      <form className="login-form" onSubmit={onSubmitHandler}>
+    <div className="register-view">
+      <form className="sign-up-form" onSubmit={onSubmitHandler}>
         <label>
           <span>Email:</span>
           <input type="text" name="email" required />
@@ -53,20 +51,21 @@ export function LoginForm({ loginUseCase }: LoginFormProps) {
           <span>Password:</span>
           <input type="password" name="password" required />
         </label>
+        <small>Password must contain at least 6 characters</small>
         <footer>
-          <button type="submit" name="login" data-testid="submit-login">
-            LOGIN
+          <button type="submit" name="sign-up" data-testid="submit-sign-up">
+            REGISTER
           </button>
         </footer>
       </form>
+      {successMessage && (
+        <span className="success-message">{successMessage}</span>
+      )}
       {errorMessage && <span className="error-message">{errorMessage}</span>}
-      <span className="register-cta">
-        Doesn't have an account? <Link to={routes.register}>Register!</Link>
-      </span>
     </div>
   );
 }
 
-export function LoginView(props: LoginFormProps) {
-  return <LoginForm {...props} />;
+export function RegisterView(props: RegisterFormProps) {
+  return <RegisterForm {...props} />;
 }

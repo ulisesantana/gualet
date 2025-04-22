@@ -1,5 +1,5 @@
 import React from "react";
-import { LastTransactionsView, LoginView } from "@views";
+import { LastTransactionsView, LoginView, RegisterView } from "@views";
 import { Header, ProtectedRoute } from "@components";
 import { Route, Router } from "wouter";
 import { routes } from "@infrastructure/ui/routes";
@@ -26,8 +26,16 @@ export const App: React.FC<AppProps> = ({
       <div className="App">
         <Header />
         <main className="App-main">
+          {/*LOGIN*/}
+          <Route path={routes.login}>
+            <LoginView loginUseCase={loginUseCase} />
+          </Route>
+          {/*REGISTER*/}
+          <Route path={routes.register}>
+            <RegisterView signUpUseCase={signUpUseCase} />
+          </Route>
           <ProtectedRoute
-            path={routes.root}
+            path={routes.home}
             verifySessionUseCase={verifySessionUseCase}
           >
             <LastTransactionsView />
@@ -72,13 +80,6 @@ export const App: React.FC<AppProps> = ({
           {/*>*/}
           {/*  <SettingsView />*/}
           {/*</ProtectedRoute>*/}
-          {/*LOGIN*/}
-          <Route path={routes.login}>
-            <LoginView
-              loginUseCase={loginUseCase}
-              signUpUseCase={signUpUseCase}
-            />
-          </Route>
         </main>
       </div>
     </Router>

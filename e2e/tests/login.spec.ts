@@ -5,7 +5,7 @@ import {LoginPage} from "@pages";
 const user = {email: "test@gualet.app", password: "testTEST1"}
 test.describe('login success', () => {
   test('should redirect to login page if not logged in', async ({page}) => {
-    await page.goto('/');
+    await page.goto('/home');
 
     await expect(page).toHaveURL('/login');
     await expect(page.locator('header').getByRole('link', {name: 'Settings'})).not.toBeVisible();
@@ -24,13 +24,14 @@ test.describe('login success', () => {
 
     await loginPage.login(user);
 
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/home');
     await expect(page.locator('header').getByRole('link', {name: 'Settings'})).toBeVisible();
   })
 });
 
 test.describe('handle login errors', () => {
-  test('user not found', async ({page}) => {
+  test('user not found', async ({page, db}) => {
+    await db.reset();
     const loginPage = new LoginPage(page);
     await loginPage.goto();
 

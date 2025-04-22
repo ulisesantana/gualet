@@ -41,7 +41,7 @@ button[type=submit] {
     background-color: var(--primary-color);
     color: white;
     font-weight: bold;
-    font-size: 3rem;
+    font-size: 2rem;
     width: 220px;
 }
 

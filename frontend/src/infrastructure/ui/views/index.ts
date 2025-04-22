@@ -3,6 +3,7 @@ export * from "./CategoriesView";
 export * from "./CategoryDetailsView";
 export * from "./LastTransactionsView";
 export * from "./LoginView";
+export * from "./RegisterView";
 export * from "./ReportView";
 export * from "./SettingsView";
 export * from "./TransactionDetailsView";

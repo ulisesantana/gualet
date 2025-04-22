@@ -26,7 +26,7 @@ describe("Header", () => {
     render(<Header />);
 
     const logoImage = screen.getByAltText("Gualet logo");
-    const logoLink = screen.getByTestId(`link-to-${routes.root}`);
+    const logoLink = screen.getByTestId(`link-to-${routes.home}`);
 
     expect(logoImage).toBeInTheDocument();
     expect(logoLink).toBeInTheDocument();

@@ -3,13 +3,19 @@ import "./Header.css";
 import { Link, useLocation } from "wouter";
 import { routes } from "@infrastructure/ui/routes";
 
+function checkIsProtectedRoute(location: string) {
+  return (
+    !location.startsWith(routes.login) && !location.startsWith(routes.register)
+  );
+}
+
 export function Header() {
   const [location] = useLocation();
-  const isProtectedRoute = !location.startsWith(routes.login);
+  const isProtectedRoute = checkIsProtectedRoute(location);
   return (
     <header>
       <div className="content">
-        <Link to={routes.root}>
+        <Link to={routes.home}>
           <span className="logo-container">
             <img
               className="logo-image"
