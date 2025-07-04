@@ -1,7 +1,7 @@
 import { UserCredentials, UserRepository } from "@application/repositories";
 import { HttpDataSource } from "@infrastructure/data-sources";
 import { BaseResponse } from "@infrastructure/types";
-import { CommandResponse } from "@domain/types";
+import { HttpRepository } from "@infrastructure/repositories/http.repository";
 
 export type UserResponse = BaseResponse<
   {
@@ -13,10 +13,15 @@ export type UserResponse = BaseResponse<
   Error
 >;
 
-export class UserRepositoryImplementation implements UserRepository {
+export class UserRepositoryImplementation
+  extends HttpRepository
+  implements UserRepository
+{
   private readonly path = "/api/auth";
 
-  constructor(private readonly http: HttpDataSource) {}
+  constructor(http: HttpDataSource) {
+    super(http);
+  }
 
   async isLoggedIn() {
     const result = await this.http.get<UserResponse>(`${this.path}/verify`);
@@ -51,22 +56,5 @@ export class UserRepositoryImplementation implements UserRepository {
     return this.handleCommandResponse(
       this.http.post<undefined, UserResponse>(`${this.path}/verify`),
     );
-  }
-
-  private async handleCommandResponse(
-    request: Promise<UserResponse>,
-  ): Promise<CommandResponse> {
-    try {
-      const { success, error } = await request;
-      return success
-        ? { success: true, reason: null }
-        : { success: false, reason: error.message };
-    } catch (error: any) {
-      return {
-        success: false,
-        reason:
-          error?.response?.data?.error?.message || "An unknown error occurred",
-      };
-    }
   }
 }

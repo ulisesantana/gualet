@@ -81,6 +81,7 @@ describe('UserService', () => {
     const userData = { email: user.email, password: user.password };
     // @ts-expect-error for some reason TypeScript doesn't recognize the mock
     jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword);
+    jest.spyOn(repository, 'findOne').mockResolvedValue(null);
     jest.spyOn(repository, 'create').mockReturnValue(user);
     jest.spyOn(repository, 'save').mockResolvedValue(user);
 
