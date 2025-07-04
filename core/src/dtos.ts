@@ -7,3 +7,10 @@ export interface CategoryDto {
   icon: Nullable<string>;
   color: Nullable<string>;
 }
+
+export interface PaymentMethodDto {
+  id: string;
+  name: string;
+  icon: Nullable<string>;
+  color: Nullable<string>;
+}

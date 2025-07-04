@@ -62,7 +62,7 @@ describe("CategoryRepositoryImplementation (HTTP)", () => {
       });
       const result = await repository.findById(new Id("cat-1"));
       expect(result).toBeInstanceOf(Category);
-      expect(result.id.toString()).toBe("cat-1");
+      expect(result!.id.toString()).toBe("cat-1");
     });
 
     it("should throw an error if the category is not found", async () => {

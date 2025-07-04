@@ -1,72 +1,94 @@
 import { PaymentMethodRepository } from "@application/repositories";
-import { PaymentMethod, Id } from "@domain/models";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { Database, Tables } from "@infrastructure/data-sources/supabase";
+import { Id, PaymentMethod } from "@domain/models";
 import { Nullable } from "@domain/types";
+import { PaymentMethodDto } from "@gualet/core";
+import { BaseResponse } from "@infrastructure/types";
+import { HttpDataSource } from "@infrastructure/data-sources";
 
-type RawPaymentMethod = Tables<"payment_methods">;
+import { HttpRepository } from "../http.repository";
+
+type SavePaymentMethodResponse = BaseResponse<
+  { paymentMethod: PaymentMethodDto },
+  Error
+>;
 
 export class PaymentMethodRepositoryImplementation
+  extends HttpRepository
   implements PaymentMethodRepository
 {
-  private readonly dbName = "payment_methods";
+  private readonly path = "/api/me/payment-methods";
 
-  constructor(
-    private readonly userId: string,
-    private readonly sb: SupabaseClient<Database>,
-  ) {}
-
-  async save(paymentMethod: PaymentMethod): Promise<void> {
-    const { error } = await this.sb.from(this.dbName).upsert({
-      id: paymentMethod.id.toString(),
-      user_id: this.userId,
-      name: paymentMethod.name,
-      icon: paymentMethod.icon,
-    });
-
-    if (error) {
-      console.error(`Error saving payment method: ${paymentMethod}`);
-      console.error(error);
-    }
+  constructor(http: HttpDataSource) {
+    super(http);
   }
 
-  async findById(id: Id): Promise<Nullable<PaymentMethod>> {
-    const { data, error } = await this.sb
-      .from(this.dbName)
-      .select()
-      .eq("user_id", this.userId)
-      .eq("id", id.toString());
+  static mapToPaymentMethod(dto: PaymentMethodDto): PaymentMethod {
+    return new PaymentMethod({
+      id: new Id(dto.id),
+      name: dto.name,
+      icon: dto.icon ?? "",
+      color: dto.color ?? "",
+    });
+  }
 
-    if (error || !data || !data[0]) {
-      console.error(`Error fetching payment method ${id}.`);
-      console.error(error);
-      return null;
-    }
-
-    return PaymentMethodRepositoryImplementation.mapToPaymentMethod(data[0]);
+  static mapToDto(paymentMethod: PaymentMethod): PaymentMethodDto {
+    return {
+      id: paymentMethod.id.toString(),
+      name: paymentMethod.name,
+      icon: paymentMethod.icon,
+      color: paymentMethod.color,
+    };
   }
 
   async findAll(): Promise<PaymentMethod[]> {
-    const { data, error } = await this.sb
-      .from(this.dbName)
-      .select()
-      .eq("user_id", this.userId)
-      .order("name", { ascending: true });
+    const { success, data, error } = await this.handleQueryResponse(
+      this.http.get<
+        BaseResponse<{ paymentMethods: PaymentMethodDto[] }, Error>
+      >(this.path),
+    );
 
-    if (error) {
+    if (!success) {
       console.error(`Error fetching all payment methods.`);
       console.error(error);
       return [];
     }
 
-    return data.map(PaymentMethodRepositoryImplementation.mapToPaymentMethod);
+    return data.paymentMethods.map(
+      PaymentMethodRepositoryImplementation.mapToPaymentMethod,
+    );
   }
 
-  static mapToPaymentMethod(raw: RawPaymentMethod) {
-    return new PaymentMethod({
-      id: new Id(raw.id),
-      name: raw.name,
-      icon: raw.icon ?? "",
-    });
+  async findById(id: Id): Promise<Nullable<PaymentMethod>> {
+    const { success, data, error } = await this.handleQueryResponse(
+      this.http.get(`${this.path}/${id}`),
+    );
+
+    if (!success) {
+      console.error(`Error fetching payment method ${id}.`);
+      console.error(error);
+      return null;
+    }
+
+    return PaymentMethodRepositoryImplementation.mapToPaymentMethod(
+      data.paymentMethod,
+    );
+  }
+
+  async save(paymentMethod: PaymentMethod): Promise<Nullable<PaymentMethod>> {
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.post<PaymentMethodDto, SavePaymentMethodResponse>(
+        this.path,
+        PaymentMethodRepositoryImplementation.mapToDto(paymentMethod),
+      ),
+    );
+
+    if (!success) {
+      console.error("Error saving payment method:", error);
+      return null;
+    }
+
+    return PaymentMethodRepositoryImplementation.mapToPaymentMethod(
+      data.paymentMethod,
+    );
   }
 }

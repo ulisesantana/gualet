@@ -4,17 +4,20 @@ export interface PaymentMethodParams {
   id?: Id;
   name: string;
   icon?: string;
+  color?: string;
 }
 
 export class PaymentMethod {
   readonly id: Id;
   readonly name: string;
   readonly icon: string;
+  readonly color: string;
 
   constructor(input: PaymentMethodParams) {
     this.id = input.id || new Id();
     this.name = input.name;
     this.icon = input.icon || "";
+    this.color = input.color || "#343434";
   }
 
   get title() {

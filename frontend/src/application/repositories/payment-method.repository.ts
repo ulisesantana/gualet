@@ -2,7 +2,7 @@ import { Id, PaymentMethod } from "@domain/models";
 import { Nullable } from "@domain/types";
 
 export interface PaymentMethodRepository {
-  save(paymentMethod: PaymentMethod): Promise<void>;
+  save(paymentMethod: PaymentMethod): Promise<Nullable<PaymentMethod>>;
 
   findById(id: Id): Promise<Nullable<PaymentMethod>>;
 

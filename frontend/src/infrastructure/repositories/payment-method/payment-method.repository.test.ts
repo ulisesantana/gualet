@@ -1,133 +1,110 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Id, PaymentMethod } from "@domain/models";
-import { MockSupabaseClient } from "@test/mocks";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { HttpDataSource } from "@infrastructure/data-sources";
+import { PaymentMethodDto } from "@gualet/core";
 
 import { PaymentMethodRepositoryImplementation } from "./payment-method.repository";
 
-describe("PaymentMethodRepositoryImplementation", () => {
-  let mockSupabaseClient: MockSupabaseClient;
-  let paymentMethodRepository: PaymentMethodRepositoryImplementation;
-  const userId = "user-123";
-  const dbName = "payment_methods";
+type MockHttp = {
+  get: ReturnType<typeof vi.fn>;
+  post: ReturnType<typeof vi.fn>;
+};
+
+describe("PaymentMethodRepositoryImplementation (HTTP)", () => {
+  let repository: PaymentMethodRepositoryImplementation;
+  let mockHttp: MockHttp;
 
   beforeEach(() => {
-    mockSupabaseClient = new MockSupabaseClient();
-    paymentMethodRepository = new PaymentMethodRepositoryImplementation(
-      userId,
-      mockSupabaseClient as unknown as SupabaseClient,
+    mockHttp = {
+      get: vi.fn(),
+      post: vi.fn(),
+    };
+    repository = new PaymentMethodRepositoryImplementation(
+      mockHttp as unknown as HttpDataSource,
     );
+    vi.clearAllMocks();
   });
 
-  describe("save", () => {
-    it("should upsert a payment method", async () => {
-      const paymentMethod = new PaymentMethod({
-        id: new Id("pm-1"),
-        name: "Credit Card",
-        icon: "💳",
+  describe("findAll", () => {
+    it("should return a list of payment methods", async () => {
+      const paymentMethods: PaymentMethodDto[] = [
+        { id: "pm-1", name: "Credit Card", icon: "💳", color: "#fff" },
+        { id: "pm-2", name: "Cash", icon: "💵", color: "#000" },
+      ];
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { paymentMethods },
       });
-
-      await paymentMethodRepository.save(paymentMethod);
-
-      expect(mockSupabaseClient.from(dbName).upsert).toHaveBeenCalledWith({
-        id: "pm-1",
-        user_id: userId,
-        name: "Credit Card",
-        icon: "💳",
-      });
+      const result = await repository.findAll();
+      expect(result[0]).toBeInstanceOf(PaymentMethod);
+      expect(result[0].id.toString()).toBe("pm-1");
+      expect(result[1].id.toString()).toBe("pm-2");
     });
 
-    it("should log an error if upsert fails", async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-      const paymentMethod = new PaymentMethod({
-        id: new Id("pm-1"),
-        name: "Credit Card",
-        icon: "💳",
-      });
-
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Upsert failed"),
-      });
-
-      await paymentMethodRepository.save(paymentMethod);
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        `Error saving payment method: ${paymentMethod}`,
-      );
-      consoleErrorSpy.mockRestore();
+    it("should return an empty array if there is an error", async () => {
+      mockHttp.get.mockResolvedValue({ success: false, error: "fail" });
+      const result = await repository.findAll();
+      expect(result).toEqual([]);
     });
   });
 
   describe("findById", () => {
-    it("should fetch a payment method by ID", async () => {
-      const paymentMethodData = {
+    it("should return a payment method by id", async () => {
+      const paymentMethod: PaymentMethodDto = {
         id: "pm-1",
         name: "Credit Card",
         icon: "💳",
+        color: "#fff",
       };
-      mockSupabaseClient.withResult({ data: [paymentMethodData], error: null });
-
-      const result = await paymentMethodRepository.findById(new Id("pm-1"));
-
-      expect(result).toEqual(
-        new PaymentMethod({
-          id: new Id(paymentMethodData.id),
-          name: paymentMethodData.name,
-          icon: paymentMethodData.icon,
-        }),
-      );
-    });
-
-    it("should return null if payment method is not found", async () => {
-      mockSupabaseClient.withResult({ data: [], error: null });
-
-      const result = await paymentMethodRepository.findById(new Id("pm-1"));
-
-      expect(result).toBeNull();
-    });
-
-    it("should return null if there is an error fetching by ID", async () => {
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Fetch failed"),
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { paymentMethod },
       });
+      const result = await repository.findById(new Id("pm-1"));
+      expect(result).toBeInstanceOf(PaymentMethod);
+      expect(result?.id.toString()).toBe("pm-1");
+    });
 
-      const result = await paymentMethodRepository.findById(new Id("pm-1"));
-
+    it("should return null if there is an error or not found", async () => {
+      mockHttp.get.mockResolvedValue({ success: false, error: "fail" });
+      const result = await repository.findById(new Id("pm-1"));
       expect(result).toBeNull();
     });
   });
 
-  describe("findAll", () => {
-    it("should fetch all payment methods for the user", async () => {
-      const paymentMethodsData = [
-        { id: "pm-1", name: "Credit Card", icon: "💳" },
-        { id: "pm-2", name: "Cash", icon: "💵" },
-      ];
-      mockSupabaseClient.withResult({ data: paymentMethodsData, error: null });
-
-      const result = await paymentMethodRepository.findAll();
-
-      expect(result).toEqual(
-        paymentMethodsData.map(
-          (p) => new PaymentMethod({ ...p, id: new Id(p.id) }),
-        ),
-      );
-      expect(mockSupabaseClient.from(dbName).select).toHaveBeenCalledWith();
+  describe("save", () => {
+    it("should save and return the payment method", async () => {
+      const paymentMethod = new PaymentMethod({
+        id: new Id("pm-1"),
+        name: "Credit Card",
+        icon: "💳",
+        color: "#fff",
+      });
+      const paymentMethodDto: PaymentMethodDto = {
+        id: "pm-1",
+        name: "Credit Card",
+        icon: "💳",
+        color: "#fff",
+      };
+      mockHttp.post.mockResolvedValue({
+        success: true,
+        data: { paymentMethod: paymentMethodDto },
+      });
+      const result = await repository.save(paymentMethod);
+      expect(result).toBeInstanceOf(PaymentMethod);
+      expect(result?.id.toString()).toBe("pm-1");
     });
 
-    it("should return an empty array if there is an error fetching all payment methods", async () => {
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Fetch failed"),
+    it("should return null if there is an error when saving", async () => {
+      const paymentMethod = new PaymentMethod({
+        id: new Id("pm-1"),
+        name: "Credit Card",
+        icon: "💳",
+        color: "#fff",
       });
-
-      const result = await paymentMethodRepository.findAll();
-
-      expect(result).toEqual([]);
+      mockHttp.post.mockResolvedValue({ success: false, error: "fail" });
+      const result = await repository.save(paymentMethod);
+      expect(result).toBeNull();
     });
   });
 });
