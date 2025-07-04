@@ -10,23 +10,23 @@ export interface Pagination {
 export type CommandResponse =
   | {
       success: true;
-      reason: null;
+      error: null;
     }
   | {
       success: false;
-      reason: string;
+      error: string;
     };
 
 export type QueryResponse<T> =
   | {
       success: true;
-      reason: null;
       data: T;
+      error: null;
       pagination: Nullable<Pagination>;
     }
   | {
       success: false;
-      reason: string;
+      error: string;
       data: null;
       pagination: null;
     };

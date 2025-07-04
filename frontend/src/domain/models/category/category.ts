@@ -1,24 +1,28 @@
+import { OperationType } from "@gualet/core";
+
 import { Id } from "../id/id";
-import { TransactionOperation } from "../transaction/transaction";
 
 export interface CategoryParams {
   id?: Id;
   name: string;
-  type: TransactionOperation;
+  type: OperationType;
   icon?: string;
+  color?: string;
 }
 
 export class Category {
   readonly id: Id;
   readonly name: string;
-  readonly type: TransactionOperation;
+  readonly type: OperationType;
   readonly icon: string;
+  readonly color: string;
 
   constructor(input: CategoryParams) {
     this.id = input.id || new Id();
     this.name = input.name.trim();
     this.type = input.type;
     this.icon = input.icon?.trim() || "";
+    this.color = input.color?.trim() || "#545454";
   }
 
   get title() {
@@ -30,27 +34,27 @@ export const defaultOutcomeCategories = [
   new Category({
     icon: "🏠",
     name: "Rent",
-    type: TransactionOperation.Outcome,
+    type: OperationType.Outcome,
   }),
   new Category({
     icon: "🛒",
     name: "Groceries",
-    type: TransactionOperation.Outcome,
+    type: OperationType.Outcome,
   }),
   new Category({
     icon: "🚗",
     name: "Transportation",
-    type: TransactionOperation.Outcome,
+    type: OperationType.Outcome,
   }),
   new Category({
     icon: "🎉",
     name: "Entertainment",
-    type: TransactionOperation.Outcome,
+    type: OperationType.Outcome,
   }),
   new Category({
     icon: "🎁",
     name: "Gifts",
-    type: TransactionOperation.Outcome,
+    type: OperationType.Outcome,
   }),
 ];
 
@@ -58,21 +62,21 @@ export const defaultIncomeCategories = [
   new Category({
     icon: "💼",
     name: "Salary",
-    type: TransactionOperation.Income,
+    type: OperationType.Income,
   }),
   new Category({
     icon: "🧑‍💻",
     name: "Freelancing",
-    type: TransactionOperation.Income,
+    type: OperationType.Income,
   }),
   new Category({
     icon: "📈",
     name: "Investments",
-    type: TransactionOperation.Income,
+    type: OperationType.Income,
   }),
   new Category({
     icon: "🎁",
     name: "Gifts",
-    type: TransactionOperation.Income,
+    type: OperationType.Income,
   }),
 ];

@@ -29,11 +29,11 @@ export function RegisterForm({ signUpUseCase }: RegisterFormProps) {
     if (email && password) {
       signUpUseCase
         .exec({ email, password })
-        .then(({ success, reason }) => {
+        .then(({ success, error }) => {
           if (success) {
             callback();
           } else {
-            callback(reason);
+            callback(error);
           }
         })
         .catch(callback);

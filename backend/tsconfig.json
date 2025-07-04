@@ -19,8 +19,17 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@src/*": ["src/*"],
-      "@test/*": ["test/*"]
+      "@src/*": [
+        "src/*"
+      ],
+      "@test/*": [
+        "test/*"
+      ]
     }
-  }
+  },
+  "references": [
+    {
+      "path": "../core"
+    }
+  ]
 }

@@ -1,71 +1,87 @@
 import { CategoryRepository } from "@application/repositories";
-import { Category, Id, TransactionOperation } from "@domain/models";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { Database, Tables } from "@infrastructure/data-sources/supabase";
+import { Category, Id } from "@domain/models";
+import { HttpRepository } from "@infrastructure/repositories/http.repository";
+import { HttpDataSource } from "@infrastructure/data-sources";
+import { BaseResponse } from "@infrastructure/types";
+import { CategoryDto, Nullable } from "@gualet/core";
 
-type RawCategory = Tables<"categories">;
+type FindAllCategoriesResponse = BaseResponse<
+  { categories: CategoryDto[] },
+  Error
+>;
+type FindCategoryResponse = BaseResponse<{ category: CategoryDto }, Error>;
+type SaveCategoryResponse = BaseResponse<{ category: CategoryDto }, Error>;
 
-export class CategoryRepositoryImplementation implements CategoryRepository {
-  private readonly dbName = "categories";
+export class CategoryRepositoryImplementation
+  extends HttpRepository
+  implements CategoryRepository
+{
+  private readonly path = "/api/me/categories";
 
-  constructor(
-    private readonly userId: string,
-    private readonly sb: SupabaseClient<Database>,
-  ) {}
+  constructor(http: HttpDataSource) {
+    super(http);
+  }
 
-  async save(category: Category): Promise<void> {
-    const { error } = await this.sb.from(this.dbName).upsert({
+  static mapToCategory(dto: CategoryDto) {
+    return new Category({
+      id: new Id(dto.id),
+      name: dto.name,
+      icon: dto.icon ?? "",
+      type: dto.type,
+      color: dto.color ?? "",
+    });
+  }
+
+  static mapToDto(category: Category): CategoryDto {
+    return {
       id: category.id.toString(),
-      user_id: this.userId,
       name: category.name,
       icon: category.icon,
       type: category.type,
-    });
-
-    if (error) {
-      console.error(`Error saving category: ${category}`);
-      console.error(error);
-    }
-  }
-
-  async findById(id: Id): Promise<Category> {
-    const { data, error } = await this.sb
-      .from(this.dbName)
-      .select()
-      .eq("user_id", this.userId)
-      .eq("id", id.toString());
-
-    if (error) {
-      console.error(`Error fetching category ${id}.`);
-      console.error(error);
-      throw new Error(`Category ${id} not found.`);
-    }
-
-    return CategoryRepositoryImplementation.mapToCategory(data[0]);
+      color: category.color,
+    };
   }
 
   async findAll(): Promise<Category[]> {
-    const { data, error } = await this.sb
-      .from(this.dbName)
-      .select()
-      .eq("user_id", this.userId)
-      .order("name", { ascending: true });
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.get<FindAllCategoriesResponse>(this.path),
+    );
 
-    if (error) {
-      console.error(`Error fetching all categories.`);
-      console.error(error);
-      throw new Error(`Categories not found.`);
+    if (!success) {
+      console.error("Error fetching categories:", error);
+      return [];
     }
 
-    return data.map(CategoryRepositoryImplementation.mapToCategory);
+    return data.categories.map(CategoryRepositoryImplementation.mapToCategory);
   }
 
-  static mapToCategory(raw: RawCategory) {
-    return new Category({
-      id: new Id(raw.id),
-      name: raw.name,
-      icon: raw.icon ?? "",
-      type: raw.type as TransactionOperation,
-    });
+  async findById(id: Id): Promise<Nullable<Category>> {
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.get<FindCategoryResponse>(`${this.path}/${id}`),
+    );
+
+    if (!success) {
+      console.error(`Error fetching category ${id}.`);
+      console.error(error);
+      return null;
+    }
+
+    return CategoryRepositoryImplementation.mapToCategory(data.category);
+  }
+
+  async save(category: Category): Promise<Nullable<Category>> {
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.post<CategoryDto, SaveCategoryResponse>(
+        this.path,
+        CategoryRepositoryImplementation.mapToDto(category),
+      ),
+    );
+
+    if (!success) {
+      console.error("Error saving category:", error);
+      return null;
+    }
+
+    return CategoryRepositoryImplementation.mapToCategory(data.category);
   }
 }

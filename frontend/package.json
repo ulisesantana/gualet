@@ -6,6 +6,7 @@
   "homepage": "https://ulisesantana.github.io/gualet",
   "author": "Ulises Santana Suárez <ulisesantana@gmail.com>",
   "dependencies": {
+    "@gualet/core": "*",
     "@supabase/supabase-js": "2.45.4",
     "@types/node": "22.7.5",
     "@types/react": "18.0.0",

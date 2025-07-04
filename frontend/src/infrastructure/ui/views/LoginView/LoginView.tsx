@@ -31,11 +31,11 @@ export function LoginForm({ loginUseCase }: LoginFormProps) {
     if (email && password) {
       loginUseCase
         .exec({ email, password })
-        .then(({ success, reason }) => {
+        .then(({ success, error }) => {
           if (success) {
             callback();
           } else {
-            callback(reason);
+            callback(error);
           }
         })
         .catch(callback);

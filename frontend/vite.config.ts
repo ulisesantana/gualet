@@ -73,6 +73,7 @@ export default defineConfig({
       "@infrastructure": resolve(__dirname, "src/infrastructure"),
       "@test": resolve(__dirname, "test"),
       "@views": resolve(__dirname, "src/infrastructure/ui/views"),
+      "@gualet/core": resolve(__dirname, "../core/src"),
     },
   },
 });

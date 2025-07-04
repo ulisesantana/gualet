@@ -1,164 +1,115 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  Category,
-  defaultOutcomeCategories,
-  Id,
-  TransactionOperation,
-} from "@domain/models";
-import { MockSupabaseClient } from "@test/mocks";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { Category, Id } from "@domain/models";
+import { CategoryDto, OperationType } from "@gualet/core";
+import { HttpDataSource } from "@infrastructure/data-sources";
 
 import { CategoryRepositoryImplementation } from "./category.repository";
 
-describe("CategoryRepositoryImplementation", () => {
-  let mockSupabaseClient: MockSupabaseClient;
-  let categoryRepository: CategoryRepositoryImplementation;
-  const userId = "user-123";
-  const dbName = "categories";
+const mockHttp = {
+  get: vi.fn(),
+  post: vi.fn(),
+};
+
+describe("CategoryRepositoryImplementation (HTTP)", () => {
+  let repository: CategoryRepositoryImplementation;
 
   beforeEach(() => {
-    mockSupabaseClient = new MockSupabaseClient();
-    categoryRepository = new CategoryRepositoryImplementation(
-      userId,
-      mockSupabaseClient as unknown as SupabaseClient,
+    vi.clearAllMocks();
+    repository = new CategoryRepositoryImplementation(
+      mockHttp as unknown as HttpDataSource,
     );
   });
 
-  describe("save", () => {
-    it("should upsert a category", async () => {
-      const category = new Category({
-        id: new Id("cat-1"),
-        name: "Food",
-        icon: "🍔",
-        type: TransactionOperation.Outcome,
-      });
-
-      await categoryRepository.save(category);
-
-      expect(mockSupabaseClient.from(dbName).upsert).toHaveBeenCalledWith({
-        id: "cat-1",
-        user_id: userId,
-        name: "Food",
-        icon: "🍔",
-        type: TransactionOperation.Outcome,
-      });
-    });
-
-    it("should log an error if upsert fails", async () => {
-      const category = new Category({
-        id: new Id("cat-1"),
-        name: "Food",
-        icon: "🍔",
-        type: TransactionOperation.Outcome,
-      });
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Upsert failed"),
-      });
-
-      await categoryRepository.save(category);
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        `Error saving category: ${category}`,
-      );
-      consoleErrorSpy.mockRestore();
-    });
-  });
-
-  describe("findById", () => {
-    it("should fetch a category by ID", async () => {
-      const category = new Category(defaultOutcomeCategories[0]);
-      mockSupabaseClient.withResult({ data: [category], error: null });
-
-      const result = await categoryRepository.findById(category.id);
-
-      expect(result).toEqual(category);
-    });
-
-    it("should throw an error if the category is not found", async () => {
-      mockSupabaseClient.withResult({ data: [], error: new Error("Boom!") });
-
-      await expect(
-        categoryRepository.findById(new Id("cat-1")),
-      ).rejects.toThrow("Category cat-1 not found.");
-    });
-
-    it("should throw an error if fetching the category fails", async () => {
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Database error"),
-      });
-
-      await expect(
-        categoryRepository.findById(new Id("cat-1")),
-      ).rejects.toThrow("Category cat-1 not found.");
-    });
-  });
-
   describe("findAll", () => {
-    it("should fetch all categories for the user", async () => {
-      const categoryData = [
+    it("should return a list of categories", async () => {
+      const categories: CategoryDto[] = [
         {
           id: "cat-1",
           name: "Food",
           icon: "🍔",
-          type: TransactionOperation.Outcome,
-          user_id: userId,
+          type: OperationType.Outcome,
+          color: "#fff",
         },
-        {
-          id: "cat-2",
-          name: "Entertainment",
-          icon: "🎮",
-          type: TransactionOperation.Outcome,
-          user_id: userId,
-        },
-      ] as any;
-      mockSupabaseClient.withResult({ data: categoryData, error: null });
-
-      const result = await categoryRepository.findAll();
-
-      expect(result).toEqual(
-        categoryData.map(CategoryRepositoryImplementation.mapToCategory),
-      );
-      expect(mockSupabaseClient.from(dbName).select).toHaveBeenCalledWith();
+      ];
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { categories },
+      });
+      const result = await repository.findAll();
+      expect(result[0]).toBeInstanceOf(Category);
+      expect(result[0].id.toString()).toBe("cat-1");
     });
 
-    it("should throw an error if fetching all categories fails", async () => {
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Database error"),
-      });
-
-      await expect(categoryRepository.findAll()).rejects.toThrow(
-        "Categories not found.",
-      );
+    it("should return an empty array if there is an error", async () => {
+      mockHttp.get.mockResolvedValue({ success: false, error: "fail" });
+      const result = await repository.findAll();
+      expect(result).toEqual([]);
     });
   });
 
-  describe("mapToCategory", () => {
-    it("should map raw data to Category instance", () => {
-      const rawCategory = {
+  describe("findById", () => {
+    it("should return a category by id", async () => {
+      const category: CategoryDto = {
         id: "cat-1",
         name: "Food",
         icon: "🍔",
-        type: TransactionOperation.Outcome,
+        type: OperationType.Outcome,
+        color: "#fff",
       };
-      const result = CategoryRepositoryImplementation.mapToCategory(
-        rawCategory as any,
-      );
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { category },
+      });
+      const result = await repository.findById(new Id("cat-1"));
+      expect(result).toBeInstanceOf(Category);
+      expect(result.id.toString()).toBe("cat-1");
+    });
 
-      expect(result).toEqual(
-        new Category({
-          id: new Id("cat-1"),
-          name: "Food",
-          icon: "🍔",
-          type: TransactionOperation.Outcome as TransactionOperation,
-        }),
-      );
+    it("should throw an error if the category is not found", async () => {
+      mockHttp.get.mockResolvedValue({ success: false, error: "fail" });
+
+      const result = await repository.findById(new Id("cat-1"));
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("save", () => {
+    it("should save and return the category", async () => {
+      const category = new Category({
+        id: new Id("cat-1"),
+        name: "Food",
+        icon: "🍔",
+        type: OperationType.Outcome,
+        color: "#fff",
+      });
+      const categoryDto: CategoryDto = {
+        id: "cat-1",
+        name: "Food",
+        icon: "🍔",
+        type: OperationType.Outcome,
+        color: "#fff",
+      };
+      mockHttp.post.mockResolvedValue({
+        success: true,
+        data: { category: categoryDto },
+      });
+      const result = await repository.save(category);
+      expect(result).toBeInstanceOf(Category);
+      expect(result?.id.toString()).toBe("cat-1");
+    });
+
+    it("should return null if there is an error when saving", async () => {
+      const category = new Category({
+        id: new Id("cat-1"),
+        name: "Food",
+        icon: "🍔",
+        type: OperationType.Outcome,
+        color: "#fff",
+      });
+      mockHttp.post.mockResolvedValue({ success: false, error: "fail" });
+      const result = await repository.save(category);
+      expect(result).toBeNull();
     });
   });
 });
