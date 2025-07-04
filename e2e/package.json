@@ -10,11 +10,11 @@
   },
   "dependencies": {
     "@gualet/backend": "*",
-    "@playwright/test": "^1.51.1",
-    "pg": "^8.14.1",
-    "typeorm": "^0.3.22"
+    "@playwright/test": "1.51.1",
+    "pg": "8.14.1",
+    "typeorm": "0.3.22"
   },
   "devDependencies": {
-    "@types/pg": "^8.11.13"
+    "@types/pg": "8.11.13"
   }
 }

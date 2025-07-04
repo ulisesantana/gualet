@@ -66,7 +66,7 @@ console.debug('🔍 envFilePath', envFilePath);
       useFactory: () => [
         {
           rootPath: resolve(__dirname, '../public'),
-          exclude: ['/api*'],
+          exclude: ['/api/*'],
           serveRoot: '/',
         },
       ],
