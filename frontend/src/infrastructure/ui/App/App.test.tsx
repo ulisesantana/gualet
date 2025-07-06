@@ -23,6 +23,7 @@ vi.mock("@views", () => ({
   TransactionDetailsView: () => <div>TransactionDetailsView</div>,
   AddCategoryView: () => <div>AddCategoryView</div>,
   ReportView: () => <div>ReportView</div>,
+  RegisterView: () => <div>RegisterView</div>,
 }));
 
 describe("App Component", () => {
@@ -32,31 +33,45 @@ describe("App Component", () => {
   beforeEach(() => {
     cases = {
       loginUseCase: {
-        exec: vi.fn().mockResolvedValue(true),
+        exec: vi
+          .fn()
+          .mockResolvedValue({ success: false, error: "Token expired" }),
       } as unknown as Mocked<LoginUseCase>,
       signUpUseCase: {
-        exec: vi.fn().mockResolvedValue(true),
+        exec: vi
+          .fn()
+          .mockResolvedValue({ success: false, error: "Token expired" }),
       } as unknown as Mocked<SignUpUseCase>,
       verifySessionUseCase: {
-        exec: vi.fn().mockResolvedValue(true),
+        exec: vi
+          .fn()
+          .mockResolvedValue({ success: false, error: "Token expired" }),
       } as unknown as Mocked<VerifySessionUseCase>,
     };
     props = { cases } as unknown as AppProps;
   });
 
   it("renders login view when no session is present", async () => {
-    cases.verifySessionUseCase.exec.mockResolvedValue(false);
-
-    render(<App {...props} />);
+    render(
+      <Router>
+        <TestRouter path="/" />
+        <App {...props} />
+      </Router>,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("LoginView")).toBeInTheDocument();
     });
   });
 
-  it("renders last transaction view when session is verified", async () => {
-    cases.verifySessionUseCase.exec.mockResolvedValue(true);
-    render(<App {...props} />);
+  it("renders last transaction view on / route", async () => {
+    cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
+    render(
+      <Router>
+        <TestRouter path="/" />
+        <App {...props} />
+      </Router>,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("LastTransactionsView")).toBeInTheDocument();
@@ -64,6 +79,7 @@ describe("App Component", () => {
   });
 
   it.skip("renders categories views on /categories route", async () => {
+    cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
     render(
       <Router>
         <TestRouter path="/categories" />
@@ -77,6 +93,7 @@ describe("App Component", () => {
   });
 
   it.skip("renders view for adding categories on /categories/add route", async () => {
+    cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
     render(
       <Router>
         <TestRouter path="/categories/add" />
@@ -90,6 +107,7 @@ describe("App Component", () => {
   });
 
   it.skip("renders settings view on /settings route", async () => {
+    cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
     render(
       <Router>
         <TestRouter path="/settings" />
@@ -103,6 +121,7 @@ describe("App Component", () => {
   });
 
   it.skip("renders category details view on /categories/:id route", async () => {
+    cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
     render(
       <Router>
         <TestRouter path="/categories/details/1" />
@@ -116,6 +135,7 @@ describe("App Component", () => {
   });
 
   it.skip("renders transaction details view on /transactions/:id route", async () => {
+    cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
     render(
       <Router>
         <TestRouter path="/transactions/details/1" />

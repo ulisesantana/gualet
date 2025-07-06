@@ -1,7 +1,7 @@
-import { Category, Transaction } from "@domain/models";
 import "./CategoryCard.css";
 import { generatePath, routes } from "@infrastructure/ui/routes";
 import { Link } from "wouter";
+import { Category, Transaction } from "@gualet/core";
 
 export function CategoryCard({ category }: { category: Category }) {
   const detailsPath = generatePath(routes.categories.details, {

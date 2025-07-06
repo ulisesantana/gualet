@@ -9,6 +9,6 @@ import { PaymentMethodEntity } from '@src/db';
   imports: [TypeOrmModule.forFeature([PaymentMethodEntity])],
   controllers: [PaymentMethodsController],
   providers: [PaymentMethodsService, PaymentMethodsRepository],
-  exports: [TypeOrmModule, PaymentMethodsRepository],
+  exports: [TypeOrmModule, PaymentMethodsRepository, PaymentMethodsService],
 })
 export class PaymentMethodsModule {}

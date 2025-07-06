@@ -1,3 +1,5 @@
+import {TimeString} from "../../../types";
+
 export class Day {
   private readonly date: Date;
 
@@ -46,7 +48,7 @@ export class Day {
     return new Day(date.toISOString());
   }
 
-  toString(separator = "-") {
+  toString(separator = "-"): string {
     return (
       this.getYear() +
       separator +
@@ -54,5 +56,9 @@ export class Day {
       separator +
       this.getFormatedDate()
     );
+  }
+
+  toISOString(): TimeString {
+    return this.date.toISOString() as unknown as TimeString;
   }
 }

@@ -1,14 +1,14 @@
 import React, { FormEventHandler, useEffect, useState } from "react";
-import { useRepositories } from "@infrastructure/ui/hooks";
-import { CategoryReport, Day, Report } from "@domain/models";
+import { useLoader } from "@infrastructure/ui/hooks";
+import { CategoryReport, Report } from "@domain/models";
 import { GetReportUseCase } from "@application/cases";
 import { Nullable } from "@domain/types";
-import { TransactionRepository } from "@application/repositories";
 
 import "./ReportView.css";
+import { Day } from "@gualet/core";
 
 interface FetchReportParams {
-  transactionRepository: TransactionRepository;
+  getReportUseCase: GetReportUseCase;
   fromDate: string;
   toDate: string;
   setReport: (report: Report) => void;
@@ -16,14 +16,14 @@ interface FetchReportParams {
 }
 
 function fetchReport({
-  transactionRepository,
+  getReportUseCase,
   fromDate,
   toDate,
   setReport,
   setIsLoading,
 }: FetchReportParams) {
   setIsLoading(true);
-  return new GetReportUseCase(transactionRepository)
+  return getReportUseCase
     .exec({ from: new Day(fromDate), to: new Day(toDate) })
     .then(setReport)
     .catch((error) => {
@@ -35,38 +35,38 @@ function fetchReport({
     });
 }
 
-export function ReportView() {
+interface ReportViewProps {
+  getReportUseCase: GetReportUseCase;
+}
+
+export function ReportView({ getReportUseCase }: ReportViewProps) {
   const today = new Day();
   const [fromDate, setFromDate] = useState(
     today.cloneWithPreviousMonth().toString(),
   );
   const [toDate, setToDate] = useState(today.toString());
-  const { isReady, repositories, isLoading, setIsLoading } = useRepositories();
+  const { isLoading, setIsLoading } = useLoader();
   const [report, setReport] = useState<Nullable<Report>>(null);
 
   useEffect(() => {
-    if (isReady && repositories) {
-      fetchReport({
-        transactionRepository: repositories.transaction,
-        fromDate,
-        toDate,
-        setReport,
-        setIsLoading,
-      });
-    }
-  }, [isReady]);
+    fetchReport({
+      getReportUseCase,
+      fromDate,
+      toDate,
+      setReport,
+      setIsLoading,
+    }).catch(console.error);
+  }, []);
 
   const onSubmit: FormEventHandler = (e) => {
     e.preventDefault();
-    if (repositories) {
-      return fetchReport({
-        transactionRepository: repositories.transaction,
-        fromDate,
-        toDate,
-        setReport,
-        setIsLoading,
-      });
-    }
+    return fetchReport({
+      getReportUseCase,
+      fromDate,
+      toDate,
+      setReport,
+      setIsLoading,
+    });
   };
 
   return (

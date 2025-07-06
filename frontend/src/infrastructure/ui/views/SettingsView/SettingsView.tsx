@@ -3,56 +3,58 @@ import "./SettingsView.css";
 import { Link } from "wouter";
 import { routes } from "@infrastructure/ui/routes";
 import { Loader, LogoutButton } from "@components";
-import {
-  defaultPaymentMethods,
-  PaymentMethod,
-  UserPreferences,
-} from "@domain/models";
+import { UserPreferences } from "@domain/models";
 import {
   GetAllPaymentMethodsUseCase,
   GetUserPreferencesUseCase,
   SaveUserPreferencesUseCase,
 } from "@application/cases";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { useLoader } from "@infrastructure/ui/hooks";
+import { Nullable, PaymentMethod } from "@gualet/core";
 
-export function SettingsView() {
-  const { isReady, repositories, isLoading, setIsLoading } = useRepositories();
+interface SettingsViewProps {
+  getAllPaymentMethodsUseCase: GetAllPaymentMethodsUseCase;
+  getUserPreferencesUseCase: GetUserPreferencesUseCase;
+  saveUserPreferencesUseCase: SaveUserPreferencesUseCase;
+}
+
+export function SettingsView({
+  getAllPaymentMethodsUseCase,
+  getUserPreferencesUseCase,
+  saveUserPreferencesUseCase,
+}: SettingsViewProps) {
+  const { isLoading, setIsLoading } = useLoader();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [userPreferences, setUserPreferences] = useState<UserPreferences>({
-    defaultPaymentMethod: defaultPaymentMethods[0],
-  });
+  const [userPreferences, setUserPreferences] =
+    useState<Nullable<UserPreferences>>(null);
 
   useEffect(() => {
-    if (isReady && repositories) {
-      setIsLoading(true);
-      new GetAllPaymentMethodsUseCase(repositories.paymentMethod)
-        .exec()
-        .then((methods) => {
-          setPaymentMethods(methods);
-          return new GetUserPreferencesUseCase(
-            repositories.userPreferences,
-          ).exec();
-        })
-        .then(setUserPreferences)
-        .catch((error) => {
-          console.error("Error getting data.");
-          console.error(error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [isReady]);
+    setIsLoading(true);
+    getAllPaymentMethodsUseCase
+      .exec()
+      .then((methods) => {
+        setPaymentMethods(methods);
+        return getUserPreferencesUseCase.exec();
+      })
+      .then(setUserPreferences)
+      .catch((error) => {
+        console.error("Error getting data.");
+        console.error(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
 
   const onChangeDefaultPaymentMethod = (e: ChangeEvent<HTMLSelectElement>) => {
     const method = paymentMethods.find((m) => m.id.equals(e.target.value));
-    if (repositories && method) {
-      const preferences = { ...userPreferences, defaultPaymentMethod: method };
-      new SaveUserPreferencesUseCase(repositories?.userPreferences)
-        .exec(preferences)
-        .then(() => {
-          setUserPreferences(preferences);
-        });
+    if (method) {
+      const preferences = userPreferences
+        ? { ...userPreferences, defaultPaymentMethod: method }
+        : { defaultPaymentMethod: method };
+      saveUserPreferencesUseCase.exec(preferences).then(() => {
+        setUserPreferences(preferences);
+      });
     }
   };
 
@@ -87,7 +89,7 @@ export function SettingsView() {
             name="default-payment-method"
             data-testid="select-default-payment-method"
             onChange={onChangeDefaultPaymentMethod}
-            defaultValue={userPreferences.defaultPaymentMethod.id.toString()}
+            defaultValue={userPreferences?.defaultPaymentMethod.id.toString()}
           >
             {paymentMethods.map((p) => (
               <option key={p.id.toString()} value={p.id.toString()}>

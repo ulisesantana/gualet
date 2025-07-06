@@ -2,177 +2,118 @@ import {
   FindTransactionsCriteria,
   TransactionRepository,
 } from "@application/repositories";
+import { TransactionConfig } from "@domain/models";
 import {
   Category,
+  CategoryDto,
   Day,
-  defaultIncomeCategories,
-  defaultOutcomeCategories,
-  defaultPaymentMethods,
   Id,
+  Nullable,
+  OperationType,
   PaymentMethod,
+  PaymentMethodDto,
+  TimeString,
   Transaction,
-  TransactionConfig,
-  TransactionOperation,
-} from "@domain/models";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { Database, Tables } from "@infrastructure/data-sources/supabase";
+  TransactionDto,
+} from "@gualet/core";
+import { HttpDataSource } from "@infrastructure/data-sources";
+import { BaseResponse } from "@infrastructure/types";
+import { CommandResponse } from "@domain/types";
 
-type RawTransaction = Omit<
-  Tables<"transactions">,
-  "category_id" | "payment_method_id" | "created_at" | "user_id"
-> & {
-  categories: Pick<
-    Tables<"categories">,
-    "id" | "name" | "icon" | "type"
-  > | null;
-  payment_methods: Pick<
-    Tables<"payment_methods">,
-    "id" | "name" | "icon"
-  > | null;
-};
+import { HttpRepository } from "../http.repository";
+
+interface CreateTransactionDto {
+  description: string;
+  amount: number;
+  categoryId: string;
+  date: TimeString;
+  operation: OperationType;
+  paymentMethodId: string;
+}
+
+type FindTransactionsResponse = BaseResponse<
+  { transactions: TransactionDto[] },
+  Error
+>;
+type FindTransactionByIdResponse = BaseResponse<
+  { transaction: TransactionDto },
+  Error
+>;
+type SaveTransactionResponse = BaseResponse<
+  { transaction: TransactionDto },
+  Error
+>;
+type DeleteTransactionResponse = BaseResponse<null, Error>;
 
 export class TransactionRepositoryImplementation
+  extends HttpRepository
   implements TransactionRepository
 {
-  private readonly dbName = "transactions";
+  private readonly path = "/api/me/transactions";
+  private readonly categoriesPath = "/api/me/categories";
+  private readonly paymentMethodsPath = "/api/me/payment-methods";
 
-  constructor(
-    private readonly userId: string,
-    private readonly sb: SupabaseClient<Database>,
-  ) {}
-
-  async save(transaction: Transaction): Promise<void> {
-    const { error } = await this.sb.from(this.dbName).upsert({
-      id: transaction.id.toString(),
-      user_id: this.userId,
-      category_id: transaction.category.id.toString(),
-      payment_method_id: transaction.paymentMethod.id.toString(),
-      amount: transaction.amount,
-      description: transaction.description,
-      date: transaction.date.toString(),
-      type: transaction.operation,
-    });
-
-    if (error) {
-      console.error(`Error saving transaction: ${transaction}`);
-      console.error(error);
-    }
+  constructor(http: HttpDataSource) {
+    super(http);
   }
 
-  async remove(id: Id): Promise<void> {
-    const { error } = await this.sb
-      .from(this.dbName)
-      .delete()
-      .eq("user_id", this.userId)
-      .eq("id", id.toString());
-
-    if (error) {
-      console.error(`Error removing transaction ${id}`);
-      console.error(error);
-    }
-  }
-
-  async find(criteria: FindTransactionsCriteria) {
-    if (!criteria.from) {
-      criteria.from = new Day("1970-01-01");
-    }
-    if (!criteria.to) {
-      criteria.to = new Day();
-    }
-    const { data, error } = await this.sb
-      .from(this.dbName)
-      .select(
-        `
-        id,
-        date,
-        type,
-        amount,
-        description,
-        categories (id, name, icon, type),
-        payment_methods (id, name, icon)
-      `,
-      )
-      .eq("user_id", this.userId)
-      .gte("date", criteria.from.toString())
-      .lte("date", criteria.to.toString());
-
-    if (error) {
-      console.error(`Error fetching transactions.`);
-      console.error(error);
-      console.error(`Given criteria:`, JSON.stringify(criteria, null, 2));
-      throw new Error(`Transactions not fetched.`);
-    }
-
-    return data.map(TransactionRepositoryImplementation.mapToTransaction);
-  }
-
-  async findById(id: Id): Promise<Transaction> {
-    const { data, error } = await this.sb
-      .from(this.dbName)
-      .select(
-        `
-        id,
-        date,
-        type,
-        amount,
-        description,
-        categories (id, name, icon, type),
-        payment_methods (id, name, icon)
-      `,
-      )
-      .eq("user_id", this.userId)
-      .eq("id", id.toString());
-
-    if (error) {
-      console.error(`Error fetching transaction ${id}.`);
-      console.error(error);
-      throw new Error(`Transaction ${id} not found.`);
-    }
-
-    return TransactionRepositoryImplementation.mapToTransaction(data[0]);
-  }
-
-  async findLast(limit: number): Promise<Transaction[]> {
-    const { data, error } = await this.sb
-      .from(this.dbName)
-      .select(
-        `
-        id,
-        date,
-        type,
-        amount,
-        description,
-        categories (id, name, icon, type),
-        payment_methods (id, name, icon)
-      `,
-      )
-      .eq("user_id", this.userId)
-      .order("date", { ascending: false })
-      .order("created_at", { ascending: false })
-      .limit(limit);
-    if (error) {
-      console.error(`Error retrieving last ${limit} transactions.`);
-      console.error(error);
-      return [];
-    }
-
-    return data.map(TransactionRepositoryImplementation.mapToTransaction);
-  }
-
-  private static mapToTransaction(raw: RawTransaction) {
+  private static mapToTransaction(dto: TransactionDto) {
     return new Transaction({
-      id: new Id(raw.id),
-      amount: raw.amount,
-      category: TransactionRepositoryImplementation.mapCategory(
-        raw.categories as Tables<"categories">,
-      ),
-      date: new Day(raw.date),
-      description: raw.description || "",
-      operation: raw.type as TransactionOperation,
+      id: new Id(dto.id),
+      amount: dto.amount,
+      category: TransactionRepositoryImplementation.mapCategory(dto.category),
+      date: new Day(dto.date),
+      description: dto.description || "",
+      operation: dto.operation,
       paymentMethod: TransactionRepositoryImplementation.mapPaymentMethod(
-        raw.payment_methods as Tables<"payment_methods">,
+        dto.paymentMethod,
       ),
     });
+  }
+
+  private static mapCategory(dto: CategoryDto): Category {
+    return new Category({
+      id: new Id(dto.id),
+      icon: dto.icon ?? "",
+      name: dto.name,
+      type: dto.type,
+      color: dto.color ?? "",
+    });
+  }
+
+  private static mapPaymentMethod(dto: PaymentMethodDto): PaymentMethod {
+    return new PaymentMethod({
+      id: new Id(dto.id),
+      icon: dto.icon ?? "",
+      name: dto.name,
+      color: dto.color ?? "",
+    });
+  }
+
+  async create(transaction: Transaction): Promise<Nullable<Transaction>> {
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.post<CreateTransactionDto, SaveTransactionResponse>(this.path, {
+        description: transaction.description,
+        amount: transaction.amount,
+        categoryId: transaction.category.id.toString(),
+        date: transaction.date.toISOString(),
+        operation: transaction.operation,
+        paymentMethodId: transaction.paymentMethod.id.toString(),
+      }),
+    );
+
+    if (!success) {
+      console.error(`Error: ${error}`);
+      console.error(
+        `Error creating transaction (${transaction.id}) :`,
+        transaction.toString(),
+      );
+      return null;
+    }
+
+    return TransactionRepositoryImplementation.mapToTransaction(
+      data.transaction,
+    );
   }
 
   async fetchTransactionConfig(): Promise<TransactionConfig> {
@@ -198,84 +139,117 @@ export class TransactionRepositoryImplementation
     );
   }
 
-  private async fetchCategories(): Promise<Category[]> {
-    const response = await this.sb
-      .from("categories")
-      .select()
-      .eq("user_id", this.userId)
-      .order("name", { ascending: true });
+  async find(criteria: FindTransactionsCriteria) {
+    if (!criteria.from) {
+      criteria.from = new Day("1970-01-01");
+    }
+    if (!criteria.to) {
+      criteria.to = new Day();
+    }
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.get<FindTransactionsResponse>(this.path),
+    );
 
-    const defaultCategories = [
-      ...defaultIncomeCategories,
-      ...defaultOutcomeCategories,
-    ];
-
-    if (response.error) {
-      return defaultCategories;
+    if (!success) {
+      console.error("Error fetching transactions:", error);
+      return [];
     }
 
-    if (!response.data.length) {
-      await this.sb.from("categories").insert(
-        defaultCategories.map((category) => ({
-          id: category.id.toString(),
-          user_id: this.userId,
-          name: category.name,
-          icon: category.icon,
-          type: category.type,
-        })),
-      );
-
-      return defaultCategories;
-    }
-
-    return response.data.map(TransactionRepositoryImplementation.mapCategory);
-  }
-
-  private async fetchPaymentMethods(): Promise<PaymentMethod[]> {
-    const response = await this.sb
-      .from("payment_methods")
-      .select()
-      .eq("user_id", this.userId)
-      .order("name", { ascending: true });
-
-    if (response.error) {
-      return defaultPaymentMethods;
-    }
-
-    if (!response.data.length) {
-      await this.sb.from("payment_methods").insert(
-        defaultPaymentMethods.map((p) => ({
-          id: p.id.toString(),
-          user_id: this.userId,
-          name: p.name,
-          icon: p.icon,
-        })),
-      );
-
-      return defaultPaymentMethods;
-    }
-
-    return response.data.map(
-      TransactionRepositoryImplementation.mapPaymentMethod,
+    return data.transactions.map(
+      TransactionRepositoryImplementation.mapToTransaction,
     );
   }
 
-  private static mapCategory(rawCategory: Tables<"categories">): Category {
-    return new Category({
-      id: new Id(rawCategory.id),
-      icon: rawCategory.icon ?? "",
-      name: rawCategory.name,
-      type: rawCategory.type as TransactionOperation,
-    });
+  async findById(id: Id): Promise<Nullable<Transaction>> {
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.get<FindTransactionByIdResponse>(`${this.path}/${id}`),
+    );
+
+    if (!success) {
+      console.error(`Error fetching transaction ${id}.`);
+      console.error(error);
+      return null;
+    }
+
+    return TransactionRepositoryImplementation.mapToTransaction(
+      data.transaction,
+    );
   }
 
-  private static mapPaymentMethod(
-    raw: Tables<"payment_methods">,
-  ): PaymentMethod {
-    return new PaymentMethod({
-      id: new Id(raw.id),
-      icon: raw.icon ?? "",
-      name: raw.name,
-    });
+  remove(id: Id): Promise<CommandResponse> {
+    return this.handleCommandResponse(
+      this.http.delete<DeleteTransactionResponse>(`${this.path}/${id}`),
+    );
+  }
+
+  async update(transaction: Transaction): Promise<Nullable<Transaction>> {
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.patch<CreateTransactionDto, SaveTransactionResponse>(
+        this.path,
+        {
+          description: transaction.description,
+          amount: transaction.amount,
+          categoryId: transaction.category.id.toString(),
+          date: transaction.date.toISOString(),
+          operation: transaction.operation,
+          paymentMethodId: transaction.paymentMethod.id.toString(),
+        },
+      ),
+    );
+
+    if (!success) {
+      console.error(`Error: ${error}`);
+      console.error(
+        `Error saving transaction (${transaction.id}) :`,
+        transaction.toString(),
+      );
+      return null;
+    }
+
+    return TransactionRepositoryImplementation.mapToTransaction(
+      data.transaction,
+    );
+  }
+
+  private async fetchCategories(): Promise<Category[]> {
+    const { success, data, error } = await this.handleQueryResponse(
+      this.http.get<
+        BaseResponse<
+          {
+            categories: CategoryDto[];
+          },
+          Error
+        >
+      >(this.categoriesPath),
+    );
+
+    if (!success) {
+      console.error("Error fetching categories:", error);
+      return [];
+    }
+
+    return data.categories.map(TransactionRepositoryImplementation.mapCategory);
+  }
+
+  private async fetchPaymentMethods(): Promise<PaymentMethod[]> {
+    const { success, data, error } = await this.handleQueryResponse(
+      this.http.get<
+        BaseResponse<
+          {
+            paymentMethods: PaymentMethodDto[];
+          },
+          Error
+        >
+      >(this.paymentMethodsPath),
+    );
+
+    if (!success) {
+      console.error("Error fetching categories:", error);
+      return [];
+    }
+
+    return data.paymentMethods.map(
+      TransactionRepositoryImplementation.mapPaymentMethod,
+    );
   }
 }

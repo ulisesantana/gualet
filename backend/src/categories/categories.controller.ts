@@ -10,9 +10,7 @@ import {
   Post,
   Req,
   Res,
-  UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '@src/auth';
 import { CategoriesService } from './categories.service';
 import {
   CategoriesResponseDto,
@@ -22,8 +20,8 @@ import {
 } from './dto';
 import {
   AuthenticatedRequest,
-  BaseController,
   ErrorResponse,
+  SecureController,
 } from '@src/common/infrastructure';
 import { ApiResponse } from '@nestjs/swagger';
 import { Id } from '@src/common/domain';
@@ -31,8 +29,7 @@ import { CategoriesErrorCodes } from './errors';
 import { Response } from 'express';
 
 @Controller('me/categories')
-@UseGuards(JwtAuthGuard)
-export class CategoriesController extends BaseController {
+export class CategoriesController extends SecureController {
   constructor(private readonly categoryService: CategoriesService) {
     super();
   }

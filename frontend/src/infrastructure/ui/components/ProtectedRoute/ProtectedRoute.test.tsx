@@ -28,7 +28,10 @@ describe("ProtectedRoute", () => {
   });
 
   it("passes path prop correctly to Route component when authenticated", async () => {
-    mockVerifySessionUseCase.exec.mockResolvedValue(true);
+    mockVerifySessionUseCase.exec.mockResolvedValue({
+      success: true,
+      error: null,
+    });
 
     render(
       <ProtectedRoute
@@ -60,7 +63,10 @@ describe("ProtectedRoute", () => {
   });
 
   it("preserves authentication state between renders when already authenticated", async () => {
-    mockVerifySessionUseCase.exec.mockResolvedValue(true);
+    mockVerifySessionUseCase.exec.mockResolvedValue({
+      success: true,
+      error: null,
+    });
 
     const { rerender } = render(
       <ProtectedRoute verifySessionUseCase={mockVerifySessionUseCase}>

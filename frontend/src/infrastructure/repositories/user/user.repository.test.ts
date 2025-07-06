@@ -60,14 +60,18 @@ describe("UserRepositoryImplementation", () => {
     });
 
     it("should propagate the exception if the request fails", async () => {
-      const error = new Error("Authentication error");
-      mockHttp.post.mockRejectedValue(error);
+      mockHttp.post.mockRejectedValue({
+        response: { data: { error: { message: "Authentication error" } } },
+      });
       const credentials: UserCredentials = {
         email: "user@example.com",
         password: "password123",
       };
 
-      await expect(repository.login(credentials)).rejects.toThrow(error);
+      const result = await repository.login(credentials);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Authentication error");
     });
   });
 
@@ -79,10 +83,14 @@ describe("UserRepositoryImplementation", () => {
     });
 
     it("should propagate the exception if the request fails", async () => {
-      const error = new Error("Logout error");
-      mockHttp.post.mockRejectedValue(error);
+      mockHttp.post.mockRejectedValue({
+        response: { data: { error: { message: "Authentication error" } } },
+      });
 
-      await expect(repository.logout()).rejects.toThrow(error);
+      const result = await repository.logout();
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Authentication error");
     });
   });
 
@@ -102,14 +110,18 @@ describe("UserRepositoryImplementation", () => {
     });
 
     it("should propagate the exception if the request fails", async () => {
-      const error = new Error("Registration error");
-      mockHttp.post.mockRejectedValue(error);
+      mockHttp.post.mockRejectedValue({
+        response: { data: { error: { message: "Authentication error" } } },
+      });
       const credentials: UserCredentials = {
-        email: "new_user@example.com",
+        email: "user@example.com",
         password: "password123",
       };
 
-      await expect(repository.register(credentials)).rejects.toThrow(error);
+      const result = await repository.register(credentials);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Authentication error");
     });
   });
 });

@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Id } from '@src/common/domain';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PaymentMethod } from './payment-method.model';
 import {
   NotAuthorizedForPaymentMethodError,
   PaymentMethodNotFoundError,
 } from './errors';
 import { PaymentMethodToUpdate } from '@src/payment-methods';
 import { PaymentMethodEntity } from '@src/db';
+import { Id, PaymentMethod } from '@gualet/core';
 
 @Injectable()
 export class PaymentMethodsRepository {
@@ -18,7 +17,12 @@ export class PaymentMethodsRepository {
   ) {}
 
   static mapToDomain(pm: PaymentMethodEntity) {
-    return new PaymentMethod(pm);
+    return new PaymentMethod({
+      id: new Id(pm.id),
+      name: pm.name,
+      icon: pm.icon ?? '',
+      color: pm.color ?? '',
+    });
   }
 
   async create(userId: Id, pm: PaymentMethod): Promise<PaymentMethod> {

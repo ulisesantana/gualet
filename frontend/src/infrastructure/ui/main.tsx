@@ -4,22 +4,55 @@ import "./main.css";
 import "./forms.css";
 import "./theme.css";
 import {
+  GetLastTransactionsUseCase,
+  GetTransactionConfigUseCase,
+  GetUserPreferencesUseCase,
   LoginUseCase,
+  SaveTransactionUseCase,
   SignUpUseCase,
   VerifySessionUseCase,
 } from "@application/cases";
-import { UserRepositoryImplementation } from "@infrastructure/repositories";
-import { HttpDataSource } from "@infrastructure/data-sources";
+import {
+  TransactionRepositoryImplementation,
+  UserPreferencesRepositoryImplementation,
+  UserRepositoryImplementation,
+} from "@infrastructure/repositories";
+import {
+  HttpDataSource,
+  StorageDataSource,
+  StorageType,
+} from "@infrastructure/data-sources";
 
 import { SettingsProvider } from "./contexts";
 import { App } from "./App";
 
+// DATA SOURCES
 const http = new HttpDataSource();
-const userRepository = new UserRepositoryImplementation(http);
+const storage = new StorageDataSource("gualet", StorageType.Local);
 
-const loginUseCase = new LoginUseCase(userRepository);
-const signUpUseCase = new SignUpUseCase(userRepository);
-const verifySessionUseCase = new VerifySessionUseCase(userRepository);
+// REPOSITORIES
+const userRepository = new UserRepositoryImplementation(http);
+const transactionRepository = new TransactionRepositoryImplementation(http);
+const userPreferencesRepository = new UserPreferencesRepositoryImplementation(
+  storage,
+);
+
+// USE CASES
+const cases = {
+  loginUseCase: new LoginUseCase(userRepository),
+  signUpUseCase: new SignUpUseCase(userRepository),
+  verifySessionUseCase: new VerifySessionUseCase(userRepository),
+  getLastTransactionsUseCase: new GetLastTransactionsUseCase(
+    transactionRepository,
+  ),
+  getTransactionConfigUseCase: new GetTransactionConfigUseCase(
+    transactionRepository,
+  ),
+  saveTransactionUseCase: new SaveTransactionUseCase(transactionRepository),
+  getUserPreferencesUseCase: new GetUserPreferencesUseCase(
+    userPreferencesRepository,
+  ),
+};
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
@@ -27,7 +60,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <SettingsProvider>
-      <App cases={{ loginUseCase, signUpUseCase, verifySessionUseCase }} />
+      <App cases={cases} />
     </SettingsProvider>
   </React.StrictMode>,
 );

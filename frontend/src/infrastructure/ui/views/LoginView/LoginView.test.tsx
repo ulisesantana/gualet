@@ -5,6 +5,7 @@ import { LoginUseCase } from "@application/cases";
 import "@testing-library/jest-dom";
 import { describe, expect, it, vi } from "vitest";
 import { routes } from "@infrastructure/ui/routes";
+import { CommandResponse } from "@domain/types";
 
 // Mock para useLocation
 const mockSetLocation = vi.fn();
@@ -16,14 +17,14 @@ vi.mock("wouter", () => ({
 }));
 
 // Mock para LoginUseCase
-const createMockLoginUseCase = (mockResponse: {
-  success: boolean;
-  reason?: string;
-}) => {
+function createMockLoginUseCase({
+  success = false,
+  error = null,
+}: Partial<CommandResponse> = {}): LoginUseCase {
   return {
-    exec: vi.fn().mockResolvedValue(mockResponse),
+    exec: vi.fn().mockResolvedValue({ success, error }),
   } as unknown as LoginUseCase;
-};
+}
 
 describe("LoginForm", () => {
   it("renders login form with email and password inputs", () => {
@@ -60,7 +61,7 @@ describe("LoginForm", () => {
     const errorMessage = "Invalid credentials";
     const mockLoginUseCase = createMockLoginUseCase({
       success: false,
-      reason: errorMessage,
+      error: errorMessage,
     });
     render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
@@ -135,7 +136,7 @@ describe("LoginForm", () => {
     const mockLoginUseCase = {
       exec: vi
         .fn()
-        .mockResolvedValueOnce({ success: false, reason: "Error message" })
+        .mockResolvedValueOnce({ success: false, error: "Error message" })
         .mockResolvedValueOnce({ success: true }),
     } as unknown as LoginUseCase;
 

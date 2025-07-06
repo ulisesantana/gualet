@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { PaymentMethodRepository } from "@application/repositories";
 import { PaymentMethod } from "@domain/models";
 import { GetAllPaymentMethodsUseCase } from "@application/cases";
 
 // Mock repository
 const mockPaymentMethodRepository: PaymentMethodRepository = {
-  save: vi.fn(),
+  create: vi.fn(),
   findAll: vi.fn(),
   findById: vi.fn(),
 };

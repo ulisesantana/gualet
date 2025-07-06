@@ -1,4 +1,5 @@
-import {Nullable, OperationType} from "./types";
+import {Nullable, TimeString,} from "./types";
+import {OperationType} from "./domain";
 
 export interface CategoryDto {
   id: string;
@@ -13,4 +14,14 @@ export interface PaymentMethodDto {
   name: string;
   icon: Nullable<string>;
   color: Nullable<string>;
+}
+
+export interface TransactionDto {
+  id: string;
+  amount: number;
+  category: CategoryDto;
+  date: TimeString;
+  description?: string;
+  operation: OperationType;
+  paymentMethod: PaymentMethodDto;
 }

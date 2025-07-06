@@ -1,24 +1,19 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { Id, PaymentMethod } from "@domain/models";
+import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { HttpDataSource } from "@infrastructure/data-sources";
-import { PaymentMethodDto } from "@gualet/core";
+import { Id, PaymentMethod, PaymentMethodDto } from "@gualet/core";
 
 import { PaymentMethodRepositoryImplementation } from "./payment-method.repository";
 
-type MockHttp = {
-  get: ReturnType<typeof vi.fn>;
-  post: ReturnType<typeof vi.fn>;
-};
-
 describe("PaymentMethodRepositoryImplementation (HTTP)", () => {
   let repository: PaymentMethodRepositoryImplementation;
-  let mockHttp: MockHttp;
+  let mockHttp: Mocked<HttpDataSource>;
 
   beforeEach(() => {
     mockHttp = {
       get: vi.fn(),
       post: vi.fn(),
-    };
+      patch: vi.fn(),
+    } as unknown as Mocked<HttpDataSource>;
     repository = new PaymentMethodRepositoryImplementation(
       mockHttp as unknown as HttpDataSource,
     );
@@ -90,7 +85,7 @@ describe("PaymentMethodRepositoryImplementation (HTTP)", () => {
         success: true,
         data: { paymentMethod: paymentMethodDto },
       });
-      const result = await repository.save(paymentMethod);
+      const result = await repository.create(paymentMethod);
       expect(result).toBeInstanceOf(PaymentMethod);
       expect(result?.id.toString()).toBe("pm-1");
     });
@@ -103,7 +98,7 @@ describe("PaymentMethodRepositoryImplementation (HTTP)", () => {
         color: "#fff",
       });
       mockHttp.post.mockResolvedValue({ success: false, error: "fail" });
-      const result = await repository.save(paymentMethod);
+      const result = await repository.create(paymentMethod);
       expect(result).toBeNull();
     });
   });

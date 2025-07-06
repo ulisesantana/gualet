@@ -10,6 +10,14 @@ export class VerifySessionUseCase implements UseCase<Input, Output> {
   constructor(private readonly userRepository: UserRepository) {}
 
   async exec(_input?: Input) {
-    return await this.userRepository.verify();
+    try {
+      return await this.userRepository.verify();
+    } catch (error) {
+      console.error("Error verifying session:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+    }
   }
 }

@@ -1,5 +1,5 @@
-import { Transaction } from "@domain/models";
 import { TransactionRepository } from "@application/repositories";
+import { Transaction } from "@gualet/core";
 
 import { UseCase } from "../use-case";
 
@@ -9,6 +9,6 @@ export class SaveTransactionUseCase
   constructor(private readonly repository: TransactionRepository) {}
 
   exec(transaction: Transaction): Promise<void> {
-    return this.repository.save(transaction);
+    return this.repository.create(transaction);
   }
 }

@@ -1,11 +1,6 @@
-import {
-  Category,
-  Day,
-  Transaction,
-  TransactionOperation,
-  TransactionConfig,
-} from "@domain/models";
+import { TransactionConfig } from "@domain/models";
 import React, { RefObject, useEffect, useRef } from "react";
+import { Category, Day, OperationType, Transaction } from "@gualet/core";
 
 import { generateOnSubmitHandler } from "./submit-handler";
 
@@ -28,8 +23,8 @@ export function TransactionForm({
   const [date, setDate] = React.useState(
     (transaction?.date ?? new Day()).toString(dateSeparator),
   );
-  const [operation, setOperation] = React.useState<TransactionOperation>(
-    transaction?.operation ?? TransactionOperation.Outcome,
+  const [operation, setOperation] = React.useState<OperationType>(
+    transaction?.operation ?? OperationType.Outcome,
   );
   const [categories, setCategories] = React.useState<Category[]>(
     transaction?.isIncome()
@@ -51,7 +46,7 @@ export function TransactionForm({
   const onSubmitHandler = generateOnSubmitHandler({
     afterSubmit: (transaction: Transaction) => {
       setDate(transaction.date.toString(dateSeparator));
-      setOperation(TransactionOperation.Outcome);
+      setOperation(OperationType.Outcome);
     },
     categories,
     paymentMethods: settings.paymentMethods,
@@ -67,14 +62,10 @@ export function TransactionForm({
           required
           name="operation"
           value={operation}
-          onChange={(e) => setOperation(e.target.value as TransactionOperation)}
+          onChange={(e) => setOperation(e.target.value as OperationType)}
         >
-          <option value={TransactionOperation.Outcome}>
-            {TransactionOperation.Outcome}
-          </option>
-          <option value={TransactionOperation.Income}>
-            {TransactionOperation.Income}
-          </option>
+          <option value={OperationType.Outcome}>{OperationType.Outcome}</option>
+          <option value={OperationType.Income}>{OperationType.Income}</option>
         </select>
       </label>
 

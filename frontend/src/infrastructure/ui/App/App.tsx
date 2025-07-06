@@ -4,7 +4,11 @@ import { Header, ProtectedRoute } from "@components";
 import { Route, Router } from "wouter";
 import { routes } from "@infrastructure/ui/routes";
 import {
+  GetLastTransactionsUseCase,
+  GetTransactionConfigUseCase,
+  GetUserPreferencesUseCase,
   LoginUseCase,
+  SaveTransactionUseCase,
   SignUpUseCase,
   VerifySessionUseCase,
 } from "@application/cases";
@@ -14,12 +18,14 @@ export interface AppProps {
     loginUseCase: LoginUseCase;
     signUpUseCase: SignUpUseCase;
     verifySessionUseCase: VerifySessionUseCase;
+    getLastTransactionsUseCase: GetLastTransactionsUseCase;
+    getTransactionConfigUseCase: GetTransactionConfigUseCase;
+    saveTransactionUseCase: SaveTransactionUseCase;
+    getUserPreferencesUseCase: GetUserPreferencesUseCase;
   };
 }
 
-export const App: React.FC<AppProps> = ({
-  cases: { loginUseCase, signUpUseCase, verifySessionUseCase },
-}) => {
+export const App: React.FC<AppProps> = ({ cases }) => {
   return (
     // @ts-ignore
     <Router base={import.meta.env.BASE_URL}>
@@ -28,17 +34,22 @@ export const App: React.FC<AppProps> = ({
         <main className="App-main">
           {/*LOGIN*/}
           <Route path={routes.login}>
-            <LoginView loginUseCase={loginUseCase} />
+            <LoginView loginUseCase={cases.loginUseCase} />
           </Route>
           {/*REGISTER*/}
           <Route path={routes.register}>
-            <RegisterView signUpUseCase={signUpUseCase} />
+            <RegisterView signUpUseCase={cases.signUpUseCase} />
           </Route>
           <ProtectedRoute
             path={routes.home}
-            verifySessionUseCase={verifySessionUseCase}
+            verifySessionUseCase={cases.verifySessionUseCase}
           >
-            <LastTransactionsView />
+            <LastTransactionsView
+              getLastTransactionsUseCase={cases.getLastTransactionsUseCase}
+              getTransactionConfigUseCase={cases.getTransactionConfigUseCase}
+              saveTransactionUseCase={cases.saveTransactionUseCase}
+              getUserPreferencesUseCase={cases.getUserPreferencesUseCase}
+            />
           </ProtectedRoute>
           {/*/!*TRANSACTIONS*!/*/}
           {/*<ProtectedRoute*/}

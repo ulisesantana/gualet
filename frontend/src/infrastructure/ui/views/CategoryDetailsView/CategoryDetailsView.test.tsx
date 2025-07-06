@@ -2,7 +2,7 @@ import { describe, expect, it, Mock, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { Category, Id, TransactionOperation } from "@domain/models";
 import { CategoryDetailsView } from "@views";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { useLoader } from "@infrastructure/ui/hooks";
 import { Router } from "wouter";
 import { TestRouter } from "@test/TestRouter";
 
@@ -22,7 +22,7 @@ describe("CategoryDetailsView", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useRepositories as Mock).mockReturnValue({
+    (useLoader as Mock).mockReturnValue({
       isReady: true,
       repositories: {
         category: {
@@ -42,7 +42,7 @@ describe("CategoryDetailsView", () => {
   });
 
   it("renders Loader when loading is true", async () => {
-    (useRepositories as Mock).mockReturnValueOnce({
+    (useLoader as Mock).mockReturnValueOnce({
       isReady: true,
       repositories: { category: {} },
       isLoading: true,
@@ -68,7 +68,7 @@ describe("CategoryDetailsView", () => {
   });
 
   it("displays an error message if category is not found", async () => {
-    (useRepositories as Mock).mockReturnValueOnce({
+    (useLoader as Mock).mockReturnValueOnce({
       isReady: true,
       repositories: {
         category: {

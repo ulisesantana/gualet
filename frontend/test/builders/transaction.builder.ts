@@ -1,13 +1,13 @@
 import {
   Category,
   Day,
-  defaultOutcomeCategories,
-  defaultPaymentMethods,
+  generateDefaultOutcomeCategories,
+  generateDefaultPaymentMethods,
   Id,
+  OperationType,
   PaymentMethod,
   Transaction,
-  TransactionOperation
-} from "@domain/models";
+} from "@gualet/core";
 
 export class TransactionBuilder {
   private id: Id;
@@ -15,22 +15,22 @@ export class TransactionBuilder {
   private category: Category;
   private date: Day;
   private description: string;
-  private operation: TransactionOperation;
+  private operation: OperationType;
   private paymentMethod: PaymentMethod;
 
   constructor() {
+    const [defaultCategory] = generateDefaultOutcomeCategories();
+    const [defaultPaymentMethod] = generateDefaultPaymentMethods();
     this.id = new Id();
     this.amount = 100;
     this.category = new Category({
-      ...defaultOutcomeCategories[0],
-      id: new Id(defaultOutcomeCategories[0].id.toString())
+      ...defaultCategory,
     });
     this.date = new Day("2018-03-03");
     this.description = "Default Description";
-    this.operation = TransactionOperation.Outcome;
+    this.operation = OperationType.Outcome;
     this.paymentMethod = new PaymentMethod({
-      ...defaultPaymentMethods[0],
-      id: new Id(defaultPaymentMethods[0].id.toString())
+      ...defaultPaymentMethod,
     });
   }
 
@@ -46,7 +46,7 @@ export class TransactionBuilder {
 
   withCategory(category: Category): this {
     this.category = category;
-    this.operation = category.type
+    this.operation = category.type;
     return this;
   }
 
@@ -60,7 +60,7 @@ export class TransactionBuilder {
     return this;
   }
 
-  withOperation(operation: TransactionOperation): this {
+  withOperation(operation: OperationType): this {
     this.operation = operation;
     return this;
   }

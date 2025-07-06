@@ -1,7 +1,6 @@
 import { PaymentMethodRepository } from "@application/repositories";
-import { Id, PaymentMethod } from "@domain/models";
 import { Nullable } from "@domain/types";
-import { PaymentMethodDto } from "@gualet/core";
+import { Id, PaymentMethod, PaymentMethodDto } from "@gualet/core";
 import { BaseResponse } from "@infrastructure/types";
 import { HttpDataSource } from "@infrastructure/data-sources";
 
@@ -40,6 +39,24 @@ export class PaymentMethodRepositoryImplementation
     };
   }
 
+  async create(paymentMethod: PaymentMethod): Promise<Nullable<PaymentMethod>> {
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.post<PaymentMethodDto, SavePaymentMethodResponse>(
+        this.path,
+        PaymentMethodRepositoryImplementation.mapToDto(paymentMethod),
+      ),
+    );
+
+    if (!success) {
+      console.error("Error saving payment method:", error);
+      return null;
+    }
+
+    return PaymentMethodRepositoryImplementation.mapToPaymentMethod(
+      data.paymentMethod,
+    );
+  }
+
   async findAll(): Promise<PaymentMethod[]> {
     const { success, data, error } = await this.handleQueryResponse(
       this.http.get<
@@ -74,9 +91,9 @@ export class PaymentMethodRepositoryImplementation
     );
   }
 
-  async save(paymentMethod: PaymentMethod): Promise<Nullable<PaymentMethod>> {
+  async update(paymentMethod: PaymentMethod): Promise<Nullable<PaymentMethod>> {
     const { success, error, data } = await this.handleQueryResponse(
-      this.http.post<PaymentMethodDto, SavePaymentMethodResponse>(
+      this.http.patch<PaymentMethodDto, SavePaymentMethodResponse>(
         this.path,
         PaymentMethodRepositoryImplementation.mapToDto(paymentMethod),
       ),

@@ -1,300 +1,253 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
+import { HttpDataSource } from "@infrastructure/data-sources";
 import {
   Category,
+  CategoryDto,
   Day,
-  defaultIncomeCategories,
-  defaultOutcomeCategories,
-  defaultPaymentMethods,
   Id,
+  OperationType,
   PaymentMethod,
+  PaymentMethodDto,
+  TimeString,
   Transaction,
-  TransactionOperation,
-} from "@domain/models";
-import { MockSupabaseClient } from "@test/mocks";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { TransactionBuilder } from "@test/builders";
+  TransactionDto,
+} from "@gualet/core";
 
 import { TransactionRepositoryImplementation } from "./transaction.repository";
 
-describe("TransactionRepositoryImplementation", () => {
-  let mockSupabaseClient: MockSupabaseClient;
-  let transactionRepository: TransactionRepositoryImplementation;
-  let transaction: Transaction;
-  const userId = "user-123";
-  const dbName = "transactions";
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2023-01-01T00:00:00Z"));
+function createTransactionDto(): TransactionDto {
+  return {
+    id: "txn-1",
+    amount: 100,
+    description: "Lunch",
+    date: new Date().toISOString() as TimeString,
+    operation: OperationType.Outcome,
+    category: {
+      id: "cat-1",
+      name: "Food",
+      icon: "🍔",
+      type: OperationType.Outcome,
+      color: "#fff",
+    },
+    paymentMethod: {
+      id: "pm-1",
+      name: "Credit Card",
+      icon: "💳",
+      color: "#000",
+    },
+  };
+}
 
-    mockSupabaseClient = new MockSupabaseClient();
-    transactionRepository = new TransactionRepositoryImplementation(
-      userId,
-      mockSupabaseClient as unknown as SupabaseClient,
-    );
-    transaction = new TransactionBuilder()
-      .withId(new Id("txn-1"))
-      .withAmount(100)
-      .withDescription("Lunch")
-      .withDate(new Day(new Date().toISOString()))
-      .withOperation(TransactionOperation.Outcome)
-      .withCategory(
-        new Category({
+describe("TransactionRepositoryImplementation (HTTP)", () => {
+  let repository: TransactionRepositoryImplementation;
+  let mockHttp: Mocked<HttpDataSource>;
+
+  beforeEach(() => {
+    mockHttp = {
+      get: vi.fn(),
+      post: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn(),
+    } as unknown as Mocked<HttpDataSource>;
+    repository = new TransactionRepositoryImplementation(mockHttp);
+  });
+
+  describe("create", () => {
+    it("should create a transaction and return the mapped Transaction", async () => {
+      const dto = createTransactionDto();
+      mockHttp.post.mockResolvedValue({
+        success: true,
+        data: { transaction: dto },
+      });
+      const transaction = new Transaction({
+        id: new Id(dto.id),
+        amount: dto.amount,
+        description: dto.description,
+        date: new Day(dto.date),
+        operation: dto.operation,
+        category: new Category({
+          id: new Id(dto.category.id),
+          name: dto.category.name,
+          icon: dto.category.icon ?? "",
+          type: dto.category.type,
+          color: dto.category.color ?? "",
+        }),
+        paymentMethod: new PaymentMethod({
+          id: new Id(dto.paymentMethod.id),
+          name: dto.paymentMethod.name,
+          icon: dto.paymentMethod.icon ?? "",
+          color: dto.paymentMethod.color ?? "",
+        }),
+      });
+      const result = await repository.create(transaction);
+      expect(result).toEqual(expect.any(Transaction));
+      expect(mockHttp.post).toHaveBeenCalled();
+    });
+    it("should return null if creation fails", async () => {
+      mockHttp.post.mockResolvedValue({ success: false, error: "fail" });
+      const transaction = new Transaction({
+        id: new Id("txn-1"),
+        amount: 100,
+        description: "Lunch",
+        date: new Day(new Date().toISOString()),
+        operation: OperationType.Outcome,
+        category: new Category({
           id: new Id("cat-1"),
           name: "Food",
           icon: "🍔",
-          type: TransactionOperation.Outcome,
+          type: OperationType.Outcome,
+          color: "#fff",
         }),
-      )
-      .withPaymentMethod(
-        new PaymentMethod({
+        paymentMethod: new PaymentMethod({
           id: new Id("pm-1"),
           name: "Credit Card",
           icon: "💳",
+          color: "#000",
         }),
-      )
-      .build();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  describe("save", () => {
-    it("should upsert a transaction", async () => {
-      await transactionRepository.save(transaction);
-
-      expect(mockSupabaseClient.from(dbName).upsert).toHaveBeenCalledWith({
-        id: "txn-1",
-        user_id: userId,
-        category_id: "cat-1",
-        payment_method_id: "pm-1",
-        amount: 100,
-        description: "Lunch",
-        date: transaction.date.toString(),
-        type: TransactionOperation.Outcome,
       });
-    });
-
-    it("should log an error if upsert fails", async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Upsert failed"),
-      });
-
-      await transactionRepository.save(transaction);
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        `Error saving transaction: ${transaction}`,
-      );
-      consoleErrorSpy.mockRestore();
-    });
-  });
-
-  describe("remove", () => {
-    it("should delete a transaction by ID", async () => {
-      const transactionId = new Id("txn-1");
-
-      await transactionRepository.remove(transactionId);
-
-      expect(mockSupabaseClient.from(dbName).delete).toHaveBeenCalledWith();
-      expect(mockSupabaseClient.from(dbName).delete().eq).toHaveBeenCalledWith(
-        "user_id",
-        userId,
-      );
-      expect(mockSupabaseClient.from(dbName).delete().eq).toHaveBeenCalledWith(
-        "id",
-        transactionId.toString(),
-      );
-    });
-
-    it("should log an error if delete fails", async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Delete failed"),
-      });
-
-      await transactionRepository.remove(new Id("txn-1"));
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Error removing transaction txn-1",
-      );
-      consoleErrorSpy.mockRestore();
+      const result = await repository.create(transaction);
+      expect(result).toBeNull();
     });
   });
 
   describe("findById", () => {
-    it("should fetch a transaction by ID", async () => {
-      const transaction = {
-        id: "txn-1",
-        amount: 100,
-        description: "Lunch",
-        date: new Date().toISOString(),
-        type: TransactionOperation.Outcome,
-        categories: {
-          id: "cat-1",
-          name: "Food",
-          icon: "🍔",
-          type: TransactionOperation.Outcome,
-        },
-        payment_methods: { id: "pm-1", name: "Credit Card", icon: "💳" },
-      };
-      mockSupabaseClient.withResult({ data: [transaction], error: null });
-
-      const result = await transactionRepository.findById(new Id("txn-1"));
-
-      expect(result).toEqual(
-        new TransactionBuilder()
-          .withId(new Id(transaction.id))
-          .withAmount(transaction.amount)
-          .withDescription(transaction.description)
-          .withDate(new Day(transaction.date))
-          .withOperation(transaction.type)
-          .withCategory(
-            new Category({
-              icon: transaction.categories.icon,
-              id: new Id(transaction.categories.id),
-              name: transaction.categories.name,
-              type: transaction.categories.type,
-            }),
-          )
-          .withPaymentMethod(
-            new PaymentMethod({
-              icon: transaction.payment_methods.icon,
-              id: new Id(transaction.payment_methods.id),
-              name: transaction.payment_methods.name,
-            }),
-          )
-          .build(),
-      );
-    });
-
-    it("should throw an error if transaction is not found", async () => {
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Not found"),
+    it("should return a Transaction if found", async () => {
+      const dto = createTransactionDto();
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { transaction: dto },
       });
-
-      await expect(
-        transactionRepository.findById(new Id("txn-1")),
-      ).rejects.toThrow("Transaction txn-1 not found.");
+      const result = await repository.findById(new Id(dto.id));
+      expect(result).toEqual(expect.any(Transaction));
+      expect(mockHttp.get).toHaveBeenCalled();
+    });
+    it("should return null if not found", async () => {
+      mockHttp.get.mockResolvedValue({ success: false, error: "not found" });
+      const result = await repository.findById(new Id("not-exist"));
+      expect(result).toBeNull();
     });
   });
 
-  describe("findLast", () => {
-    it("should fetch the last transactions for the user", async () => {
-      const transactionData = [
-        {
-          id: "txn-1",
-          amount: 100,
-          description: "Lunch",
-          date: new Date().toISOString(),
-          type: TransactionOperation.Outcome,
-          categories: {
-            id: "cat-1",
-            name: "Food",
-            icon: "🍔",
-            type: TransactionOperation.Outcome,
-          },
-          payment_methods: { id: "pm-1", name: "Credit Card", icon: "💳" },
-        },
-      ];
-      mockSupabaseClient.withResult({ data: transactionData, error: null });
-
-      const result = await transactionRepository.findLast(1);
-
-      expect(result).toEqual([transaction]);
-    });
-
-    it("should return an empty array if fetching last transactions fails", async () => {
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Database error"),
+  describe("find", () => {
+    it("should return a list of Transactions", async () => {
+      const dto = createTransactionDto();
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { transactions: [dto] },
       });
-
-      const result = await transactionRepository.findLast(1);
-
+      const result = await repository.find({});
+      expect(Array.isArray(result)).toBe(true);
+      expect(result[0]).toEqual(expect.any(Transaction));
+    });
+    it("should return an empty array if fetch fails", async () => {
+      mockHttp.get.mockResolvedValue({ success: false, error: "fail" });
+      const result = await repository.find({});
       expect(result).toEqual([]);
     });
   });
 
+  describe("remove", () => {
+    it("should call http.delete and return a CommandResponse", async () => {
+      mockHttp.delete.mockResolvedValue({ success: true, data: null });
+      const result = await repository.remove(new Id("txn-1"));
+      expect(mockHttp.delete).toHaveBeenCalled();
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe("update", () => {
+    it("should update a transaction and return the mapped Transaction", async () => {
+      const dto = createTransactionDto();
+      mockHttp.patch.mockResolvedValue({
+        success: true,
+        data: { transaction: dto },
+      });
+      const transaction = new Transaction({
+        id: new Id(dto.id),
+        amount: dto.amount,
+        description: dto.description,
+        date: new Day(dto.date),
+        operation: dto.operation,
+        category: new Category({
+          id: new Id(dto.category.id),
+          name: dto.category.name,
+          icon: dto.category.icon,
+          type: dto.category.type,
+          color: dto.category.color,
+        }),
+        paymentMethod: new PaymentMethod({
+          id: new Id(dto.paymentMethod.id),
+          name: dto.paymentMethod.name,
+          icon: dto.paymentMethod.icon,
+          color: dto.paymentMethod.color,
+        }),
+      });
+      const result = await repository.update(transaction);
+      expect(result).toEqual(expect.any(Transaction));
+      expect(mockHttp.patch).toHaveBeenCalled();
+    });
+    it("should return null if update fails", async () => {
+      mockHttp.patch.mockResolvedValue({ success: false, error: "fail" });
+      const transaction = new Transaction({
+        id: new Id("txn-1"),
+        amount: 100,
+        description: "Lunch",
+        date: new Day(new Date().toISOString()),
+        operation: OperationType.Outcome,
+        category: new Category({
+          id: new Id("cat-1"),
+          name: "Food",
+          icon: "🍔",
+          type: OperationType.Outcome,
+          color: "#fff",
+        }),
+        paymentMethod: new PaymentMethod({
+          id: new Id("pm-1"),
+          name: "Credit Card",
+          icon: "💳",
+          color: "#000",
+        }),
+      });
+      const result = await repository.update(transaction);
+      expect(result).toBeNull();
+    });
+  });
+
   describe("fetchTransactionConfig", () => {
-    it("should fetch transaction config with categories and payment methods", async () => {
-      const paymentMethods = defaultPaymentMethods;
-      const categories = defaultOutcomeCategories.concat(
-        defaultIncomeCategories,
-      );
-
-      mockSupabaseClient.withResult([
-        { data: paymentMethods, error: null },
-        { data: categories, error: null },
-      ]);
-
-      const result = await transactionRepository.fetchTransactionConfig();
-
-      expect(result.paymentMethods).toEqual(paymentMethods);
-      expect(result.outcomeCategories).toEqual(defaultOutcomeCategories);
-      expect(result.incomeCategories).toEqual(defaultIncomeCategories);
+    it("should return a TransactionConfig with categories and payment methods", async () => {
+      const categories: CategoryDto[] = [
+        {
+          id: "cat-1",
+          name: "Food",
+          icon: "🍔",
+          type: OperationType.Outcome,
+          color: "#fff",
+        },
+        {
+          id: "cat-2",
+          name: "Salary",
+          icon: "💰",
+          type: OperationType.Income,
+          color: "#eee",
+        },
+      ];
+      const paymentMethods: PaymentMethodDto[] = [
+        { id: "pm-1", name: "Credit Card", icon: "💳", color: "#000" },
+      ];
+      mockHttp.get
+        .mockResolvedValueOnce({ success: true, data: { paymentMethods } })
+        .mockResolvedValueOnce({ success: true, data: { categories } });
+      const result = await repository.fetchTransactionConfig();
+      expect(result.paymentMethods.length).toBe(1);
+      expect(result.incomeCategories.length).toBe(1);
+      expect(result.outcomeCategories.length).toBe(1);
     });
-
-    it("should use default categories and payment methods if fetching fails", async () => {
-      mockSupabaseClient.withResult({
-        data: [],
-        error: new Error("Database error"),
-      });
-
-      const result = await transactionRepository.fetchTransactionConfig();
-
-      expect(result.paymentMethods).toEqual(defaultPaymentMethods);
-      expect(result.outcomeCategories).toEqual(defaultOutcomeCategories);
-      expect(result.incomeCategories).toEqual(defaultIncomeCategories);
-    });
-
-    it("should insert default categories if none exist", async () => {
-      mockSupabaseClient.withResult({
-        data: [],
-        error: null,
-      });
-
-      const result = await transactionRepository.fetchTransactionConfig();
-
-      expect(mockSupabaseClient.insert).toHaveBeenCalledWith(
-        defaultIncomeCategories.concat(defaultOutcomeCategories).map((c) => ({
-          icon: c.icon,
-          id: c.id.toString(),
-          name: c.name,
-          type: c.type,
-          user_id: "user-123",
-        })),
-      );
-      expect(result.incomeCategories).toEqual(defaultIncomeCategories);
-      expect(result.outcomeCategories).toEqual(defaultOutcomeCategories);
-    });
-
-    it("should insert default payment methods if none exist", async () => {
-      mockSupabaseClient.withResult({
-        data: [],
-        error: null,
-      });
-
-      const result = await transactionRepository.fetchTransactionConfig();
-
-      expect(mockSupabaseClient.insert).toHaveBeenCalledWith(
-        defaultPaymentMethods.map((p) => ({
-          icon: p.icon,
-          id: p.id.toString(),
-          name: p.name,
-          user_id: "user-123",
-        })),
-      );
-      expect(result.paymentMethods).toEqual(defaultPaymentMethods);
+    it("should return empty arrays if fetch fails", async () => {
+      mockHttp.get.mockResolvedValue({ success: false, error: "fail" });
+      const result = await repository.fetchTransactionConfig();
+      expect(result.paymentMethods).toEqual([]);
+      expect(result.incomeCategories).toEqual([]);
+      expect(result.outcomeCategories).toEqual([]);
     });
   });
 });

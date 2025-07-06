@@ -1,5 +1,5 @@
-import { Category, TransactionOperation } from "@domain/models";
 import React from "react";
+import { Category, OperationType } from "@gualet/core";
 
 interface OnSubmitHandlerGeneratorParams {
   originalCategory?: Category;
@@ -19,7 +19,7 @@ export function generateOnSubmitHandler({
       id: originalCategory?.id,
       name: formData.get("name") as string,
       icon: formData.get("icon") as string,
-      type: formData.get("type") as TransactionOperation,
+      type: formData.get("type") as OperationType,
     });
 
     onSubmit(category).then(() => {

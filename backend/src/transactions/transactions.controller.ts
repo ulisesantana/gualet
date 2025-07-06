@@ -12,7 +12,6 @@ import {
   Query,
   Req,
   Res,
-  UseGuards,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import {
@@ -25,11 +24,10 @@ import {
 } from './dto';
 import {
   AuthenticatedRequest,
-  BaseController,
   ErrorResponse,
+  SecureController,
 } from '@src/common/infrastructure';
 import { Id } from '@src/common/domain';
-import { JwtAuthGuard } from '@src/auth';
 import { ApiResponse } from '@nestjs/swagger';
 import { TransactionsErrorCodes } from '@src/transactions/errors';
 import { CategoriesErrorCodes } from '@src/categories/errors';
@@ -37,8 +35,7 @@ import { PaymentMethodsErrorCodes } from '@src/payment-methods/errors';
 import { Response } from 'express';
 
 @Controller('me/transactions')
-@UseGuards(JwtAuthGuard)
-export class TransactionsController extends BaseController {
+export class TransactionsController extends SecureController {
   constructor(private readonly transactionsService: TransactionsService) {
     super();
   }

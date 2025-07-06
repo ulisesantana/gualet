@@ -2,7 +2,7 @@ import { describe, expect, it, Mock, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { Category, Id, TransactionOperation } from "@domain/models";
 import { CategoriesView } from "@views";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { useLoader } from "@infrastructure/ui/hooks";
 
 vi.mock("@infrastructure/ui/hooks", () => ({
   useRepositories: vi.fn(),
@@ -21,7 +21,7 @@ vi.mock("@components", () => ({
 
 describe("CategoriesView", () => {
   beforeEach(() => {
-    (useRepositories as Mock).mockReturnValue({
+    (useLoader as Mock).mockReturnValue({
       repositories: {
         category: {
           save: vi.fn(),
@@ -48,7 +48,7 @@ describe("CategoriesView", () => {
 
   it("renders Loader when loading is true", async () => {
     const mockSetIsLoading = vi.fn();
-    (useRepositories as Mock).mockReturnValue({
+    (useLoader as Mock).mockReturnValue({
       isReady: true,
       repositories: {
         category: {},

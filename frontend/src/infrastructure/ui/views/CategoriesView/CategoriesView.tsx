@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./LastTransactionsView.css";
 import { CategoryList, Loader } from "@components";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { useLoader } from "@infrastructure/ui/hooks";
 import { Category } from "@domain/models";
 import { GetAllCategoriesUseCase } from "@application/cases";
 
 export function CategoriesView() {
-  const { isReady, repositories, isLoading, setIsLoading } = useRepositories();
+  const { isReady, repositories, isLoading, setIsLoading } = useLoader();
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {

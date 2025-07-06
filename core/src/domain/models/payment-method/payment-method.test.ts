@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { Id, PaymentMethod } from "@domain/models";
+import {describe, expect, it} from "vitest";
+import {PaymentMethod} from "./payment-method";
+import {Id} from "../id";
 
 describe("PaymentMethod", () => {
   it("should create a payment method with the correct properties", () => {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { useLoader } from "@infrastructure/ui/hooks";
 import { Id, PaymentMethod, UserPreferences } from "@domain/models";
 import { SettingsView } from "@views";
 
@@ -26,7 +26,7 @@ describe("SettingsView", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useRepositories as Mock).mockReturnValue({
+    (useLoader as Mock).mockReturnValue({
       isReady: true,
       repositories: {
         paymentMethod: {
@@ -43,7 +43,7 @@ describe("SettingsView", () => {
   });
 
   it("renders Loader when loading is true", () => {
-    (useRepositories as Mock).mockReturnValueOnce({
+    (useLoader as Mock).mockReturnValueOnce({
       isLoading: true,
     });
 
@@ -76,7 +76,7 @@ describe("SettingsView", () => {
   });
 
   it("changes and saves the default payment method", async () => {
-    const { userPreferences } = useRepositories().repositories!;
+    const { userPreferences } = useLoader().repositories!;
 
     render(<SettingsView />);
 
@@ -101,7 +101,7 @@ describe("SettingsView", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
-    (useRepositories as Mock).mockReturnValueOnce({
+    (useLoader as Mock).mockReturnValueOnce({
       isReady: true,
       repositories: {
         paymentMethod: {

@@ -4,16 +4,16 @@ import { SignUpUseCase } from "@application/cases";
 import "@testing-library/jest-dom";
 import { describe, expect, it, vi } from "vitest";
 import { RegisterForm, RegisterView } from "@views";
+import { CommandResponse } from "@domain/types";
 
-// Mock para SignUpUseCase
-const createMockSignUpUseCase = (mockResponse: {
-  success: boolean;
-  reason?: string;
-}) => {
+function createMockSignUpUseCase({
+  success = false,
+  error = null,
+}: Partial<CommandResponse> = {}): SignUpUseCase {
   return {
-    exec: vi.fn().mockResolvedValue(mockResponse),
+    exec: vi.fn().mockResolvedValue({ success, error }),
   } as unknown as SignUpUseCase;
-};
+}
 
 describe("RegisterForm", () => {
   it("renders register form with email and password inputs", () => {
@@ -52,7 +52,7 @@ describe("RegisterForm", () => {
     const errorMessage = "Email already exists";
     const mockSignUpUseCase = createMockSignUpUseCase({
       success: false,
-      reason: errorMessage,
+      error: errorMessage,
     });
     render(<RegisterForm signUpUseCase={mockSignUpUseCase} />);
 
@@ -95,7 +95,7 @@ describe("RegisterForm", () => {
       exec: vi
         .fn()
         .mockResolvedValueOnce({ success: true })
-        .mockResolvedValueOnce({ success: false, reason: "Error message" }),
+        .mockResolvedValueOnce({ success: false, error: "Error message" }),
     } as unknown as SignUpUseCase;
 
     render(<RegisterForm signUpUseCase={mockSignUpUseCase} />);

@@ -10,7 +10,7 @@ import {
   TransactionConfig,
   UserPreferences,
 } from "@domain/models";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { useLoader } from "@infrastructure/ui/hooks";
 import { LastTransactionsView } from "@views";
 import { TransactionBuilder } from "@test/builders";
 
@@ -75,7 +75,7 @@ describe("LastTransactionsView", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useRepositories as Mock).mockReturnValue({
+    (useLoader as Mock).mockReturnValue({
       isReady: true,
       repositories: {
         transaction: {
@@ -93,7 +93,7 @@ describe("LastTransactionsView", () => {
   });
 
   it("renders Loader when loading is true", async () => {
-    (useRepositories as Mock).mockReturnValueOnce({
+    (useLoader as Mock).mockReturnValueOnce({
       isLoading: true,
     });
 
@@ -117,7 +117,7 @@ describe("LastTransactionsView", () => {
     render(<LastTransactionsView />);
 
     await waitFor(() => {
-      const { transaction, userPreferences } = useRepositories().repositories!;
+      const { transaction, userPreferences } = useLoader().repositories!;
       expect(transaction.findLast).toHaveBeenCalledWith(25);
       expect(transaction.fetchTransactionConfig).toHaveBeenCalled();
       expect(userPreferences.find).toHaveBeenCalled();
@@ -125,7 +125,7 @@ describe("LastTransactionsView", () => {
   });
 
   it("calls transaction.save and updates transactions on form submit", async () => {
-    const { transaction } = useRepositories().repositories!;
+    const { transaction } = useLoader().repositories!;
     render(<LastTransactionsView />);
 
     await waitFor(() => {
@@ -133,7 +133,7 @@ describe("LastTransactionsView", () => {
     });
 
     await waitFor(() => {
-      expect(transaction.save).toHaveBeenCalled();
+      expect(transaction.create).toHaveBeenCalled();
       const list = screen.getByRole("list");
       expect(list.children.length).toBe(3);
       expect(list.children[0].textContent).toBe("New Transaction");
@@ -146,7 +146,7 @@ describe("LastTransactionsView", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
-    (useRepositories as Mock).mockReturnValueOnce({
+    (useLoader as Mock).mockReturnValueOnce({
       isReady: true,
       repositories: {
         transaction: {

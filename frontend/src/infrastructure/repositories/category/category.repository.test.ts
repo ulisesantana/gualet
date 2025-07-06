@@ -94,7 +94,7 @@ describe("CategoryRepositoryImplementation (HTTP)", () => {
         success: true,
         data: { category: categoryDto },
       });
-      const result = await repository.save(category);
+      const result = await repository.update(category);
       expect(result).toBeInstanceOf(Category);
       expect(result?.id.toString()).toBe("cat-1");
     });
@@ -108,7 +108,7 @@ describe("CategoryRepositoryImplementation (HTTP)", () => {
         color: "#fff",
       });
       mockHttp.post.mockResolvedValue({ success: false, error: "fail" });
-      const result = await repository.save(category);
+      const result = await repository.update(category);
       expect(result).toBeNull();
     });
   });

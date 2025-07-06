@@ -1,21 +1,29 @@
 import React, { useEffect, useState } from "react";
 import "./CategoryDetailsView.css";
 import { EditCategoryForm, Loader } from "@components";
-import { Category, Id } from "@domain/models";
 import { GetCategoryUseCase, SaveCategoryUseCase } from "@application/cases";
 import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
 import { Transition } from "react-transition-group";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { useLoader } from "@infrastructure/ui/hooks";
+import { Category, Id } from "@gualet/core";
 
-export function CategoryDetailsView() {
+interface CategoryDetailsViewProps {
+  getCategoryUseCase: GetCategoryUseCase;
+  saveCategoryUseCase: SaveCategoryUseCase;
+}
+
+export function CategoryDetailsView({
+  getCategoryUseCase,
+  saveCategoryUseCase,
+}: CategoryDetailsViewProps) {
   const [match, params] = useRoute<{ id: string }>(routes.categories.details);
-  const { isReady, repositories, isLoading, setIsLoading } = useRepositories();
+  const { isLoading, setIsLoading } = useLoader();
   const [category, setCategory] = useState<Category | undefined>();
 
   useEffect(() => {
-    if (repositories && params) {
-      new GetCategoryUseCase(repositories.category)
+    if (params) {
+      getCategoryUseCase
         .exec(new Id(params.id))
         .then(setCategory)
         .catch((error) => {
@@ -26,12 +34,10 @@ export function CategoryDetailsView() {
           setIsLoading(false);
         });
     }
-  }, [isReady, params]);
+  }, [params]);
 
   const onSubmit = async (category: Category) => {
-    if (repositories) {
-      await new SaveCategoryUseCase(repositories.category).exec(category);
-    }
+    await saveCategoryUseCase.exec(category);
   };
 
   return (

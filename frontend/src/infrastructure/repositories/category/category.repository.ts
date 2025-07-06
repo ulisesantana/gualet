@@ -1,9 +1,8 @@
 import { CategoryRepository } from "@application/repositories";
-import { Category, Id } from "@domain/models";
 import { HttpRepository } from "@infrastructure/repositories/http.repository";
 import { HttpDataSource } from "@infrastructure/data-sources";
 import { BaseResponse } from "@infrastructure/types";
-import { CategoryDto, Nullable } from "@gualet/core";
+import { Category, CategoryDto, Id, Nullable } from "@gualet/core";
 
 type FindAllCategoriesResponse = BaseResponse<
   { categories: CategoryDto[] },
@@ -42,6 +41,22 @@ export class CategoryRepositoryImplementation
     };
   }
 
+  async create(category: Category): Promise<Nullable<Category>> {
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.post<CategoryDto, SaveCategoryResponse>(
+        this.path,
+        CategoryRepositoryImplementation.mapToDto(category),
+      ),
+    );
+
+    if (!success) {
+      console.error("Error creating category:", error);
+      return null;
+    }
+
+    return CategoryRepositoryImplementation.mapToCategory(data.category);
+  }
+
   async findAll(): Promise<Category[]> {
     const { success, error, data } = await this.handleQueryResponse(
       this.http.get<FindAllCategoriesResponse>(this.path),
@@ -69,16 +84,16 @@ export class CategoryRepositoryImplementation
     return CategoryRepositoryImplementation.mapToCategory(data.category);
   }
 
-  async save(category: Category): Promise<Nullable<Category>> {
+  async update(category: Category): Promise<Nullable<Category>> {
     const { success, error, data } = await this.handleQueryResponse(
-      this.http.post<CategoryDto, SaveCategoryResponse>(
+      this.http.patch<CategoryDto, SaveCategoryResponse>(
         this.path,
         CategoryRepositoryImplementation.mapToDto(category),
       ),
     );
 
     if (!success) {
-      console.error("Error saving category:", error);
+      console.error("Error updating category:", error);
       return null;
     }
 

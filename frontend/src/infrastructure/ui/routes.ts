@@ -14,7 +14,7 @@ export const routes = {
     details: "/transactions/details/:id",
   },
   reports: "/reports",
-  home: "/home",
+  home: "/",
   settings: "/settings",
 };
 

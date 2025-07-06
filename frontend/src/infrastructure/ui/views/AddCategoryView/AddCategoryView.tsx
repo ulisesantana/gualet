@@ -6,11 +6,11 @@ import { SaveCategoryUseCase } from "@application/cases";
 import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
 import { Transition } from "react-transition-group";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { useLoader } from "@infrastructure/ui/hooks";
 
 export function AddCategoryView() {
   const [match] = useRoute(routes.categories.add);
-  const { repositories } = useRepositories();
+  const { repositories } = useLoader();
 
   const onSubmit = async (category: Category) => {
     if (repositories) {

@@ -10,14 +10,13 @@ import {
   Post,
   Req,
   Res,
-  UseGuards,
 } from '@nestjs/common';
 import { PaymentMethodsService } from './payment-methods.service';
 import { Id } from '@src/common/domain';
 import {
   AuthenticatedRequest,
-  BaseController,
   ErrorResponse,
+  SecureController,
 } from '@src/common/infrastructure';
 import {
   CreatePaymentMethodDto,
@@ -26,13 +25,11 @@ import {
   UpdatePaymentMethodDto,
 } from '@src/payment-methods/dto';
 import { PaymentMethodsErrorCodes } from './errors';
-import { JwtAuthGuard } from '@src/auth';
 import { ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 
 @Controller('me/payment-methods')
-@UseGuards(JwtAuthGuard)
-export class PaymentMethodsController extends BaseController {
+export class PaymentMethodsController extends SecureController {
   constructor(private readonly paymentMethodsService: PaymentMethodsService) {
     super();
   }

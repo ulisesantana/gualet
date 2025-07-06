@@ -1,19 +1,13 @@
-import { describe, expect, it } from "vitest";
-import {
-  Category,
-  Day,
-  Id,
-  PaymentMethod,
-  Transaction,
-  TransactionOperation,
-} from "@domain/models";
+import {describe, expect, it} from "vitest";
+import {Category, Day, Id, OperationType, PaymentMethod, Transaction} from "@gualet/core";
+
 
 describe("Transaction", () => {
   const mockCategory = new Category({
     id: new Id("cat1"),
     name: "Groceries",
     icon: "🛒",
-    type: TransactionOperation.Outcome,
+    type: OperationType.Outcome,
   });
 
   const mockPaymentMethod = new PaymentMethod({
@@ -30,7 +24,7 @@ describe("Transaction", () => {
       category: mockCategory,
       date: mockDay,
       description: "Supermarket shopping",
-      operation: TransactionOperation.Outcome,
+      operation: OperationType.Outcome,
       paymentMethod: mockPaymentMethod,
     });
 
@@ -48,7 +42,7 @@ describe("Transaction", () => {
       category: mockCategory,
       date: mockDay,
       description: "  Supermarket shopping  ",
-      operation: TransactionOperation.Outcome,
+      operation: OperationType.Outcome,
       paymentMethod: mockPaymentMethod,
     });
 
@@ -66,7 +60,7 @@ describe("Transaction", () => {
       category: mockCategory,
       date: mockDay,
       description: "Supermarket shopping",
-      operation: TransactionOperation.Outcome,
+      operation: OperationType.Outcome,
       paymentMethod: mockPaymentMethod,
     });
 
@@ -79,7 +73,7 @@ describe("Transaction", () => {
       category: mockCategory,
       date: mockDay,
       description: "Salary",
-      operation: TransactionOperation.Income,
+      operation: OperationType.Income,
       paymentMethod: mockPaymentMethod,
     });
 
@@ -92,7 +86,7 @@ describe("Transaction", () => {
       category: mockCategory,
       date: mockDay,
       description: "Supermarket shopping",
-      operation: TransactionOperation.Outcome,
+      operation: OperationType.Outcome,
       paymentMethod: mockPaymentMethod,
     });
 
@@ -109,7 +103,7 @@ describe("Transaction", () => {
       category: mockCategory,
       date: mockDay,
       description: "Supermarket shopping",
-      operation: TransactionOperation.Outcome,
+      operation: OperationType.Outcome,
       paymentMethod: mockPaymentMethod,
     });
 
@@ -122,7 +116,7 @@ describe("Transaction", () => {
       category: mockCategory,
       date: mockDay,
       description: "Supermarket shopping",
-      operation: TransactionOperation.Income,
+      operation: OperationType.Income,
       paymentMethod: mockPaymentMethod,
     });
 
@@ -135,7 +129,7 @@ describe("Transaction", () => {
       category: mockCategory,
       date: mockDay,
       description: "Salary",
-      operation: TransactionOperation.Income,
+      operation: OperationType.Income,
       paymentMethod: mockPaymentMethod,
     });
 
@@ -148,7 +142,7 @@ describe("Transaction", () => {
       category: mockCategory,
       date: mockDay,
       description: "Salary",
-      operation: TransactionOperation.Outcome,
+      operation: OperationType.Outcome,
       paymentMethod: mockPaymentMethod,
     });
 
@@ -162,7 +156,7 @@ describe("Transaction", () => {
       category: mockCategory,
       date: mockDay,
       description: "",
-      operation: TransactionOperation.Outcome,
+      operation: OperationType.Outcome,
       paymentMethod: mockPaymentMethod,
     });
 

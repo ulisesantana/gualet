@@ -5,7 +5,7 @@ import { GetAllCategoriesUseCase } from "@application/cases";
 
 // Mock for the CategoryRepository
 const mockCategoryRepository: CategoryRepository = {
-  save: vi.fn(),
+  update: vi.fn(),
   findById: vi.fn(),
   findAll: vi.fn(),
 };

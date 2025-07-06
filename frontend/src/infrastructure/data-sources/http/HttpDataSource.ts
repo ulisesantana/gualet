@@ -12,8 +12,11 @@ export enum HttpMethod {
 export class HttpDataSource {
   constructor(private readonly token: Nullable<string> = null) {}
 
-  async get<T>(url: string, cancelToken?: CancelToken): Promise<T> {
-    const response = await this.request<T>({
+  async get<ResponseBody>(
+    url: string,
+    cancelToken?: CancelToken,
+  ): Promise<ResponseBody> {
+    const response = await this.request<null, ResponseBody>({
       url,
       method: HttpMethod.GET,
       cancelToken,
@@ -21,36 +24,47 @@ export class HttpDataSource {
     return this.handleResponse(response);
   }
 
-  async post<T, R>(url: string, data?: T) {
-    const response = await this.request({ url, method: HttpMethod.POST, data });
-    return this.handleResponse<T>(response) as unknown as R;
+  async post<RequestBody, ResponseBody>(url: string, data?: RequestBody) {
+    const response = await this.request<RequestBody, ResponseBody>({
+      url,
+      method: HttpMethod.POST,
+      data,
+    });
+    return this.handleResponse(response);
   }
 
-  async put<T>(url: string, data: T, cancelToken?: CancelToken) {
-    const response = await this.request({
+  async put<RequestBody, ResponseBody>(
+    url: string,
+    data: RequestBody,
+    cancelToken?: CancelToken,
+  ) {
+    const response = await this.request<RequestBody, ResponseBody>({
       url,
       method: HttpMethod.PUT,
       data,
       cancelToken,
     });
-    return this.handleResponse<T>(response);
+    return this.handleResponse(response);
   }
 
-  async patch<TResponse, TRequest>(url: string, data: TRequest) {
-    const response = await this.request({
+  async patch<RequestBody, ResponseBody>(url: string, data: RequestBody) {
+    const response = await this.request<RequestBody, ResponseBody>({
       url,
       method: HttpMethod.PATCH,
       data,
     });
-    return this.handleResponse<TResponse, TRequest>(response);
-  }
-
-  async delete(url: string) {
-    const response = await this.request({ url, method: HttpMethod.DELETE });
     return this.handleResponse(response);
   }
 
-  private async request<T>({
+  async delete<ResponseBody>(url: string) {
+    const response = await this.request<null, ResponseBody>({
+      url,
+      method: HttpMethod.DELETE,
+    });
+    return this.handleResponse(response);
+  }
+
+  private async request<RequestBody, ResponseBody>({
     url,
     method,
     data,
@@ -58,9 +72,9 @@ export class HttpDataSource {
   }: {
     url: string;
     method: HttpMethod;
-    data?: T;
+    data?: RequestBody;
     cancelToken?: CancelToken;
-  }): Promise<AxiosResponse<T>> {
+  }): Promise<AxiosResponse<ResponseBody>> {
     const headers = new AxiosHeaders();
     headers.setContentType("application/json");
 
@@ -77,7 +91,7 @@ export class HttpDataSource {
     });
   }
 
-  private handleResponse<T, R = T>(res: AxiosResponse<R>): R {
+  private handleResponse<R>(res: AxiosResponse<R>): R {
     if (
       res.headers?.["content-type"]?.includes("application/json") ||
       res.data

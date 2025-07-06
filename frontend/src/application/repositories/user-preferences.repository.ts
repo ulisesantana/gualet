@@ -1,7 +1,8 @@
 import { UserPreferences } from "@domain/models";
+import { Nullable } from "@gualet/core";
 
 export interface UserPreferencesRepository {
-  find(): Promise<UserPreferences>;
+  find(): Promise<Nullable<UserPreferences>>;
 
   save(preferences: UserPreferences): Promise<void>;
 }

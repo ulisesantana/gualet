@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { Day } from "@domain/models";
+import {describe, expect, it} from "vitest";
+import {Day} from "./day";
 
 describe("Day", () => {
   it("should initialize with the current date if no date is provided", () => {

@@ -1,11 +1,11 @@
+import React from "react";
 import {
   Category,
   Day,
+  OperationType,
   PaymentMethod,
   Transaction,
-  TransactionOperation,
-} from "@domain/models";
-import React from "react";
+} from "@gualet/core";
 
 interface OnSubmitHandlerGeneratorParams {
   originalTransaction?: Transaction;
@@ -59,7 +59,7 @@ export function generateOnSubmitHandler({
       category,
       date: new Day(formData.get("date") as string),
       description: formData.get("description") as string,
-      operation: formData.get("operation") as TransactionOperation,
+      operation: formData.get("operation") as OperationType,
       paymentMethod,
     });
 

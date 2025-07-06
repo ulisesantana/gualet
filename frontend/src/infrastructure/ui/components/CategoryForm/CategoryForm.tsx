@@ -1,5 +1,5 @@
-import { Category, TransactionOperation } from "@domain/models";
 import React, { RefObject, useRef } from "react";
+import { Category, OperationType } from "@gualet/core";
 
 import { generateOnSubmitHandler } from "./submit-handler";
 
@@ -21,12 +21,8 @@ export function CategoryForm({ category, onSubmit }: CategoryFormParams) {
       <label>
         Operation:
         <select required name="type" defaultValue={category?.type}>
-          <option value={TransactionOperation.Outcome}>
-            {TransactionOperation.Outcome}
-          </option>
-          <option value={TransactionOperation.Income}>
-            {TransactionOperation.Income}
-          </option>
+          <option value={OperationType.Outcome}>{OperationType.Outcome}</option>
+          <option value={OperationType.Income}>{OperationType.Income}</option>
         </select>
       </label>
 

@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Id } from '@src/common/domain';
-import { PaymentMethod } from './payment-method.model';
 import { PaymentMethodsRepository } from '@src/payment-methods/payment-methods.repository';
-import { Nullable } from '@src/common/types';
+import {
+  generateDefaultPaymentMethods,
+  Id,
+  Nullable,
+  PaymentMethod,
+} from '@gualet/core';
 
 export interface PaymentMethodToUpdate {
   id: Id;
@@ -38,5 +41,25 @@ export class PaymentMethodsService {
 
   update(userId: Id, pm: PaymentMethodToUpdate): Promise<PaymentMethod> {
     return this.repository.update(userId, pm);
+  }
+
+  async createDefaultPaymentMethods(userId: Id): Promise<PaymentMethod[]> {
+    const promises = generateDefaultPaymentMethods().map((pm) =>
+      this.create(userId, {
+        name: pm.name,
+        icon: pm.icon,
+        color: pm.color,
+      }),
+    );
+    const result = await Promise.allSettled(promises);
+
+    return result.reduce<PaymentMethod[]>((acc, res) => {
+      if (res.status === 'fulfilled') {
+        return acc.concat(res.value);
+      } else {
+        console.error('Failed to create default category:', res.reason);
+      }
+      return acc;
+    }, []);
   }
 }

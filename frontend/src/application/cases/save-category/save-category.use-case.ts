@@ -6,6 +6,6 @@ export class SaveCategoryUseCase implements UseCase<Category, Promise<void>> {
   constructor(private readonly repository: CategoryRepository) {}
 
   exec(transaction: Category): Promise<void> {
-    return this.repository.save(transaction);
+    return this.repository.update(transaction);
   }
 }

@@ -1,9 +1,8 @@
-import { Category, Day, Id, PaymentMethod } from "@domain/models";
-
-export enum TransactionOperation {
-  Income = "INCOME",
-  Outcome = "OUTCOME",
-}
+import {Id} from "../id";
+import {Category} from "../category/category";
+import {Day} from "../day/day";
+import {OperationType} from "../../operation-type";
+import {PaymentMethod} from "../payment-method/payment-method";
 
 export interface TransactionParams {
   id?: Id;
@@ -11,7 +10,7 @@ export interface TransactionParams {
   category: Category;
   date: Day;
   description?: string;
-  operation: TransactionOperation;
+  operation: OperationType;
   paymentMethod: PaymentMethod;
 }
 
@@ -21,7 +20,7 @@ export class Transaction {
   readonly category: Category;
   readonly date: Day;
   readonly description: string;
-  readonly operation: TransactionOperation;
+  readonly operation: OperationType;
   readonly paymentMethod: PaymentMethod;
 
   constructor(input: TransactionParams) {
@@ -44,12 +43,12 @@ export class Transaction {
     );
   }
 
-  static isOutcome(operation: TransactionOperation): boolean {
-    return operation === TransactionOperation.Outcome;
+  static isOutcome(operation: OperationType): boolean {
+    return operation === OperationType.Outcome;
   }
 
-  static isIncome(operation: TransactionOperation): boolean {
-    return operation === TransactionOperation.Income;
+  static isIncome(operation: OperationType): boolean {
+    return operation === OperationType.Income;
   }
 
   isOutcome(): boolean {

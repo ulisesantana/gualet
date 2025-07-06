@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Category } from './category.model';
-import { Id, OperationType } from '@src/common/domain';
 import { CategoriesRepository } from './categories.repository';
 import { Nullable } from '@src/common/types';
+import {
+  Category,
+  generateDefaultCategories,
+  Id,
+  OperationType,
+} from '@gualet/core';
 
 export type CategoryToUpdate = Partial<Category> & { id: Id };
 
@@ -30,12 +34,36 @@ export class CategoriesService {
       userId,
       new Category({
         ...category,
-        id: new Id().toString(),
+        id: new Id(),
+        icon: category.icon ? category.icon?.trim() : '',
+        color: category.color ? category.color?.trim() : '',
       }),
     );
   }
 
   update(userId: Id, category: CategoryToUpdate): Promise<Category> {
     return this.repository.update(userId, category);
+  }
+
+  // TODO: Test this method and use it on user creation
+  async createDefaultCategories(userId: Id): Promise<Category[]> {
+    const promises = generateDefaultCategories().map((category) =>
+      this.create(userId, {
+        name: category.name,
+        type: category.type,
+        icon: category.icon,
+        color: category.color,
+      }),
+    );
+    const result = await Promise.allSettled(promises);
+
+    return result.reduce<Category[]>((acc, res) => {
+      if (res.status === 'fulfilled') {
+        return acc.concat(res.value);
+      } else {
+        console.error('Failed to create default category:', res.reason);
+      }
+      return acc;
+    }, []);
   }
 }

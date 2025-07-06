@@ -5,7 +5,7 @@ import { GetCategoryUseCase } from "@application/cases";
 import { CategoryNotFoundError } from "@domain/errors";
 
 const mockRepository: CategoryRepository = {
-  save: vi.fn(),
+  update: vi.fn(),
   findById: vi.fn(),
   findAll: vi.fn(),
 };

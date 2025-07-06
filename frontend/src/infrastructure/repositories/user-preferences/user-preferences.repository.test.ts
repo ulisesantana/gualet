@@ -1,15 +1,11 @@
 import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
-import {
-  defaultUserPreferences,
-  Id,
-  PaymentMethod,
-  UserPreferences,
-} from "@domain/models";
+import { UserPreferences } from "@domain/models";
 import { StorageDataSource } from "@infrastructure/data-sources";
 import { UserPreferencesRepositoryImplementation } from "@infrastructure/repositories";
+import { Id, PaymentMethod } from "@gualet/core";
 
 describe("UserPreferencesRepositoryImplementation", () => {
-  let mockLocalStorageDataSource: StorageDataSource;
+  let mockLocalStorageDataSource: Mocked<StorageDataSource>;
   let userPreferencesRepository: UserPreferencesRepositoryImplementation;
   const dbName = "preferences";
 
@@ -62,14 +58,6 @@ describe("UserPreferencesRepositoryImplementation", () => {
           icon: "💳",
         }),
       });
-    });
-
-    it("should return default preferences if none are found in local storage", async () => {
-      mockLocalStorageDataSource.get.mockReturnValue(null);
-
-      const result = await userPreferencesRepository.find();
-
-      expect(result).toEqual(defaultUserPreferences);
     });
   });
 });

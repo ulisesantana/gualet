@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { defaultTransactionConfig, TransactionConfig } from "@domain/models";
 import { TransactionBuilder } from "@test/builders";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { useLoader } from "@infrastructure/ui/hooks";
 import { Router } from "wouter";
 import { TestRouter } from "@test/TestRouter";
 import { TransactionDetailsView } from "@views";
@@ -34,7 +34,7 @@ describe("TransactionDetailsView", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useRepositories as Mock).mockReturnValue({
+    (useLoader as Mock).mockReturnValue({
       isReady: true,
       repositories: {
         transaction: {
@@ -50,7 +50,7 @@ describe("TransactionDetailsView", () => {
   });
 
   it("renders Loader when loading is true", () => {
-    (useRepositories as Mock).mockReturnValueOnce({
+    (useLoader as Mock).mockReturnValueOnce({
       isLoading: true,
     });
 
@@ -75,7 +75,7 @@ describe("TransactionDetailsView", () => {
   });
 
   it("displays an error message if transaction is not found", async () => {
-    (useRepositories as Mock).mockReturnValueOnce({
+    (useLoader as Mock).mockReturnValueOnce({
       isReady: true,
       repositories: {
         transaction: {
@@ -119,7 +119,7 @@ describe("TransactionDetailsView", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
-    (useRepositories as Mock).mockReturnValueOnce({
+    (useLoader as Mock).mockReturnValueOnce({
       isReady: true,
       repositories: {
         transaction: {

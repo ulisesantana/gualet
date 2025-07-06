@@ -1,20 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./LastTransactionsView.css";
 import { AddTransactionForm, Loader, TransactionList } from "@components";
-import {
-  defaultTransactionConfig,
-  defaultUserPreferences,
-  Transaction,
-  TransactionConfig,
-  UserPreferences,
-} from "@domain/models";
+import { TransactionConfig, UserPreferences } from "@domain/models";
 import {
   GetLastTransactionsUseCase,
   GetTransactionConfigUseCase,
   GetUserPreferencesUseCase,
   SaveTransactionUseCase,
 } from "@application/cases";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { Nullable, Transaction } from "@gualet/core";
 
 function sortByDay(transactions: Transaction[]) {
   return Array.from(transactions).sort((a, b) => {
@@ -28,52 +22,68 @@ function sortByDay(transactions: Transaction[]) {
   });
 }
 
-export function LastTransactionsView() {
-  const { isReady, repositories } = useRepositories();
-  const [transactionConfig, setTransactionConfig] = useState<TransactionConfig>(
-    defaultTransactionConfig,
-  );
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [preferences, setPreferences] = useState<UserPreferences>(
-    defaultUserPreferences,
-  );
+interface LastTransactionsViewProps {
+  getLastTransactionsUseCase: GetLastTransactionsUseCase;
+  getTransactionConfigUseCase: GetTransactionConfigUseCase;
+  getUserPreferencesUseCase: GetUserPreferencesUseCase;
+  saveTransactionUseCase: SaveTransactionUseCase;
+}
+
+export function LastTransactionsView({
+  getLastTransactionsUseCase,
+  getTransactionConfigUseCase,
+  getUserPreferencesUseCase,
+  saveTransactionUseCase,
+}: LastTransactionsViewProps) {
   const [isLoading, setIsLoading] = useState(true);
+  const [transactionConfig, setTransactionConfig] =
+    useState<Nullable<TransactionConfig>>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [preferences, setPreferences] =
+    useState<Nullable<UserPreferences>>(null);
 
   useEffect(() => {
-    if (isReady && repositories) {
-      setIsLoading(true);
-      new GetLastTransactionsUseCase(repositories.transaction)
-        .exec(25)
-        .then((transactions) => {
-          setTransactions(sortByDay(transactions));
-          return new GetTransactionConfigUseCase(
-            repositories.transaction,
-          ).exec();
-        })
-        .then((config) => {
-          setTransactionConfig(config);
-          return new GetUserPreferencesUseCase(
-            repositories.userPreferences,
-          ).exec();
-        })
-        .then(setPreferences)
-        .catch((error) => {
-          console.error("Error getting last transactions");
-          console.error(error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+    setIsLoading(true);
+    getLastTransactionsUseCase
+      .exec(25)
+      .then((transactions) => {
+        setTransactions(sortByDay(transactions));
+        return getTransactionConfigUseCase.exec();
+      })
+      .then((config) => {
+        console.log("Transaction config", config);
+        setTransactionConfig(config);
+      })
+      .catch((error) => {
+        console.error("Error getting last transactions");
+        console.error(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (transactionConfig && !preferences) {
+      getUserPreferencesUseCase.exec().then((userPreferences) => {
+        console.log("User preferences", userPreferences);
+        if (userPreferences) {
+          setPreferences(userPreferences);
+        } else if (transactionConfig) {
+          console.warn("No user preferences found, using defaults.");
+          setPreferences(() => ({
+            defaultPaymentMethod: transactionConfig.paymentMethods[0],
+          }));
+        } else {
+          console.error("No user preferences or transaction config found.");
+        }
+      });
     }
-  }, [isReady]);
+  }, [transactionConfig]);
 
   const onSubmit = async (transaction: Transaction) => {
-    if (repositories) {
-      await new SaveTransactionUseCase(repositories.transaction).exec(
-        transaction,
-      );
-      setTransactions(sortByDay([transaction, ...transactions]));
-    }
+    await saveTransactionUseCase.exec(transaction);
+    setTransactions(sortByDay([transaction, ...transactions]));
   };
 
   return (
@@ -81,7 +91,7 @@ export function LastTransactionsView() {
       className="last-transactions-view"
       data-testid="last-transactions-view"
     >
-      {isLoading ? (
+      {isLoading || !preferences || !transactionConfig ? (
         <div className="loader-container">
           <Loader />
         </div>

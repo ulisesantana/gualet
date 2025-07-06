@@ -2,25 +2,42 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { User } from './models';
 import { UserMapper } from './mappers';
-import { UserNotFoundError } from './errors';
+import { UserAlreadyExistsError, UserNotFoundError } from './errors';
 import * as bcrypt from 'bcrypt';
 import { buildUserEntity } from '@test/builders';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Id } from '@src/common/domain';
 import { UserEntity } from '@src/db';
+import { CategoriesService } from '@src/categories';
+import { PaymentMethodsService } from '@src/payment-methods';
 
 describe('UserService', () => {
   let service: UserService;
   let repository: Repository<UserEntity>;
+  const mockCategoriesService = {
+    createDefaultCategories: jest.fn().mockResolvedValue([]),
+  };
+  const mockPaymentMethodsService = {
+    createDefaultPaymentMethods: jest.fn().mockResolvedValue([]),
+  };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
         {
           provide: getRepositoryToken(UserEntity),
           useClass: Repository,
+        },
+        {
+          provide: CategoriesService,
+          useValue: mockCategoriesService,
+        },
+        {
+          provide: PaymentMethodsService,
+          useValue: mockPaymentMethodsService,
         },
       ],
     }).compile();
@@ -75,26 +92,61 @@ describe('UserService', () => {
     ).rejects.toThrow('User not found');
   });
 
-  it('should create a new user', async () => {
-    const hashedPassword = 'hashedPassword';
-    const user = buildUserEntity();
-    const userData = { email: user.email, password: user.password };
-    // @ts-expect-error for some reason TypeScript doesn't recognize the mock
-    jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword);
-    jest.spyOn(repository, 'findOne').mockResolvedValue(null);
-    jest.spyOn(repository, 'create').mockReturnValue(user);
-    jest.spyOn(repository, 'save').mockResolvedValue(user);
+  describe('should create a new user', () => {
+    it('successfully', async () => {
+      const hashedPassword = 'hashedPassword';
+      const user = buildUserEntity();
+      const userData = { email: user.email, password: user.password };
+      // @ts-expect-error for some reason TypeScript doesn't recognize the mock
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+      jest.spyOn(repository, 'save').mockResolvedValue(user);
 
-    const result = await service.create(userData);
+      const result = await service.create(userData);
 
-    expect(bcrypt.hash).toHaveBeenCalledWith(userData.password, 10);
-    expect(repository.save).toHaveBeenCalledWith(
-      expect.objectContaining({
-        ...new User(user).toJSON(),
-        id: expect.any(String),
-        password: hashedPassword,
-      }),
-    );
-    expect(result).toEqual(UserService.mapToDomain(user));
+      expect(bcrypt.hash).toHaveBeenCalledWith(userData.password, 10);
+      expect(repository.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...new User(user).toJSON(),
+          id: expect.any(String),
+          password: hashedPassword,
+        }),
+      );
+      expect(result).toEqual(UserService.mapToDomain(user));
+    });
+
+    it('creating default categories for the user', async () => {
+      const user = buildUserEntity();
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+      jest.spyOn(repository, 'save').mockResolvedValue(user);
+
+      await service.create({ email: user.email, password: user.password });
+
+      expect(
+        mockCategoriesService.createDefaultCategories,
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    it('creating default payment methods for the user', async () => {
+      const user = buildUserEntity();
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+      jest.spyOn(repository, 'save').mockResolvedValue(user);
+
+      await service.create({ email: user.email, password: user.password });
+
+      expect(
+        mockPaymentMethodsService.createDefaultPaymentMethods,
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    it('throw error if user already exists', async () => {
+      const user = buildUserEntity();
+      const userData = { email: user.email, password: user.password };
+      jest.spyOn(repository, 'findOne').mockResolvedValue({} as UserEntity);
+
+      await expect(service.create(userData)).rejects.toThrow(
+        new UserAlreadyExistsError(user.email),
+      );
+    });
   });
 });

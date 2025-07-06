@@ -1,4 +1,4 @@
-import { Id } from "../id/id";
+import {Id} from "../id";
 
 export interface PaymentMethodParams {
   id?: Id;
@@ -23,23 +23,13 @@ export class PaymentMethod {
   get title() {
     return this.icon ? `${this.icon} ${this.name}` : this.name;
   }
-}
 
-export const defaultPaymentMethods = [
-  new PaymentMethod({
-    icon: "💳",
-    name: "Credit card",
-  }),
-  new PaymentMethod({
-    icon: "💶",
-    name: "Cash",
-  }),
-  new PaymentMethod({
-    icon: "📱",
-    name: "Bizum",
-  }),
-  new PaymentMethod({
-    icon: "🏦",
-    name: "Bank transfer",
-  }),
-];
+  toJSON() {
+    return {
+      id: this.id.toString(),
+      name: this.name,
+      icon: this.icon,
+      color: this.color,
+    };
+  }
+}

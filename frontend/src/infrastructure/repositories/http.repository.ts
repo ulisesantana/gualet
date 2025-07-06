@@ -5,7 +5,7 @@ import { BaseResponse } from "@infrastructure/types";
 export abstract class HttpRepository {
   protected constructor(protected readonly http: HttpDataSource) {}
 
-  protected async handleCommandResponse<T extends Record<string, any>>(
+  protected async handleCommandResponse<T extends Record<string, any> | null>(
     request: Promise<BaseResponse<T, Error>>,
   ): Promise<CommandResponse> {
     try {

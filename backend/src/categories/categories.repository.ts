@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Category } from './category.model';
-import { Id } from '@src/common/domain';
 import {
   CategoryNotFoundError,
   NotAuthorizedForCategoryError,
 } from '@src/categories/errors';
 import { CategoryToUpdate } from './categories.service';
 import { CategoryEntity } from '@src/db';
+import { Category, Id } from '@gualet/core';
 
 @Injectable()
 export class CategoriesRepository {
@@ -18,7 +17,13 @@ export class CategoriesRepository {
   ) {}
 
   static mapToDomain(category: CategoryEntity): Category {
-    return new Category(category);
+    return new Category({
+      id: new Id(category.id),
+      name: category.name,
+      type: category.type,
+      icon: category.icon ?? '',
+      color: category.color ?? '',
+    });
   }
 
   async findOne(userId: Id, id: Id): Promise<Category> {

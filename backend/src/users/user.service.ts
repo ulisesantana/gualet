@@ -7,12 +7,16 @@ import { UserMapper } from './mappers';
 import { UserAlreadyExistsError, UserNotFoundError } from './errors';
 import { Id } from '@src/common/domain';
 import { UserEntity } from '@src/db';
+import { CategoriesService } from '@src/categories';
+import { PaymentMethodsService } from '@src/payment-methods';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly categoryService: CategoriesService,
+    private readonly paymentMethodService: PaymentMethodsService,
   ) {}
 
   static mapToDomain(user: UserWithPassword | UserEntity): User {
@@ -53,6 +57,15 @@ export class UserService {
       id: new Id().toString(),
       password: hashedPassword,
     });
+
+    await this.categoryService
+      .createDefaultCategories(new Id(newUser.id))
+      .catch(console.error);
+
+    await this.paymentMethodService
+      .createDefaultPaymentMethods(new Id(newUser.id))
+      .catch(console.error);
+
     return UserService.mapToDomain(newUser);
   }
 }

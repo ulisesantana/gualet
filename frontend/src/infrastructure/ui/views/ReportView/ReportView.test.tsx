@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { TransactionRepository } from "@application/repositories";
 import { Day, defaultIncomeCategories } from "@domain/models";
-import { useRepositories } from "@infrastructure/ui/hooks";
+import { useLoader } from "@infrastructure/ui/hooks";
 import { Mock, Mocked, vi } from "vitest";
 import { ReportView } from "@views";
 import { TransactionBuilder } from "@test/builders";
@@ -24,7 +24,7 @@ describe("ReportView", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useRepositories as Mock).mockReturnValue(mockUseRepositories);
+    (useLoader as Mock).mockReturnValue(mockUseRepositories);
   });
 
   it("renders the form with date fields and submit button", () => {

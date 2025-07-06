@@ -22,14 +22,14 @@ describe("Save transaction use case", () => {
 
     await saveTransactionUseCase.exec(transaction);
 
-    expect(mockTransactionRepository.save).toHaveBeenCalledWith(transaction);
+    expect(mockTransactionRepository.create).toHaveBeenCalledWith(transaction);
   });
 
   it("should throw an error if repository fails to save transaction", async () => {
     const transaction: Transaction = new TransactionBuilder().build();
 
     // Simulate an error during save
-    mockTransactionRepository.save.mockRejectedValue(
+    mockTransactionRepository.create.mockRejectedValue(
       new Error("Failed to save transaction"),
     );
 
