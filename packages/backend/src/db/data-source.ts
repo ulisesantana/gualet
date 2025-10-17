@@ -11,7 +11,7 @@ import {
 
 const envFilePath = resolve(
   __dirname,
-  `../../../${process.env.ENV_FILE || '.env'}`,
+  `../../../../${process.env.ENV_FILE || '.env'}`,
 );
 configDotenv({
   path: envFilePath,

@@ -31,7 +31,7 @@ import {
 
 const envFilePath = resolve(
   __dirname,
-  `../../${process.env.ENV_FILE || '.env'}`,
+  `../../../${process.env.ENV_FILE || '.env'}`,
 );
 console.debug('🔍 envFilePath', envFilePath);
 @Module({

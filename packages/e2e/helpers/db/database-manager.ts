@@ -5,7 +5,7 @@ import {configDotenv} from "dotenv";
 import {resolve} from "path";
 
 configDotenv({
-  path: resolve(__dirname, '../../../.env.e2e'),
+  path: resolve(__dirname, '../../../../.env.e2e'),
 })
 
 interface User {

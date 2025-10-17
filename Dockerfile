@@ -7,8 +7,8 @@ WORKDIR /app
 
 # Copy package files first for better caching
 COPY package*.json ./
-COPY backend/package*.json ./backend/
-COPY frontend/package*.json ./frontend/
+COPY packages/backend/package*.json ./packages/backend/
+COPY packages/frontend/package*.json ./packages/frontend/
 
 # Install dependencies
 RUN npm install
@@ -23,4 +23,4 @@ RUN npm run build
 EXPOSE 5050
 
 # Run the application
-CMD ["node", "backend/dist/src/main"]
+CMD ["node", "packages/backend/dist/src/main"]
