@@ -1,6 +1,6 @@
 # GitHub Copilot Instructions
 
-Always write all the code in English.
+Always write all the code and documentation in English.
 
 When generating code, ensure it is well-structured, follows best practices, and includes comments where necessary for clarity. However, avoid over-commenting obvious code.
 
