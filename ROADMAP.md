@@ -5,6 +5,7 @@
 ### ✅ Completed
 
 #### Backend (NestJS + PostgreSQL + TypeORM)
+
 - [x] Basic backend structure with NestJS
 - [x] JWT Authentication (login, register, logout, verify)
 - [x] PostgreSQL database with TypeORM
@@ -18,36 +19,39 @@
 - [x] Controllers with unified error handling
 - [x] E2E tests working correctly (7/7 passing)
 - [x] Docker Compose for development and testing databases
-- [x] Automatic creation of default categories and payment methods on registration
+- [x] Automatic creation of default categories and payment methods on
+  registration
 
 #### Frontend (React + Axios)
+
 - [x] Hexagonal architecture (application, domain, infrastructure)
 - [x] HTTP repositories implemented for:
-  - [x] User (login, register, logout, verify)
-  - [x] Categories (create, update, findAll, findById)
-  - [x] PaymentMethods (create, update, findAll, findById)
-  - [x] Transactions (create, update, findAll, findById, delete)
+    - [x] User (login, register, logout, verify)
+    - [x] Categories (create, update, findAll, findById)
+    - [x] PaymentMethods (create, update, findAll, findById)
+    - [x] Transactions (create, update, findAll, findById, delete)
 - [x] HttpDataSource configured with Axios
 - [x] Use cases implemented:
-  - [x] Login
-  - [x] Sign Up
-  - [x] Logout
-  - [x] Verify Session
-  - [x] Get All Categories
-  - [x] Get Category
-  - [x] Save Category
-  - [x] Get All Payment Methods
-  - [x] Get Payment Method
-  - [x] Get Last Transactions
-  - [x] Get Transaction
-  - [x] Save Transaction
-  - [x] Remove Transaction
-  - [x] Get Transaction Settings
-  - [x] Get User Preferences
-  - [x] Save User Preferences (localStorage only)
-  - [x] Get Report
+    - [x] Login
+    - [x] Sign Up
+    - [x] Logout
+    - [x] Verify Session
+    - [x] Get All Categories
+    - [x] Get Category
+    - [x] Save Category
+    - [x] Get All Payment Methods
+    - [x] Get Payment Method
+    - [x] Get Last Transactions
+    - [x] Get Transaction
+    - [x] Save Transaction
+    - [x] Remove Transaction
+    - [x] Get Transaction Settings
+    - [x] Get User Preferences
+    - [x] Save User Preferences (localStorage only)
+    - [x] Get Report
 
 #### Infrastructure
+
 - [x] Monorepo with npm workspaces organized in `packages/` folder
 - [x] Shared package (`@gualet/shared`) with common code
 - [x] E2E tests with Playwright working
@@ -61,43 +65,29 @@
 ### 🔴 Critical - Basic Functionality
 
 #### 1. Remove Supabase dependency
-- [ ] Remove `@supabase/supabase-js` from frontend `package.json`
-- [ ] Verify no Supabase references remain in the code
-- [ ] Clean up unused dependencies from `package-lock.json`
+
+- [x] Remove `@supabase/supabase-js` from frontend `package.json`
+- [x] Verify no Supabase references remain in the code
+- [x] Clean up unused dependencies from `package-lock.json`
 
 #### 2. Complete Frontend Use Cases
 
 **Payment Methods:**
+
 - [ ] Implement `SavePaymentMethodUseCase` (create/update)
 - [ ] Implement tests for `SavePaymentMethodUseCase`
 
-**Categories:**
-- [ ] Implement `DeleteCategoryUseCase` (if required)
-- [ ] Consider whether to allow deleting categories (may have associated transactions)
 
-**Payment Methods:**
-- [ ] Implement `DeletePaymentMethodUseCase` (if required)
-- [ ] Consider validations for payment methods with transactions
-
-#### 3. Backend - Missing Endpoints
-
-**Categories:**
-- [ ] Implement DELETE `/api/me/categories/:id` endpoint (if decided to allow)
-- [ ] Implement soft-delete logic or dependency validation
-
-**Payment Methods:**
-- [ ] Implement DELETE `/api/me/payment-methods/:id` endpoint (if decided to allow)
-- [ ] Implement soft-delete logic or dependency validation
-
-#### 4. User Preferences - Backend Synchronization
+#### 3. User Preferences - Backend Synchronization
 
 **Current:** User preferences are saved only in localStorage
 **Required:**
+
 - [ ] Create `UserPreferences` entity in backend
 - [ ] Create preferences table in database
 - [ ] Implement CRUD endpoints for preferences:
-  - [ ] GET `/api/me/preferences`
-  - [ ] PUT `/api/me/preferences`
+    - [ ] GET `/api/me/preferences`
+    - [ ] PUT `/api/me/preferences`
 - [ ] Implement preferences service in backend
 - [ ] Update frontend repository to use HTTP instead of localStorage
 - [ ] Migrate existing localStorage data to backend (if necessary)
@@ -106,9 +96,10 @@
 
 ### 🟡 Important - Improvements and Robustness
 
-#### 5. Validations and Business Rules
+#### 4. Validations and Business Rules
 
 **Backend:**
+
 - [ ] Validate that a user cannot access another user's resources
 - [ ] Validate limits on names, descriptions, etc.
 - [ ] Validate that transaction dates are valid
@@ -117,32 +108,36 @@
 - [ ] Implement uniqueness validation for payment method names per user
 
 **Frontend:**
+
 - [ ] Improve specific error messages by failure type
 - [ ] Implement form validation before submission
 - [ ] Implement visual feedback for loading states
 
-#### 6. Testing
+#### 5. Testing
 
 **Backend:**
+
 - [ ] Complete unit tests for services (current coverage unknown)
 - [ ] Add repository tests
 - [ ] Add controller tests
 - [ ] Implement additional integration tests
 
 **Frontend:**
+
 - [ ] Complete tests for all use cases
 - [ ] Add repository tests
 - [ ] Add UI component tests
 - [ ] Improve overall coverage
 
 **E2E:**
+
 - [ ] Add tests for category flows (create, edit, list)
 - [ ] Add tests for payment method flows
 - [ ] Add tests for transaction flows (create, edit, delete, filter)
 - [ ] Add tests for reports
 - [ ] Add tests for edge cases (validations, errors)
 
-#### 7. Error Handling
+#### 6. Error Handling
 
 - [ ] Implement centralized logging in backend
 - [ ] Implement error monitoring system (e.g., Sentry)
@@ -153,21 +148,23 @@
 
 ### 🟢 Optional - Future Improvements
 
-#### 8. Performance and Optimization
+#### 7. Performance and Optimization
 
 **Backend:**
+
 - [ ] Implement caching for frequent queries
 - [ ] Optimize database queries with appropriate indexes
 - [ ] Implement pagination in all endpoints returning lists
 - [ ] Implement response compression
 
 **Frontend:**
+
 - [ ] Implement client-side data caching
 - [ ] Optimize large list rendering
 - [ ] Implement lazy loading for components
 - [ ] Implement service workers for offline mode
 
-#### 9. Security
+#### 8. Security
 
 - [ ] Implement rate limiting in backend
 - [ ] Implement proper CORS for production
@@ -177,7 +174,7 @@
 - [ ] Implement 2FA (optional)
 - [ ] Add audit logs for important changes
 
-#### 10. DevOps and Deployment
+#### 9. DevOps and Deployment
 
 - [ ] Configure CI/CD (GitHub Actions)
 - [ ] Create optimized Dockerfile for production
@@ -186,7 +183,7 @@
 - [ ] Configure automatic database backups
 - [ ] Deployment documentation
 
-#### 11. Documentation
+#### 10. Documentation
 
 - [ ] Document API with Swagger/OpenAPI
 - [ ] Create detailed README with setup instructions
@@ -194,7 +191,7 @@
 - [ ] Create contribution guide
 - [ ] Document important design decisions
 
-#### 12. Additional Features (Future)
+#### 11. Additional Features (Future)
 
 - [ ] Export data (CSV, PDF)
 - [ ] Import transactions from files
@@ -213,6 +210,7 @@
 ### Current Architecture
 
 **Backend:**
+
 - NestJS with modular architecture
 - TypeORM for database management
 - PostgreSQL as database
@@ -220,6 +218,7 @@
 - Guards for route protection
 
 **Frontend:**
+
 - Hexagonal architecture (Clean Architecture)
 - React for UI
 - Axios for HTTP communication
@@ -227,6 +226,7 @@
 - Wouter for routing
 
 **Shared:**
+
 - `@gualet/shared` package with shared DTOs, types, and models
 - Avoids code duplication between frontend and backend
 
@@ -241,7 +241,8 @@
 
 1. **Completely remove Supabase** from the project
 2. **Implement SavePaymentMethodUseCase** (high priority, basic functionality)
-3. **Migrate User Preferences to backend** (important for multi-device synchronization)
+3. **Migrate User Preferences to backend** (important for multi-device
+   synchronization)
 4. **Complete e2e test suite** for all main flows
 5. **Implement pending business validations**
 6. **Improve documentation** to facilitate maintenance
