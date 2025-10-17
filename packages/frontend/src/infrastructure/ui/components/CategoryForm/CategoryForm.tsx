@@ -1,5 +1,5 @@
 import React, { RefObject, useRef } from "react";
-import { Category, OperationType } from "@gualet/core";
+import { Category, OperationType } from "@gualet/shared";
 
 import { generateOnSubmitHandler } from "./submit-handler";
 

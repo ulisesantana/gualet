@@ -4,7 +4,7 @@ import {
   Day,
   generateDefaultIncomeCategories,
   generateDefaultOutcomeCategories,
-} from "@gualet/core";
+} from "@gualet/shared";
 import { vi } from "vitest";
 import { ReportView } from "@views";
 import { TransactionBuilder } from "@test/builders";

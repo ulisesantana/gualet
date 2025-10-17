@@ -7,7 +7,7 @@ import {
 } from '@src/categories/errors';
 import { CategoryToUpdate } from './categories.service';
 import { CategoryEntity } from '@src/db';
-import { Category, Id } from '@gualet/core';
+import { Category, Id } from '@gualet/shared';
 
 @Injectable()
 export class CategoriesRepository {

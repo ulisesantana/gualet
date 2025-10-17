@@ -9,7 +9,7 @@ import {
   Transaction,
   TransactionConfig,
   UserPreferences,
-} from "@gualet/core";
+} from "@gualet/shared";
 import { LastTransactionsView } from "@views";
 import { TransactionBuilder } from "@test/builders";
 import {

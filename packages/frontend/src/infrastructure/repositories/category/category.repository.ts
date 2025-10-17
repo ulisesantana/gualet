@@ -2,7 +2,7 @@ import { CategoryRepository } from "@application/repositories";
 import { HttpRepository } from "@infrastructure/repositories/http.repository";
 import { HttpDataSource } from "@infrastructure/data-sources";
 import { BaseResponse } from "@infrastructure/types";
-import { Category, CategoryDto, Id, Nullable } from "@gualet/core";
+import { Category, CategoryDto, Id, Nullable } from "@gualet/shared";
 
 type FindAllCategoriesResponse = BaseResponse<
   { categories: CategoryDto[] },

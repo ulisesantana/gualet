@@ -7,7 +7,7 @@ import {
   PaymentMethod,
   Transaction,
   OperationType,
-} from "@gualet/core";
+} from "@gualet/shared";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {

@@ -1,7 +1,7 @@
 import { UserPreferences } from "@domain/models";
 import { UseCase } from "@application/cases/use-case";
 import { UserPreferencesRepository } from "@application/repositories";
-import { Nullable } from "@gualet/core";
+import { Nullable } from "@gualet/shared";
 
 export class GetUserPreferencesUseCase
   implements UseCase<never, Promise<Nullable<UserPreferences>>>

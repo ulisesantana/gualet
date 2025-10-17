@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
-import { Category, Id, OperationType } from "@gualet/core";
+import { Category, Id, OperationType } from "@gualet/shared";
 import { CategoryDetailsView } from "@views";
 import { Router } from "wouter";
 import { TestRouter } from "@test/TestRouter";

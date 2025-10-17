@@ -1,4 +1,4 @@
-import { Id } from "@gualet/core";
+import { Id } from "@gualet/shared";
 import { BaseError, ErrorCodes } from "@domain/errors";
 
 export class CategoryNotFoundError extends BaseError {

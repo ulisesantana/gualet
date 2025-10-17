@@ -6,7 +6,7 @@ import {
   generateDefaultCategories,
   Id,
   OperationType,
-} from '@gualet/core';
+} from '@gualet/shared';
 
 export type CategoryToUpdate = Partial<Category> & { id: Id };
 

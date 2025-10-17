@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { CategoryRepository } from "@application/repositories";
-import { Category, Id, OperationType } from "@gualet/core";
+import { Category, Id, OperationType } from "@gualet/shared";
 import { GetCategoryUseCase } from "@application/cases";
 import { CategoryNotFoundError } from "@domain/errors";
 

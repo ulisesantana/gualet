@@ -15,7 +15,7 @@ import {
   TimeString,
   Transaction,
   TransactionDto,
-} from "@gualet/core";
+} from "@gualet/shared";
 import { HttpDataSource } from "@infrastructure/data-sources";
 import { BaseResponse } from "@infrastructure/types";
 import { CommandResponse } from "@domain/types";

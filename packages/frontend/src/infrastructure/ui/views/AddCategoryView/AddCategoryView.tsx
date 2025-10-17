@@ -1,7 +1,7 @@
 import React from "react";
 import "./AddCategoryView.css";
 import { AddCategoryForm } from "@components";
-import { Category } from "@gualet/core";
+import { Category } from "@gualet/shared";
 import { SaveCategoryUseCase } from "@application/cases";
 import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";

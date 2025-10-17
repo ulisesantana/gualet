@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="All tests" type="CompoundRunConfigurationType">
+    <toRun name="All Backend Tests" type="JavaScriptTestRunnerJest" />
+    <toRun name="All e2e Tests " type="JavaScriptTestRunnerPlaywright" />
+    <toRun name="All Frontend Tests" type="JavaScriptTestRunnerVitest" />
+    <method v="2" />
+  </configuration>
+</component>

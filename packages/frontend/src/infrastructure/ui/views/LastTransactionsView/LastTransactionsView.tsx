@@ -8,7 +8,7 @@ import {
   GetUserPreferencesUseCase,
   SaveTransactionUseCase,
 } from "@application/cases";
-import { Nullable, Transaction } from "@gualet/core";
+import { Nullable, Transaction } from "@gualet/shared";
 
 function sortByDay(transactions: Transaction[]) {
   return Array.from(transactions).sort((a, b) => {

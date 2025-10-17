@@ -1,7 +1,7 @@
 import { UserPreferencesRepository } from "@application/repositories";
 import { StorageDataSource } from "@infrastructure/data-sources";
 import { UserPreferences } from "@domain/models";
-import { Id, Nullable, PaymentMethod } from "@gualet/core";
+import { Id, Nullable, PaymentMethod } from "@gualet/shared";
 
 export class UserPreferencesRepositoryImplementation
   implements UserPreferencesRepository

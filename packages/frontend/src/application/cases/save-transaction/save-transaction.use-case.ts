@@ -1,5 +1,5 @@
 import { TransactionRepository } from "@application/repositories";
-import { Transaction } from "@gualet/core";
+import { Transaction } from "@gualet/shared";
 
 import { UseCase } from "../use-case";
 

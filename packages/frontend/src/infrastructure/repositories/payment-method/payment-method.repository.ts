@@ -1,6 +1,6 @@
 import { PaymentMethodRepository } from "@application/repositories";
 import { Nullable } from "@domain/types";
-import { Id, PaymentMethod, PaymentMethodDto } from "@gualet/core";
+import { Id, PaymentMethod, PaymentMethodDto } from "@gualet/shared";
 import { BaseResponse } from "@infrastructure/types";
 import { HttpDataSource } from "@infrastructure/data-sources";
 

@@ -12,7 +12,7 @@ import {
   RemoveTransactionUseCase,
   SaveTransactionUseCase,
 } from "@application/cases";
-import { Id, Nullable, Transaction } from "@gualet/core";
+import { Id, Nullable, Transaction } from "@gualet/shared";
 
 interface TransactionDetailsViewProps {
   getTransactionUseCase: GetTransactionUseCase;

@@ -9,7 +9,7 @@ export {
   PaymentMethod,
   defaultTransactionConfig,
   defaultUserPreferences,
-} from "@gualet/core";
+} from "@gualet/shared";
 
 // Re-export types that need 'export type' for isolatedModules
-export type { TransactionConfig, UserPreferences } from "@gualet/core";
+export type { TransactionConfig, UserPreferences } from "@gualet/shared";

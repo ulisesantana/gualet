@@ -3,9 +3,8 @@ import { useLoader } from "@infrastructure/ui/hooks";
 import { CategoryReport, Report } from "@domain/models";
 import { GetReportUseCase } from "@application/cases";
 import { Nullable } from "@domain/types";
-
 import "./ReportView.css";
-import { Day } from "@gualet/core";
+import { Day } from "@gualet/shared";
 
 interface FetchReportParams {
   getReportUseCase: GetReportUseCase;

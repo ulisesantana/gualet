@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./LastTransactionsView.css";
 import { CategoryList } from "@components";
 import { useLoader } from "@infrastructure/ui/hooks";
-import { Category } from "@gualet/core";
+import { Category } from "@gualet/shared";
 import { GetAllCategoriesUseCase } from "@application/cases";
 
 interface CategoriesViewProps {

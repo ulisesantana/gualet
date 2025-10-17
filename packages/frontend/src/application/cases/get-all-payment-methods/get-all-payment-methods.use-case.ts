@@ -1,4 +1,4 @@
-import { PaymentMethod } from "@gualet/core";
+import { PaymentMethod } from "@gualet/shared";
 import { PaymentMethodRepository } from "@application/repositories";
 import { UseCase } from "@application/cases/use-case";
 

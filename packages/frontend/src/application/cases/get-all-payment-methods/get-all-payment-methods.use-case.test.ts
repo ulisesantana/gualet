@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { PaymentMethodRepository } from "@application/repositories";
-import { PaymentMethod } from "@gualet/core";
+import { PaymentMethod } from "@gualet/shared";
 import { GetAllPaymentMethodsUseCase } from "@application/cases";
 
 // Mock repository

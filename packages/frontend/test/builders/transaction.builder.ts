@@ -7,7 +7,7 @@ import {
   OperationType,
   PaymentMethod,
   Transaction,
-} from "@gualet/core";
+} from "@gualet/shared";
 
 export class TransactionBuilder {
   private id: Id;

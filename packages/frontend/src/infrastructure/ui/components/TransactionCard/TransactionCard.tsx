@@ -1,4 +1,4 @@
-import { Transaction } from "@gualet/core";
+import { Transaction } from "@gualet/shared";
 import "./TransactionCard.css";
 import { generatePath, routes } from "@infrastructure/ui/routes";
 import { Link } from "wouter";

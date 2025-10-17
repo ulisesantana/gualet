@@ -6,7 +6,7 @@ import {
   OperationType,
   PaymentMethod,
   Transaction,
-} from "@gualet/core";
+} from "@gualet/shared";
 
 import { generateOnSubmitHandler } from "./submit-handler";
 

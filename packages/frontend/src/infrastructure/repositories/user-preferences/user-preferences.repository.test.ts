@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { UserPreferences } from "@domain/models";
 import { StorageDataSource } from "@infrastructure/data-sources";
 import { UserPreferencesRepositoryImplementation } from "@infrastructure/repositories";
-import { Id, PaymentMethod } from "@gualet/core";
+import { Id, PaymentMethod } from "@gualet/shared";
 
 describe("UserPreferencesRepositoryImplementation", () => {
   let mockLocalStorageDataSource: Mocked<StorageDataSource>;

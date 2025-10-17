@@ -1,4 +1,4 @@
-import { Day, Transaction } from "@gualet/core";
+import { Day, Transaction } from "@gualet/shared";
 import { CategoryReport } from "@domain/models/report/categoryReport";
 
 interface ReportParams {

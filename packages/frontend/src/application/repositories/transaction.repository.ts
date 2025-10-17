@@ -1,6 +1,6 @@
 import { Day, Id, Transaction, TransactionConfig } from "@domain/models";
 import { CommandResponse, Nullable } from "@domain/types";
-import { OperationType, SortDirection } from "@gualet/core";
+import { OperationType, SortDirection } from "@gualet/shared";
 
 export interface FindTransactionsCriteria {
   from?: Day;

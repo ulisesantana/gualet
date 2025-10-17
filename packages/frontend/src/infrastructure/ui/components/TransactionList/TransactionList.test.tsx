@@ -8,7 +8,7 @@ import {
   PaymentMethod,
   Transaction,
   OperationType,
-} from "@gualet/core";
+} from "@gualet/shared";
 import { vi } from "vitest";
 
 // Mock CSS import

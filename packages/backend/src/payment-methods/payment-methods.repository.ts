@@ -7,7 +7,7 @@ import {
 } from './errors';
 import { PaymentMethodToUpdate } from '@src/payment-methods';
 import { PaymentMethodEntity } from '@src/db';
-import { Id, PaymentMethod } from '@gualet/core';
+import { Id, PaymentMethod } from '@gualet/shared';
 
 @Injectable()
 export class PaymentMethodsRepository {

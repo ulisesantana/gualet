@@ -1,6 +1,5 @@
-import {PaymentMethod} from "./models/payment-method/payment-method";
+import {Category, PaymentMethod} from "./models";
 import {generateDefaultPaymentMethods} from "./default-payment-methods";
-import {Category} from "./models/category/category";
 import {generateDefaultIncomeCategories, generateDefaultOutcomeCategories,} from "./default-categories";
 
 export interface UserPreferences {

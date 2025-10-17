@@ -1,4 +1,4 @@
-import { generateDefaultPaymentMethods, PaymentMethod } from "@gualet/core";
+import { generateDefaultPaymentMethods, PaymentMethod } from "@gualet/shared";
 
 export interface UserPreferences {
   defaultPaymentMethod: PaymentMethod;

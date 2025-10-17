@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TransactionRepository } from "@application/repositories";
-import { Id } from "@gualet/core";
+import { Id } from "@gualet/shared";
 import { RemoveTransactionUseCase } from "@application/cases";
 
 describe("RemoveTransactionUseCase", () => {

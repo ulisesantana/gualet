@@ -1,4 +1,4 @@
-import { Category } from "@gualet/core";
+import { Category } from "@gualet/shared";
 import { CategoryRepository } from "@application/repositories";
 import { UseCase } from "@application/cases/use-case";
 

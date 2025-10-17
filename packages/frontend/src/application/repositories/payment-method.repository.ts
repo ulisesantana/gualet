@@ -1,4 +1,4 @@
-import { Id, PaymentMethod } from "@gualet/core";
+import { Id, PaymentMethod } from "@gualet/shared";
 import { Nullable } from "@domain/types";
 
 export interface PaymentMethodRepository {

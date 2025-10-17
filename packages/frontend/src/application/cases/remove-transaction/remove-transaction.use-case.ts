@@ -1,4 +1,4 @@
-import { Id } from "@gualet/core";
+import { Id } from "@gualet/shared";
 import { TransactionRepository } from "@application/repositories";
 import { UseCase } from "@application/cases/use-case";
 

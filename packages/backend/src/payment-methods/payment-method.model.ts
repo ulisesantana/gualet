@@ -1,2 +1,2 @@
-// Re-export the PaymentMethod class from @gualet/core
-export { PaymentMethod } from '@gualet/core';
+// Re-export the PaymentMethod class from @gualet/shared
+export { PaymentMethod } from '@gualet/shared';

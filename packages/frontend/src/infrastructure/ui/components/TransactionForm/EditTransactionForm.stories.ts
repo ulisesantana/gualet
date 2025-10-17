@@ -6,7 +6,7 @@ import {
   generateDefaultPaymentMethods,
   OperationType,
   Transaction,
-} from "@gualet/core";
+} from "@gualet/shared";
 import { EditTransactionForm } from "@components";
 
 const settings = {

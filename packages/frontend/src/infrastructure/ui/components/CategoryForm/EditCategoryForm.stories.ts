@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { generateDefaultIncomeCategories } from "@gualet/core";
+import { generateDefaultIncomeCategories } from "@gualet/shared";
 import { EditCategoryForm } from "@components";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export

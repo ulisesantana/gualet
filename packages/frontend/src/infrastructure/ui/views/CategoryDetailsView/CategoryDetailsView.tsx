@@ -6,7 +6,7 @@ import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
 import { Transition } from "react-transition-group";
 import { useLoader } from "@infrastructure/ui/hooks";
-import { Category, Id } from "@gualet/core";
+import { Category, Id } from "@gualet/shared";
 
 interface CategoryDetailsViewProps {
   getCategoryUseCase: GetCategoryUseCase;

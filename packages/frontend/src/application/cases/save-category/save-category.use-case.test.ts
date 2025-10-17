@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { CategoryRepository } from "@application/repositories";
-import { Category, Id, OperationType } from "@gualet/core";
+import { Category, Id, OperationType } from "@gualet/shared";
 
 import { SaveCategoryUseCase } from "./save-category.use-case";
 

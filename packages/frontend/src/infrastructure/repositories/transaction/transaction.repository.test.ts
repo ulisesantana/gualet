@@ -11,7 +11,7 @@ import {
   TimeString,
   Transaction,
   TransactionDto,
-} from "@gualet/core";
+} from "@gualet/shared";
 
 import { TransactionRepositoryImplementation } from "./transaction.repository";
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Category, OperationType } from "@gualet/core";
+import { Category, OperationType } from "@gualet/shared";
 
 interface OnSubmitHandlerGeneratorParams {
   originalCategory?: Category;

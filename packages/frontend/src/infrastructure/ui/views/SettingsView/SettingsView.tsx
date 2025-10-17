@@ -11,7 +11,7 @@ import {
   SaveUserPreferencesUseCase,
 } from "@application/cases";
 import { useLoader } from "@infrastructure/ui/hooks";
-import { Nullable, PaymentMethod } from "@gualet/core";
+import { Nullable, PaymentMethod } from "@gualet/shared";
 
 interface SettingsViewProps {
   getAllPaymentMethodsUseCase: GetAllPaymentMethodsUseCase;

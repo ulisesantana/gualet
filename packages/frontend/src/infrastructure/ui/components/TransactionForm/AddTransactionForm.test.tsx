@@ -6,7 +6,7 @@ import {
   generateDefaultPaymentMethods,
   OperationType,
   TransactionConfig,
-} from "@gualet/core";
+} from "@gualet/shared";
 import { Mock, vi } from "vitest";
 import { AddTransactionForm, AddTransactionFormProps } from "@components";
 

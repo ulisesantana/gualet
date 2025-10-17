@@ -4,7 +4,7 @@ import {
   generateDefaultOutcomeCategories,
   generateDefaultPaymentMethods,
   PaymentMethod,
-} from "@gualet/core";
+} from "@gualet/shared";
 
 export interface TransactionConfig {
   paymentMethods: PaymentMethod[];

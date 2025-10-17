@@ -3,7 +3,7 @@ import {
   generateDefaultIncomeCategories,
   generateDefaultOutcomeCategories,
   Transaction,
-} from "@gualet/core";
+} from "@gualet/shared";
 import { TransactionBuilder } from "@test/builders";
 
 import { Report } from "./report";

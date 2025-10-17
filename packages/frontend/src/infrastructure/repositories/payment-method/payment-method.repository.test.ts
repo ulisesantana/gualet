@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { HttpDataSource } from "@infrastructure/data-sources";
-import { Id, PaymentMethod, PaymentMethodDto } from "@gualet/core";
+import { Id, PaymentMethod, PaymentMethodDto } from "@gualet/shared";
 
 import { PaymentMethodRepositoryImplementation } from "./payment-method.repository";
 

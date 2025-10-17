@@ -5,7 +5,7 @@ import {
   Id,
   Nullable,
   PaymentMethod,
-} from '@gualet/core';
+} from '@gualet/shared';
 
 export interface PaymentMethodToUpdate {
   id: Id;

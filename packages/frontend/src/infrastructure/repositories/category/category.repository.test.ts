@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { Category, CategoryDto, Id, OperationType } from "@gualet/core";
+import { Category, CategoryDto, Id, OperationType } from "@gualet/shared";
 import { HttpDataSource } from "@infrastructure/data-sources";
 
 import { CategoryRepositoryImplementation } from "./category.repository";

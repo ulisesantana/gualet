@@ -1,6 +1,6 @@
 import { describe, expect, it, Mock, vi } from "vitest";
 import { CategoryRepository } from "@application/repositories";
-import { Category, OperationType } from "@gualet/core";
+import { Category, OperationType } from "@gualet/shared";
 import { GetAllCategoriesUseCase } from "@application/cases";
 
 // Mock for the CategoryRepository

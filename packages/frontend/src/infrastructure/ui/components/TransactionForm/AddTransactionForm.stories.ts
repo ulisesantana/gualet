@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Category, PaymentMethod, OperationType } from "@gualet/core";
+import { Category, PaymentMethod, OperationType } from "@gualet/shared";
 import { AddTransactionForm } from "@components";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export

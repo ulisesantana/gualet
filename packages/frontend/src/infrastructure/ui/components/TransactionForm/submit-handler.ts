@@ -5,7 +5,7 @@ import {
   OperationType,
   PaymentMethod,
   Transaction,
-} from "@gualet/core";
+} from "@gualet/shared";
 
 interface OnSubmitHandlerGeneratorParams {
   originalTransaction?: Transaction;

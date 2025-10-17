@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { SaveTransactionUseCase } from "@application/cases";
 import { TransactionRepository } from "@application/repositories";
-import { Transaction } from "@gualet/core";
+import { Transaction } from "@gualet/shared";
 import { TransactionBuilder } from "@test/builders";
 
 describe("Save transaction use case", () => {

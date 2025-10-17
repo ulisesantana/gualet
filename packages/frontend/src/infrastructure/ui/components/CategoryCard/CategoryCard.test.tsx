@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Category, Id, OperationType } from "@gualet/core";
+import { Category, Id, OperationType } from "@gualet/shared";
 
 import { CategoryCard } from "./CategoryCard";
 

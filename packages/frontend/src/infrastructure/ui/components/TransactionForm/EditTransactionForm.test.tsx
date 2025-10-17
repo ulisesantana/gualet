@@ -9,7 +9,7 @@ import {
   OperationType,
   Transaction,
   TransactionConfig,
-} from "@gualet/core";
+} from "@gualet/shared";
 import { Mock, vi } from "vitest";
 
 describe("EditTransactionForm", () => {
