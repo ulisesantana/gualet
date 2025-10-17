@@ -68,15 +68,15 @@ describe("TransactionRepositoryImplementation (HTTP)", () => {
         category: new Category({
           id: new Id(dto.category.id),
           name: dto.category.name,
-          icon: dto.category.icon ?? "",
+          icon: dto.category.icon ?? undefined,
           type: dto.category.type,
-          color: dto.category.color ?? "",
+          color: dto.category.color ?? undefined,
         }),
         paymentMethod: new PaymentMethod({
           id: new Id(dto.paymentMethod.id),
           name: dto.paymentMethod.name,
-          icon: dto.paymentMethod.icon ?? "",
-          color: dto.paymentMethod.color ?? "",
+          icon: dto.paymentMethod.icon ?? undefined,
+          color: dto.paymentMethod.color ?? undefined,
         }),
       });
       const result = await repository.create(transaction);
@@ -171,15 +171,15 @@ describe("TransactionRepositoryImplementation (HTTP)", () => {
         category: new Category({
           id: new Id(dto.category.id),
           name: dto.category.name,
-          icon: dto.category.icon,
+          icon: dto.category.icon ?? undefined,
           type: dto.category.type,
-          color: dto.category.color,
+          color: dto.category.color ?? undefined,
         }),
         paymentMethod: new PaymentMethod({
           id: new Id(dto.paymentMethod.id),
           name: dto.paymentMethod.name,
-          icon: dto.paymentMethod.icon,
-          color: dto.paymentMethod.color,
+          icon: dto.paymentMethod.icon ?? undefined,
+          color: dto.paymentMethod.color ?? undefined,
         }),
       });
       const result = await repository.update(transaction);

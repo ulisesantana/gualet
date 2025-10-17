@@ -6,11 +6,11 @@
     "db:test:up": "docker compose -f docker-compose.test.yaml up -d",
     "db:test:down": "docker compose -f docker-compose.test.yaml down",
     "test": "npm run db:test:up && npx playwright test --config=../playwright.config.ts",
-    "test:ui": "npm run db:test:up && npx playwright test --ui --config=../playwright.config.ts"
+    "test:ui": "npm run db:test:up && npx playwright test --ui --config=../playwright.config.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@gualet/backend": "*",
-    "@playwright/test": "1.51.1",
     "pg": "8.14.1",
     "typeorm": "0.3.22"
   },

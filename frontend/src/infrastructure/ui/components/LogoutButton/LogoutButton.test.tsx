@@ -1,17 +1,19 @@
-import { act } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LogoutButton } from "@components";
+import { LogoutUseCase } from "@application/cases";
 
 describe("LogoutButton", () => {
+  const mockLogoutUseCase = {
+    exec: vi.fn().mockResolvedValue({ success: true, error: null }),
+  } as unknown as LogoutUseCase;
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("renders the button with the logout icon", () => {
-    act(() => {
-      render(<LogoutButton />);
-    });
+    render(<LogoutButton logoutUseCase={mockLogoutUseCase} />);
 
     const button = screen.getByRole("button");
     const image = screen.getByAltText("Logout");
@@ -20,14 +22,14 @@ describe("LogoutButton", () => {
     expect(image).toHaveAttribute("src", "/icons/logout.png");
   });
 
-  it("calls the onLogout handler when clicked", () => {
-    act(() => {
-      render(<LogoutButton />);
-    });
+  it("calls the onLogout handler when clicked", async () => {
+    render(<LogoutButton logoutUseCase={mockLogoutUseCase} />);
 
     const button = screen.getByRole("button");
     fireEvent.click(button);
 
-    expect(supabase.auth.signOut).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => {
+      expect(mockLogoutUseCase.exec).toHaveBeenCalledTimes(1);
+    });
   });
 });

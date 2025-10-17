@@ -1,4 +1,4 @@
-import { Transaction } from "@domain/models";
+import { Transaction } from "@gualet/core";
 import "./TransactionCard.css";
 import { generatePath, routes } from "@infrastructure/ui/routes";
 import { Link } from "wouter";

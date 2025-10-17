@@ -6,8 +6,8 @@ import {
   Id,
   PaymentMethod,
   Transaction,
-  TransactionOperation,
-} from "@domain/models";
+  OperationType,
+} from "@gualet/core";
 import { vi } from "vitest";
 import { TransactionCard } from "@components";
 
@@ -20,11 +20,11 @@ describe("TransactionCard", () => {
     amount: 150,
     category: new Category({
       name: "Groceries",
-      type: TransactionOperation.Outcome,
+      type: OperationType.Outcome,
     }),
     date: new Day("2024/09/12"),
     description: "Buying groceries",
-    operation: TransactionOperation.Outcome,
+    operation: OperationType.Outcome,
     paymentMethod: new PaymentMethod({ icon: "💳", name: "Credit card" }),
   });
 
@@ -50,7 +50,7 @@ describe("TransactionCard", () => {
   it("render income transaction", () => {
     const mockIncomeTransaction = new Transaction({
       ...mockTransaction,
-      operation: TransactionOperation.Income,
+      operation: OperationType.Income,
     });
 
     render(<TransactionCard transaction={mockIncomeTransaction} />);

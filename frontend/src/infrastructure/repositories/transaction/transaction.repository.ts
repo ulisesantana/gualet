@@ -176,6 +176,23 @@ export class TransactionRepositoryImplementation
     );
   }
 
+  async findLast(limit: number): Promise<Transaction[]> {
+    const { success, error, data } = await this.handleQueryResponse(
+      this.http.get<FindTransactionsResponse>(
+        `${this.path}?limit=${limit}&sort=desc`,
+      ),
+    );
+
+    if (!success) {
+      console.error("Error fetching last transactions:", error);
+      return [];
+    }
+
+    return data.transactions
+      .map(TransactionRepositoryImplementation.mapToTransaction)
+      .slice(0, limit);
+  }
+
   remove(id: Id): Promise<CommandResponse> {
     return this.handleCommandResponse(
       this.http.delete<DeleteTransactionResponse>(`${this.path}/${id}`),

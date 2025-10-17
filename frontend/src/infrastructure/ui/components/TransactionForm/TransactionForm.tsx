@@ -1,6 +1,12 @@
 import { TransactionConfig } from "@domain/models";
 import React, { RefObject, useEffect, useRef } from "react";
-import { Category, Day, OperationType, Transaction } from "@gualet/core";
+import {
+  Category,
+  Day,
+  OperationType,
+  PaymentMethod,
+  Transaction,
+} from "@gualet/core";
 
 import { generateOnSubmitHandler } from "./submit-handler";
 
@@ -128,7 +134,7 @@ export function TransactionForm({
             transaction?.paymentMethod.title || defaultPaymentMethod
           }
         >
-          {settings.paymentMethods.map((paymentMethod) => (
+          {settings.paymentMethods.map((paymentMethod: PaymentMethod) => (
             <option
               key={paymentMethod.id.toString()}
               value={paymentMethod.title}

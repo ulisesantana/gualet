@@ -7,8 +7,8 @@ import {
   Id,
   PaymentMethod,
   Transaction,
-  TransactionOperation,
-} from "@domain/models";
+  OperationType,
+} from "@gualet/core";
 import { vi } from "vitest";
 
 // Mock CSS import
@@ -30,10 +30,10 @@ describe("TransactionList", () => {
       amount: 100,
       category: new Category({
         name: "Groceries",
-        type: TransactionOperation.Outcome,
+        type: OperationType.Outcome,
       }),
       description: "Buying groceries",
-      operation: TransactionOperation.Outcome,
+      operation: OperationType.Outcome,
     }),
     new Transaction({
       date: new Day("2022/02/05"),
@@ -42,9 +42,9 @@ describe("TransactionList", () => {
       description: "Monthly salary",
       category: new Category({
         name: "Salary",
-        type: TransactionOperation.Income,
+        type: OperationType.Income,
       }),
-      operation: TransactionOperation.Income,
+      operation: OperationType.Income,
       paymentMethod: new PaymentMethod({ icon: "🏦", name: "Bank transfer" }),
     }),
   ];

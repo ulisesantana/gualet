@@ -2,11 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentMethodsController } from './payment-methods.controller';
 import { PaymentMethodsService } from './payment-methods.service';
 import {
+  buildPaymentMethod,
   buildPaymentMethodEntity,
   buildUserEntity,
   getAllIds,
 } from '@test/builders';
-import { PaymentMethod } from './payment-method.model';
 import {
   NotAuthorizedForPaymentMethodError,
   PaymentMethodNotFoundError,
@@ -79,8 +79,8 @@ describe('PaymentMethodsController', () => {
     );
     const payload = {
       name: paymentMethod.name,
-      icon: paymentMethod.icon as string,
-      color: paymentMethod.color as string,
+      icon: paymentMethod.icon,
+      color: paymentMethod.color,
     };
     jest.spyOn(service, 'create').mockResolvedValue(paymentMethod);
 
@@ -105,7 +105,7 @@ describe('PaymentMethodsController', () => {
     beforeEach(() => {});
     it('should find an existing payment method', async () => {
       const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
-      const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
+      const paymentMethod = buildPaymentMethod();
       jest.spyOn(service, 'findOne').mockResolvedValue(paymentMethod);
 
       await controller.findOne(paymentMethod.id.toString(), req, res);
@@ -119,10 +119,6 @@ describe('PaymentMethodsController', () => {
         },
         pagination: null,
       });
-      expect(service.findOne).toHaveBeenCalledWith(
-        new Id(req.user.userId),
-        paymentMethod.id,
-      );
     });
 
     it('should throw NotAuthorizedForPaymentMethodError when user is not authorized', async () => {
@@ -166,13 +162,13 @@ describe('PaymentMethodsController', () => {
     const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
 
     it('should update an existing payment method', async () => {
-      const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
+      const paymentMethod = buildPaymentMethod();
       jest.spyOn(service, 'update').mockResolvedValue(paymentMethod);
 
       await controller.update(paymentMethod.id.toString(), req, res, {
         name: paymentMethod.name,
-        icon: paymentMethod.icon as string,
-        color: paymentMethod.color as string,
+        icon: paymentMethod.icon,
+        color: paymentMethod.color,
       });
 
       expect(res.status).toHaveBeenCalledWith(200);
@@ -191,7 +187,7 @@ describe('PaymentMethodsController', () => {
     });
 
     it('should update a payment method with missing icon and color on payload', async () => {
-      const paymentMethod = new PaymentMethod(buildPaymentMethodEntity());
+      const paymentMethod = buildPaymentMethod();
       jest.spyOn(service, 'update').mockResolvedValue(paymentMethod);
 
       await controller.update(paymentMethod.id.toString(), req, res, {

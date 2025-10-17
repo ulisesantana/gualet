@@ -67,17 +67,17 @@ describe('CategoriesService', () => {
   });
 
   it('should create a new category', async () => {
-    const newCategoryData = buildCategory({
-      user: buildUserEntity({
-        id: userId.toString(),
-      }),
+    const newCategoryData = {
       name: 'Shopping',
       icon: '🛒',
       color: '#00FF00',
       type: OperationType.Outcome,
-    });
+    };
 
-    const savedCategory = new Category({ ...newCategoryData, id: 'new-id' });
+    const savedCategory = new Category({
+      ...newCategoryData,
+      id: new Id('new-id'),
+    });
     jest.spyOn(categoryRepository, 'create').mockResolvedValue(savedCategory);
 
     const result = await service.create(userId, new Category(newCategoryData));
@@ -93,21 +93,18 @@ describe('CategoriesService', () => {
   it('should create a category handling missing optional fields', async () => {
     const categoryWithoutOptionals = buildCategory({
       user: buildUserEntity({ id: userId.toString() }),
+      icon: undefined,
+      color: undefined,
     });
-    categoryWithoutOptionals.icon = null;
-    categoryWithoutOptionals.color = null;
 
     jest
       .spyOn(categoryRepository, 'create')
       .mockResolvedValue(categoryWithoutOptionals);
 
-    const result = await service.create(
-      userId,
-      new Category(categoryWithoutOptionals),
-    );
+    const result = await service.create(userId, categoryWithoutOptionals);
 
-    expect(result.icon).toBeNull();
-    expect(result.color).toBeNull();
+    expect(result.icon).toBe('');
+    expect(result.color).toBe('#545454');
   });
 
   it('should find an existing category by id', async () => {
@@ -159,20 +156,17 @@ describe('CategoriesService', () => {
       user: buildUserEntity({ id: userId.toString() }),
       name: 'Updated Category',
       type: OperationType.Outcome,
+      icon: undefined,
+      color: undefined,
     });
-    categoryWithoutOptionals.icon = null;
-    categoryWithoutOptionals.color = null;
 
     jest
       .spyOn(categoryRepository, 'update')
       .mockResolvedValue(categoryWithoutOptionals);
 
-    const result = await service.update(
-      userId,
-      new Category(categoryWithoutOptionals),
-    );
+    const result = await service.update(userId, categoryWithoutOptionals);
 
-    expect(result.icon).toBeNull();
-    expect(result.color).toBeNull();
+    expect(result.icon).toBe('');
+    expect(result.color).toBe('#545454');
   });
 });

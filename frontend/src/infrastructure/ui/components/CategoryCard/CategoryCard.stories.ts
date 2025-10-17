@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { CategoryCard } from "@components";
 import {
-  defaultIncomeCategories,
-  defaultOutcomeCategories,
-} from "@domain/models";
+  generateDefaultIncomeCategories,
+  generateDefaultOutcomeCategories,
+} from "@gualet/core";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -23,12 +23,12 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const OutCategory: Story = {
   args: {
-    category: defaultOutcomeCategories[0],
+    category: generateDefaultOutcomeCategories()[0],
   },
 };
 
 export const InTransaction: Story = {
   args: {
-    category: defaultIncomeCategories[0],
+    category: generateDefaultIncomeCategories()[0],
   },
 };

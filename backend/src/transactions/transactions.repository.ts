@@ -52,8 +52,19 @@ export class TransactionsRepository {
   static mapToDomain(transaction: TransactionEntity) {
     return new Transaction({
       ...transaction,
-      category: new Category(transaction.category),
-      paymentMethod: new PaymentMethod(transaction.payment_method),
+      category: new Category({
+        id: new Id(transaction.category.id),
+        name: transaction.category.name,
+        type: transaction.category.type,
+        icon: transaction.category.icon || undefined,
+        color: transaction.category.color || undefined,
+      }),
+      paymentMethod: new PaymentMethod({
+        id: new Id(transaction.payment_method.id),
+        name: transaction.payment_method.name,
+        icon: transaction.payment_method.icon || undefined,
+        color: transaction.payment_method.color || undefined,
+      }),
     });
   }
 

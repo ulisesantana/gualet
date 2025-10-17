@@ -1,29 +1,33 @@
 import React, { useEffect, useState } from "react";
 import "./LastTransactionsView.css";
-import { CategoryList, Loader } from "@components";
+import { CategoryList } from "@components";
 import { useLoader } from "@infrastructure/ui/hooks";
-import { Category } from "@domain/models";
+import { Category } from "@gualet/core";
 import { GetAllCategoriesUseCase } from "@application/cases";
 
-export function CategoriesView() {
-  const { isReady, repositories, isLoading, setIsLoading } = useLoader();
+interface CategoriesViewProps {
+  getAllCategoriesUseCase: GetAllCategoriesUseCase;
+}
+
+export function CategoriesView({
+  getAllCategoriesUseCase,
+}: CategoriesViewProps) {
+  const { isLoading, setIsLoading, Loader } = useLoader();
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    if (isReady && repositories) {
-      setIsLoading(true);
-      new GetAllCategoriesUseCase(repositories.category)
-        .exec()
-        .then(setCategories)
-        .catch((error) => {
-          console.error("Error getting all categories.");
-          console.error(error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [isReady]);
+    setIsLoading(true);
+    getAllCategoriesUseCase
+      .exec()
+      .then(setCategories)
+      .catch((error) => {
+        console.error("Error getting all categories.");
+        console.error(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [getAllCategoriesUseCase, setIsLoading]);
 
   return (
     <div className="categories-view">

@@ -1,4 +1,4 @@
-import { Category, Transaction } from "@domain/models";
+import { Category, Transaction } from "@gualet/core";
 
 type CategoryTotalTuple = [number, Category];
 

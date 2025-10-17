@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Category, Id, TransactionOperation } from "@domain/models";
+import { Category, Id, OperationType } from "@gualet/core";
 
 import { CategoryCard } from "./CategoryCard";
 
@@ -8,7 +8,7 @@ describe("CategoryCard", () => {
   const mockCategory: Category = new Category({
     id: new Id("1"),
     name: "Food",
-    type: TransactionOperation.Outcome,
+    type: OperationType.Outcome,
   });
 
   it("renders the category title and type", () => {
@@ -36,7 +36,7 @@ describe("CategoryCard", () => {
     const incomeCategory: Category = new Category({
       id: new Id("2"),
       name: "Salary",
-      type: TransactionOperation.Income,
+      type: OperationType.Income,
     });
 
     render(<CategoryCard category={incomeCategory} />);

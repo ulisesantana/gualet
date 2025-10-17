@@ -24,7 +24,7 @@ test.describe('login success', () => {
 
     await loginPage.login(user);
 
-    await expect(page).toHaveURL('/home');
+    await expect(page).toHaveURL('/');
     await expect(page.locator('header').getByRole('link', {name: 'Settings'})).toBeVisible();
   })
 });

@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import {
   Day,
-  defaultIncomeCategories,
-  defaultOutcomeCategories,
-  defaultPaymentMethods,
+  generateDefaultIncomeCategories,
+  generateDefaultOutcomeCategories,
+  generateDefaultPaymentMethods,
+  OperationType,
   Transaction,
-  TransactionOperation,
-} from "@domain/models";
+} from "@gualet/core";
 import { EditTransactionForm } from "@components";
 
 const settings = {
-  incomeCategories: defaultIncomeCategories,
-  outcomeCategories: defaultOutcomeCategories,
-  paymentMethods: defaultPaymentMethods,
+  incomeCategories: generateDefaultIncomeCategories(),
+  outcomeCategories: generateDefaultOutcomeCategories(),
+  paymentMethods: generateDefaultPaymentMethods(),
 };
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -38,7 +38,7 @@ export const EditForm: Story = {
       category: settings.incomeCategories[0],
       date: new Day("2023-09-08"),
       description: "September salary",
-      operation: TransactionOperation.Income,
+      operation: OperationType.Income,
       paymentMethod: settings.paymentMethods[0],
     }),
     async onSubmit() {},

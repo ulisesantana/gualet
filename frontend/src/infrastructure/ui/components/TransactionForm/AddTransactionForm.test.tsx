@@ -1,12 +1,12 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import {
-  defaultIncomeCategories,
-  defaultOutcomeCategories,
-  defaultPaymentMethods,
-  TransactionOperation,
+  generateDefaultIncomeCategories,
+  generateDefaultOutcomeCategories,
+  generateDefaultPaymentMethods,
+  OperationType,
   TransactionConfig,
-} from "@domain/models";
+} from "@gualet/core";
 import { Mock, vi } from "vitest";
 import { AddTransactionForm, AddTransactionFormProps } from "@components";
 
@@ -15,15 +15,15 @@ describe("AddTransactionForm", () => {
   let element: HTMLElement;
 
   const mockSettings: TransactionConfig = {
-    paymentMethods: defaultPaymentMethods,
-    incomeCategories: defaultIncomeCategories,
-    outcomeCategories: defaultOutcomeCategories,
+    paymentMethods: generateDefaultPaymentMethods(),
+    incomeCategories: generateDefaultIncomeCategories(),
+    outcomeCategories: generateDefaultOutcomeCategories(),
   };
 
   const setup = (overrides: Partial<AddTransactionFormProps> = {}) => {
     mockOnSubmit = vi.fn(async () => {});
     const props: AddTransactionFormProps = {
-      defaultPaymentMethod: defaultPaymentMethods[0].title,
+      defaultPaymentMethod: generateDefaultPaymentMethods()[0].title,
       settings: mockSettings,
       onSubmit: mockOnSubmit,
       ...overrides,
@@ -71,7 +71,7 @@ describe("AddTransactionForm", () => {
 
     // Change operation to income
     fireEvent.change(screen.getByLabelText(/Operation:/i), {
-      target: { value: TransactionOperation.Income },
+      target: { value: OperationType.Income },
     });
 
     const incomeCategories = getCategoryOptions();
@@ -113,7 +113,7 @@ describe("AddTransactionForm", () => {
       );
       expect(mockOnSubmit.mock.lastCall![0].paymentMethod.name).toBe("Bizum");
       expect(mockOnSubmit.mock.lastCall![0].operation).toBe(
-        TransactionOperation.Outcome,
+        OperationType.Outcome,
       );
     });
   });
@@ -146,7 +146,7 @@ describe("AddTransactionForm", () => {
       expect(mockOnSubmit).toHaveBeenCalled();
       // Check that the form resets after submission
       expect(element.querySelector('[name="operation"]')).toHaveValue(
-        TransactionOperation.Outcome,
+        OperationType.Outcome,
       );
       expect(element.querySelector('[name="description"]')).toHaveValue("");
       expect(element.querySelector('[name="amount"]')).toHaveValue(null);

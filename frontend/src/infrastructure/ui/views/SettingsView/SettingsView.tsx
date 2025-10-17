@@ -7,6 +7,7 @@ import { UserPreferences } from "@domain/models";
 import {
   GetAllPaymentMethodsUseCase,
   GetUserPreferencesUseCase,
+  LogoutUseCase,
   SaveUserPreferencesUseCase,
 } from "@application/cases";
 import { useLoader } from "@infrastructure/ui/hooks";
@@ -16,12 +17,14 @@ interface SettingsViewProps {
   getAllPaymentMethodsUseCase: GetAllPaymentMethodsUseCase;
   getUserPreferencesUseCase: GetUserPreferencesUseCase;
   saveUserPreferencesUseCase: SaveUserPreferencesUseCase;
+  logoutUseCase: LogoutUseCase;
 }
 
 export function SettingsView({
   getAllPaymentMethodsUseCase,
   getUserPreferencesUseCase,
   saveUserPreferencesUseCase,
+  logoutUseCase,
 }: SettingsViewProps) {
   const { isLoading, setIsLoading } = useLoader();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
@@ -106,7 +109,7 @@ export function SettingsView({
       {/*</li>*/}
       <li>
         <span>Logout</span>
-        <LogoutButton />
+        <LogoutButton logoutUseCase={logoutUseCase} />
       </li>
     </ul>
   );

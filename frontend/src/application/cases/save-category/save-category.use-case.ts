@@ -1,11 +1,11 @@
-import { Category } from "@domain/models";
+import { Category } from "@gualet/core";
 import { CategoryRepository } from "@application/repositories";
 import { UseCase } from "@application/cases/use-case";
 
 export class SaveCategoryUseCase implements UseCase<Category, Promise<void>> {
   constructor(private readonly repository: CategoryRepository) {}
 
-  exec(transaction: Category): Promise<void> {
-    return this.repository.update(transaction);
+  async exec(transaction: Category): Promise<void> {
+    await this.repository.update(transaction);
   }
 }

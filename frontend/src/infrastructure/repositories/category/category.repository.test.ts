@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { Category, Id } from "@domain/models";
-import { CategoryDto, OperationType } from "@gualet/core";
+import { Category, CategoryDto, Id, OperationType } from "@gualet/core";
 import { HttpDataSource } from "@infrastructure/data-sources";
 
 import { CategoryRepositoryImplementation } from "./category.repository";
@@ -8,6 +7,7 @@ import { CategoryRepositoryImplementation } from "./category.repository";
 const mockHttp = {
   get: vi.fn(),
   post: vi.fn(),
+  patch: vi.fn(),
 };
 
 describe("CategoryRepositoryImplementation (HTTP)", () => {
@@ -90,7 +90,7 @@ describe("CategoryRepositoryImplementation (HTTP)", () => {
         type: OperationType.Outcome,
         color: "#fff",
       };
-      mockHttp.post.mockResolvedValue({
+      mockHttp.patch.mockResolvedValue({
         success: true,
         data: { category: categoryDto },
       });
@@ -107,7 +107,7 @@ describe("CategoryRepositoryImplementation (HTTP)", () => {
         type: OperationType.Outcome,
         color: "#fff",
       });
-      mockHttp.post.mockResolvedValue({ success: false, error: "fail" });
+      mockHttp.patch.mockResolvedValue({ success: false, error: "fail" });
       const result = await repository.update(category);
       expect(result).toBeNull();
     });

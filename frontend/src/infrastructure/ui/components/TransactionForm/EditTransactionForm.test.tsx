@@ -3,13 +3,13 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { EditTransactionForm, EditTransactionFormProps } from "@components";
 import {
   Day,
-  defaultIncomeCategories,
-  defaultOutcomeCategories,
-  defaultPaymentMethods,
+  generateDefaultIncomeCategories,
+  generateDefaultOutcomeCategories,
+  generateDefaultPaymentMethods,
+  OperationType,
   Transaction,
-  TransactionOperation,
   TransactionConfig,
-} from "@domain/models";
+} from "@gualet/core";
 import { Mock, vi } from "vitest";
 
 describe("EditTransactionForm", () => {
@@ -17,9 +17,9 @@ describe("EditTransactionForm", () => {
   let element: HTMLElement;
 
   const mockSettings: TransactionConfig = {
-    paymentMethods: defaultPaymentMethods,
-    incomeCategories: defaultIncomeCategories,
-    outcomeCategories: defaultOutcomeCategories,
+    paymentMethods: generateDefaultPaymentMethods(),
+    incomeCategories: generateDefaultIncomeCategories(),
+    outcomeCategories: generateDefaultOutcomeCategories(),
   };
 
   const mockTransaction = new Transaction({
@@ -27,7 +27,7 @@ describe("EditTransactionForm", () => {
     category: mockSettings.outcomeCategories[0],
     date: new Day("2023-09-08"),
     description: "",
-    operation: TransactionOperation.Outcome,
+    operation: OperationType.Outcome,
     paymentMethod: mockSettings.paymentMethods[0],
   });
 
@@ -94,7 +94,7 @@ describe("EditTransactionForm", () => {
 
     // Change operation to income
     fireEvent.change(screen.getByLabelText(/Operation:/i), {
-      target: { value: TransactionOperation.Income },
+      target: { value: OperationType.Income },
     });
 
     const incomeCategories = getCategoryOptions();
@@ -136,7 +136,7 @@ describe("EditTransactionForm", () => {
       );
       expect(mockOnSubmit.mock.lastCall![0].paymentMethod.name).toBe("Cash");
       expect(mockOnSubmit.mock.lastCall![0].operation).toBe(
-        TransactionOperation.Outcome,
+        OperationType.Outcome,
       );
     });
   });

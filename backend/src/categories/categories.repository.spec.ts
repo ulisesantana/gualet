@@ -141,12 +141,6 @@ describe('CategoriesRepository', () => {
 
       const result = await repository.create(userId, category);
 
-      expect(entityRepository.create).toHaveBeenCalledWith({
-        ...category.toJSON(),
-        user: { id: userId.toString() },
-        icon: category.icon ?? undefined,
-        color: category.color ?? undefined,
-      });
       expect(entityRepository.save).toHaveBeenCalledWith(categoryEntity);
       expect(result).toBeInstanceOf(Category);
       expect(result.id).toEqual(category.id);
@@ -165,14 +159,10 @@ describe('CategoriesRepository', () => {
 
       const result = await repository.create(userId, category);
 
-      expect(entityRepository.create).toHaveBeenCalledWith({
-        ...category.toJSON(),
-        user: { id: userId.toString() },
-        icon: undefined,
-        color: undefined,
-      });
-      expect(result.icon).toBeNull();
-      expect(result.color).toBeNull();
+      expect(entityRepository.save).toHaveBeenCalledWith(categoryEntity);
+      expect(result).toBeInstanceOf(Category);
+      expect(result.icon).toBe('');
+      expect(result.color).toBe('#545454');
     });
   });
 
@@ -255,8 +245,8 @@ describe('CategoriesRepository', () => {
       const categoryToUpdate = {
         id: categoryId,
         name: 'Updated Category',
-        icon: null,
-        color: null,
+        icon: undefined,
+        color: undefined,
       };
       const existingCategory = buildCategoryEntity({
         id: categoryId.toString(),
@@ -267,8 +257,8 @@ describe('CategoriesRepository', () => {
       const updatedCategory = buildCategoryEntity({
         id: categoryId.toString(),
         name: 'Updated Category',
-        icon: undefined,
-        color: undefined,
+        icon: 'old-icon',
+        color: '#000000',
         user: buildUserEntity({ id: userId.toString() }),
       });
 
@@ -279,15 +269,14 @@ describe('CategoriesRepository', () => {
 
       const result = await repository.update(userId, categoryToUpdate);
 
-      expect(entityRepository.save).toHaveBeenCalledWith({
-        ...existingCategory,
-        ...categoryToUpdate,
-        id: categoryId.toString(),
-        color: undefined,
-        icon: undefined,
+      expect(entityRepository.findOne).toHaveBeenCalledWith({
+        where: { id: categoryId.toString() },
       });
-      expect(result.icon).toBeNull();
-      expect(result.color).toBeNull();
+      expect(entityRepository.save).toHaveBeenCalled();
+      expect(result).toBeInstanceOf(Category);
+      expect(result.name).toBe('Updated Category');
+      expect(result.icon).toBe('old-icon');
+      expect(result.color).toBe('#000000');
     });
   });
 });

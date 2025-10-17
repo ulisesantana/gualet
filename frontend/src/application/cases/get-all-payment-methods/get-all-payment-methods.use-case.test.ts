@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { PaymentMethodRepository } from "@application/repositories";
-import { PaymentMethod } from "@domain/models";
+import { PaymentMethod } from "@gualet/core";
 import { GetAllPaymentMethodsUseCase } from "@application/cases";
 
 // Mock repository
 const mockPaymentMethodRepository: PaymentMethodRepository = {
   create: vi.fn(),
+  update: vi.fn(),
   findAll: vi.fn(),
   findById: vi.fn(),
 };

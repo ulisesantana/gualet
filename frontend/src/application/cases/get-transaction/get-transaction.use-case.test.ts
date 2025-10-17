@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { GetTransactionUseCase } from "@application/cases";
 import { TransactionRepository } from "@application/repositories";
-import { Id, Transaction } from "@domain/models";
+import { Id, Transaction } from "@gualet/core";
 import { TransactionNotFoundError } from "@domain/errors";
 import { TransactionBuilder } from "@test/builders";
 

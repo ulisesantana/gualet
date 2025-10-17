@@ -1,4 +1,4 @@
-import { Id } from "@domain/models";
+import { Id } from "@gualet/core";
 import { BaseError, ErrorCodes } from "@domain/errors";
 
 export class TransactionNotFoundError extends BaseError {

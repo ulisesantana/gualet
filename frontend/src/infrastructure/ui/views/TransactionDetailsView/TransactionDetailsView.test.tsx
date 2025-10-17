@@ -1,14 +1,19 @@
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { defaultTransactionConfig, TransactionConfig } from "@domain/models";
 import { TransactionBuilder } from "@test/builders";
 import { useLoader } from "@infrastructure/ui/hooks";
 import { Router } from "wouter";
 import { TestRouter } from "@test/TestRouter";
 import { TransactionDetailsView } from "@views";
+import userEvent from "@testing-library/user-event";
 
 vi.mock("@infrastructure/ui/hooks", () => ({
-  useRepositories: vi.fn(),
+  useLoader: vi.fn().mockReturnValue({
+    isLoading: false,
+    setIsLoading: vi.fn(),
+    Loader: () => <div>Loader</div>,
+  }),
 }));
 
 vi.mock("@components", () => ({
@@ -30,20 +35,27 @@ describe("TransactionDetailsView", () => {
   };
 
   const mockSetIsLoading = vi.fn();
-  const mockRemoveTransaction = vi.fn();
+
+  // Mock use cases
+  const mockGetTransactionUseCase = {
+    exec: vi.fn().mockResolvedValue(mockTransaction),
+  } as any;
+
+  const mockGetTransactionConfigUseCase = {
+    exec: vi.fn().mockResolvedValue(mockConfig),
+  } as any;
+
+  const mockSaveTransactionUseCase = {
+    exec: vi.fn().mockResolvedValue(undefined),
+  } as any;
+
+  const mockRemoveTransactionUseCase = {
+    exec: vi.fn().mockResolvedValue(undefined),
+  } as any;
 
   beforeEach(() => {
     vi.clearAllMocks();
     (useLoader as Mock).mockReturnValue({
-      isReady: true,
-      repositories: {
-        transaction: {
-          findById: vi.fn().mockResolvedValue(mockTransaction),
-          fetchTransactionConfig: vi.fn().mockResolvedValue(mockConfig),
-          save: vi.fn(),
-          remove: mockRemoveTransaction,
-        },
-      },
       isLoading: false,
       setIsLoading: mockSetIsLoading,
     });
@@ -52,9 +64,18 @@ describe("TransactionDetailsView", () => {
   it("renders Loader when loading is true", () => {
     (useLoader as Mock).mockReturnValueOnce({
       isLoading: true,
+      setIsLoading: mockSetIsLoading,
+      Loader: () => <div>Loader</div>,
     });
 
-    render(<TransactionDetailsView />);
+    render(
+      <TransactionDetailsView
+        getTransactionUseCase={mockGetTransactionUseCase}
+        getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+        saveTransactionUseCase={mockSaveTransactionUseCase}
+        removeTransactionUseCase={mockRemoveTransactionUseCase}
+      />,
+    );
     expect(screen.getByText("Loader")).toBeInTheDocument();
   });
 
@@ -62,7 +83,12 @@ describe("TransactionDetailsView", () => {
     render(
       <Router>
         <TestRouter path="/transactions/details/1" />
-        <TransactionDetailsView />
+        <TransactionDetailsView
+          getTransactionUseCase={mockGetTransactionUseCase}
+          getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+          saveTransactionUseCase={mockSaveTransactionUseCase}
+          removeTransactionUseCase={mockRemoveTransactionUseCase}
+        />
       </Router>,
     );
 
@@ -87,7 +113,14 @@ describe("TransactionDetailsView", () => {
       setIsLoading: mockSetIsLoading,
     });
 
-    render(<TransactionDetailsView />);
+    render(
+      <TransactionDetailsView
+        getTransactionUseCase={mockGetTransactionUseCase}
+        getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+        saveTransactionUseCase={mockSaveTransactionUseCase}
+        removeTransactionUseCase={mockRemoveTransactionUseCase}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Transaction not found.")).toBeInTheDocument();
@@ -95,10 +128,18 @@ describe("TransactionDetailsView", () => {
   });
 
   it("calls remove method on transaction removal", async () => {
+    const user = userEvent.setup();
+    mockGetTransactionUseCase.exec.mockResolvedValueOnce(mockTransaction);
+
     render(
       <Router>
         <TestRouter path="/transactions/details/1" />
-        <TransactionDetailsView />
+        <TransactionDetailsView
+          getTransactionUseCase={mockGetTransactionUseCase}
+          getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+          saveTransactionUseCase={mockSaveTransactionUseCase}
+          removeTransactionUseCase={mockRemoveTransactionUseCase}
+        />
       </Router>,
     );
 
@@ -108,10 +149,12 @@ describe("TransactionDetailsView", () => {
       ).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByText("🚮"));
+    await user.click(screen.getByText("🚮"));
 
     await waitFor(() => {
-      expect(mockRemoveTransaction).toHaveBeenCalledWith(mockTransaction.id);
+      expect(mockRemoveTransactionUseCase.exec).toHaveBeenCalledWith(
+        mockTransaction.id,
+      );
     });
   });
 
@@ -119,19 +162,16 @@ describe("TransactionDetailsView", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
-    (useLoader as Mock).mockReturnValueOnce({
-      isReady: true,
-      repositories: {
-        transaction: {
-          findById: vi.fn().mockRejectedValue(new Error("Fetch error")),
-          fetchTransactionConfig: vi.fn().mockResolvedValue(mockConfig),
-        },
-      },
-      isLoading: false,
-      setIsLoading: mockSetIsLoading,
-    });
+    mockGetTransactionUseCase.exec.mockRejectedValueOnce(new Error("Boom!"));
 
-    render(<TransactionDetailsView />);
+    render(
+      <TransactionDetailsView
+        getTransactionUseCase={mockGetTransactionUseCase}
+        getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+        saveTransactionUseCase={mockSaveTransactionUseCase}
+        removeTransactionUseCase={mockRemoveTransactionUseCase}
+      />,
+    );
 
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith("Error getting data");

@@ -8,7 +8,7 @@ export class SaveTransactionUseCase
 {
   constructor(private readonly repository: TransactionRepository) {}
 
-  exec(transaction: Transaction): Promise<void> {
-    return this.repository.create(transaction);
+  async exec(transaction: Transaction): Promise<void> {
+    await this.repository.create(transaction);
   }
 }

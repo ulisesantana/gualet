@@ -8,17 +8,10 @@ import {
 import { TransactionsRepository } from '@src/transactions/transactions.repository';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { TimeString } from '@src/common/types';
-import {
-  buildCategoryEntity,
-  buildPaymentMethodEntity,
-  buildTransaction,
-  buildUserEntity,
-} from '@test/builders';
-import { Category } from '@src/categories';
-import { PaymentMethod } from '@src/payment-methods';
+import { buildTransaction, buildUserEntity } from '@test/builders';
 import { Pagination } from '@src/common/infrastructure';
 import { TransactionEntity } from '@src/db';
+import { TimeString } from '@src/common/types';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;
@@ -49,22 +42,17 @@ describe('TransactionsService', () => {
 
   it('should create a transaction', async () => {
     const transactionToCreate = {
+      name: 'transaction-name',
       amount: 100,
-      categoryId: 'category1',
-      date: '2023-01-01T00:00:00Z' as TimeString,
+      type: OperationType.Outcome,
       operation: OperationType.Outcome,
+      date: new Date().toISOString() as TimeString,
+      categoryId: 'category1',
       paymentMethodId: 'payment1',
     };
     const userId = new Id();
-    const createdTransaction = new Transaction({
-      ...transactionToCreate,
-      id: new Id(),
-      category: new Category(
-        buildCategoryEntity({ id: transactionToCreate.categoryId }),
-      ),
-      paymentMethod: new PaymentMethod(
-        buildPaymentMethodEntity({ id: transactionToCreate.paymentMethodId }),
-      ),
+    const createdTransaction = buildTransaction({
+      amount: transactionToCreate.amount,
     });
 
     jest.spyOn(repository, 'create').mockResolvedValue(createdTransaction);

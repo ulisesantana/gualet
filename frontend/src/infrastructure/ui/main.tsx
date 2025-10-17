@@ -8,6 +8,7 @@ import {
   GetTransactionConfigUseCase,
   GetUserPreferencesUseCase,
   LoginUseCase,
+  LogoutUseCase,
   SaveTransactionUseCase,
   SignUpUseCase,
   VerifySessionUseCase,
@@ -42,6 +43,7 @@ const cases = {
   loginUseCase: new LoginUseCase(userRepository),
   signUpUseCase: new SignUpUseCase(userRepository),
   verifySessionUseCase: new VerifySessionUseCase(userRepository),
+  logoutUseCase: new LogoutUseCase(userRepository),
   getLastTransactionsUseCase: new GetLastTransactionsUseCase(
     transactionRepository,
   ),

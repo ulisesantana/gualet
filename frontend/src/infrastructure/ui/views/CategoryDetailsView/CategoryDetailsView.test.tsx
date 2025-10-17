@@ -1,13 +1,31 @@
-import { describe, expect, it, Mock, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
-import { Category, Id, TransactionOperation } from "@domain/models";
+import { Category, Id, OperationType } from "@gualet/core";
 import { CategoryDetailsView } from "@views";
-import { useLoader } from "@infrastructure/ui/hooks";
 import { Router } from "wouter";
 import { TestRouter } from "@test/TestRouter";
+import { GetCategoryUseCase, SaveCategoryUseCase } from "@application/cases";
+
+const mockCategory = new Category({
+  id: new Id("1"),
+  name: "Food",
+  type: OperationType.Outcome,
+});
+
+const mockGetCategoryUseCase = {
+  exec: vi.fn().mockResolvedValue(mockCategory),
+} as unknown as GetCategoryUseCase;
+
+const mockSaveCategoryUseCase = {
+  exec: vi.fn(),
+} as unknown as SaveCategoryUseCase;
 
 vi.mock("@infrastructure/ui/hooks", () => ({
-  useRepositories: vi.fn(),
+  useLoader: vi.fn(() => ({
+    isLoading: false,
+    setIsLoading: vi.fn(),
+    Loader: () => <div>Loader</div>,
+  })),
 }));
 
 vi.mock("@components", () => ({
@@ -18,38 +36,20 @@ vi.mock("@components", () => ({
 }));
 
 describe("CategoryDetailsView", () => {
-  const mockSetIsLoading = vi.fn();
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    (useLoader as Mock).mockReturnValue({
-      isReady: true,
-      repositories: {
-        category: {
-          findById: async (id: Id) =>
-            id.toString() === "1"
-              ? new Category({
-                  id: new Id("1"),
-                  name: "Food",
-                  type: TransactionOperation.Outcome,
-                })
-              : undefined,
-        },
-      },
-      isLoading: false,
-      setIsLoading: mockSetIsLoading,
-    });
-  });
-
   it("renders Loader when loading is true", async () => {
-    (useLoader as Mock).mockReturnValueOnce({
-      isReady: true,
-      repositories: { category: {} },
+    const { useLoader } = await import("@infrastructure/ui/hooks");
+    (useLoader as any).mockReturnValueOnce({
       isLoading: true,
-      setIsLoading: mockSetIsLoading,
+      setIsLoading: vi.fn(),
+      Loader: () => <div>Loader</div>,
     });
 
-    render(<CategoryDetailsView />);
+    render(
+      <CategoryDetailsView
+        getCategoryUseCase={mockGetCategoryUseCase}
+        saveCategoryUseCase={mockSaveCategoryUseCase}
+      />,
+    );
 
     expect(screen.getByText("Loader")).toBeInTheDocument();
   });
@@ -58,7 +58,10 @@ describe("CategoryDetailsView", () => {
     render(
       <Router>
         <TestRouter path={"/categories/details/1"} />
-        <CategoryDetailsView />
+        <CategoryDetailsView
+          getCategoryUseCase={mockGetCategoryUseCase}
+          saveCategoryUseCase={mockSaveCategoryUseCase}
+        />
       </Router>,
     );
 
@@ -68,21 +71,17 @@ describe("CategoryDetailsView", () => {
   });
 
   it("displays an error message if category is not found", async () => {
-    (useLoader as Mock).mockReturnValueOnce({
-      isReady: true,
-      repositories: {
-        category: {
-          findById: async () => undefined,
-        },
-      },
-      isLoading: false,
-      setIsLoading: mockSetIsLoading,
-    });
+    const mockGetCategoryUseCaseNotFound = {
+      exec: vi.fn().mockResolvedValue(undefined),
+    } as unknown as GetCategoryUseCase;
 
     render(
       <Router>
         <TestRouter path="/categories/details/2" />
-        <CategoryDetailsView />
+        <CategoryDetailsView
+          getCategoryUseCase={mockGetCategoryUseCaseNotFound}
+          saveCategoryUseCase={mockSaveCategoryUseCase}
+        />
       </Router>,
     );
 

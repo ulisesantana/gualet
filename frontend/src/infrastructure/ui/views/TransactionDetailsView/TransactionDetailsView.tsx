@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./TransactionDetailsView.css";
-import { EditTransactionForm, Loader } from "@components";
+import { EditTransactionForm } from "@components";
 import { TransactionConfig } from "@domain/models";
 import { routes } from "@infrastructure/ui/routes";
 import { useRoute } from "wouter";
@@ -12,7 +12,7 @@ import {
   RemoveTransactionUseCase,
   SaveTransactionUseCase,
 } from "@application/cases";
-import { Nullable, Transaction } from "@gualet/core";
+import { Id, Nullable, Transaction } from "@gualet/core";
 
 interface TransactionDetailsViewProps {
   getTransactionUseCase: GetTransactionUseCase;
@@ -28,7 +28,7 @@ export function TransactionDetailsView({
   removeTransactionUseCase,
 }: TransactionDetailsViewProps) {
   const [match, params] = useRoute(routes.transactions.details);
-  const { isLoading, setIsLoading } = useLoader();
+  const { isLoading, setIsLoading, Loader } = useLoader();
   const [transaction, setTransaction] = useState<Transaction | undefined>();
   const [transactionConfig, setTransactionConfig] =
     useState<Nullable<TransactionConfig>>(null);
@@ -58,7 +58,7 @@ export function TransactionDetailsView({
   const onRemove = () => {
     if (transaction) {
       removeTransactionUseCase.exec(transaction.id).then(() => {
-        window.location.href = import.meta.env.BASE_URL;
+        window.location.href = "/";
       });
     }
   };

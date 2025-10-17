@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { SaveTransactionUseCase } from "@application/cases";
 import { TransactionRepository } from "@application/repositories";
-import { Transaction } from "@domain/models";
+import { Transaction } from "@gualet/core";
 import { TransactionBuilder } from "@test/builders";
 
 describe("Save transaction use case", () => {
@@ -10,7 +10,7 @@ describe("Save transaction use case", () => {
 
   beforeEach(() => {
     mockTransactionRepository = {
-      save: vi.fn(),
+      create: vi.fn(),
     } as unknown as Mocked<TransactionRepository>;
     saveTransactionUseCase = new SaveTransactionUseCase(
       mockTransactionRepository,

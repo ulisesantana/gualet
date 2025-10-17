@@ -1,4 +1,4 @@
-import { Id, Category } from "@domain/models";
+import { Id, Category } from "@gualet/core";
 import { CategoryRepository } from "@application/repositories";
 import { UseCase } from "@application/cases/use-case";
 import { CategoryNotFoundError } from "@domain/errors";

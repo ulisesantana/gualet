@@ -23,7 +23,8 @@
     "migration:generate": "npx typeorm-ts-node-commonjs migration:generate src/migrations/InitSchema -d src/db/data-source.ts",
     "migration:run": "npx typeorm-ts-node-commonjs migration:run -d src/db/data-source.ts",
     "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d src/db/data-source.ts",
-    "migration:export-sql": "NO_COLOR=1 npx typeorm-ts-node-commonjs schema:log -d src/db/data-source.ts > src/db/init.sql"
+    "migration:export-sql": "NO_COLOR=1 npx typeorm-ts-node-commonjs schema:log -d src/db/data-source.ts > src/db/init.sql",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@gualet/core": "*",

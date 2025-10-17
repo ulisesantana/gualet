@@ -10,11 +10,16 @@ describe("StorageDataSource", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    const mockGetItem = vi.fn();
+    const mockSetItem = vi.fn();
+    const mockRemoveItem = vi.fn();
+
     Object.defineProperty(window, "localStorage", {
       value: {
-        getItem: vi.fn(),
-        setItem: vi.fn(),
-        removeItem: vi.fn(),
+        getItem: mockGetItem,
+        setItem: mockSetItem,
+        removeItem: mockRemoveItem,
       },
       writable: true,
     });
@@ -53,43 +58,39 @@ describe("StorageDataSource", () => {
     it("should retrieve a JSON object from storage", () => {
       const key = "user";
       const item = { name: "Test", age: 30 };
-      window.localStorage.getItem.mockReturnValueOnce(JSON.stringify(item));
+      const mockGetItem = vi.mocked(window.localStorage.getItem);
+      mockGetItem.mockReturnValueOnce(JSON.stringify(item));
 
       const result = storageDataSource.get(key);
       expect(result).toEqual(item);
-      expect(window.localStorage.getItem).toHaveBeenCalledWith(
-        `${namespace}:${key}`,
-      );
+      expect(mockGetItem).toHaveBeenCalledWith(`${namespace}:${key}`);
     });
 
     it("should retrieve a number from storage", () => {
-      window.localStorage.getItem.mockReturnValueOnce("123");
+      const mockGetItem = vi.mocked(window.localStorage.getItem);
+      mockGetItem.mockReturnValueOnce("123");
 
       const result = storageDataSource.get("age");
       expect(result).toBe(123);
-      expect(window.localStorage.getItem).toHaveBeenCalledWith(
-        `${namespace}:age`,
-      );
+      expect(mockGetItem).toHaveBeenCalledWith(`${namespace}:age`);
     });
 
     it("should retrieve a string from storage", () => {
-      window.localStorage.getItem.mockReturnValueOnce("Hello");
+      const mockGetItem = vi.mocked(window.localStorage.getItem);
+      mockGetItem.mockReturnValueOnce("Hello");
 
       const result = storageDataSource.get("greeting");
       expect(result).toBe("Hello");
-      expect(window.localStorage.getItem).toHaveBeenCalledWith(
-        `${namespace}:greeting`,
-      );
+      expect(mockGetItem).toHaveBeenCalledWith(`${namespace}:greeting`);
     });
 
     it("should return an empty string if the item is not found", () => {
-      window.localStorage.getItem.mockReturnValueOnce(null);
+      const mockGetItem = vi.mocked(window.localStorage.getItem);
+      mockGetItem.mockReturnValueOnce(null);
 
       const result = storageDataSource.get("nonexistent");
       expect(result).toBe("");
-      expect(window.localStorage.getItem).toHaveBeenCalledWith(
-        `${namespace}:nonexistent`,
-      );
+      expect(mockGetItem).toHaveBeenCalledWith(`${namespace}:nonexistent`);
     });
   });
 

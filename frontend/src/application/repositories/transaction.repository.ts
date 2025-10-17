@@ -22,6 +22,8 @@ export interface TransactionRepository {
 
   find(criteria: FindTransactionsCriteria): Promise<Transaction[]>;
 
+  findLast(limit: number): Promise<Transaction[]>;
+
   fetchTransactionConfig(): Promise<TransactionConfig>;
 
   remove(id: Id): Promise<CommandResponse>;

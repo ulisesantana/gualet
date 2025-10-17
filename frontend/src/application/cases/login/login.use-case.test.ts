@@ -9,7 +9,7 @@ describe("Login use case should", () => {
 
   beforeEach(() => {
     repository = {
-      login: vi.fn().mockResolvedValue(true),
+      login: vi.fn().mockResolvedValue({ success: true, error: null }),
     } as unknown as Mocked<UserRepository>;
     loginUseCase = new LoginUseCase(repository);
   });
@@ -19,7 +19,7 @@ describe("Login use case should", () => {
 
     const result = await loginUseCase.exec(input);
 
-    expect(result).toBe(true);
+    expect(result.success).toBe(true);
     expect(repository.login).toHaveBeenCalledWith(input);
   });
 
@@ -27,11 +27,15 @@ describe("Login use case should", () => {
     const input = { email: "user@example.com", password: "password123" };
 
     // Simulate an authentication error
-    repository.login.mockRejectedValue(new Error("Authentication failed"));
+    repository.login.mockResolvedValue({
+      success: false,
+      error: "Authentication failed",
+    });
 
     const result = await loginUseCase.exec(input);
 
-    expect(result).toBe(false);
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Authentication failed");
     expect(repository.login).toHaveBeenCalledWith(input);
   });
 

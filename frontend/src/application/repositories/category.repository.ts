@@ -1,4 +1,4 @@
-import { Category, Id } from "@domain/models";
+import { Category, Id } from "@gualet/core";
 import { Nullable } from "@domain/types";
 
 export interface CategoryRepository {

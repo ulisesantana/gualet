@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Category, PaymentMethod, TransactionOperation } from "@domain/models";
+import { Category, PaymentMethod, OperationType } from "@gualet/core";
 import { AddTransactionForm } from "@components";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -26,24 +26,24 @@ export const AddForm: Story = {
       incomeCategories: [
         new Category({
           icon: "💰",
-          type: TransactionOperation.Income,
+          type: OperationType.Income,
           name: "Salary",
         }),
         new Category({
           icon: "🏷️",
-          type: TransactionOperation.Income,
+          type: OperationType.Income,
           name: "Sales",
         }),
       ],
       outcomeCategories: [
         new Category({
           icon: "🚖",
-          type: TransactionOperation.Outcome,
+          type: OperationType.Outcome,
           name: "Taxi",
         }),
         new Category({
           icon: "👨🏻‍🍳",
-          type: TransactionOperation.Outcome,
+          type: OperationType.Outcome,
           name: "Restaurant",
         }),
       ],

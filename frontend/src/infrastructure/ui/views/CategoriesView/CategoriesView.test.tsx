@@ -1,15 +1,35 @@
-import { describe, expect, it, Mock, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
-import { Category, Id, TransactionOperation } from "@domain/models";
+import { Category, Id, OperationType } from "@gualet/core";
 import { CategoriesView } from "@views";
-import { useLoader } from "@infrastructure/ui/hooks";
+import { GetAllCategoriesUseCase } from "@application/cases";
+
+const mockCategories = [
+  new Category({
+    id: new Id("1"),
+    name: "Food",
+    type: OperationType.Outcome,
+  }),
+  new Category({
+    id: new Id("2"),
+    name: "Salary",
+    type: OperationType.Income,
+  }),
+];
+
+const mockGetAllCategoriesUseCase = {
+  exec: vi.fn().mockResolvedValue(mockCategories),
+} as unknown as GetAllCategoriesUseCase;
 
 vi.mock("@infrastructure/ui/hooks", () => ({
-  useRepositories: vi.fn(),
+  useLoader: vi.fn(() => ({
+    isLoading: false,
+    setIsLoading: vi.fn(),
+    Loader: () => <div>Loader</div>,
+  })),
 }));
 
 vi.mock("@components", () => ({
-  Loader: () => <div>Loader</div>,
   CategoryList: ({ categories }: { categories: Category[] }) => (
     <div>
       {categories.map((category) => (
@@ -20,50 +40,25 @@ vi.mock("@components", () => ({
 }));
 
 describe("CategoriesView", () => {
-  beforeEach(() => {
-    (useLoader as Mock).mockReturnValue({
-      repositories: {
-        category: {
-          save: vi.fn(),
-          findById: vi.fn(),
-          findAll: async () => [
-            new Category({
-              id: new Id("1"),
-              name: "Food",
-              type: TransactionOperation.Outcome,
-            }),
-            new Category({
-              id: new Id("2"),
-              name: "Salary",
-              type: TransactionOperation.Income,
-            }),
-          ],
-        },
-      },
-      isReady: true,
-      isLoading: false,
-      setIsLoading: vi.fn(),
-    });
-  });
-
   it("renders Loader when loading is true", async () => {
-    const mockSetIsLoading = vi.fn();
-    (useLoader as Mock).mockReturnValue({
-      isReady: true,
-      repositories: {
-        category: {},
-      },
+    const { useLoader } = await import("@infrastructure/ui/hooks");
+    (useLoader as any).mockReturnValueOnce({
       isLoading: true,
-      setIsLoading: mockSetIsLoading,
+      setIsLoading: vi.fn(),
+      Loader: () => <div>Loader</div>,
     });
-    render(<CategoriesView />);
+
+    render(
+      <CategoriesView getAllCategoriesUseCase={mockGetAllCategoriesUseCase} />,
+    );
 
     expect(screen.getByText("Loader")).toBeInTheDocument();
-    expect(mockSetIsLoading).toHaveBeenCalled();
   });
 
   it("renders CategoryList with categories after loading", async () => {
-    render(<CategoriesView />);
+    render(
+      <CategoriesView getAllCategoriesUseCase={mockGetAllCategoriesUseCase} />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Food")).toBeInTheDocument();

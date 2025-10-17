@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Category, Id, TransactionOperation } from "@domain/models";
+import { Category, Id, OperationType } from "@gualet/core";
 
 import { CategoryList } from "./CategoryList";
 
@@ -9,12 +9,12 @@ describe("CategoryList", () => {
     new Category({
       id: new Id("1"),
       name: "Food",
-      type: TransactionOperation.Outcome,
+      type: OperationType.Outcome,
     }),
     new Category({
       id: new Id("2"),
       name: "Salary",
-      type: TransactionOperation.Income,
+      type: OperationType.Income,
     }),
   ];
 

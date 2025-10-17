@@ -5,6 +5,7 @@ import { Category, Id, OperationType } from "@gualet/core";
 import { SaveCategoryUseCase } from "./save-category.use-case";
 
 const mockRepository: CategoryRepository = {
+  create: vi.fn(),
   update: vi.fn(),
   findById: vi.fn(),
   findAll: vi.fn(),

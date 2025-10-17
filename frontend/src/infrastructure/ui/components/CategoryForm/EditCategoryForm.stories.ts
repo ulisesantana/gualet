@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { defaultIncomeCategories } from "@domain/models";
+import { generateDefaultIncomeCategories } from "@gualet/core";
 import { EditCategoryForm } from "@components";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
@@ -20,7 +20,7 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const EditForm: Story = {
   args: {
-    category: defaultIncomeCategories[0],
+    category: generateDefaultIncomeCategories()[0],
     async onSubmit() {},
   },
 };

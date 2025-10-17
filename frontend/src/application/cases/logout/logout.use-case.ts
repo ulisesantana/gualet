@@ -1,10 +1,11 @@
 import { UseCase } from "@application/cases/use-case";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { UserRepository } from "@application/repositories";
+import { CommandResponse } from "@domain/types";
 
-export class LogoutUseCase implements UseCase<never, Promise<void>> {
-  constructor(private readonly sb: SupabaseClient) {}
+export class LogoutUseCase implements UseCase<never, Promise<CommandResponse>> {
+  constructor(private readonly userRepository: UserRepository) {}
 
-  async exec(): Promise<void> {
-    await this.sb.auth.signOut();
+  async exec(): Promise<CommandResponse> {
+    return this.userRepository.logout();
   }
 }

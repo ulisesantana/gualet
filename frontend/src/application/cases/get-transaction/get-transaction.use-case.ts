@@ -1,4 +1,4 @@
-import { Id, Transaction } from "@domain/models";
+import { Id, Transaction } from "@gualet/core";
 import { TransactionRepository } from "@application/repositories";
 import { UseCase } from "@application/cases/use-case";
 import { TransactionNotFoundError } from "@domain/errors";

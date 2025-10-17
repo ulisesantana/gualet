@@ -1,30 +1,27 @@
-import { SupabaseClient } from "@supabase/supabase-js";
-import { describe, it, beforeEach, expect } from "vitest";
-import { MockSupabaseClient } from "@test/mocks";
+import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
+import { UserRepository } from "@application/repositories";
 
 import { LogoutUseCase } from "./logout.use-case";
 
 describe("Logout use case should", () => {
   let logoutUseCase: LogoutUseCase;
-  let mockSupabaseClient: MockSupabaseClient;
+  let mockUserRepository: Mocked<UserRepository>;
 
   beforeEach(() => {
-    mockSupabaseClient = new MockSupabaseClient();
-    logoutUseCase = new LogoutUseCase(
-      mockSupabaseClient as unknown as SupabaseClient,
-    );
+    mockUserRepository = {
+      logout: vi.fn().mockResolvedValue({ success: true, error: null }),
+    } as unknown as Mocked<UserRepository>;
+    logoutUseCase = new LogoutUseCase(mockUserRepository);
   });
 
   it("log the user out", async () => {
     await logoutUseCase.exec();
 
-    expect(mockSupabaseClient.auth.signOut).toHaveBeenCalled();
+    expect(mockUserRepository.logout).toHaveBeenCalled();
   });
 
   it("throw an error if signOut fails", async () => {
-    mockSupabaseClient.auth.signOut.mockRejectedValue(
-      new Error("Sign out failed"),
-    );
+    mockUserRepository.logout.mockRejectedValue(new Error("Sign out failed"));
 
     await expect(logoutUseCase.exec()).rejects.toThrow("Sign out failed");
   });

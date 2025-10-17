@@ -1,4 +1,4 @@
-import { Id, PaymentMethod } from "@domain/models";
+import { Id, PaymentMethod } from "@gualet/core";
 import { PaymentMethodRepository } from "@application/repositories";
 import { UseCase } from "@application/cases/use-case";
 import { PaymentMethodNotFoundError } from "@domain/errors";

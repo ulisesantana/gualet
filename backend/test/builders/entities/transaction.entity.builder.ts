@@ -7,7 +7,7 @@ import {
   buildUserEntity,
   generateRandomId,
 } from '@test/builders';
-import { OperationType } from '@src/common/domain';
+import { Id, OperationType } from '@src/common/domain';
 import { Transaction } from '@src/transactions';
 
 export function buildTransactionEntity(
@@ -36,7 +36,18 @@ export function buildTransaction(
   const entity = buildTransactionEntity(overrides);
   return new Transaction({
     ...entity,
-    category: new Category(entity.category),
-    paymentMethod: new PaymentMethod(entity.payment_method),
+    category: new Category({
+      id: new Id(entity.category.id),
+      name: entity.category.name,
+      type: entity.category.type,
+      icon: entity.category.icon || undefined,
+      color: entity.category.color || undefined,
+    }),
+    paymentMethod: new PaymentMethod({
+      id: new Id(entity.payment_method.id),
+      name: entity.payment_method.name,
+      icon: entity.payment_method.icon || undefined,
+      color: entity.payment_method.color || undefined,
+    }),
   });
 }

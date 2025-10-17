@@ -6,8 +6,8 @@ import {
   Id,
   PaymentMethod,
   Transaction,
-  TransactionOperation,
-} from "@domain/models";
+  OperationType,
+} from "@gualet/core";
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -31,13 +31,13 @@ export const OutTransaction: Story = {
       id: new Id(),
       date: new Day("2024-09-01"),
       paymentMethod: new PaymentMethod({ icon: "💳", name: "Credit card" }),
-      operation: TransactionOperation.Outcome,
+      operation: OperationType.Outcome,
       amount: 18.75,
       description: "SPAR",
       category: new Category({
         icon: "🛒",
         name: "Groceries",
-        type: TransactionOperation.Outcome,
+        type: OperationType.Outcome,
       }),
     }),
   },
@@ -49,13 +49,13 @@ export const InTransaction: Story = {
       id: new Id(),
       date: new Day("2024-09-01"),
       paymentMethod: new PaymentMethod({ icon: "💳", name: "Credit card" }),
-      operation: TransactionOperation.Income,
+      operation: OperationType.Income,
       amount: 1809.75,
       description: "SPAR",
       category: new Category({
         icon: "💰",
         name: "Salary",
-        type: TransactionOperation.Income,
+        type: OperationType.Income,
       }),
     }),
   },

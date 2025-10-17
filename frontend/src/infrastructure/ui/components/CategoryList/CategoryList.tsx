@@ -1,5 +1,5 @@
 import React from "react";
-import { Category } from "@domain/models";
+import { Category } from "@gualet/core";
 import "./CategoryList.css";
 
 import { CategoryCard } from "../CategoryCard";

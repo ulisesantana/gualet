@@ -4,12 +4,12 @@ import { CommandResponse } from "@domain/types";
 
 type Input = undefined;
 
-type Output = Promise<CommandResponse>;
-
-export class VerifySessionUseCase implements UseCase<Input, Output> {
+export class VerifySessionUseCase
+  implements UseCase<Input, Promise<CommandResponse>>
+{
   constructor(private readonly userRepository: UserRepository) {}
 
-  async exec(_input?: Input) {
+  async exec(_input?: Input): Promise<CommandResponse> {
     try {
       return await this.userRepository.verify();
     } catch (error) {

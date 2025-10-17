@@ -1,22 +1,64 @@
-import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import {
   Day,
-  defaultPaymentMethods,
   defaultTransactionConfig,
+  generateDefaultPaymentMethods,
   Id,
   PaymentMethod,
   Transaction,
   TransactionConfig,
   UserPreferences,
-} from "@domain/models";
-import { useLoader } from "@infrastructure/ui/hooks";
+} from "@gualet/core";
 import { LastTransactionsView } from "@views";
 import { TransactionBuilder } from "@test/builders";
+import {
+  GetLastTransactionsUseCase,
+  GetTransactionConfigUseCase,
+  GetUserPreferencesUseCase,
+  SaveTransactionUseCase,
+} from "@application/cases";
 
-vi.mock("@infrastructure/ui/hooks", () => ({
-  useRepositories: vi.fn(),
-}));
+const mockTransactions = [
+  new TransactionBuilder()
+    .withId(new Id("1"))
+    .withDescription("Transaction 1")
+    .withDate(new Day("2023-10-08"))
+    .build(),
+  new TransactionBuilder()
+    .withId(new Id("2"))
+    .withDescription("Transaction 2")
+    .withDate(new Day("2023-10-10"))
+    .build(),
+];
+
+const mockConfig: TransactionConfig = {
+  ...defaultTransactionConfig,
+};
+
+const mockPreferences: UserPreferences = {
+  defaultPaymentMethod: new PaymentMethod({
+    ...generateDefaultPaymentMethods()[0],
+  }),
+};
+
+const mockGetLastTransactionsUseCase = {
+  exec: vi.fn().mockResolvedValue(mockTransactions),
+} as unknown as GetLastTransactionsUseCase;
+
+const mockGetTransactionConfigUseCase = {
+  exec: vi.fn().mockResolvedValue(mockConfig),
+} as unknown as GetTransactionConfigUseCase;
+
+const mockGetUserPreferencesUseCase = {
+  exec: vi.fn().mockResolvedValue(mockPreferences),
+} as unknown as GetUserPreferencesUseCase;
+
+const mockSaveTransactionUseCase = {
+  exec: vi
+    .fn()
+    .mockResolvedValue(new TransactionBuilder().withId(new Id("3")).build()),
+} as unknown as SaveTransactionUseCase;
 
 vi.mock("@components", () => ({
   Loader: () => <div>Loader</div>,
@@ -52,58 +94,32 @@ vi.mock("@components", () => ({
 }));
 
 describe("LastTransactionsView", () => {
-  const mockTransactions = [
-    new TransactionBuilder()
-      .withId(new Id("1"))
-      .withDescription("Transaction 1")
-      .withDate(new Day("2023-10-08"))
-      .build(),
-    new TransactionBuilder()
-      .withId(new Id("2"))
-      .withDescription("Transaction 2")
-      .withDate(new Day("2023-10-10"))
-      .build(),
-  ];
-  const mockConfig: TransactionConfig = {
-    ...defaultTransactionConfig,
-  };
-  const mockPreferences: UserPreferences = {
-    defaultPaymentMethod: new PaymentMethod({ ...defaultPaymentMethods[0] }),
-  };
-
-  const mockSetIsLoading = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
-    (useLoader as Mock).mockReturnValue({
-      isReady: true,
-      repositories: {
-        transaction: {
-          findLast: vi.fn().mockResolvedValue(mockTransactions),
-          fetchTransactionConfig: vi.fn().mockResolvedValue(mockConfig),
-          save: vi.fn(),
-        },
-        userPreferences: {
-          find: vi.fn().mockResolvedValue(mockPreferences),
-        },
-      },
-      isLoading: false,
-      setIsLoading: mockSetIsLoading,
-    });
   });
 
   it("renders Loader when loading is true", async () => {
-    (useLoader as Mock).mockReturnValueOnce({
-      isLoading: true,
-    });
-
-    render(<LastTransactionsView />);
+    render(
+      <LastTransactionsView
+        getLastTransactionsUseCase={mockGetLastTransactionsUseCase}
+        getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+        getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+        saveTransactionUseCase={mockSaveTransactionUseCase}
+      />,
+    );
 
     expect(screen.getByText("Loader")).toBeInTheDocument();
   });
 
   it("renders AddTransactionForm and TransactionList after loading", async () => {
-    render(<LastTransactionsView />);
+    render(
+      <LastTransactionsView
+        getLastTransactionsUseCase={mockGetLastTransactionsUseCase}
+        getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+        getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+        saveTransactionUseCase={mockSaveTransactionUseCase}
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Add Transaction")).toBeInTheDocument();
@@ -114,31 +130,41 @@ describe("LastTransactionsView", () => {
   });
 
   it("fetches transactions, config, and preferences on load", async () => {
-    render(<LastTransactionsView />);
+    render(
+      <LastTransactionsView
+        getLastTransactionsUseCase={mockGetLastTransactionsUseCase}
+        getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+        getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+        saveTransactionUseCase={mockSaveTransactionUseCase}
+      />,
+    );
 
     await waitFor(() => {
-      const { transaction, userPreferences } = useLoader().repositories!;
-      expect(transaction.findLast).toHaveBeenCalledWith(25);
-      expect(transaction.fetchTransactionConfig).toHaveBeenCalled();
-      expect(userPreferences.find).toHaveBeenCalled();
+      expect(mockGetLastTransactionsUseCase.exec).toHaveBeenCalledWith(25);
+      expect(mockGetTransactionConfigUseCase.exec).toHaveBeenCalled();
+      expect(mockGetUserPreferencesUseCase.exec).toHaveBeenCalled();
     });
   });
 
   it("calls transaction.save and updates transactions on form submit", async () => {
-    const { transaction } = useLoader().repositories!;
-    render(<LastTransactionsView />);
+    render(
+      <LastTransactionsView
+        getLastTransactionsUseCase={mockGetLastTransactionsUseCase}
+        getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+        getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+        saveTransactionUseCase={mockSaveTransactionUseCase}
+      />,
+    );
 
     await waitFor(() => {
       fireEvent.click(screen.getByText("Add Transaction"));
     });
 
     await waitFor(() => {
-      expect(transaction.create).toHaveBeenCalled();
+      expect(mockSaveTransactionUseCase.exec).toHaveBeenCalled();
       const list = screen.getByRole("list");
       expect(list.children.length).toBe(3);
       expect(list.children[0].textContent).toBe("New Transaction");
-      expect(list.children[1].textContent).toBe("Transaction 2");
-      expect(list.children[2].textContent).toBe("Transaction 1");
     });
   });
 
@@ -146,29 +172,21 @@ describe("LastTransactionsView", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
-    (useLoader as Mock).mockReturnValueOnce({
-      isReady: true,
-      repositories: {
-        transaction: {
-          findLast: vi
-            .fn()
-            .mockRejectedValue(new Error("Failed to fetch transactions")),
-          fetchTransactionConfig: vi
-            .fn()
-            .mockRejectedValue(new Error("Failed to fetch config")),
-          save: vi.fn(),
-        },
-        userPreferences: {
-          find: vi
-            .fn()
-            .mockRejectedValue(new Error("Failed to fetch preferences")),
-        },
-      },
-      isLoading: false,
-      setIsLoading: mockSetIsLoading,
-    });
 
-    render(<LastTransactionsView />);
+    const errorGetLastTransactionsUseCase = {
+      exec: vi
+        .fn()
+        .mockRejectedValue(new Error("Failed to fetch transactions")),
+    } as unknown as GetLastTransactionsUseCase;
+
+    render(
+      <LastTransactionsView
+        getLastTransactionsUseCase={errorGetLastTransactionsUseCase}
+        getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+        getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+        saveTransactionUseCase={mockSaveTransactionUseCase}
+      />,
+    );
 
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(

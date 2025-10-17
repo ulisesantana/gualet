@@ -1,6 +1,6 @@
 import { buildUserEntity, generateRandomId } from '@test/builders';
 import { Category } from '@src/categories';
-import { OperationType } from '@src/common/domain';
+import { Id, OperationType } from '@src/common/domain';
 import { CategoryEntity } from '@src/db';
 
 export function buildCategoryEntity(
@@ -25,6 +25,10 @@ export function buildCategory(
 ): Category {
   const entity = buildCategoryEntity(overrides);
   return new Category({
-    ...entity,
+    id: new Id(entity.id),
+    name: entity.name,
+    type: entity.type,
+    icon: entity.icon || undefined,
+    color: entity.color || undefined,
   });
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { GetPaymentMethodUseCase } from "@application/cases";
 import { PaymentMethodRepository } from "@application/repositories";
-import { Id, PaymentMethod } from "@domain/models";
+import { Id, PaymentMethod } from "@gualet/core";
 import { PaymentMethodNotFoundError } from "@domain/errors";
 
 describe("GetPaymentMethodUseCase", () => {

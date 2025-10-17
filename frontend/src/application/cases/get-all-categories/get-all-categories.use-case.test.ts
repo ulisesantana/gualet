@@ -1,10 +1,11 @@
 import { describe, expect, it, Mock, vi } from "vitest";
 import { CategoryRepository } from "@application/repositories";
-import { Category, TransactionOperation } from "@domain/models";
+import { Category, OperationType } from "@gualet/core";
 import { GetAllCategoriesUseCase } from "@application/cases";
 
 // Mock for the CategoryRepository
 const mockCategoryRepository: CategoryRepository = {
+  create: vi.fn(),
   update: vi.fn(),
   findById: vi.fn(),
   findAll: vi.fn(),
@@ -17,8 +18,8 @@ describe("GetAllCategoriesUseCase", () => {
 
   it("should return all categories from the repository", async () => {
     const mockCategories: Category[] = [
-      new Category({ name: "Groceries", type: TransactionOperation.Outcome }),
-      new Category({ name: "Salary", type: TransactionOperation.Income }),
+      new Category({ name: "Groceries", type: OperationType.Outcome }),
+      new Category({ name: "Salary", type: OperationType.Income }),
     ];
 
     (mockCategoryRepository.findAll as Mock).mockResolvedValue(mockCategories);

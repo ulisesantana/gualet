@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { CategoryRepository } from "@application/repositories";
-import { Category, Id, TransactionOperation } from "@domain/models";
+import { Category, Id, OperationType } from "@gualet/core";
 import { GetCategoryUseCase } from "@application/cases";
 import { CategoryNotFoundError } from "@domain/errors";
 
 const mockRepository: CategoryRepository = {
+  create: vi.fn(),
   update: vi.fn(),
   findById: vi.fn(),
   findAll: vi.fn(),
@@ -19,7 +20,7 @@ describe("GetCategoryUseCase", () => {
     const mockCategory = new Category({
       id: new Id("cat1"),
       name: "Groceries",
-      type: TransactionOperation.Outcome,
+      type: OperationType.Outcome,
       icon: "🛒",
     });
 

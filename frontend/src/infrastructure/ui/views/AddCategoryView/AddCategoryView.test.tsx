@@ -3,11 +3,14 @@ import { render, screen } from "@testing-library/react";
 import { Router } from "wouter";
 import { TestRouter } from "@test/TestRouter";
 import { AddCategoryView } from "@views";
+import { SaveCategoryUseCase } from "@application/cases";
+
+const mockSaveCategoryUseCase = {
+  exec: vi.fn(),
+} as unknown as SaveCategoryUseCase;
 
 vi.mock("@application/cases", () => ({
-  SaveCategoryUseCase: vi.fn(() => ({
-    exec: vi.fn(),
-  })),
+  SaveCategoryUseCase: vi.fn(() => mockSaveCategoryUseCase),
 }));
 
 vi.mock("@infrastructure/ui/hooks", () => ({
@@ -27,7 +30,7 @@ describe("AddCategoryView", () => {
     render(
       <Router>
         <TestRouter path="/categories/add" />
-        <AddCategoryView />
+        <AddCategoryView saveCategoryUseCase={mockSaveCategoryUseCase} />
       </Router>,
     );
 

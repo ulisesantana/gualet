@@ -1,5 +1,5 @@
 import React from "react";
-import { Transaction } from "@domain/models";
+import { Transaction } from "@gualet/core";
 import "./TransactionList.css";
 
 import { TransactionCard } from "../TransactionCard";

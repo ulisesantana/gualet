@@ -1,34 +1,68 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { TransactionRepository } from "@application/repositories";
-import { Day, defaultIncomeCategories } from "@domain/models";
-import { useLoader } from "@infrastructure/ui/hooks";
-import { Mock, Mocked, vi } from "vitest";
+import {
+  Day,
+  generateDefaultIncomeCategories,
+  generateDefaultOutcomeCategories,
+} from "@gualet/core";
+import { vi } from "vitest";
 import { ReportView } from "@views";
 import { TransactionBuilder } from "@test/builders";
 import userEvent from "@testing-library/user-event";
+import { GetReportUseCase } from "@application/cases";
+import { Report } from "@domain/models";
 
-vi.mock("@infrastructure/ui/hooks");
-
-describe("ReportView", () => {
-  const mockTransactionRepository = {
-    find: vi.fn().mockResolvedValue([]),
-  } as unknown as Mocked<TransactionRepository>;
-
-  const mockUseRepositories = {
-    isReady: true,
-    repositories: { transaction: mockTransactionRepository },
+vi.mock("@infrastructure/ui/hooks", () => ({
+  useLoader: vi.fn(() => ({
     isLoading: false,
     setIsLoading: vi.fn(),
-  };
+    Loader: () => <div>Loader</div>,
+  })),
+}));
+
+describe("ReportView", () => {
+  const to = new Day();
+  const from = to.cloneWithPreviousMonth();
+
+  const incomeCategory1 = generateDefaultIncomeCategories()[0];
+  const incomeCategory2 = generateDefaultIncomeCategories()[1];
+  const outcomeCategory = generateDefaultOutcomeCategories()[1];
+
+  const mockTransactions = [
+    new TransactionBuilder()
+      .withAmount(300)
+      .withCategory(incomeCategory1)
+      .build(),
+    new TransactionBuilder()
+      .withAmount(200)
+      .withCategory(incomeCategory2)
+      .build(),
+    new TransactionBuilder()
+      .withAmount(200)
+      .withCategory(outcomeCategory)
+      .build(),
+    new TransactionBuilder()
+      .withAmount(200)
+      .withCategory(outcomeCategory)
+      .build(),
+  ];
+
+  const mockReport = new Report({
+    from,
+    to,
+    transactions: mockTransactions,
+  });
+
+  const mockGetReportUseCase = {
+    exec: vi.fn().mockResolvedValue(mockReport),
+  } as unknown as GetReportUseCase;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useLoader as Mock).mockReturnValue(mockUseRepositories);
   });
 
   it("renders the form with date fields and submit button", () => {
-    render(<ReportView />);
+    render(<ReportView getReportUseCase={mockGetReportUseCase} />);
 
     expect(screen.getByLabelText(/from:/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/to:/i)).toBeInTheDocument();
@@ -38,7 +72,7 @@ describe("ReportView", () => {
   });
 
   it("calls fetchReport with the correct dates on submit", async () => {
-    render(<ReportView />);
+    render(<ReportView getReportUseCase={mockGetReportUseCase} />);
 
     await userEvent.clear(screen.getByLabelText(/from:/i));
     await userEvent.type(screen.getByLabelText(/from:/i), "2023-01-01");
@@ -47,7 +81,7 @@ describe("ReportView", () => {
     await userEvent.click(screen.getByRole("button", { name: /get report/i }));
 
     await waitFor(() => {
-      expect(mockTransactionRepository.find).toHaveBeenCalledWith({
+      expect(mockGetReportUseCase.exec).toHaveBeenCalledWith({
         from: new Day("2023-01-01"),
         to: new Day("2023-01-31"),
       });
@@ -57,20 +91,8 @@ describe("ReportView", () => {
   it("displays report data correctly when received", async () => {
     const to = new Day();
     const from = to.cloneWithPreviousMonth();
-    mockTransactionRepository.find.mockResolvedValue([
-      new TransactionBuilder()
-        .withAmount(300)
-        .withCategory(defaultIncomeCategories[0])
-        .build(),
-      new TransactionBuilder()
-        .withAmount(200)
-        .withCategory(defaultIncomeCategories[1])
-        .build(),
-      new TransactionBuilder().withAmount(200).build(),
-      new TransactionBuilder().withAmount(200).build(),
-    ]);
 
-    render(<ReportView />);
+    render(<ReportView getReportUseCase={mockGetReportUseCase} />);
 
     fireEvent.submit(screen.getByRole("button", { name: /get report/i }));
 
@@ -93,12 +115,12 @@ describe("ReportView", () => {
           name: /Outcome.*:.*-400/,
         }),
       ).toBeInTheDocument();
-      expect(screen.getByText(/Rent: -400/)).toBeInTheDocument();
+      expect(screen.getByText(/Groceries: -400/)).toBeInTheDocument();
     });
   });
 
   it("displays 'No data' when report is null", () => {
-    render(<ReportView />);
+    render(<ReportView getReportUseCase={mockGetReportUseCase} />);
     expect(screen.getByText(/no data/i)).toBeInTheDocument();
   });
 });
