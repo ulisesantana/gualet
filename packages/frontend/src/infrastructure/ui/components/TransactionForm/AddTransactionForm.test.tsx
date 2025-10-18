@@ -119,7 +119,7 @@ describe("AddTransactionForm", () => {
   });
 
   // TODO: Is not working for some reason
-  it.skip("resets the form after successful submission", async () => {
+  it("resets the form after successful submission", async () => {
     setup();
 
     // Fill in the form
@@ -136,14 +136,17 @@ describe("AddTransactionForm", () => {
       target: { value: "Test transaction" },
     });
     fireEvent.change(screen.getByLabelText(/Payment method:/i), {
-      target: { value: "Cash" },
+      target: { value: "💶 Cash" },
     });
 
     // Submit the form
-    fireEvent.submit(screen.getByRole("button", { name: "+" }));
+    fireEvent.submit(screen.getByRole("button"));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
       // Check that the form resets after submission
       expect(element.querySelector('[name="operation"]')).toHaveValue(
         OperationType.Outcome,

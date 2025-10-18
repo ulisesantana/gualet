@@ -78,7 +78,7 @@ describe("App Component", () => {
     });
   });
 
-  it.skip("renders categories views on /categories route", async () => {
+  it("renders categories views on /categories route", async () => {
     cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
     render(
       <Router>
@@ -92,7 +92,7 @@ describe("App Component", () => {
     });
   });
 
-  it.skip("renders view for adding categories on /categories/add route", async () => {
+  it("renders view for adding categories on /categories/add route", async () => {
     cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
     render(
       <Router>
@@ -106,7 +106,7 @@ describe("App Component", () => {
     });
   });
 
-  it.skip("renders settings view on /settings route", async () => {
+  it("renders settings view on /settings route", async () => {
     cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
     render(
       <Router>
@@ -120,7 +120,7 @@ describe("App Component", () => {
     });
   });
 
-  it.skip("renders category details view on /categories/:id route", async () => {
+  it("renders category details view on /categories/:id route", async () => {
     cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
     render(
       <Router>
@@ -134,7 +134,7 @@ describe("App Component", () => {
     });
   });
 
-  it.skip("renders transaction details view on /transactions/:id route", async () => {
+  it("renders transaction details view on /transactions/:id route", async () => {
     cases.verifySessionUseCase.exec.mockResolvedValue({ success: true });
     render(
       <Router>
