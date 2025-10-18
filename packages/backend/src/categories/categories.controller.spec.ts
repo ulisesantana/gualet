@@ -198,7 +198,13 @@ describe('CategoriesController', () => {
       });
 
       expect(res.send).toHaveBeenCalledWith(new CategoryResponseDto(category));
-      expect(service.update).toHaveBeenCalledWith(new Id('1'), category);
+      expect(service.update).toHaveBeenCalledWith(new Id('1'), {
+        id: category.id,
+        name: category.name,
+        type: category.type,
+        icon: category.icon,
+        color: category.color,
+      });
     });
 
     describe('Error handling', () => {
