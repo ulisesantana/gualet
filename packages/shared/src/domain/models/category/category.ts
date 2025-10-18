@@ -15,6 +15,7 @@ export class Category {
   readonly type: OperationType;
   readonly icon: string;
   readonly color: string;
+  readonly title: string;
 
   constructor(input: CategoryParams) {
     this.id = input.id || new Id();
@@ -22,10 +23,7 @@ export class Category {
     this.type = input.type;
     this.icon = input.icon?.trim() || "";
     this.color = input.color?.trim() || "#545454";
-  }
-
-  get title() {
-    return this.icon ? `${this.icon} ${this.name}` : this.name;
+    this.title = this.icon ? `${this.icon} ${this.name}` : this.name;
   }
 
   toJSON() {
