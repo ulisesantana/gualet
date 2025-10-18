@@ -142,13 +142,15 @@ export class AuthController extends BaseController {
     if (this.isBaseError(error)) {
       switch (error.code) {
         case UserErrorCodes.UserNotFound: {
-          res.status(404).send(new ErrorResponse(new NotFoundException(error)));
+          res
+            .status(404)
+            .send(new ErrorResponse(new NotFoundException(error.message)));
           break;
         }
         case UserErrorCodes.InvalidCredentials: {
           res
             .status(401)
-            .send(new ErrorResponse(new UnauthorizedException(error)));
+            .send(new ErrorResponse(new UnauthorizedException(error.message)));
           break;
         }
       }

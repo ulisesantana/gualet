@@ -2,7 +2,7 @@ import {expect} from '@playwright/test';
 import {test} from '@fixtures';
 import {RegisterPage} from "@pages";
 
-const user = {email: "test@gualet.app", password: "testTEST1"}
+const user = {email: "test@gualet.app", password: "test1234"}
 test.describe('register success', () => {
   test('should register successfully', async ({page, db}) => {
     await db.reset()

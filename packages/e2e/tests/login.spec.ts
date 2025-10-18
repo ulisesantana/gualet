@@ -2,7 +2,7 @@ import {expect} from '@playwright/test';
 import {test} from '@fixtures';
 import {LoginPage} from "@pages";
 
-const user = {email: "test@gualet.app", password: "testTEST1"}
+const user = {email: "test@gualet.app", password: "test1234"}
 test.describe('login success', () => {
   test('should redirect to login page if not logged in', async ({page}) => {
     await page.goto('/home');
@@ -35,7 +35,7 @@ test.describe('handle login errors', () => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
 
-    await loginPage.login(user);
+    await loginPage.login({email: "not.exist@gualet.app", password: "test1234"});
 
     await expect(loginPage.error).toHaveText('User not found.');
   })
