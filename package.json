@@ -29,7 +29,7 @@
     "typecheck:e2e": "npm run typecheck -w packages/e2e",
     "db:dev:up": "docker compose -f docker-compose.yaml up -d",
     "db:dev:down": "docker compose -f docker-compose.yaml down",
-    "dependencies:restart": "rm -rf **/node_modules && npm install"
+    "dependencies:restart": "rm -rf node_modules package-lock.json packages/*/node_modules packages/*/package-lock.json && npm install"
   },
   "author": "Ulises Santana Suárez <ulisesantana@gmail.com>",
   "license": "ISC",

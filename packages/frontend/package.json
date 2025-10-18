@@ -6,7 +6,7 @@
   "homepage": "https://ulisesantana.github.io/gualet",
   "author": "Ulises Santana Suárez <ulisesantana@gmail.com>",
   "dependencies": {
-    "@gualet/core": "*",
+    "@gualet/shared": "*",
     "@types/node": "22.7.5",
     "@types/react": "18.0.0",
     "@types/react-dom": "18.0.0",

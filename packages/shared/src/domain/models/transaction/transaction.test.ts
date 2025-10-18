@@ -1,5 +1,5 @@
 import {describe, expect, it} from "vitest";
-import {Category, Day, Id, OperationType, PaymentMethod, Transaction} from "@gualet/core";
+import {Category, Day, Id, OperationType, PaymentMethod, Transaction} from "@gualet/shared";
 
 
 describe("Transaction", () => {
