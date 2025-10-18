@@ -1,44 +1,138 @@
-import { DataSource } from 'typeorm';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import {
   CategoryEntity,
   PaymentMethodEntity,
   TransactionEntity,
   UserEntity,
-} from '../entities';
-import { Id, OperationType, TimeString } from '@gualet/shared';
+} from '@src/db/entities';
+import {
+  generateDefaultCategories,
+  generateDefaultPaymentMethods,
+  Id,
+  OperationType,
+  TimeString,
+} from '@gualet/shared';
 
-export class TransactionSeeder {
-  constructor(private readonly dataSource: DataSource) {}
+@Injectable()
+export class DatabaseSeederService implements OnModuleInit {
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(CategoryEntity)
+    private readonly categoryRepository: Repository<CategoryEntity>,
+    @InjectRepository(PaymentMethodEntity)
+    private readonly paymentMethodRepository: Repository<PaymentMethodEntity>,
+    @InjectRepository(TransactionEntity)
+    private readonly transactionRepository: Repository<TransactionEntity>,
+    private readonly configService: ConfigService,
+  ) {}
 
-  async run(userId: string): Promise<void> {
-    const transactionRepository =
-      this.dataSource.getRepository(TransactionEntity);
-    const categoryRepository = this.dataSource.getRepository(CategoryEntity);
-    const paymentMethodRepository =
-      this.dataSource.getRepository(PaymentMethodEntity);
-    const userRepository = this.dataSource.getRepository(UserEntity);
+  async onModuleInit() {
+    const env = this.configService.get('NODE_ENV');
+    if (env === 'development') {
+      console.log('🌱 Running database seeders...');
+      await this.seed();
+    }
+  }
 
+  async seed() {
+    try {
+      const userId = await this.seedUser();
+      await this.seedTransactions(userId);
+      console.log('✅ Database seeding completed\n');
+    } catch (error) {
+      console.error('❌ Error during seeding:', error);
+    }
+  }
+
+  private async seedUser(): Promise<string> {
+    // Check if test user already exists
+    const existingUser = await this.userRepository.findOne({
+      where: { email: 'test@gualet.app' },
+    });
+
+    if (existingUser) {
+      console.log('   ✓ Test user already exists');
+      return existingUser.id;
+    }
+
+    // Create test user
+    const userId = new Id().toString();
+    const hashedPassword = await bcrypt.hash('test1234', 10);
+    await this.userRepository.insert({
+      id: userId,
+      email: 'test@gualet.app',
+      password: hashedPassword,
+    });
+
+    const testUser = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!testUser) {
+      throw new Error('Failed to create test user');
+    }
+
+    console.log('   ✓ Test user created: test@gualet.app / test1234');
+
+    // Create default categories
+    const defaultCategories = generateDefaultCategories();
+    for (const cat of defaultCategories) {
+      await this.categoryRepository.insert({
+        id: new Id().toString(),
+        name: cat.name,
+        type: cat.type,
+        icon: cat.icon || undefined,
+        color: cat.color || undefined,
+        user: testUser,
+      });
+    }
+
+    console.log(`   ✓ Created ${defaultCategories.length} default categories`);
+
+    // Create default payment methods
+    const defaultPaymentMethods = generateDefaultPaymentMethods();
+    for (const pm of defaultPaymentMethods) {
+      await this.paymentMethodRepository.insert({
+        id: new Id().toString(),
+        name: pm.name,
+        icon: pm.icon || undefined,
+        color: pm.color || undefined,
+        user: testUser,
+      });
+    }
+
+    console.log(
+      `   ✓ Created ${defaultPaymentMethods.length} default payment methods`,
+    );
+
+    return userId;
+  }
+
+  private async seedTransactions(userId: string): Promise<void> {
     // Check if user already has transactions
-    const existingTransactions = await transactionRepository.count({
+    const existingTransactions = await this.transactionRepository.count({
       where: { user: { id: userId } },
     });
 
     if (existingTransactions > 0) {
-      console.log(
-        `✅ User already has ${existingTransactions} transactions, skipping seed`,
-      );
+      console.log(`   ✓ User already has ${existingTransactions} transactions`);
       return;
     }
 
     // Get user
-    const user = await userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      console.log('❌ User not found, skipping transaction seeding');
+      console.log('   ✗ User not found, skipping transaction seeding');
       return;
     }
 
     // Get categories
-    const categories = await categoryRepository.find({
+    const categories = await this.categoryRepository.find({
       where: { user: { id: userId } },
     });
 
@@ -50,21 +144,23 @@ export class TransactionSeeder {
     );
 
     if (incomeCategories.length === 0 || outcomeCategories.length === 0) {
-      console.log('❌ No categories found, skipping transaction seeding');
+      console.log('   ✗ No categories found, skipping transaction seeding');
       return;
     }
 
     // Get payment methods
-    const paymentMethods = await paymentMethodRepository.find({
+    const paymentMethods = await this.paymentMethodRepository.find({
       where: { user: { id: userId } },
     });
 
     if (paymentMethods.length === 0) {
-      console.log('❌ No payment methods found, skipping transaction seeding');
+      console.log(
+        '   ✗ No payment methods found, skipping transaction seeding',
+      );
       return;
     }
 
-    // Generate 50 diverse transactions over the last 90 days
+    // Generate transactions
     const transactions: Partial<TransactionEntity>[] = [];
     const now = new Date();
 
@@ -178,11 +274,8 @@ export class TransactionSeeder {
       });
     });
 
-    // Save all transactions in batches for better performance
-    await transactionRepository.save(transactions);
-
-    console.log(
-      `✅ Created ${transactions.length} sample transactions for test user`,
-    );
+    // Save all transactions
+    await this.transactionRepository.save(transactions);
+    console.log(`   ✓ Created ${transactions.length} sample transactions`);
   }
 }

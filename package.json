@@ -29,6 +29,8 @@
     "typecheck:e2e": "npm run typecheck -w packages/e2e",
     "db:dev:up": "docker compose -f docker-compose.yaml up -d",
     "db:dev:down": "docker compose -f docker-compose.yaml down",
+    "db:dev:clean": "npm run db:clean -w packages/backend",
+    "db:dev:seed": "npm run db:seed -w packages/backend",
     "dependencies:restart": "rm -rf node_modules package-lock.json packages/*/node_modules packages/*/package-lock.json && npm install"
   },
   "author": "Ulises Santana Suárez <ulisesantana@gmail.com>",

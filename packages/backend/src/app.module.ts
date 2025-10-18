@@ -33,6 +33,7 @@ import {
   UserEntity,
   UserPreferencesEntity,
 } from '@src/db';
+import { DatabaseSeederService } from '@src/db/database-seeder.service';
 
 const envFilePath = resolve(
   __dirname,
@@ -68,6 +69,12 @@ console.debug('🔍 envFilePath', envFilePath);
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      CategoryEntity,
+      PaymentMethodEntity,
+      TransactionEntity,
+    ]),
     ServeStaticModule.forRootAsync({
       useFactory: () => [
         {
@@ -99,6 +106,7 @@ console.debug('🔍 envFilePath', envFilePath);
     CategoriesService,
     PaymentMethodsService,
     TransactionsService,
+    DatabaseSeederService,
   ],
 })
 export class AppModule {}

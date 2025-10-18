@@ -5,39 +5,11 @@ import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { LoggingInterceptor } from '@src/common/interceptors';
-import { AppDataSource } from '@src/db/data-source';
-import { TransactionSeeder, UserSeeder } from '@src/db/seeders';
 
 const logger = new ConsoleLogger({
   context: 'Bootstrap',
   prefix: 'Gualet',
 });
-
-async function runSeeders() {
-  try {
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
-
-    const userSeeder = new UserSeeder(AppDataSource);
-    await userSeeder.run();
-
-    // Get test user and seed transactions
-    const userRepository = AppDataSource.getRepository('UserEntity' as any);
-    const testUser = await userRepository.findOne({
-      where: { email: 'test@gualet.app' },
-    });
-
-    if (testUser) {
-      const transactionSeeder = new TransactionSeeder(AppDataSource);
-      await transactionSeeder.run(testUser.id);
-    }
-
-    await AppDataSource.destroy();
-  } catch (error) {
-    logger.error('Error running seeders:', error);
-  }
-}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -62,10 +34,6 @@ async function bootstrap() {
     app.enableShutdownHooks();
   }
   if (config.get('NODE_ENV') === 'development') {
-    // Run seeders in development
-    logger.log('🌱 Running database seeders...');
-    await runSeeders();
-
     const docsRoute = 'api/docs';
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Gualet API')
@@ -99,7 +67,12 @@ async function bootstrap() {
   }
 
   await app.listen(process.env.PORT ?? 5050);
-  logger.log(`Application is running on: ${await app.getUrl()}`);
+  logger.log(
+    `🚀 Application is running on: http://localhost:${process.env.PORT ?? 5050}`,
+  );
 }
 
-bootstrap().catch(logger.error);
+bootstrap().catch((error) => {
+  logger.error('❌ Error during application bootstrap:', error);
+  process.exit(1);
+});

@@ -2,37 +2,33 @@ import { AppDataSource } from './data-source';
 import { TransactionSeeder, UserSeeder } from './seeders';
 
 async function seed() {
-  try {
-    console.log('🌱 Starting database seeding...');
+  console.log('🌱 Starting database seeding...\n');
 
-    // Initialize data source
-    await AppDataSource.initialize();
-    console.log('✅ Database connected');
+  // Initialize data source
+  await AppDataSource.initialize();
+  console.log('✅ Database connected\n');
 
-    // Run user seeder
-    const userSeeder = new UserSeeder(AppDataSource);
-    await userSeeder.run();
+  // Run user seeder (creates user, categories, and payment methods)
+  console.log('👤 Creating test user with default data...');
+  const userSeeder = new UserSeeder(AppDataSource);
+  const userId = await userSeeder.run();
+  console.log('');
 
-    // Get the test user ID
-    const userRepository = AppDataSource.getRepository('UserEntity' as any);
-    const testUser = await userRepository.findOne({
-      where: { email: 'test@gualet.app' },
-    });
+  // Run transaction seeder
+  console.log('💰 Creating sample transactions...');
+  const transactionSeeder = new TransactionSeeder(AppDataSource);
+  await transactionSeeder.run(userId);
+  console.log('');
 
-    // Run transaction seeder if user exists
-    if (testUser) {
-      const transactionSeeder = new TransactionSeeder(AppDataSource);
-      await transactionSeeder.run(testUser.id);
-    }
-
-    console.log('🎉 Seeding completed successfully');
-    await AppDataSource.destroy();
-    process.exit(0);
-  } catch (error) {
-    console.error('❌ Error during seeding:', error);
-    await AppDataSource.destroy();
-    process.exit(1);
-  }
+  console.log('🎉 Seeding completed successfully');
+  await AppDataSource.destroy();
+  process.exit(0);
 }
 
-seed();
+seed().catch(async (error) => {
+  console.error('❌ Error during seeding:', error);
+  if (AppDataSource.isInitialized) {
+    await AppDataSource.destroy();
+  }
+  process.exit(1);
+});
