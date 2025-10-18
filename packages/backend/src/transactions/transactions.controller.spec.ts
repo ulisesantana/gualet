@@ -2,10 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto, UpdateTransactionDto } from './dto';
-import { Id, OperationType } from '@src/common/domain';
+import { Id, OperationType } from '@gualet/shared';
 import { buildFindTransactionsCriteria } from '@test/builders/dto/find-transactions-criteria.dto.builder';
 import { buildTransaction } from '@test/builders/entities/transaction.entity.builder';
-import { TimeString } from '@src/common/types';
+import { TimeString } from '@gualet/shared';
 import { AuthenticatedRequest, Pagination } from '@src/common/infrastructure';
 import { TransactionNotFoundError } from '@src/transactions/errors';
 import { Response } from 'express';
@@ -214,9 +214,9 @@ describe('TransactionsController', () => {
 
       await controller.update(
         transactionId,
+        updateDto,
         req as AuthenticatedRequest,
         res,
-        updateDto,
       );
 
       expect(res.status).toHaveBeenCalledWith(200);
@@ -247,9 +247,9 @@ describe('TransactionsController', () => {
 
       await controller.update(
         transactionId,
+        updateDto,
         req as AuthenticatedRequest,
         res,
-        updateDto,
       );
 
       expect(res.status).toHaveBeenCalledWith(500);
@@ -392,9 +392,9 @@ describe('TransactionsController', () => {
 
     await controller.update(
       transactionId,
+      updateDto,
       req as AuthenticatedRequest,
       res,
-      updateDto,
     );
 
     expect(res.status).toHaveBeenCalledWith(403);

@@ -1,6 +1,5 @@
-import { BaseError } from '@src/common/errors';
 import { UserErrorCodes } from './user.error-codes';
-import { Id } from '@src/common/domain';
+import { BaseError, Id } from '@gualet/shared';
 
 export class UserNotFoundError extends BaseError<UserErrorCodes> {
   code = UserErrorCodes.UserNotFound;

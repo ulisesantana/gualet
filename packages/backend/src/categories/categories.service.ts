@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CategoriesRepository } from './categories.repository';
-import { Nullable } from '@src/common/types';
+import { Nullable } from '@gualet/shared';
 import {
   Category,
   generateDefaultCategories,

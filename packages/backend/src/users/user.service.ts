@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { User, UserWithPassword } from './models';
 import { UserMapper } from './mappers';
 import { UserAlreadyExistsError, UserNotFoundError } from './errors';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import { UserEntity } from '@src/db';
 import { CategoriesService } from '@src/categories';
 import { PaymentMethodsService } from '@src/payment-methods';

@@ -1,4 +1,4 @@
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 
 export interface UserInput {
   id?: Id | string;

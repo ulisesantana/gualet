@@ -1,4 +1,4 @@
-import { Nullable } from '../types';
+import { Nullable } from '@gualet/shared';
 import { Pagination } from '../infrastructure';
 import { ApiProperty } from '@nestjs/swagger';
 

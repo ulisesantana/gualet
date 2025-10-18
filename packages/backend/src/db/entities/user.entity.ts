@@ -5,7 +5,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { TimeString } from '@src/common/types';
+import { TimeString } from '@gualet/shared';
 
 @Entity('users')
 export class UserEntity {

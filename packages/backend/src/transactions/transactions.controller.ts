@@ -27,13 +27,20 @@ import {
   ErrorResponse,
   SecureController,
 } from '@src/common/infrastructure';
-import { Id } from '@src/common/domain';
-import { ApiResponse } from '@nestjs/swagger';
+import { Id } from '@gualet/shared';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { TransactionsErrorCodes } from '@src/transactions/errors';
 import { CategoriesErrorCodes } from '@src/categories/errors';
 import { PaymentMethodsErrorCodes } from '@src/payment-methods/errors';
 import { Response } from 'express';
 
+@ApiTags('Transactions')
+@ApiBearerAuth()
 @Controller('me/transactions')
 export class TransactionsController extends SecureController {
   constructor(private readonly transactionsService: TransactionsService) {
@@ -41,7 +48,17 @@ export class TransactionsController extends SecureController {
   }
 
   @Post()
-  @ApiResponse({ type: TransactionResponseDto })
+  @ApiOperation({ summary: 'Create a new transaction' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction created successfully',
+    type: TransactionResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 404,
+    description: 'Category or payment method not found',
+  })
   async create(
     @Body() createTransactionDto: CreateTransactionDto,
     @Req() req: AuthenticatedRequest,
@@ -59,7 +76,13 @@ export class TransactionsController extends SecureController {
   }
 
   @Get()
-  @ApiResponse({ type: TransactionsResponseDto })
+  @ApiOperation({ summary: 'Get all user transactions with optional filters' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transactions retrieved successfully',
+    type: TransactionsResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(
     @Query() criteria: FindTransactionsCriteria,
     @Req() req: AuthenticatedRequest,
@@ -79,7 +102,18 @@ export class TransactionsController extends SecureController {
   }
 
   @Get('/:id')
-  @ApiResponse({ type: TransactionResponseDto })
+  @ApiOperation({ summary: 'Get transaction by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction found',
+    type: TransactionResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Transaction belongs to another user',
+  })
+  @ApiResponse({ status: 404, description: 'Transaction not found' })
   async findOne(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
@@ -97,18 +131,32 @@ export class TransactionsController extends SecureController {
   }
 
   @Patch(':id')
-  @ApiResponse({ type: TransactionResponseDto })
+  @ApiOperation({ summary: 'Update a transaction' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction updated successfully',
+    type: TransactionResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Transaction belongs to another user',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Transaction, category, or payment method not found',
+  })
   async update(
     @Param('id') id: string,
+    @Body() updateTransactionDto: UpdateTransactionDto,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
-    @Body() transactionDto: UpdateTransactionDto,
   ) {
     try {
       const transaction = await this.transactionsService.update(
         new Id(req.user.userId),
         {
-          ...transactionDto,
+          ...updateTransactionDto,
           id: new Id(id),
         },
       );
@@ -119,7 +167,18 @@ export class TransactionsController extends SecureController {
   }
 
   @Delete(':id')
-  @ApiResponse({ type: DeleteTransactionResponseDto })
+  @ApiOperation({ summary: 'Delete a transaction' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction deleted successfully',
+    type: DeleteTransactionResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Transaction belongs to another user',
+  })
+  @ApiResponse({ status: 404, description: 'Transaction not found' })
   async remove(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,

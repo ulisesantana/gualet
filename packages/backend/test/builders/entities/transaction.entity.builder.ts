@@ -7,7 +7,7 @@ import {
   buildUserEntity,
   generateRandomId,
 } from '@test/builders';
-import { Id, OperationType } from '@src/common/domain';
+import { Id, OperationType } from '@gualet/shared';
 import { Transaction } from '@src/transactions';
 
 export function buildTransactionEntity(

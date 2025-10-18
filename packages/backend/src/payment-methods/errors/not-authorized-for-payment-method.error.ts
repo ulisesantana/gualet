@@ -1,5 +1,4 @@
-import { BaseError } from '@src/common/errors';
-import { Id } from '@src/common/domain';
+import { BaseError, Id } from '@gualet/shared';
 import { PaymentMethodsErrorCodes } from '@src/payment-methods/errors/payment-methods-error-codes.enum';
 
 export class NotAuthorizedForPaymentMethodError extends BaseError<PaymentMethodsErrorCodes> {

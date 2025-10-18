@@ -1,7 +1,7 @@
-import { Id, OperationType } from '@src/common/domain';
+import { Id, OperationType } from '@gualet/shared';
 import { Category } from '@src/categories';
 import { PaymentMethod } from '@src/payment-methods/payment-method.model';
-import { TimeString } from '@src/common/types';
+import { TimeString } from '@gualet/shared';
 
 interface Input {
   id?: Id | string;

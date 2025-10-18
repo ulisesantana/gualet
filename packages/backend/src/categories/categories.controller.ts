@@ -23,11 +23,18 @@ import {
   ErrorResponse,
   SecureController,
 } from '@src/common/infrastructure';
-import { ApiResponse } from '@nestjs/swagger';
-import { Id } from '@src/common/domain';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Id } from '@gualet/shared';
 import { CategoriesErrorCodes } from './errors';
 import { Response } from 'express';
 
+@ApiTags('Categories')
+@ApiBearerAuth()
 @Controller('me/categories')
 export class CategoriesController extends SecureController {
   constructor(private readonly categoryService: CategoriesService) {
@@ -35,7 +42,13 @@ export class CategoriesController extends SecureController {
   }
 
   @Get('/')
-  @ApiResponse({ type: CategoriesResponseDto })
+  @ApiOperation({ summary: 'Get all user categories' })
+  @ApiResponse({
+    status: 200,
+    description: 'Categories retrieved successfully',
+    type: CategoriesResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(@Req() req: AuthenticatedRequest) {
     const categories = await this.categoryService.findAll(
       new Id(req.user.userId),
@@ -44,9 +57,23 @@ export class CategoriesController extends SecureController {
   }
 
   @Get('/:id')
-  @ApiResponse({ status: 200, type: CategoryResponseDto })
-  @ApiResponse({ status: 403, type: ErrorResponse<ForbiddenException> })
-  @ApiResponse({ status: 404, type: ErrorResponse<NotFoundException> })
+  @ApiOperation({ summary: 'Get category by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Category found',
+    type: CategoryResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Category belongs to another user',
+    type: ErrorResponse<ForbiddenException>,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+    type: ErrorResponse<NotFoundException>,
+  })
   @ApiResponse({
     status: 500,
     type: ErrorResponse<InternalServerErrorException>,
@@ -69,7 +96,13 @@ export class CategoriesController extends SecureController {
   }
 
   @Post('/')
-  @ApiResponse({ type: CategoryResponseDto })
+  @ApiOperation({ summary: 'Create a new category' })
+  @ApiResponse({
+    status: 200,
+    description: 'Category created successfully',
+    type: CategoryResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async create(
     @Req() req: AuthenticatedRequest,
     @Body() category: CreateCategoryDto,
@@ -83,9 +116,23 @@ export class CategoriesController extends SecureController {
   }
 
   @Patch('/:id')
-  @ApiResponse({ status: 200, type: CategoryResponseDto })
-  @ApiResponse({ status: 403, type: ErrorResponse<ForbiddenException> })
-  @ApiResponse({ status: 404, type: ErrorResponse<NotFoundException> })
+  @ApiOperation({ summary: 'Update a category' })
+  @ApiResponse({
+    status: 200,
+    description: 'Category updated successfully',
+    type: CategoryResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Category belongs to another user',
+    type: ErrorResponse<ForbiddenException>,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+    type: ErrorResponse<NotFoundException>,
+  })
   @ApiResponse({
     status: 500,
     type: ErrorResponse<InternalServerErrorException>,

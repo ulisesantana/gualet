@@ -9,18 +9,20 @@
 - [x] Basic backend structure with NestJS
 - [x] JWT Authentication (login, register, logout, verify)
 - [x] PostgreSQL database with TypeORM
-- [x] Entities defined: User, Category, PaymentMethod, Transaction
+- [x] Entities defined: User, Category, PaymentMethod, Transaction, UserPreferences
 - [x] Database migrations configured
+- [x] Database seeding system with test user (test@gualet.app)
 - [x] Complete Categories CRUD
 - [x] Complete Payment Methods CRUD
 - [x] Complete Transactions CRUD
+- [x] Complete User Preferences CRUD
 - [x] Custom error system by domain
 - [x] Authentication Guards (JwtAuthGuard)
 - [x] Controllers with unified error handling
 - [x] E2E tests working correctly (7/7 passing)
 - [x] Docker Compose for development and testing databases
-- [x] Automatic creation of default categories and payment methods on
-  registration
+- [x] Automatic creation of default categories and payment methods on registration
+- [x] API documentation with Swagger/OpenAPI
 
 #### Frontend (React + Axios)
 

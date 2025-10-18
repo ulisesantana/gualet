@@ -16,7 +16,7 @@ import {
   buildTransactionEntity,
   buildUserEntity,
 } from '@test/builders';
-import { Id, OperationType } from '@src/common/domain';
+import { Id, OperationType } from '@gualet/shared';
 import {
   NotAuthorizedForTransactionError,
   TransactionNotFoundError,
@@ -30,7 +30,7 @@ import {
   PaymentMethodNotFoundError,
 } from '@src/payment-methods/errors';
 
-import { DateString, TimeString } from '@src/common/types';
+import { DateString, TimeString } from '@gualet/shared';
 import {
   CategoryEntity,
   PaymentMethodEntity,

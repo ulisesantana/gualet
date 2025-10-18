@@ -5,7 +5,7 @@ import { CategoryResponseDto } from './dto';
 import { buildCategory, buildUserEntity } from '@test/builders';
 import { Category } from './category.model';
 import { CategoryNotFoundError, NotAuthorizedForCategoryError } from './errors';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
 import {
   ForbiddenException,
@@ -77,8 +77,8 @@ describe('CategoriesController', () => {
     const result = await controller.create(req, {
       name: category.name,
       type: category.type,
-      icon: category.icon as string,
-      color: category.color as string,
+      icon: category.icon,
+      color: category.color,
     });
 
     expect(result).toEqual({
@@ -193,8 +193,8 @@ describe('CategoriesController', () => {
       await controller.update(req, res, category.id.toString(), {
         name: category.name,
         type: category.type,
-        icon: category.icon as string,
-        color: category.color as string,
+        icon: category.icon,
+        color: category.color,
       });
 
       expect(res.send).toHaveBeenCalledWith(new CategoryResponseDto(category));

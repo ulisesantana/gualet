@@ -1,6 +1,5 @@
-import { BaseError } from '@src/common/errors';
-import { Id } from '@src/common/domain';
-import { PaymentMethodsErrorCodes } from '@src/payment-methods/errors/payment-methods-error-codes.enum';
+import { BaseError, Id } from '@gualet/shared';
+import { PaymentMethodsErrorCodes } from '@src/payment-methods/errors';
 
 export class NotAuthorizedForTransactionError extends BaseError<PaymentMethodsErrorCodes> {
   code = PaymentMethodsErrorCodes.NotAuthorizedForPaymentMethod;

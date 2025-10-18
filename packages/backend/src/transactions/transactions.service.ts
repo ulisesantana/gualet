@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Id, OperationType } from '@src/common/domain';
+import { Id, OperationType } from '@gualet/shared';
 import { Transaction } from './transaction.model';
-import { TimeString } from '@src/common/types';
+import { TimeString } from '@gualet/shared';
 import { FindTransactionsCriteria } from './dto';
 import { TransactionsRepository } from './transactions.repository';
 import { Pagination } from '@src/common/infrastructure';

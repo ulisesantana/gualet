@@ -3,7 +3,7 @@ import { CategoriesRepository } from './categories.repository';
 import { CategoryEntity } from '@src/db';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import { Category } from './category.model';
 import {
   CategoryNotFoundError,

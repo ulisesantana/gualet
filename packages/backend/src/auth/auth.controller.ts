@@ -21,7 +21,14 @@ import {
 } from '@src/common/infrastructure';
 import { User } from '@src/users';
 import { UserErrorCodes } from '@src/users/errors/user.error-codes';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController extends BaseController {
   private readonly accessToken = 'access_token';
@@ -34,6 +41,14 @@ export class AuthController extends BaseController {
   }
 
   @Post('login')
+  @ApiOperation({ summary: 'User login' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful',
+    type: UserResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async login(
     @Body() loginData: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -55,6 +70,13 @@ export class AuthController extends BaseController {
   }
 
   @Post('register')
+  @ApiOperation({ summary: 'User registration' })
+  @ApiResponse({
+    status: 200,
+    description: 'Registration successful',
+    type: UserResponseDto,
+  })
+  @ApiResponse({ status: 409, description: 'User already exists' })
   async register(
     @Body() registerData: RegisterDto,
     @Res({ passthrough: true }) res: Response,
@@ -82,6 +104,8 @@ export class AuthController extends BaseController {
   }
 
   @Post('logout')
+  @ApiOperation({ summary: 'User logout' })
+  @ApiResponse({ status: 200, description: 'Logout successful' })
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie(this.accessToken);
     res.status(200);
@@ -89,6 +113,14 @@ export class AuthController extends BaseController {
 
   @Post('verify')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify user session' })
+  @ApiResponse({
+    status: 200,
+    description: 'Session valid',
+    type: UserResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   verify(@Req() req: AuthenticatedRequest) {
     return new UserResponseDto(
       new User({

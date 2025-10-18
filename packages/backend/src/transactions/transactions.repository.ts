@@ -7,7 +7,7 @@ import {
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import { Transaction } from './transaction.model';
 import {
   NotAuthorizedForTransactionError,

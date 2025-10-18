@@ -1,5 +1,5 @@
-import { TimeString } from '@src/common/types';
-import { OperationType } from '@src/common/domain';
+import { TimeString } from '@gualet/shared';
+import { OperationType } from '@gualet/shared';
 import { CategoryDto } from '@src/categories/dto';
 import { PaymentMethodDto } from '@src/payment-methods/dto';
 

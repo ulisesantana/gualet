@@ -1,12 +1,17 @@
 import { Body, Controller, Get, Put, Req, Res } from '@nestjs/common';
 import { UserPreferencesService } from './user-preferences.service';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import {
   AuthenticatedRequest,
   SecureController,
 } from '@src/common/infrastructure';
 import { UserPreferencesDto } from './dto';
-import { ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 
 interface UserPreferencesResponse {
@@ -23,6 +28,8 @@ interface UserPreferencesResponse {
   };
 }
 
+@ApiTags('User Preferences')
+@ApiBearerAuth()
 @Controller('me/preferences')
 export class UserPreferencesController extends SecureController {
   constructor(private readonly userPreferencesService: UserPreferencesService) {
@@ -30,7 +37,41 @@ export class UserPreferencesController extends SecureController {
   }
 
   @Get()
-  @ApiResponse({ type: UserPreferencesDto })
+  @ApiOperation({ summary: 'Get user preferences' })
+  @ApiResponse({
+    status: 200,
+    description: 'Preferences retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        data: {
+          type: 'object',
+          properties: {
+            preferences: {
+              type: 'object',
+              properties: {
+                defaultPaymentMethod: {
+                  type: 'object',
+                  properties: {
+                    id: {
+                      type: 'string',
+                      example: 'a3e23c3c-6dae-4783-84e6-753f44038cd4',
+                    },
+                    name: { type: 'string', example: 'Cash' },
+                    icon: { type: 'string', example: '💵' },
+                    color: { type: 'string', example: '#4caf50' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async find(
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
@@ -68,7 +109,41 @@ export class UserPreferencesController extends SecureController {
   }
 
   @Put()
-  @ApiResponse({ type: UserPreferencesDto })
+  @ApiOperation({ summary: 'Save user preferences' })
+  @ApiResponse({
+    status: 200,
+    description: 'Preferences saved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        data: {
+          type: 'object',
+          properties: {
+            preferences: {
+              type: 'object',
+              properties: {
+                defaultPaymentMethod: {
+                  type: 'object',
+                  properties: {
+                    id: {
+                      type: 'string',
+                      example: 'a3e23c3c-6dae-4783-84e6-753f44038cd4',
+                    },
+                    name: { type: 'string', example: 'Cash' },
+                    icon: { type: 'string', example: '💵' },
+                    color: { type: 'string', example: '#4caf50' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   async save(
     @Body() dto: UserPreferencesDto,
     @Req() req: AuthenticatedRequest,

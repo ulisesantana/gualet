@@ -1,4 +1,4 @@
-import { Nullable } from '@src/common/types';
+import { Nullable } from '@gualet/shared';
 
 export interface PaymentMethodDto {
   id: string;

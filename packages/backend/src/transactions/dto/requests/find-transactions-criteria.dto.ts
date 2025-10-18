@@ -6,8 +6,8 @@ import {
   IsString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OperationType } from '@src/common/domain';
-import { DateString } from '@src/common/types';
+import { OperationType } from '@gualet/shared';
+import { DateString } from '@gualet/shared';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class FindTransactionsCriteria {

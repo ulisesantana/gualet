@@ -5,7 +5,7 @@ import {
   PaymentMethodToUpdate,
 } from './payment-methods.service';
 import { PaymentMethodsRepository } from './payment-methods.repository';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import { PaymentMethod } from './payment-method.model';
 import { PaymentMethodNotFoundError } from './errors';
 

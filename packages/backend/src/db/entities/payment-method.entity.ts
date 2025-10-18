@@ -7,7 +7,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { TimeString } from '@src/common/types';
+import { TimeString } from '@gualet/shared';
 import { UserEntity } from './index';
 
 @Entity('payment_methods')

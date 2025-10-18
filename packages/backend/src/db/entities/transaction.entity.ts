@@ -7,8 +7,8 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { OperationType } from '@src/common/domain';
-import { TimeString } from '@src/common/types';
+import { OperationType } from '@gualet/shared';
+import { TimeString } from '@gualet/shared';
 import { CategoryEntity, PaymentMethodEntity, UserEntity } from './index';
 
 @Entity('transactions')

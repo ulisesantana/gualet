@@ -1,5 +1,5 @@
 import { TransactionNotFoundError } from './errors';
-import { Id, OperationType } from '@src/common/domain';
+import { Id, OperationType } from '@gualet/shared';
 import { Transaction } from './transaction.model';
 import {
   TransactionsService,
@@ -11,7 +11,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { buildTransaction, buildUserEntity } from '@test/builders';
 import { Pagination } from '@src/common/infrastructure';
 import { TransactionEntity } from '@src/db';
-import { TimeString } from '@src/common/types';
+import { TimeString } from '@gualet/shared';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;

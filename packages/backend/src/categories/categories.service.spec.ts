@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriesService } from './categories.service';
 import { Category } from './category.model';
-import { Id, OperationType } from '@src/common/domain';
+import { Id, OperationType } from '@gualet/shared';
 import { buildCategory, buildUserEntity } from '@test/builders';
 import { CategoriesRepository } from './categories.repository';
 import { getRepositoryToken } from '@nestjs/typeorm';

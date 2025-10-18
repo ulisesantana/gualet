@@ -1,6 +1,6 @@
 import { buildUserEntity, generateRandomId } from '@test/builders';
 import { Category } from '@src/categories';
-import { Id, OperationType } from '@src/common/domain';
+import { Id, OperationType } from '@gualet/shared';
 import { CategoryEntity } from '@src/db';
 
 export function buildCategoryEntity(

@@ -11,7 +11,7 @@ import {
   NotAuthorizedForPaymentMethodError,
   PaymentMethodNotFoundError,
 } from './errors';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PaymentMethodsRepository } from '@src/payment-methods/payment-methods.repository';

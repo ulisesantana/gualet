@@ -1,8 +1,8 @@
 import { PaymentMethod } from '@src/payment-methods';
-import { TimeString } from '@src/common/types';
+import { TimeString } from '@gualet/shared';
 import { PaymentMethodEntity } from '@src/db';
 import { buildUserEntity, generateRandomId } from '@test/builders';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 
 export function buildPaymentMethodEntity(
   overrides: Partial<PaymentMethodEntity> = {},

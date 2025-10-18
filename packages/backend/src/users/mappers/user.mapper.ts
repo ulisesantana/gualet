@@ -1,5 +1,5 @@
 import { User, UserWithPassword } from '../index';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import { UserEntity } from '@src/db';
 
 export class UserMapper {

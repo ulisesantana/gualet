@@ -1,4 +1,4 @@
-import { BaseError } from '@src/common/errors';
+import { BaseError } from '@gualet/shared';
 
 export abstract class BaseController {
   protected isBaseError<ErrorCodes>(

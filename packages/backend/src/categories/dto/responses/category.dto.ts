@@ -1,5 +1,5 @@
-import { Nullable } from '@src/common/types';
-import { OperationType } from '@src/common/domain';
+import { Nullable } from '@gualet/shared';
+import { OperationType } from '@gualet/shared';
 
 export interface CategoryDto {
   id: string;

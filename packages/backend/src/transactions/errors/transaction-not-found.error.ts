@@ -1,6 +1,5 @@
-import { BaseError } from '@src/common/errors';
-import { Id } from '@src/common/domain';
-import { TransactionsErrorCodes } from '@src/transactions/errors/transaction-error-codes.enum';
+import { BaseError, Id } from '@gualet/shared';
+import { TransactionsErrorCodes } from '@src/transactions/errors';
 
 export class TransactionNotFoundError extends BaseError<TransactionsErrorCodes> {
   code = TransactionsErrorCodes.TransactionNotFound;

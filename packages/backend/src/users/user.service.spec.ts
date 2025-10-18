@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { buildUserEntity } from '@test/builders';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import { UserEntity } from '@src/db';
 import { CategoriesService } from '@src/categories';
 import { PaymentMethodsService } from '@src/payment-methods';

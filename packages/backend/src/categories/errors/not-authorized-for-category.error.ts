@@ -1,6 +1,5 @@
-import { BaseError } from '@src/common/errors';
+import { BaseError, Id } from '@gualet/shared';
 import { CategoriesErrorCodes } from './categories-error-codes.enum';
-import { Id } from '@src/common/domain';
 
 export class NotAuthorizedForCategoryError extends BaseError<CategoriesErrorCodes> {
   code = CategoriesErrorCodes.NotAuthorizedForCategory;

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserPreferencesController } from './user-preferences.controller';
 import { UserPreferencesService } from './user-preferences.service';
 import { buildPaymentMethod } from '@test/builders';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
 import { Response } from 'express';
 import { UserPreferences } from './user-preferences.model';

@@ -12,7 +12,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { PaymentMethodsService } from './payment-methods.service';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import {
   AuthenticatedRequest,
   ErrorResponse,
@@ -25,9 +25,16 @@ import {
   UpdatePaymentMethodDto,
 } from '@src/payment-methods/dto';
 import { PaymentMethodsErrorCodes } from './errors';
-import { ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 
+@ApiTags('Payment Methods')
+@ApiBearerAuth()
 @Controller('me/payment-methods')
 export class PaymentMethodsController extends SecureController {
   constructor(private readonly paymentMethodsService: PaymentMethodsService) {
@@ -35,7 +42,13 @@ export class PaymentMethodsController extends SecureController {
   }
 
   @Post()
-  @ApiResponse({ type: CreatePaymentMethodDto })
+  @ApiOperation({ summary: 'Create a new payment method' })
+  @ApiResponse({
+    status: 200,
+    description: 'Payment method created successfully',
+    type: PaymentMethodResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async create(
     @Body() createPaymentMethodDto: CreatePaymentMethodDto,
     @Req() req: AuthenticatedRequest,
@@ -48,7 +61,13 @@ export class PaymentMethodsController extends SecureController {
   }
 
   @Get()
-  @ApiResponse({ type: PaymentMethodsResponseDto })
+  @ApiOperation({ summary: 'Get all user payment methods' })
+  @ApiResponse({
+    status: 200,
+    description: 'Payment methods retrieved successfully',
+    type: PaymentMethodsResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(
     @Req() req: AuthenticatedRequest,
   ): Promise<PaymentMethodsResponseDto> {
@@ -59,7 +78,18 @@ export class PaymentMethodsController extends SecureController {
   }
 
   @Get(':id')
-  @ApiResponse({ type: PaymentMethodResponseDto })
+  @ApiOperation({ summary: 'Get payment method by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Payment method found',
+    type: PaymentMethodResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Payment method belongs to another user',
+  })
+  @ApiResponse({ status: 404, description: 'Payment method not found' })
   async findOne(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,
@@ -78,7 +108,18 @@ export class PaymentMethodsController extends SecureController {
   }
 
   @Patch(':id')
-  @ApiResponse({ type: PaymentMethodResponseDto })
+  @ApiOperation({ summary: 'Update a payment method' })
+  @ApiResponse({
+    status: 200,
+    description: 'Payment method updated successfully',
+    type: PaymentMethodResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Payment method belongs to another user',
+  })
+  @ApiResponse({ status: 404, description: 'Payment method not found' })
   async update(
     @Param('id') id: string,
     @Req() req: AuthenticatedRequest,

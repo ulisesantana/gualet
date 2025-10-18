@@ -3,7 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaymentMethodsRepository } from './payment-methods.repository';
 import { buildPaymentMethodEntity, buildUserEntity } from '@test/builders';
-import { Id } from '@src/common/domain';
+import { Id } from '@gualet/shared';
 import {
   NotAuthorizedForPaymentMethodError,
   PaymentMethodNotFoundError,
