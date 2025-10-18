@@ -21,12 +21,17 @@ import {
   TransactionsModule,
   TransactionsService,
 } from '@src/transactions';
+import {
+  UserPreferencesController,
+  UserPreferencesModule,
+} from '@src/user-preferences';
 import { HealthController } from './health/health.controller';
 import {
   CategoryEntity,
   PaymentMethodEntity,
   TransactionEntity,
   UserEntity,
+  UserPreferencesEntity,
 } from '@src/db';
 
 const envFilePath = resolve(
@@ -55,6 +60,7 @@ console.debug('🔍 envFilePath', envFilePath);
           CategoryEntity,
           PaymentMethodEntity,
           TransactionEntity,
+          UserPreferencesEntity,
         ],
         synchronize: ['development', 'test'].includes(
           configService.get('NODE_ENV')!,
@@ -76,12 +82,14 @@ console.debug('🔍 envFilePath', envFilePath);
     CategoriesModule,
     PaymentMethodsModule,
     TransactionsModule,
+    UserPreferencesModule,
   ],
   controllers: [
     AuthController,
     CategoriesController,
     PaymentMethodsController,
     TransactionsController,
+    UserPreferencesController,
     HealthController,
   ],
   providers: [

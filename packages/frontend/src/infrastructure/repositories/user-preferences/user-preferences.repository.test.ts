@@ -1,53 +1,91 @@
 import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { UserPreferences } from "@domain/models";
-import { StorageDataSource } from "@infrastructure/data-sources";
+import { HttpDataSource } from "@infrastructure/data-sources";
 import { UserPreferencesRepositoryImplementation } from "@infrastructure/repositories";
 import { Id, PaymentMethod } from "@gualet/shared";
 
 describe("UserPreferencesRepositoryImplementation", () => {
-  let mockLocalStorageDataSource: Mocked<StorageDataSource>;
+  let mockHttp: Mocked<HttpDataSource>;
   let userPreferencesRepository: UserPreferencesRepositoryImplementation;
-  const dbName = "preferences";
 
   beforeEach(() => {
-    mockLocalStorageDataSource = {
-      set: vi.fn(),
+    mockHttp = {
       get: vi.fn(),
-    } as unknown as Mocked<StorageDataSource>;
+      put: vi.fn(),
+    } as unknown as Mocked<HttpDataSource>;
     userPreferencesRepository = new UserPreferencesRepositoryImplementation(
-      mockLocalStorageDataSource,
+      mockHttp as unknown as HttpDataSource,
     );
   });
 
   describe("save", () => {
-    it("should save user preferences to local storage", async () => {
+    it("should save user preferences via HTTP", async () => {
       const preferences: UserPreferences = {
         defaultPaymentMethod: new PaymentMethod({
           id: new Id("pm-1"),
           name: "Credit Card",
           icon: "💳",
+          color: "#343434",
         }),
       };
 
+      mockHttp.put.mockResolvedValue({
+        success: true,
+        data: {
+          preferences: {
+            defaultPaymentMethod: {
+              id: "pm-1",
+              name: "Credit Card",
+              icon: "💳",
+              color: "#343434",
+            },
+          },
+        },
+      });
+
       await userPreferencesRepository.save(preferences);
 
-      expect(mockLocalStorageDataSource.set).toHaveBeenCalledWith(
-        dbName,
-        preferences,
+      expect(mockHttp.put).toHaveBeenCalledWith("/api/me/preferences", {
+        defaultPaymentMethodId: "pm-1",
+      });
+    });
+
+    it("should throw an error if save fails", async () => {
+      const preferences: UserPreferences = {
+        defaultPaymentMethod: new PaymentMethod({
+          id: new Id("pm-1"),
+          name: "Credit Card",
+          icon: "💳",
+          color: "#343434",
+        }),
+      };
+
+      mockHttp.put.mockResolvedValue({
+        success: false,
+        error: "Failed to save",
+      });
+
+      await expect(userPreferencesRepository.save(preferences)).rejects.toThrow(
+        "Failed to save user preferences",
       );
     });
   });
 
   describe("find", () => {
-    it("should retrieve user preferences from local storage if they exist", async () => {
-      const storedPreferences = {
-        defaultPaymentMethod: {
-          id: { value: "pm-1" },
-          name: "Credit Card",
-          icon: "💳",
+    it("should retrieve user preferences from HTTP", async () => {
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: {
+          preferences: {
+            defaultPaymentMethod: {
+              id: "pm-1",
+              name: "Credit Card",
+              icon: "💳",
+              color: "#343434",
+            },
+          },
         },
-      };
-      mockLocalStorageDataSource.get.mockReturnValue(storedPreferences);
+      });
 
       const result = await userPreferencesRepository.find();
 
@@ -56,8 +94,21 @@ describe("UserPreferencesRepositoryImplementation", () => {
           id: new Id("pm-1"),
           name: "Credit Card",
           icon: "💳",
+          color: "#343434",
         }),
       });
+      expect(mockHttp.get).toHaveBeenCalledWith("/api/me/preferences");
+    });
+
+    it("should return null if fetch fails", async () => {
+      mockHttp.get.mockResolvedValue({
+        success: false,
+        error: "Failed to fetch",
+      });
+
+      const result = await userPreferencesRepository.find();
+
+      expect(result).toBeNull();
     });
   });
 });

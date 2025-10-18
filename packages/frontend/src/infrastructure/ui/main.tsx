@@ -18,24 +18,19 @@ import {
   UserPreferencesRepositoryImplementation,
   UserRepositoryImplementation,
 } from "@infrastructure/repositories";
-import {
-  HttpDataSource,
-  StorageDataSource,
-  StorageType,
-} from "@infrastructure/data-sources";
+import { HttpDataSource } from "@infrastructure/data-sources";
 
 import { SettingsProvider } from "./contexts";
 import { App } from "./App";
 
 // DATA SOURCES
 const http = new HttpDataSource();
-const storage = new StorageDataSource("gualet", StorageType.Local);
 
 // REPOSITORIES
 const userRepository = new UserRepositoryImplementation(http);
 const transactionRepository = new TransactionRepositoryImplementation(http);
 const userPreferencesRepository = new UserPreferencesRepositoryImplementation(
-  storage,
+  http,
 );
 
 // USE CASES

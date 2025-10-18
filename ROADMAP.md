@@ -74,8 +74,8 @@
 
 **Payment Methods:**
 
-- [ ] Implement `SavePaymentMethodUseCase` (create/update)
-- [ ] Implement tests for `SavePaymentMethodUseCase`
+- [x] Implement `SavePaymentMethodUseCase` (create/update)
+- [x] Implement tests for `SavePaymentMethodUseCase`
 
 
 #### 3. User Preferences - Backend Synchronization
@@ -83,14 +83,14 @@
 **Current:** User preferences are saved only in localStorage
 **Required:**
 
-- [ ] Create `UserPreferences` entity in backend
-- [ ] Create preferences table in database
-- [ ] Implement CRUD endpoints for preferences:
-    - [ ] GET `/api/me/preferences`
-    - [ ] PUT `/api/me/preferences`
-- [ ] Implement preferences service in backend
-- [ ] Update frontend repository to use HTTP instead of localStorage
-- [ ] Migrate existing localStorage data to backend (if necessary)
+- [x] Create `UserPreferences` entity in backend
+- [x] Create preferences table in database
+- [x] Implement CRUD endpoints for preferences:
+    - [x] GET `/api/me/preferences`
+    - [x] PUT `/api/me/preferences`
+- [x] Implement preferences service in backend
+- [x] Update frontend repository to use HTTP instead of localStorage
+- [x] Migrate existing localStorage data to backend (DISCARDED)
 
 ---
 

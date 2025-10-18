@@ -1,29 +1,73 @@
 import { UserPreferencesRepository } from "@application/repositories";
-import { StorageDataSource } from "@infrastructure/data-sources";
 import { UserPreferences } from "@domain/models";
 import { Id, Nullable, PaymentMethod } from "@gualet/shared";
+import { BaseResponse } from "@infrastructure/types";
+import { HttpDataSource } from "@infrastructure/data-sources";
+
+import { HttpRepository } from "../http.repository";
+
+interface UserPreferencesDto {
+  defaultPaymentMethod: {
+    id: string;
+    name: string;
+    icon: string;
+    color: string;
+  };
+}
+
+type GetUserPreferencesResponse = BaseResponse<
+  { preferences: UserPreferencesDto },
+  Error
+>;
+
+type SaveUserPreferencesResponse = BaseResponse<
+  { preferences: UserPreferencesDto },
+  Error
+>;
 
 export class UserPreferencesRepositoryImplementation
+  extends HttpRepository
   implements UserPreferencesRepository
 {
-  private readonly dbName = "preferences";
+  private readonly path = "/api/me/preferences";
 
-  constructor(private readonly ls: StorageDataSource) {}
+  constructor(http: HttpDataSource) {
+    super(http);
+  }
 
   async find(): Promise<Nullable<UserPreferences>> {
-    const preferences = this.ls.get(this.dbName);
-    if (!preferences) {
+    const { success, data, error } = await this.handleQueryResponse(
+      this.http.get<GetUserPreferencesResponse>(this.path),
+    );
+
+    if (!success) {
+      console.error("Error fetching user preferences:", error);
       return null;
     }
+
     return {
       defaultPaymentMethod: new PaymentMethod({
-        ...preferences.defaultPaymentMethod,
-        id: new Id(preferences.defaultPaymentMethod.id.value),
+        id: new Id(data.preferences.defaultPaymentMethod.id),
+        name: data.preferences.defaultPaymentMethod.name,
+        icon: data.preferences.defaultPaymentMethod.icon,
+        color: data.preferences.defaultPaymentMethod.color,
       }),
     };
   }
 
   async save(preferences: UserPreferences): Promise<void> {
-    this.ls.set(this.dbName, preferences);
+    const { success, error } = await this.handleQueryResponse(
+      this.http.put<
+        { defaultPaymentMethodId: string },
+        SaveUserPreferencesResponse
+      >(this.path, {
+        defaultPaymentMethodId: preferences.defaultPaymentMethod.id.toString(),
+      }),
+    );
+
+    if (!success) {
+      console.error("Error saving user preferences:", error);
+      throw new Error("Failed to save user preferences");
+    }
   }
 }
