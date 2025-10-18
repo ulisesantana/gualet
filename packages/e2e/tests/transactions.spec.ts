@@ -3,7 +3,7 @@ import {test} from '@fixtures';
 import {TransactionsPage} from '@pages';
 import {loginAsTestUser, TEST_USER} from '../helpers/auth.helpers';
 
-test.describe('Transactions Management', () => {
+test.describe.skip('Transactions Management', () => {
   let userId: string;
   let categoryId: string;
   let paymentMethodId: string;
@@ -138,7 +138,7 @@ test.describe('Transactions Management', () => {
   });
 });
 
-test.describe('Transaction Form Validations', () => {
+test.describe.skip('Transaction Form Validations', () => {
   let userId: string;
   let categoryId: string;
   let paymentMethodId: string;

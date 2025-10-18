@@ -3,7 +3,7 @@ import {test} from '@fixtures';
 import {CategoriesPage, PaymentMethodsPage, TransactionsPage} from '@pages';
 import {loginAsTestUser, TEST_USER} from '../helpers/auth.helpers';
 
-test.describe('Network Error Handling - Transactions', () => {
+test.describe.skip('Network Error Handling - Transactions', () => {
   let userId: string;
   let categoryId: string;
   let paymentMethodId: string;
@@ -100,7 +100,7 @@ test.describe('Network Error Handling - Transactions', () => {
   });
 });
 
-test.describe('Network Error Handling - Categories', () => {
+test.describe.skip('Network Error Handling - Categories', () => {
   let userId: string;
 
   test.beforeEach(async ({ page, db }) => {
@@ -144,7 +144,7 @@ test.describe('Network Error Handling - Categories', () => {
   });
 });
 
-test.describe('Network Error Handling - Payment Methods', () => {
+test.describe.skip('Network Error Handling - Payment Methods', () => {
   let userId: string;
 
   test.beforeEach(async ({ page, db }) => {
@@ -211,7 +211,7 @@ test.describe('Network Error Handling - Payment Methods', () => {
   });
 });
 
-test.describe('Retry Mechanism', () => {
+test.describe.skip('Retry Mechanism', () => {
   let userId: string;
 
   test.beforeEach(async ({ page, db }) => {

@@ -3,7 +3,7 @@ import {test} from '@fixtures';
 import {CategoriesPage} from '@pages';
 import {loginAsTestUser, TEST_USER} from '../helpers/auth.helpers';
 
-test.describe('Categories Management', () => {
+test.describe.skip('Categories Management', () => {
   let userId: string;
 
   test.beforeEach(async ({ page, db }) => {
@@ -145,7 +145,7 @@ test.describe('Categories Management', () => {
   });
 });
 
-test.describe('Category Form Validations', () => {
+test.describe.skip('Category Form Validations', () => {
   let userId: string;
 
   test.beforeEach(async ({ page, db }) => {

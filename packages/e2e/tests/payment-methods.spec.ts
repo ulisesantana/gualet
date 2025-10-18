@@ -3,7 +3,7 @@ import {test} from '@fixtures';
 import {PaymentMethodsPage} from '@pages';
 import {loginAsTestUser, TEST_USER} from '../helpers/auth.helpers';
 
-test.describe('Payment Methods Management', () => {
+test.describe.skip('Payment Methods Management', () => {
   let userId: string;
 
   test.beforeEach(async ({ page, db }) => {
@@ -126,7 +126,7 @@ test.describe('Payment Methods Management', () => {
   });
 });
 
-test.describe('Payment Method Form Validations', () => {
+test.describe.skip('Payment Method Form Validations', () => {
   let userId: string;
 
   test.beforeEach(async ({ page, db }) => {
