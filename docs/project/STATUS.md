@@ -211,7 +211,7 @@ gualet/
 │   ├── backend/          # NestJS + PostgreSQL + TypeORM
 │   ├── frontend/         # React + Vite + TypeScript
 │   ├── e2e/             # Playwright tests
-│   └── shared/          # Shared code (DTOs, models, types)
+│   └── shared/          # Shared types and utilities
 ```
 
 ---

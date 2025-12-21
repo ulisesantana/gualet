@@ -38,7 +38,7 @@ gualet/
 │   │   ├── categories.spec.ts   🔶 Needs adjustments
 │   │   └── transactions.spec.ts 🔶 Needs validation
 │   │
-│   └── shared/          Common code ✅
+│   └── shared/          Shared types and utilities ✅
 ```
 
 ## 🚀 Quick Start

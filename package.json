@@ -10,6 +10,7 @@
   "description": "Gualet is an app designed to help you manage your finances easily.",
   "main": "packages/backend/dist/main.js",
   "scripts": {
+    "prepare": "husky install",
     "dev": "run-p dev:shared dev:backend dev:frontend",
     "dev:backend": "npm run dev -w @gualet/backend",
     "dev:frontend": "npm run dev -w @gualet/frontend",
