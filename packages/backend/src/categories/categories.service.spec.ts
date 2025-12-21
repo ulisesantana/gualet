@@ -5,7 +5,7 @@ import { Id, OperationType } from '@gualet/shared';
 import { buildCategory, buildUserEntity } from '@test/builders';
 import { CategoriesRepository } from './categories.repository';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CategoryEntity } from '@src/db';
+import { CategoryEntity, TransactionEntity } from '@src/db';
 
 describe('CategoriesService', () => {
   const userId = new Id('user-123');
@@ -19,7 +19,20 @@ describe('CategoriesService', () => {
         CategoriesRepository,
         {
           provide: getRepositoryToken(CategoryEntity),
-          useValue: {},
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+            find: jest.fn(),
+            findOne: jest.fn(),
+            findOneBy: jest.fn(),
+            delete: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(TransactionEntity),
+          useValue: {
+            count: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -168,5 +181,52 @@ describe('CategoriesService', () => {
 
     expect(result.icon).toBe('');
     expect(result.color).toBe('#545454');
+  });
+
+  it('should delete a category', async () => {
+    const categoryId = new Id('category-to-delete');
+    jest.spyOn(categoryRepository, 'delete').mockResolvedValue(undefined);
+
+    await service.delete(userId, categoryId);
+
+    expect(categoryRepository.delete).toHaveBeenCalledWith(userId, categoryId);
+  });
+
+  describe('createDefaultCategories', () => {
+    it('should create all default categories successfully', async () => {
+      const mockCategory = buildCategory();
+      jest.spyOn(categoryRepository, 'create').mockResolvedValue(mockCategory);
+
+      const result = await service.createDefaultCategories(userId);
+
+      expect(result.length).toBeGreaterThan(0);
+      expect(categoryRepository.create).toHaveBeenCalled();
+      result.forEach((category) => {
+        expect(category).toBeInstanceOf(Category);
+      });
+    });
+
+    it('should handle failures when creating default categories', async () => {
+      const mockCategory = buildCategory();
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      jest
+        .spyOn(categoryRepository, 'create')
+        .mockResolvedValueOnce(mockCategory)
+        .mockRejectedValueOnce(new Error('Database error'))
+        .mockResolvedValue(mockCategory);
+
+      const result = await service.createDefaultCategories(userId);
+
+      expect(result.length).toBeGreaterThan(0);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to create default category:',
+        expect.any(Error),
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
   });
 });

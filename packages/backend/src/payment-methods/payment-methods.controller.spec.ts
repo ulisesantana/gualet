@@ -10,10 +10,11 @@ import {
 import {
   NotAuthorizedForPaymentMethodError,
   PaymentMethodNotFoundError,
+  PaymentMethodInUseError,
 } from './errors';
 import { Id } from '@gualet/shared';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PaymentMethodsRepository } from '@src/payment-methods/payment-methods.repository';
 import { Response } from 'express';
 import Mocked = jest.Mocked;
@@ -34,6 +35,7 @@ describe('PaymentMethodsController', () => {
             findAll: jest.fn(),
             create: jest.fn(),
             update: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
@@ -247,6 +249,102 @@ describe('PaymentMethodsController', () => {
         data: null,
         pagination: null,
       });
+    });
+
+    it('should handle generic errors on update', async () => {
+      const paymentMethodId = new Id().toString();
+      const error = new Error('Unexpected error');
+      jest.spyOn(service, 'update').mockRejectedValue(error);
+
+      await controller.update(paymentMethodId, req, res, {
+        name: 'Test Payment Method',
+      });
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalled();
+    });
+  });
+
+  describe('delete a payment method', () => {
+    const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
+
+    it('should delete a payment method successfully', async () => {
+      const paymentMethodId = new Id().toString();
+      jest.spyOn(service, 'delete').mockResolvedValue(undefined);
+
+      await controller.delete(paymentMethodId, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.send).toHaveBeenCalled();
+      expect(service.delete).toHaveBeenCalledWith(
+        new Id(req.user.userId),
+        new Id(paymentMethodId),
+      );
+    });
+
+    it('should throw PaymentMethodNotFoundError when payment method does not exist', async () => {
+      const paymentMethodId = new Id().toString();
+      const error = new PaymentMethodNotFoundError(new Id(paymentMethodId));
+      jest.spyOn(service, 'delete').mockRejectedValue(error);
+
+      await controller.delete(paymentMethodId, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.send).toHaveBeenCalled();
+    });
+
+    it('should throw NotAuthorizedForPaymentMethodError when user is not authorized', async () => {
+      const paymentMethodId = new Id().toString();
+      const error = new NotAuthorizedForPaymentMethodError(
+        new Id(paymentMethodId),
+      );
+      jest.spyOn(service, 'delete').mockRejectedValue(error);
+
+      await controller.delete(paymentMethodId, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.send).toHaveBeenCalled();
+    });
+
+    it('should throw PaymentMethodInUseError when payment method is in use', async () => {
+      const paymentMethodId = new Id().toString();
+      const error = new PaymentMethodInUseError(new Id(paymentMethodId));
+      jest.spyOn(service, 'delete').mockRejectedValue(error);
+
+      await controller.delete(paymentMethodId, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        error: new ConflictException(error),
+        data: null,
+        pagination: null,
+      });
+    });
+
+    it('should handle generic errors on delete', async () => {
+      const paymentMethodId = new Id().toString();
+      const error = new Error('Unexpected error');
+      jest.spyOn(service, 'delete').mockRejectedValue(error);
+
+      await controller.delete(paymentMethodId, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalled();
+    });
+  });
+
+  describe('findOne - generic error handling', () => {
+    it('should handle generic errors', async () => {
+      const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
+      const paymentMethodId = new Id().toString();
+      const error = new Error('Unexpected error');
+      jest.spyOn(service, 'findOne').mockRejectedValue(error);
+
+      await controller.findOne(paymentMethodId, req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalled();
     });
   });
 });

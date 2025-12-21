@@ -289,6 +289,39 @@ describe('CategoriesRepository', () => {
       expect(result.icon).toBe('old-icon');
       expect(result.color).toBe('#000000');
     });
+
+    it('should handle category update with explicit null icon and color to clear them', async () => {
+      const categoryId = new Id('category-123');
+      const categoryToUpdate = {
+        id: categoryId,
+        name: 'Updated Category',
+        icon: null,
+        color: null,
+      };
+      const existingCategory = buildCategoryEntity({
+        id: categoryId.toString(),
+        user: buildUserEntity({ id: userId.toString() }),
+        icon: 'old-icon',
+        color: '#000000',
+      });
+      const updatedCategory = buildCategoryEntity({
+        id: categoryId.toString(),
+        name: 'Updated Category',
+        icon: undefined,
+        color: undefined,
+        user: buildUserEntity({ id: userId.toString() }),
+      });
+
+      jest
+        .spyOn(entityRepository, 'findOne')
+        .mockResolvedValue(existingCategory);
+      jest.spyOn(entityRepository, 'save').mockResolvedValue(updatedCategory);
+
+      const result = await repository.update(userId, categoryToUpdate);
+
+      expect(entityRepository.save).toHaveBeenCalled();
+      expect(result).toBeInstanceOf(Category);
+    });
   });
 
   describe('delete', () => {

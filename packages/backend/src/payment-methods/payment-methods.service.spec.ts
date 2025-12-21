@@ -24,6 +24,7 @@ describe('PaymentMethodsService', () => {
             findAll: jest.fn(),
             findOne: jest.fn(),
             update: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
@@ -139,5 +140,66 @@ describe('PaymentMethodsService', () => {
     await expect(service.update(userId, paymentMethodToUpdate)).rejects.toThrow(
       PaymentMethodNotFoundError,
     );
+  });
+
+  it('deletes a payment method successfully', async () => {
+    const userId = new Id('user-123');
+    const paymentMethodId = new Id('pm-123');
+
+    repository.delete.mockResolvedValue(undefined);
+
+    await service.delete(userId, paymentMethodId);
+
+    expect(repository.delete).toHaveBeenCalledWith(userId, paymentMethodId);
+  });
+
+  describe('createDefaultPaymentMethods', () => {
+    it('should create all default payment methods successfully', async () => {
+      const userId = new Id('user-123');
+      const mockPaymentMethod = new PaymentMethod({
+        id: new Id('pm-123'),
+        name: 'Cash',
+        icon: '💵',
+        color: '#00FF00',
+      });
+
+      repository.create.mockResolvedValue(mockPaymentMethod);
+
+      const result = await service.createDefaultPaymentMethods(userId);
+
+      expect(result.length).toBeGreaterThan(0);
+      expect(repository.create).toHaveBeenCalled();
+      result.forEach((pm) => {
+        expect(pm).toBeInstanceOf(PaymentMethod);
+      });
+    });
+
+    it('should handle failures when creating default payment methods', async () => {
+      const userId = new Id('user-123');
+      const mockPaymentMethod = new PaymentMethod({
+        id: new Id('pm-123'),
+        name: 'Cash',
+        icon: '💵',
+        color: '#00FF00',
+      });
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      repository.create
+        .mockResolvedValueOnce(mockPaymentMethod)
+        .mockRejectedValueOnce(new Error('Database error'))
+        .mockResolvedValue(mockPaymentMethod);
+
+      const result = await service.createDefaultPaymentMethods(userId);
+
+      expect(result.length).toBeGreaterThan(0);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to create default category:',
+        expect.any(Error),
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
   });
 });

@@ -202,6 +202,37 @@ describe('PaymentMethodsRepository', () => {
     ).rejects.toThrow(NotAuthorizedForPaymentMethodError);
   });
 
+  it('should handle explicit null values for icon and color to clear them', async () => {
+    const userId = new Id('user-123');
+    const id = 'pm-123';
+    const paymentMethodToUpdate = {
+      id: new Id(id),
+      name: 'Updated Name',
+      icon: null,
+      color: null,
+    };
+    const existingEntity = buildPaymentMethodEntity({
+      id,
+      user: buildUserEntity({ id: userId.toString() }),
+      icon: '💳',
+      color: 'blue',
+    });
+    const updatedEntity = {
+      ...existingEntity,
+      name: paymentMethodToUpdate.name,
+      icon: undefined,
+      color: undefined,
+    };
+
+    mockRepository.findOne.mockResolvedValue(existingEntity);
+    mockRepository.save.mockResolvedValue(updatedEntity);
+
+    const result = await repository.update(userId, paymentMethodToUpdate);
+
+    expect(mockRepository.save).toHaveBeenCalled();
+    expect(result).toBeDefined();
+  });
+
   describe('delete', () => {
     it('should delete a payment method when it exists, user is authorized, and not in use', async () => {
       const userId = new Id('user-123');

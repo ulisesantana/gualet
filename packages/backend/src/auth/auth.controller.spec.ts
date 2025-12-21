@@ -6,6 +6,12 @@ import { AuthController } from './auth.controller';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from '@src/users';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
+import {
+  UserNotFoundError,
+  InvalidCredentialsError,
+  UserAlreadyExistsError,
+} from '@src/users/errors';
+import { Id } from '@gualet/shared';
 import Mocked = jest.Mocked;
 
 describe('AuthController', () => {
@@ -127,6 +133,78 @@ describe('AuthController', () => {
       },
       error: null,
       pagination: null,
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle UserNotFoundError on login', async () => {
+      const loginData: LoginDto = {
+        email: 'nonexistent@example.com',
+        password: 'password',
+      };
+      const error = new UserNotFoundError(new Id('nonexistent-id'));
+      jest.mocked(authService.validateUser).mockRejectedValue(error);
+
+      await controller.login(loginData, response);
+
+      expect(response.status).toHaveBeenCalledWith(404);
+      expect(response.send).toHaveBeenCalled();
+    });
+
+    it('should handle InvalidCredentialsError on login', async () => {
+      const loginData: LoginDto = {
+        email: 'test@example.com',
+        password: 'wrongpassword',
+      };
+      const error = new InvalidCredentialsError();
+      jest.mocked(authService.validateUser).mockRejectedValue(error);
+
+      await controller.login(loginData, response);
+
+      expect(response.status).toHaveBeenCalledWith(401);
+      expect(response.send).toHaveBeenCalled();
+    });
+
+    it('should handle generic error on login', async () => {
+      const loginData: LoginDto = {
+        email: 'test@example.com',
+        password: 'password',
+      };
+      const error = new Error('Unexpected error');
+      jest.mocked(authService.validateUser).mockRejectedValue(error);
+
+      await controller.login(loginData, response);
+
+      expect(response.status).toHaveBeenCalledWith(500);
+      expect(response.send).toHaveBeenCalled();
+    });
+
+    it('should handle UserAlreadyExistsError on register', async () => {
+      const registerData: RegisterDto = {
+        email: 'existing@example.com',
+        password: 'password',
+      };
+      const error = new UserAlreadyExistsError('existing@example.com');
+      jest.mocked(authService.register).mockRejectedValue(error);
+
+      await controller.register(registerData, response);
+
+      expect(response.status).toHaveBeenCalledWith(409);
+      expect(response.send).toHaveBeenCalled();
+    });
+
+    it('should handle generic error on register', async () => {
+      const registerData: RegisterDto = {
+        email: 'new@example.com',
+        password: 'password',
+      };
+      const error = new Error('Unexpected error');
+      jest.mocked(authService.register).mockRejectedValue(error);
+
+      await controller.register(registerData, response);
+
+      expect(response.status).toHaveBeenCalledWith(500);
+      expect(response.send).toHaveBeenCalled();
     });
   });
 });

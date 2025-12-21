@@ -8,7 +8,11 @@ import {
   OperationType,
 } from '@gualet/shared';
 
-export type CategoryToUpdate = Partial<Category> & { id: Id };
+export type CategoryToUpdate = Omit<Partial<Category>, 'icon' | 'color'> & {
+  id: Id;
+  icon?: Nullable<string>;
+  color?: Nullable<string>;
+};
 
 interface CategoryToCreate {
   name: string;

@@ -1,208 +1,208 @@
-# Estado de Tests E2E - Resumen de Mejoras Aplicadas
+# E2E Tests Status - Summary of Applied Improvements
 
-## ✅ Mejoras Implementadas Exitosamente
+## ✅ Successfully Implemented Improvements
 
-### 1. **DatabaseManager Mejorado**
-- ✅ Añadidos métodos para crear categorías, métodos de pago y transacciones
-- ✅ Método `cleanupUserData()` para limpieza específica por usuario
-- ✅ Método `getUserByEmail()` para consultas
-- ✅ `reset()` mejorado respetando foreign keys de TypeORM
-- ✅ Limpieza automática después de cada test en el fixture
+### 1. **Improved DatabaseManager**
+- ✅ Added methods to create categories, payment methods and transactions
+- ✅ `cleanupUserData()` method for specific user cleanup
+- ✅ `getUserByEmail()` method for queries
+- ✅ Improved `reset()` respecting TypeORM foreign keys
+- ✅ Automatic cleanup after each test in the fixture
 
-### 2. **Helpers de Autenticación**
-- ✅ `loginAsTestUser()` - Login rápido con usuario de prueba
-- ✅ `loginAs()` - Login con credenciales personalizadas
-- ✅ `logout()` - Helper para cerrar sesión
-- ✅ Constante `TEST_USER` con credenciales consistentes (`test1234`)
+### 2. **Authentication Helpers**
+- ✅ `loginAsTestUser()` - Quick login with test user
+- ✅ `loginAs()` - Login with custom credentials
+- ✅ `logout()` - Helper to log out
+- ✅ `TEST_USER` constant with consistent credentials (`test1234`)
 
-### 3. **Page Objects Creados**
+### 3. **Created Page Objects**
 #### CategoriesPage ✅
-- Adaptado a la estructura real de tu app (Settings → Add/Manage categories)
-- Selectores correctos: `button[type="submit"]` para el botón emoji
-- Sin campo `color` (no existe en tu formulario)
-- Métodos: `createCategory()`, `editCategory()`, `deleteCategory()`, etc.
+- Adapted to your app's real structure (Settings → Add/Manage categories)
+- Correct selectors: `button[type="submit"]` for emoji button
+- No `color` field (doesn't exist in your form)
+- Methods: `createCategory()`, `editCategory()`, `deleteCategory()`, etc.
 
 #### PaymentMethodsPage ✅
-- Estructura preparada para métodos de pago
-- Necesita validación contra tu implementación real
+- Structure prepared for payment methods
+- Needs validation against your real implementation
 
 #### TransactionsPage ✅
-- Estructura preparada para transacciones
-- Necesita validación contra tu implementación real
+- Structure prepared for transactions
+- Needs validation against your real implementation
 
-### 4. **Tests Actualizados**
-- ✅ **login.spec.ts** - 4/5 tests pasando (password corregida a `test1234`)
-- ✅ **register.spec.ts** - Password actualizada para consistencia
-- ⚠️ **categories.spec.ts** - 10 tests creados, en proceso de ajuste
-- ⚠️ **transactions.spec.ts** - 10 tests creados, pendiente de validación
-- ⚠️ **payment-methods.spec.ts** - 10 tests creados, pendiente de validación
-- ⚠️ **network-errors.spec.ts** - 9 tests creados, pendiente de validación
+### 4. **Updated Tests**
+- ✅ **login.spec.ts** - 4/5 tests passing (password corrected to `test1234`)
+- ✅ **register.spec.ts** - Password updated for consistency
+- ⚠️ **categories.spec.ts** - 10 tests created, in adjustment process
+- ⚠️ **transactions.spec.ts** - 10 tests created, pending validation
+- ⚠️ **payment-methods.spec.ts** - 10 tests created, pending validation
+- ⚠️ **network-errors.spec.ts** - 9 tests created, pending validation
 
-## 🔍 Estado Actual de los Tests
+## 🔍 Current Test Status
 
-### Tests de Login (login.spec.ts)
+### Login Tests (login.spec.ts)
 ```
-✅ 4 tests pasando
-❌ 1 test fallando: "user not found" 
-   Problema: El mensaje de error del backend no coincide con el esperado
-```
-
-### Tests de Categorías (categories.spec.ts)
-```
-⚠️ En ajuste - Los selectores están correctos pero necesitan validación final
-   - Formulario encontrado correctamente
-   - Botón submit encontrado (emoji ➕/💾)
-   - Campos: name, type, icon (sin color)
-   - Navegación: /settings → "Add a new category"
+✅ 4 tests passing
+❌ 1 test failing: "user not found" 
+   Problem: Backend error message doesn't match expected
 ```
 
-## 📋 Ajustes Necesarios por Test
+### Categories Tests (categories.spec.ts)
+```
+⚠️ In adjustment - Selectors are correct but need final validation
+   - Form found correctly
+   - Submit button found (emoji ➕/💾)
+   - Fields: name, type, icon (no color)
+   - Navigation: /settings → "Add a new category"
+```
+
+## 📋 Necessary Adjustments by Test
 
 ### Categories Tests
-**Problema actual**: Los tests crean categorías correctamente pero necesitan ajustes en la verificación.
+**Current problem**: Tests create categories correctly but need adjustments in verification.
 
-**Solución aplicada**:
-- Navegar explícitamente a "Manage categories" después de crear
-- Usar `gotoManage()` para ir a la lista de categorías
+**Applied solution**:
+- Navigate explicitly to "Manage categories" after creating
+- Use `gotoManage()` to go to categories list
 
-**Tests que necesitan el mismo ajuste**:
-1. ✅ `should create a new expense category` - Ya corregido
-2. ✅ `should create a new income category` - Ya corregido
-3. ⚠️ `should edit an existing category` - Necesita ID de categoría del DB
-4. ⚠️ `should delete a category` - Necesita ID de categoría del DB
-5. ✅ `should display multiple categories` - Usa IDs del DB
-6. ⚠️ `should complete full CRUD cycle` - Necesita adaptación
+**Tests that need the same adjustment**:
+1. ✅ `should create a new expense category` - Already fixed
+2. ✅ `should create a new income category` - Already fixed
+3. ⚠️ `should edit an existing category` - Needs category ID from DB
+4. ⚠️ `should delete a category` - Needs category ID from DB
+5. ✅ `should display multiple categories` - Uses DB IDs
+6. ⚠️ `should complete full CRUD cycle` - Needs adaptation
 
 ### Transactions Tests
-**Estado**: Creados pero no validados contra tu UI real
+**Status**: Created but not validated against your real UI
 
-**Siguiente paso**: Necesitas revisar:
-- ¿Existe una página `/transactions`?
-- ¿Cómo se crea una transacción en tu UI?
-- ¿Qué data-testids usas?
+**Next step**: You need to review:
+- Does a `/transactions` page exist?
+- How is a transaction created in your UI?
+- What data-testids do you use?
 
 ### Payment Methods Tests
-**Estado**: Creados pero no validados contra tu UI real
+**Status**: Created but not validated against your real UI
 
-**Siguiente paso**: Necesitas revisar:
-- ¿Existe una página `/payment-methods`?
-- ¿Cómo se gestionan los métodos de pago en tu UI?
-- ¿Están en Settings también?
+**Next step**: You need to review:
+- Does a `/payment-methods` page exist?
+- How are payment methods managed in your UI?
+- Are they in Settings too?
 
-## 🎯 Próximos Pasos Recomendados
+## 🎯 Recommended Next Steps
 
-### Inmediatos (Alta Prioridad)
-1. **Validar estructura de transacciones en tu UI**
+### Immediate (High Priority)
+1. **Validate transaction structure in your UI**
    ```bash
-   # Buscar componentes relacionados
+   # Search for related components
    find packages/frontend -name "*transaction*" -type f
    ```
 
-2. **Ajustar Page Objects a tu implementación real**
-   - Revisar rutas reales
-   - Confirmar selectores
-   - Validar flujos de usuario
+2. **Adjust Page Objects to your real implementation**
+   - Review real routes
+   - Confirm selectors
+   - Validate user flows
 
-3. **Ejecutar tests existentes para confirmar**
+3. **Run existing tests to confirm**
    ```bash
    cd packages/e2e
-   npm test -- login.spec.ts  # Debería pasar 4/5
-   npm test -- register.spec.ts  # Debería pasar
+   npm test -- login.spec.ts  # Should pass 4/5
+   npm test -- register.spec.ts  # Should pass
    ```
 
-### Corto Plazo (Media Prioridad)
-4. **Ajustar tests de categorías restantes**
-   - Tests de edición necesitan conocer el ID de categoría creada
-   - Tests de eliminación igual
+### Short Term (Medium Priority)
+4. **Adjust remaining category tests**
+   - Edit tests need to know created category ID
+   - Delete tests too
 
-5. **Validar y ajustar tests de transacciones**
-   - Una vez sepamos la estructura real de tu UI
+5. **Validate and adjust transaction tests**
+   - Once we know your UI's real structure
 
-6. **Validar y ajustar tests de métodos de pago**
-   - Similar a transacciones
+6. **Validate and adjust payment method tests**
+   - Similar to transactions
 
-### Medio Plazo (Baja Prioridad)
-7. **Tests de network errors**
-   - Validar que el manejo de errores funciona como esperado
+### Medium Term (Low Priority)
+7. **Network error tests**
+   - Validate that error handling works as expected
 
-8. **Agregar más tests de validaciones**
-   - Campos requeridos
-   - Límites de longitud
-   - Formatos inválidos
+8. **Add more validation tests**
+   - Required fields
+   - Length limits
+   - Invalid formats
 
-## 🛠️ Comandos Útiles
+## 🛠️ Useful Commands
 
-### Ejecutar tests específicos
+### Run specific tests
 ```bash
 cd packages/e2e
 
-# Solo login
+# Login only
 npm test -- login.spec.ts
 
-# Solo categorías
+# Categories only
 npm test -- categories.spec.ts
 
-# Un test específico
+# Specific test
 npm test -- --grep "should create a new expense category"
 
-# Con browser visible
+# With visible browser
 npm test -- --headed
 
-# Modo debug
+# Debug mode
 npm test -- --debug
 ```
 
-### Ver reportes
+### View reports
 ```bash
-# Abrir último reporte HTML
+# Open latest HTML report
 npx playwright show-report ../../playwright-report
 
-# Ver screenshots de fallos
+# View failure screenshots
 ls -la test-results/*/test-failed-*.png
 ```
 
-## 📊 Resumen de Logros
+## 📊 Summary of Achievements
 
-| Componente | Estado | Cobertura |
+| Component | Status | Coverage |
 |------------|--------|-----------|
-| DatabaseManager | ✅ Completo | 100% |
-| Auth Helpers | ✅ Completo | 100% |
-| Page Objects Base | ✅ Creados | 80% |
-| Tests Login | ✅ Funcionales | 80% (4/5) |
-| Tests Register | ✅ Funcionales | 100% |
-| Tests Categories | ⚠️ En Ajuste | 60% |
-| Tests Transactions | 📝 Pendiente | 0% |
-| Tests Payment Methods | 📝 Pendiente | 0% |
-| Tests Network Errors | 📝 Pendiente | 0% |
+| DatabaseManager | ✅ Complete | 100% |
+| Auth Helpers | ✅ Complete | 100% |
+| Page Objects Base | ✅ Created | 80% |
+| Login Tests | ✅ Functional | 80% (4/5) |
+| Register Tests | ✅ Functional | 100% |
+| Categories Tests | ⚠️ In Adjustment | 60% |
+| Transactions Tests | 📝 Pending | 0% |
+| Payment Methods Tests | 📝 Pending | 0% |
+| Network Errors Tests | 📝 Pending | 0% |
 
-## 🎉 Beneficios Logrados
+## 🎉 Achieved Benefits
 
-1. **Mejor estructura**: Page Objects reutilizables y mantenibles
-2. **Mejor limpieza**: DatabaseManager robusto con limpieza automática
-3. **Mejor consistencia**: Credenciales y datos de prueba unificados
-4. **Mejor cobertura**: Base para 39 nuevos tests (cuando se ajusten)
-5. **Mejor documentación**: README completo con ejemplos
+1. **Better structure**: Reusable and maintainable Page Objects
+2. **Better cleanup**: Robust DatabaseManager with automatic cleanup
+3. **Better consistency**: Unified test credentials and data
+4. **Better coverage**: Base for 39 new tests (when adjusted)
+5. **Better documentation**: Complete README with examples
 
-## ⚠️ Notas Importantes
+## ⚠️ Important Notes
 
-### Credenciales de Test
-Ahora todos los tests usan:
+### Test Credentials
+All tests now use:
 - **Email**: `test@gualet.app`
-- **Password**: `test1234` (consistente con el seeder del backend)
+- **Password**: `test1234` (consistent with backend seeder)
 
-### Estructura de tu App
-Los tests ahora están adaptados a:
-- Categorías se gestionan desde `/settings`
-- Botón "Add a new category" para crear
-- Botón "Manage categories" para listar
-- Formularios usan emojis en botones (➕ para crear, 💾 para guardar)
-- No existe campo `color` en formulario de categorías
+### Your App Structure
+Tests are now adapted to:
+- Categories are managed from `/settings`
+- "Add a new category" button to create
+- "Manage categories" button to list
+- Forms use emojis in buttons (➕ to create, 💾 to save)
+- No `color` field exists in category form
 
-### Tests Pendientes de Validación
-Los tests de transacciones, métodos de pago y errores de red están creados pero necesitan que revises:
-1. La estructura real de tu UI
-2. Las rutas que usas
-3. Los data-testids que tienes
+### Tests Pending Validation
+Transaction, payment method, and network error tests are created but need you to review:
+1. Your UI's real structure
+2. The routes you use
+3. The data-testids you have
 
-Una vez valides eso, podemos ajustar los Page Objects y los tests para que funcionen perfectamente con tu implementación.
+Once you validate that, we can adjust the Page Objects and tests to work perfectly with your implementation.
 
