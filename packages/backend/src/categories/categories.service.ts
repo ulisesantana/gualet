@@ -45,6 +45,10 @@ export class CategoriesService {
     return this.repository.update(userId, category);
   }
 
+  delete(userId: Id, id: Id): Promise<void> {
+    return this.repository.delete(userId, id);
+  }
+
   // TODO: Test this method and use it on user creation
   async createDefaultCategories(userId: Id): Promise<Category[]> {
     const promises = generateDefaultCategories().map((category) =>

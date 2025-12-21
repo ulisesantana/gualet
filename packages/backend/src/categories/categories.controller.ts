@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   InternalServerErrorException,
   NotFoundException,
+  ConflictException,
   Param,
   Patch,
   Post,
@@ -160,6 +162,47 @@ export class CategoriesController extends SecureController {
     }
   }
 
+  @Delete('/:id')
+  @ApiOperation({ summary: 'Delete a category' })
+  @ApiResponse({
+    status: 204,
+    description: 'Category deleted successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Category belongs to another user',
+    type: ErrorResponse<ForbiddenException>,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+    type: ErrorResponse<NotFoundException>,
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict - Category is in use by transactions',
+    type: ErrorResponse<ConflictException>,
+  })
+  @ApiResponse({
+    status: 500,
+    type: ErrorResponse<InternalServerErrorException>,
+  })
+  async delete(
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+    @Param() id: string,
+  ) {
+    try {
+      await this.categoryService.delete(new Id(req.user.userId), new Id(id));
+
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      return this.handleCategoriesError(res, error);
+    }
+  }
+
   private handleCategoriesError(res: Response, error: any) {
     if (this.isBaseError(error)) {
       switch (error.code) {
@@ -171,6 +214,10 @@ export class CategoriesController extends SecureController {
           res
             .status(403)
             .send(new ErrorResponse(new ForbiddenException(error)));
+          break;
+        }
+        case CategoriesErrorCodes.CategoryInUse: {
+          res.status(409).send(new ErrorResponse(new ConflictException(error)));
           break;
         }
       }

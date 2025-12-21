@@ -4,9 +4,10 @@ import { Repository } from 'typeorm';
 import {
   CategoryNotFoundError,
   NotAuthorizedForCategoryError,
+  CategoryInUseError,
 } from '@src/categories/errors';
 import { CategoryToUpdate } from './categories.service';
-import { CategoryEntity } from '@src/db';
+import { CategoryEntity, TransactionEntity } from '@src/db';
 import { Category, Id } from '@gualet/shared';
 
 @Injectable()
@@ -14,6 +15,8 @@ export class CategoriesRepository {
   constructor(
     @InjectRepository(CategoryEntity)
     private readonly repository: Repository<CategoryEntity>,
+    @InjectRepository(TransactionEntity)
+    private readonly transactionRepository: Repository<TransactionEntity>,
   ) {}
 
   static mapToDomain(category: CategoryEntity): Category {
@@ -94,5 +97,30 @@ export class CategoriesRepository {
       color:
         toUpdate.color === null ? undefined : toUpdate.color || existing?.color,
     };
+  }
+
+  async delete(userId: Id, id: Id): Promise<void> {
+    const category = await this.repository.findOne({
+      where: { id: id.toString() },
+    });
+
+    if (!category) {
+      throw new CategoryNotFoundError(id);
+    }
+
+    if (category.user.id !== userId.toString()) {
+      throw new NotAuthorizedForCategoryError(id);
+    }
+
+    // Check if category is being used by any transactions
+    const transactionCount = await this.transactionRepository.count({
+      where: { category: { id: id.toString() } },
+    });
+
+    if (transactionCount > 0) {
+      throw new CategoryInUseError(id);
+    }
+
+    await this.repository.delete({ id: id.toString() });
   }
 }

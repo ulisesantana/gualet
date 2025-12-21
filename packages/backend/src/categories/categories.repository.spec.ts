@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { CategoriesRepository } from './categories.repository';
-import { CategoryEntity } from '@src/db';
+import { CategoryEntity, TransactionEntity } from '@src/db';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Id } from '@gualet/shared';
@@ -19,6 +19,7 @@ describe('CategoriesRepository', () => {
   const userId = new Id('user-123');
   let repository: CategoriesRepository;
   let entityRepository: Repository<CategoryEntity>;
+  let transactionRepository: Repository<TransactionEntity>;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -32,6 +33,13 @@ describe('CategoriesRepository', () => {
             find: jest.fn(),
             findOne: jest.fn(),
             findOneBy: jest.fn(),
+            delete: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(TransactionEntity),
+          useValue: {
+            count: jest.fn(),
           },
         },
       ],
@@ -40,6 +48,9 @@ describe('CategoriesRepository', () => {
     repository = moduleRef.get<CategoriesRepository>(CategoriesRepository);
     entityRepository = moduleRef.get<Repository<CategoryEntity>>(
       getRepositoryToken(CategoryEntity),
+    );
+    transactionRepository = moduleRef.get<Repository<TransactionEntity>>(
+      getRepositoryToken(TransactionEntity),
     );
   });
 
@@ -277,6 +288,83 @@ describe('CategoriesRepository', () => {
       expect(result.name).toBe('Updated Category');
       expect(result.icon).toBe('old-icon');
       expect(result.color).toBe('#000000');
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete a category when it exists, user is authorized, and not in use', async () => {
+      const categoryId = new Id('category-123');
+      const existingCategory = buildCategoryEntity({
+        id: categoryId.toString(),
+        user: buildUserEntity({ id: userId.toString() }),
+      });
+
+      jest
+        .spyOn(entityRepository, 'findOne')
+        .mockResolvedValue(existingCategory);
+      jest.spyOn(transactionRepository, 'count').mockResolvedValue(0);
+      jest.spyOn(entityRepository, 'delete').mockResolvedValue({
+        raw: [],
+        affected: 1,
+      });
+
+      await repository.delete(userId, categoryId);
+
+      expect(entityRepository.findOne).toHaveBeenCalledWith({
+        where: { id: categoryId.toString() },
+      });
+      expect(transactionRepository.count).toHaveBeenCalledWith({
+        where: { category: { id: categoryId.toString() } },
+      });
+      expect(entityRepository.delete).toHaveBeenCalledWith({
+        id: categoryId.toString(),
+      });
+    });
+
+    it('should throw CategoryNotFoundError when category does not exist', async () => {
+      const categoryId = new Id('category-123');
+
+      jest.spyOn(entityRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(repository.delete(userId, categoryId)).rejects.toThrow(
+        CategoryNotFoundError,
+      );
+      expect(entityRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotAuthorizedForCategoryError when user is not authorized', async () => {
+      const categoryId = new Id('category-123');
+      const existingCategory = buildCategoryEntity({
+        id: categoryId.toString(),
+        user: buildUserEntity({ id: 'different-user-456' }),
+      });
+
+      jest
+        .spyOn(entityRepository, 'findOne')
+        .mockResolvedValue(existingCategory);
+
+      await expect(repository.delete(userId, categoryId)).rejects.toThrow(
+        NotAuthorizedForCategoryError,
+      );
+      expect(entityRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw CategoryInUseError when category is used by transactions', async () => {
+      const categoryId = new Id('category-123');
+      const existingCategory = buildCategoryEntity({
+        id: categoryId.toString(),
+        user: buildUserEntity({ id: userId.toString() }),
+      });
+
+      jest
+        .spyOn(entityRepository, 'findOne')
+        .mockResolvedValue(existingCategory);
+      jest.spyOn(transactionRepository, 'count').mockResolvedValue(5);
+
+      await expect(repository.delete(userId, categoryId)).rejects.toThrow(
+        'is in use and cannot be deleted',
+      );
+      expect(entityRepository.delete).not.toHaveBeenCalled();
     });
   });
 });

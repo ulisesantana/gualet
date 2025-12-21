@@ -31,6 +31,7 @@ describe('CategoriesController', () => {
             findAll: jest.fn(),
             create: jest.fn(),
             update: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
@@ -276,6 +277,102 @@ describe('CategoriesController', () => {
             id: new Id(id),
           });
         }
+      });
+    });
+  });
+
+  describe('delete a category', () => {
+    it('should delete an existing category', async () => {
+      const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
+      const category = buildCategory();
+      jest.spyOn(service, 'delete').mockResolvedValue(undefined);
+
+      await controller.delete(req, res, category.id.toString());
+
+      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.send).toHaveBeenCalled();
+      expect(service.delete).toHaveBeenCalledWith(
+        new Id('1'),
+        category.id,
+      );
+    });
+
+    describe('Error handling', () => {
+      const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
+      const category = buildCategory();
+      const id = category.id.toString();
+
+      it('should handle 403 errors when throwing NotAuthorizedForCategoryError', async () => {
+        const error = new NotAuthorizedForCategoryError(new Id('irrelevant'));
+        jest.spyOn(service, 'delete').mockRejectedValue(error);
+
+        await controller.delete(req, res, id);
+
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          error: new ForbiddenException(error),
+          data: null,
+          pagination: null,
+        });
+        expect(service.delete).toHaveBeenCalledWith(
+          new Id(req.user.userId),
+          category.id,
+        );
+      });
+
+      it('should handle 404 errors when throwing CategoryNotFoundError', async () => {
+        const error = new CategoryNotFoundError(new Id('irrelevant'));
+        jest.spyOn(service, 'delete').mockRejectedValue(error);
+
+        await controller.delete(req, res, id);
+
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          error: new NotFoundException(error),
+          data: null,
+          pagination: null,
+        });
+        expect(service.delete).toHaveBeenCalledWith(
+          new Id(req.user.userId),
+          category.id,
+        );
+      });
+
+      it('should handle 409 errors when category is in use', async () => {
+        const error = new (class CategoryInUseError {
+          code = 'CATEGORY_IN_USE';
+          message = 'Category is in use';
+        })();
+        jest.spyOn(service, 'delete').mockRejectedValue(error);
+
+        await controller.delete(req, res, id);
+
+        expect(res.status).toHaveBeenCalledWith(409);
+        expect(service.delete).toHaveBeenCalledWith(
+          new Id(req.user.userId),
+          category.id,
+        );
+      });
+
+      it('should handle 500 errors for the rest of errors', async () => {
+        const error = new Error('💥 Boom!!');
+        jest.spyOn(service, 'delete').mockRejectedValue(error);
+
+        await controller.delete(req, res, id);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          error: new InternalServerErrorException(error),
+          data: null,
+          pagination: null,
+        });
+        expect(service.delete).toHaveBeenCalledWith(
+          new Id(req.user.userId),
+          category.id,
+        );
       });
     });
   });
