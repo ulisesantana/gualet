@@ -9,11 +9,12 @@ import {
   PaymentMethodNotFoundError,
 } from './errors';
 import { PaymentMethod } from './payment-method.model';
-import { PaymentMethodEntity } from '@src/db';
+import { PaymentMethodEntity, TransactionEntity } from '@src/db';
 
 describe('PaymentMethodsRepository', () => {
   let repository: PaymentMethodsRepository;
   let mockRepository: jest.Mocked<Repository<PaymentMethodEntity>>;
+  let mockTransactionRepository: jest.Mocked<Repository<TransactionEntity>>;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -27,6 +28,13 @@ describe('PaymentMethodsRepository', () => {
             find: jest.fn(),
             findOneBy: jest.fn(),
             findOne: jest.fn(),
+            delete: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(TransactionEntity),
+          useValue: {
+            count: jest.fn(),
           },
         },
       ],
@@ -36,6 +44,7 @@ describe('PaymentMethodsRepository', () => {
       PaymentMethodsRepository,
     );
     mockRepository = moduleRef.get(getRepositoryToken(PaymentMethodEntity));
+    mockTransactionRepository = moduleRef.get(getRepositoryToken(TransactionEntity));
   });
 
   it('should create a payment method', async () => {
@@ -191,5 +200,80 @@ describe('PaymentMethodsRepository', () => {
     await expect(
       repository.update(userId, paymentMethodToUpdate),
     ).rejects.toThrow(NotAuthorizedForPaymentMethodError);
+  });
+
+  describe('delete', () => {
+    it('should delete a payment method when it exists, user is authorized, and not in use', async () => {
+      const userId = new Id('user-123');
+      const pmId = new Id('pm-123');
+      const existingEntity = buildPaymentMethodEntity({
+        id: pmId.toString(),
+        user: buildUserEntity({ id: userId.toString() }),
+      });
+
+      mockRepository.findOne.mockResolvedValue(existingEntity);
+      mockTransactionRepository.count.mockResolvedValue(0);
+      mockRepository.delete.mockResolvedValue({
+        raw: [],
+        affected: 1,
+      });
+
+      await repository.delete(userId, pmId);
+
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { id: pmId.toString() },
+      });
+      expect(mockTransactionRepository.count).toHaveBeenCalledWith({
+        where: { payment_method: { id: pmId.toString() } },
+      });
+      expect(mockRepository.delete).toHaveBeenCalledWith({
+        id: pmId.toString(),
+      });
+    });
+
+    it('should throw PaymentMethodNotFoundError when payment method does not exist', async () => {
+      const userId = new Id('user-123');
+      const pmId = new Id('pm-123');
+
+      mockRepository.findOne.mockResolvedValue(null);
+
+      await expect(repository.delete(userId, pmId)).rejects.toThrow(
+        PaymentMethodNotFoundError,
+      );
+      expect(mockRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotAuthorizedForPaymentMethodError when user is not authorized', async () => {
+      const userId = new Id('user-123');
+      const pmId = new Id('pm-123');
+      const existingEntity = buildPaymentMethodEntity({
+        id: pmId.toString(),
+        user: buildUserEntity({ id: 'other-user' }),
+      });
+
+      mockRepository.findOne.mockResolvedValue(existingEntity);
+
+      await expect(repository.delete(userId, pmId)).rejects.toThrow(
+        NotAuthorizedForPaymentMethodError,
+      );
+      expect(mockRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw PaymentMethodInUseError when payment method is used by transactions', async () => {
+      const userId = new Id('user-123');
+      const pmId = new Id('pm-123');
+      const existingEntity = buildPaymentMethodEntity({
+        id: pmId.toString(),
+        user: buildUserEntity({ id: userId.toString() }),
+      });
+
+      mockRepository.findOne.mockResolvedValue(existingEntity);
+      mockTransactionRepository.count.mockResolvedValue(3);
+
+      await expect(repository.delete(userId, pmId)).rejects.toThrow(
+        'is in use and cannot be deleted',
+      );
+      expect(mockRepository.delete).not.toHaveBeenCalled();
+    });
   });
 });

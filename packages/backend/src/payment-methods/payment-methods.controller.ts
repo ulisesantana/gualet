@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   InternalServerErrorException,
   NotFoundException,
+  ConflictException,
   Param,
   Patch,
   Post,
@@ -138,6 +140,49 @@ export class PaymentMethodsController extends SecureController {
     }
   }
 
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a payment method' })
+  @ApiResponse({
+    status: 204,
+    description: 'Payment method deleted successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Payment method belongs to another user',
+    type: ErrorResponse<ForbiddenException>,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Payment method not found',
+    type: ErrorResponse<NotFoundException>,
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict - Payment method is in use by transactions',
+    type: ErrorResponse<ConflictException>,
+  })
+  @ApiResponse({
+    status: 500,
+    type: ErrorResponse<InternalServerErrorException>,
+  })
+  async delete(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+    @Res() res: Response,
+  ) {
+    try {
+      await this.paymentMethodsService.delete(
+        new Id(req.user.userId),
+        new Id(id),
+      );
+      res.status(204).send();
+    } catch (error) {
+      console.error(`Error deleting payment method ${id.toString()}:`, error);
+      this.handlePaymentMethodsError(res, error);
+    }
+  }
+
   private handlePaymentMethodsError(res: Response, error: any) {
     if (this.isBaseError(error)) {
       switch (error.code) {
@@ -149,10 +194,20 @@ export class PaymentMethodsController extends SecureController {
           return res
             .status(403)
             .send(new ErrorResponse(new ForbiddenException(error.message)));
+        case PaymentMethodsErrorCodes.PaymentMethodInUse:
+          return res
+            .status(409)
+            .send(new ErrorResponse(new ConflictException(error.message)));
       }
     }
     return res
       .status(500)
-      .send(new ErrorResponse(new InternalServerErrorException(error.message)));
+      .send(
+        new ErrorResponse(
+          new InternalServerErrorException(
+            error instanceof Error ? error.message : 'Unknown error',
+          ),
+        ),
+      );
   }
 }

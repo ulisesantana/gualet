@@ -4,9 +4,10 @@ import { Repository } from 'typeorm';
 import {
   NotAuthorizedForPaymentMethodError,
   PaymentMethodNotFoundError,
+  PaymentMethodInUseError,
 } from './errors';
 import { PaymentMethodToUpdate } from '@src/payment-methods';
-import { PaymentMethodEntity } from '@src/db';
+import { PaymentMethodEntity, TransactionEntity } from '@src/db';
 import { Id, PaymentMethod } from '@gualet/shared';
 
 @Injectable()
@@ -14,6 +15,8 @@ export class PaymentMethodsRepository {
   constructor(
     @InjectRepository(PaymentMethodEntity)
     private readonly repository: Repository<PaymentMethodEntity>,
+    @InjectRepository(TransactionEntity)
+    private readonly transactionRepository: Repository<TransactionEntity>,
   ) {}
 
   static mapToDomain(pm: PaymentMethodEntity) {
@@ -91,5 +94,30 @@ export class PaymentMethodsRepository {
       color:
         toUpdate.color === null ? undefined : toUpdate.color || existing?.color,
     };
+  }
+
+  async delete(userId: Id, id: Id): Promise<void> {
+    const pm = await this.repository.findOne({
+      where: { id: id.toString() },
+    });
+
+    if (!pm) {
+      throw new PaymentMethodNotFoundError(id);
+    }
+
+    if (!userId.equals(pm.user.id)) {
+      throw new NotAuthorizedForPaymentMethodError(id);
+    }
+
+    // Check if payment method is being used by any transactions
+    const transactionCount = await this.transactionRepository.count({
+      where: { payment_method: { id: id.toString() } },
+    });
+
+    if (transactionCount > 0) {
+      throw new PaymentMethodInUseError(id);
+    }
+
+    await this.repository.delete({ id: id.toString() });
   }
 }

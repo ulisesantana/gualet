@@ -43,6 +43,10 @@ export class PaymentMethodsService {
     return this.repository.update(userId, pm);
   }
 
+  delete(userId: Id, id: Id): Promise<void> {
+    return this.repository.delete(userId, id);
+  }
+
   async createDefaultPaymentMethods(userId: Id): Promise<PaymentMethod[]> {
     const promises = generateDefaultPaymentMethods().map((pm) =>
       this.create(userId, {
