@@ -10,6 +10,12 @@ Welcome to the Gualet documentation. This directory contains all project documen
 - **[Quick Reference](./project/QUICK_REFERENCE.md)** - Quick overview of project structure and commands
 - **[API Design Patterns](./project/API_DESIGN.md)** - CRUD vs BREAD patterns explanation
 
+### 🏛️ Architecture Decision Records (`/adr`)
+- **[ADR Index](./adr/README.md)** - Overview of all architecture decisions
+- **[ADR-0001: NestJS Backend](./adr/0001-use-nestjs-backend.md)** - Decision to use NestJS as backend framework
+- **[ADR-0002: PostgreSQL Database](./adr/0002-use-postgresql-database.md)** - Decision to use PostgreSQL as primary database
+- **[ADR-0003: Offline-First Sync Strategy](./adr/0003-offline-first-sync-strategy.md)** - Evaluation of sync strategies (RxDB recommended)
+
 ### 🔒 Compliance Documentation (`/compliance`)
 - **[GDPR Compliance Guide](./compliance/GDPR_COMPLIANCE.md)** - Comprehensive GDPR implementation guide
 - **[GDPR Checklist](./compliance/GDPR_CHECKLIST.md)** - Step-by-step compliance checklist

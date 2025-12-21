@@ -1,8 +1,29 @@
-# Gualet - Action Plan: Offline-First Implementation
+# Gualet - Action Plan: Offline-First Implementation with RxDB
 
-**Goal:** Transform Gualet into a fully functional offline-first application  
-**Timeline:** 6-7 weeks (full-time) or 12-14 weeks (part-time)  
-**Starting Date:** TBD  
+**Goal:** Transform Gualet into a fully functional offline-first application using RxDB  
+**Sync Strategy:** RxDB with custom replication (see ADR-0003)  
+**Timeline:** 3-4 weeks (full-time) or 6-8 weeks (part-time)  
+**Starting Date:** December 21, 2025  
+
+---
+
+## 🎯 Strategy Overview
+
+**Chosen Solution: RxDB** (documented in [ADR-0003](../adr/0003-offline-first-sync-strategy.md))
+
+### Why RxDB?
+- ✅ Works with existing NestJS + PostgreSQL backend
+- ✅ TypeScript first-class support
+- ✅ Reactive queries (RxJS Observables) perfect for React
+- ✅ JSON Schema validation
+- ✅ Custom replication with our REST API
+- ✅ 3-4 week implementation timeline
+- ✅ ~70KB bundle size (acceptable)
+
+### Architecture
+```
+React App → RxDB (IndexedDB) ←→ Custom Replication ←→ NestJS API + PostgreSQL
+```
 
 ---
 
@@ -45,8 +66,8 @@
   - 🎉 **189 tests passing**
   - 🎉 **22 test suites passing**
   - 📊 Coverage exceeds the 95% target for all main metrics
-- [ ] Decision made: Custom sync vs Library (PouchDB/RxDB)
-  - ⚠️ Pending decision (see Decision Points section)
+- [x] Decision made: Custom sync vs Library (PouchDB/RxDB)
+  - ✅ **RxDB chosen** (see ADR-0003)
 
 #### Validation
 ```bash
@@ -73,408 +94,415 @@ npm run typecheck           # ✅ No errors
 
 ---
 
-### Week 1: Backend - Sync Infrastructure
-**Focus:** Prepare backend for synchronization
+### Week 1: RxDB Setup & Backend Sync API
+**Focus:** Install RxDB, define schemas, and create backend sync endpoints  
+**Status:** 🔵 Not Started
 
-#### Monday-Tuesday: Add Timestamps
-- [ ] Create `BaseEntity` with `createdAt`, `updatedAt`, `version`
-- [ ] Update all entities to extend `BaseEntity`
-  - [ ] CategoryEntity
-  - [ ] PaymentMethodEntity
-  - [ ] TransactionEntity
-  - [ ] UserPreferencesEntity
-- [ ] Generate TypeORM migration
-- [ ] Run migration in dev database
-- [ ] Update DTOs to include timestamps
-- [ ] Update tests
+#### Monday-Tuesday: RxDB Installation & Schema Definition
+- [ ] Install RxDB dependencies in frontend:
+  ```bash
+  npm install rxdb rxjs -w packages/frontend
+  npm install rxdb/plugins/storage-dexie -w packages/frontend
+  ```
+- [ ] Create RxDB folder structure:
+  ```
+  packages/frontend/src/infrastructure/database/
+  ├── rxdb-config.ts
+  ├── schemas/
+  │   ├── category.schema.ts
+  │   ├── payment-method.schema.ts
+  │   ├── transaction.schema.ts
+  │   └── user-preferences.schema.ts
+  ├── database.ts
+  └── types.ts
+  ```
+- [ ] Define JSON Schemas for all entities:
+  - [ ] Category schema (id, name, type, icon, color, createdAt, updatedAt)
+  - [ ] PaymentMethod schema (id, name, type, createdAt, updatedAt)
+  - [ ] Transaction schema (id, amount, description, date, categoryId, paymentMethodId, createdAt, updatedAt)
+  - [ ] UserPreferences schema
+- [ ] Configure RxDB database:
+  - Database name: `gualet-db`
+  - Storage: Dexie.js adapter (IndexedDB)
+  - Collections: categories, paymentMethods, transactions, userPreferences
+  - Indexes for performance
 
-#### Wednesday-Thursday: Sync Module
+#### Wednesday-Thursday: Backend Sync Endpoints (for RxDB Replication)
+- [ ] Add timestamps to backend entities:
+  - [ ] Create `BaseEntity` with `createdAt`, `updatedAt`
+  - [ ] Update CategoryEntity, PaymentMethodEntity, TransactionEntity to extend BaseEntity
+  - [ ] Generate and run TypeORM migration
 - [ ] Create `packages/backend/src/sync/` module
-- [ ] Implement `SyncController` with endpoints:
-  - [ ] `POST /api/sync/push` - Accept client changes
-  - [ ] `GET /api/sync/pull?since=timestamp` - Return server changes
-  - [ ] `POST /api/sync/resolve` - Resolve conflicts
+- [ ] Implement `SyncController` with RxDB-compatible endpoints:
+  - [ ] `GET /api/sync/categories/pull?checkpoint=timestamp` - Pull changes since checkpoint
+  - [ ] `POST /api/sync/categories/push` - Accept client changes
+  - [ ] `GET /api/sync/payment-methods/pull?checkpoint=timestamp`
+  - [ ] `POST /api/sync/payment-methods/push`
+  - [ ] `GET /api/sync/transactions/pull?checkpoint=timestamp`
+  - [ ] `POST /api/sync/transactions/push`
 - [ ] Implement `SyncService` with:
-  - [ ] `pushChanges()` - Merge client changes
-  - [ ] `pullChanges()` - Fetch changes since timestamp
-  - [ ] `resolveConflict()` - Last write wins strategy
+  - [ ] `pullChanges(entityType, checkpoint)` - Return changes since checkpoint
+  - [ ] `pushChanges(entityType, documents)` - Accept and merge client changes
+  - [ ] Conflict resolution: Last Write Wins (based on `updatedAt`)
 - [ ] Create DTOs:
-  - [ ] `PushChangesDto` (array of changes)
-  - [ ] `PullChangesDto` (filter params)
-  - [ ] `SyncResponseDto` (result + conflicts)
+  - [ ] `PullResponseDto` (documents array + new checkpoint)
+  - [ ] `PushDto` (documents array to sync)
+  - [ ] `SyncConflictDto` (conflict information)
 
 #### Friday: Testing & Documentation
-- [ ] Unit tests for `SyncService`
-- [ ] Integration tests for sync endpoints
-- [ ] Swagger documentation
-- [ ] Update `STATUS.md`
+- [ ] Unit tests for backend sync endpoints
+- [ ] Test pull endpoint returns correct documents
+- [ ] Test push endpoint handles updates correctly
+- [ ] Test conflict resolution (Last Write Wins)
+- [ ] Swagger documentation for sync endpoints
+- [ ] Update `STATUS.md` with progress
 
 #### Deliverables
 ```typescript
-// Endpoints ready:
-POST /api/sync/push
-  Body: {
-    changes: [
-      { entityType: 'transaction', operation: 'create', data: {...}, timestamp: ... },
-      { entityType: 'category', operation: 'update', data: {...}, timestamp: ... }
-    ]
+// RxDB Schemas defined:
+const categorySchema = {
+  version: 0,
+  primaryKey: 'id',
+  type: 'object',
+  properties: { id, name, type, icon, color, createdAt, updatedAt },
+  required: ['id', 'name', 'type'],
+  indexes: ['type', 'createdAt']
+};
+
+// Backend endpoints ready for RxDB replication:
+GET /api/sync/categories/pull?checkpoint=1703174400000
+  Response: {
+    documents: [...],
+    checkpoint: 1703178000000
   }
 
-GET /api/sync/pull?since=2024-12-20T10:00:00Z
-  Response: {
-    categories: [...],
-    paymentMethods: [...],
-    transactions: [...],
-    lastSyncAt: "2024-12-21T15:30:00Z"
-  }
+POST /api/sync/categories/push
+  Body: { documents: [...] }
+  Response: { conflicts: [] }
 ```
 
 ---
 
-### Week 2: Frontend - IndexedDB Layer
-**Focus:** Implement local storage with IndexedDB
+### Week 2: RxDB Replication & Repository Migration
+**Focus:** Implement RxDB custom replication and migrate repositories  
+**Status:** 🔵 Not Started
 
-#### Monday: Setup
-- [ ] Install `idb` library: `npm install idb -w packages/frontend`
-- [ ] Create folder structure:
+#### Monday: RxDB Database Initialization
+- [ ] Implement RxDB database setup in `database.ts`:
+  ```typescript
+  import { createRxDatabase } from 'rxdb';
+  import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
+  
+  const db = await createRxDatabase({
+    name: 'gualet-db',
+    storage: getRxStorageDexie()
+  });
+  
+  await db.addCollections({
+    categories: { schema: categorySchema },
+    paymentMethods: { schema: paymentMethodSchema },
+    transactions: { schema: transactionSchema }
+  });
   ```
-  packages/frontend/src/infrastructure/data-sources/indexeddb/
-  ├── IndexedDBDataSource.ts
-  ├── db-config.ts
-  ├── schemas.ts
-  └── migrations.ts
+- [ ] Create TypeScript types from schemas
+- [ ] Test database creation and collections
+- [ ] Add error handling for quota exceeded
+
+#### Tuesday-Wednesday: Custom Replication Plugin
+- [ ] Install replication plugin: `npm install rxdb/plugins/replication -w packages/frontend`
+- [ ] Create `packages/frontend/src/infrastructure/database/replication/`
+  - [ ] `category-replication.ts`
+  - [ ] `payment-method-replication.ts`
+  - [ ] `transaction-replication.ts`
+  - [ ] `replication-config.ts`
+- [ ] Implement pull handler for each collection:
+  ```typescript
+  pull: {
+    async handler(lastCheckpoint) {
+      const response = await fetch(`/api/sync/categories/pull?checkpoint=${lastCheckpoint}`);
+      const data = await response.json();
+      return {
+        documents: data.documents,
+        checkpoint: data.checkpoint
+      };
+    }
+  }
   ```
+- [ ] Implement push handler for each collection:
+  ```typescript
+  push: {
+    async handler(docs) {
+      await fetch('/api/sync/categories/push', {
+        method: 'POST',
+        body: JSON.stringify({ documents: docs })
+      });
+    }
+  }
+  ```
+- [ ] Configure conflict resolution (Last Write Wins based on `updatedAt`)
+- [ ] Add retry logic for failed syncs
 
-#### Tuesday-Wednesday: IndexedDB Implementation
-- [ ] Define database schema in `db-config.ts`:
-  - Database name: `gualet-db`
-  - Version: 1
-  - Stores: categories, payment-methods, transactions, sync-queue, user-preferences
-- [ ] Implement `IndexedDBDataSource` with methods:
-  - [ ] `init()` - Initialize database
-  - [ ] `create(store, data)` - Create record
-  - [ ] `findAll(store)` - Get all records
-  - [ ] `findById(store, id)` - Get by ID
-  - [ ] `update(store, id, data)` - Update record
-  - [ ] `delete(store, id)` - Delete record
-  - [ ] `clear(store)` - Clear store
-- [ ] Implement indexes:
-  - Categories: by type
-  - Transactions: by date, categoryId, paymentMethodId
-  - Sync queue: by status, createdAt
+#### Thursday: Repository Migration to RxDB
+- [ ] Update `CategoryRepository` to use RxDB:
+  - Replace IndexedDB/HTTP logic with RxDB collections
+  - Use RxDB's `.find()`, `.insert()`, `.update()`, `.remove()` methods
+  - Return Observables instead of Promises where beneficial
+- [ ] Update `PaymentMethodRepository` to use RxDB
+- [ ] Update `TransactionRepository` to use RxDB
+- [ ] Remove old HTTP data sources (keep for reference initially)
+- [ ] Ensure all repositories maintain the same interface
 
-#### Thursday: Sync Queue
-- [ ] Implement sync queue store schema:
+#### Friday: Testing & Network Detection
+- [ ] Create `useOnlineStatus()` hook for network detection
+- [ ] Implement replication start/stop based on connectivity
+- [ ] Unit tests for replication handlers
+- [ ] Test offline CRUD operations
+- [ ] Test sync when going online
+- [ ] Test conflict resolution scenarios
+- [ ] Update `STATUS.md`
+
+#### Deliverables
+```typescript
+// RxDB replication working:
+const replicationState = replicateRxCollection({
+  collection: db.categories,
+  replicationIdentifier: 'categories-replication',
+  pull: { handler: pullHandler },
+  push: { handler: pushHandler }
+});
+
+// Repositories using RxDB:
+const categoryRepo = new CategoryRepository(db.categories);
+const categories$ = categoryRepo.findAll(); // Returns Observable
+await categoryRepo.create(newCategory); // Auto-syncs when online
+```
+
+---
+
+### Week 3: React Integration & UI Components
+**Focus:** Create React hooks for RxDB observables and sync UI  
+**Status:** 🔵 Not Started
+
+#### Monday-Tuesday: React Hooks for RxDB
+- [ ] Create `packages/frontend/src/hooks/useRxDB.ts` - Access RxDB instance
+- [ ] Create `packages/frontend/src/hooks/useRxCollection.ts` - Generic collection hook
+- [ ] Create `packages/frontend/src/hooks/useRxQuery.ts` - Reactive query hook:
+  ```typescript
+  function useRxQuery<T>(query: RxQuery<T>) {
+    const [results, setResults] = useState<T[]>([]);
+    
+    useEffect(() => {
+      const subscription = query.$.subscribe(setResults);
+      return () => subscription.unsubscribe();
+    }, [query]);
+    
+    return results;
+  }
+  ```
+- [ ] Create specific hooks:
+  - [ ] `useCategories()` - Subscribe to categories collection
+  - [ ] `usePaymentMethods()` - Subscribe to payment methods
+  - [ ] `useTransactions(filters?)` - Subscribe to transactions with filters
+  - [ ] `useSyncState()` - Track replication state
+- [ ] Create mutation hooks:
+  - [ ] `useCategoryMutations()` - create, update, delete categories
+  - [ ] `usePaymentMethodMutations()` - CRUD for payment methods
+  - [ ] `useTransactionMutations()` - CRUD for transactions
+
+#### Wednesday: Sync Status UI Components
+- [ ] Create `SyncStatusIndicator` component:
+  - Show "Synced ✓", "Syncing...", "Offline", "Error"
+  - Use replication state from RxDB
+  - Display in header/navbar
+- [ ] Create `OfflineBanner` component:
+  - Show when offline
+  - Explain offline mode
+  - Dismissible
+- [ ] Create `SyncProgress` component (optional):
+  - Show number of pending changes
+  - Progress bar during sync
+
+#### Thursday: Update Views to Use RxDB Hooks
+- [ ] Update `CategoriesView`:
+  - Replace old state management with `useCategories()`
+  - Use `useCategoryMutations()` for CRUD
+  - Remove manual API calls
+- [ ] Update `PaymentMethodsView`:
+  - Use `usePaymentMethods()` and `usePaymentMethodMutations()`
+- [ ] Update `TransactionsView`:
+  - Use `useTransactions()` with filters
+  - Use `useTransactionMutations()`
+- [ ] Update `DashboardView`:
+  - Use reactive queries for statistics
+
+#### Friday: Testing & Polish
+- [ ] Test all views work offline
+- [ ] Test reactive updates (data changes reflect immediately)
+- [ ] Test sync status indicators update correctly
+- [ ] Test offline banner appears/disappears
+- [ ] Unit tests for React hooks
+- [ ] E2E tests for offline scenarios
+- [ ] Update `STATUS.md`
+
+#### Deliverables
+```typescript
+// React components using RxDB:
+function CategoriesView() {
+  const categories = useCategories(); // Reactive!
+  const { create, update, delete: deleteCategory } = useCategoryMutations();
+  const syncState = useSyncState();
+  
+  return (
+    <div>
+      <SyncStatusIndicator state={syncState} />
+      {categories.map(cat => <CategoryCard key={cat.id} {...cat} />)}
+    </div>
+  );
+}
+
+// Data updates automatically when RxDB data changes (local or synced)
+```
+
+---
+
+### Week 4: PWA, Testing & Polish
+**Focus:** Service Worker, PWA features, comprehensive testing  
+**Status:** 🔵 Not Started
+
+#### Monday: Service Worker Setup
+- [ ] Install Workbox: `npm install workbox-webpack-plugin -w packages/frontend`
+- [ ] Configure Vite for PWA:
+  - [ ] Install `vite-plugin-pwa`
+  - [ ] Configure in `vite.config.ts`
+- [ ] Create Service Worker configuration:
   ```typescript
   {
-    id: string,
-    entityType: 'category' | 'payment-method' | 'transaction',
-    entityId: string,
-    operation: 'create' | 'update' | 'delete',
-    payload: JSON,
-    createdAt: timestamp,
-    status: 'pending' | 'syncing' | 'synced' | 'error',
-    retryCount: number,
-    error?: string
+    registerType: 'autoUpdate',
+    strategies: {
+      images: 'CacheFirst',
+      api: 'NetworkFirst',
+      assets: 'StaleWhileRevalidate'
+    }
   }
   ```
-- [ ] Implement queue operations:
-  - [ ] `addToQueue(operation)` - Add operation
-  - [ ] `getQueue()` - Get all pending
-  - [ ] `updateQueueStatus(id, status)` - Update status
-  - [ ] `removeFromQueue(id)` - Remove after sync
+- [ ] Configure caching strategies:
+  - App shell: Cache First
+  - API calls: Network First (fallback to RxDB)
+  - Images/assets: Cache First
+  - HTML: Network First
 
-#### Friday: Testing
-- [ ] Unit tests for IndexedDBDataSource
-- [ ] Test CRUD operations
-- [ ] Test queue operations
-- [ ] Test indexes
-- [ ] Browser testing (Chrome, Firefox, Safari)
-
-#### Deliverables
-```typescript
-// IndexedDB working:
-const db = new IndexedDBDataSource();
-await db.init();
-await db.create('categories', category);
-const categories = await db.findAll('categories');
-await db.addToQueue({ entityType: 'category', operation: 'create', ... });
-```
-
----
-
-### Week 3: Frontend - Sync Manager
-**Focus:** Build synchronization orchestrator
-
-#### Monday-Tuesday: Network Detection
-- [ ] Create `packages/frontend/src/infrastructure/sync/NetworkDetector.ts`
-- [ ] Implement online/offline detection
-- [ ] Add event listeners for connectivity changes
-- [ ] Implement `isOnline()` method
-- [ ] Create React hook `useOnlineStatus()`
-
-#### Wednesday-Thursday: Sync Manager Core
-- [ ] Create `packages/frontend/src/infrastructure/sync/SyncManager.ts`
-- [ ] Implement methods:
-  - [ ] `init()` - Initialize sync manager
-  - [ ] `syncAll()` - Sync everything
-  - [ ] `syncEntity(type)` - Sync specific entity type
-  - [ ] `pushChanges()` - Push local changes to server
-  - [ ] `pullChanges()` - Pull server changes to local
-  - [ ] `onOnline()` - Handler for going online
-  - [ ] `onOffline()` - Handler for going offline
-- [ ] Implement auto-sync (every 30 seconds when online)
-- [ ] Implement retry logic for failed syncs
-
-#### Friday: Conflict Resolution
-- [ ] Create `ConflictResolver.ts`
-- [ ] Implement "last write wins" strategy
-- [ ] Compare timestamps (local vs server)
-- [ ] Handle edge cases:
-  - Both created same entity
-  - Local update + server delete
-  - Local delete + server update
-
-#### Deliverables
-```typescript
-// Sync Manager ready:
-const syncManager = new SyncManager(http, indexedDB, networkDetector);
-await syncManager.init();
-
-// Manual sync
-await syncManager.syncAll();
-
-// Auto-sync on reconnect
-networkDetector.on('online', () => syncManager.syncAll());
-```
-
----
-
-### Week 4: Frontend - Repositories Refactor
-**Focus:** Update repositories to use IndexedDB first
-
-#### Monday: CategoryRepository
-- [ ] Refactor `CategoryRepositoryImplementation`
-- [ ] Update `create()`:
-  - Save to IndexedDB first
-  - Add to sync queue
-  - Return local data immediately
-  - Sync in background
-- [ ] Update `findAll()`:
-  - Always read from IndexedDB
-- [ ] Update `update()`:
-  - Update IndexedDB
-  - Add to sync queue
-  - Sync in background
-- [ ] Update `delete()`:
-  - Soft delete in IndexedDB
-  - Add to sync queue
-
-#### Tuesday: PaymentMethodRepository
-- [ ] Same refactoring as CategoryRepository
-- [ ] Update all CRUD methods
-
-#### Wednesday: TransactionRepository
-- [ ] Same refactoring as CategoryRepository
-- [ ] Handle relations (category, payment method)
-- [ ] Update filtering logic to work with IndexedDB
-
-#### Thursday: UserPreferencesRepository
-- [ ] Refactor for offline-first
-- [ ] Store preferences locally
-
-#### Friday: Integration & Testing
-- [ ] Update dependency injection
-- [ ] Update use cases if needed
-- [ ] Integration tests
-- [ ] Test offline scenarios manually
-
-#### Deliverables
-```typescript
-// Repositories working offline:
-const category = await categoryRepo.create(newCategory);
-// ↑ Saved to IndexedDB + queued for sync
-// Returns immediately (no network wait)
-
-const categories = await categoryRepo.findAll();
-// ↑ Read from IndexedDB (fast)
-```
-
----
-
-### Week 5: Service Worker & PWA
-**Focus:** Enhanced PWA capabilities
-
-#### Monday-Tuesday: Service Worker
-- [ ] Create `packages/frontend/public/sw.js`
-- [ ] Implement install event:
-  - Cache static assets (HTML, CSS, JS, icons)
-- [ ] Implement fetch event:
-  - Static assets: Cache first
-  - API calls: Network first, fallback to cache
-- [ ] Implement activate event:
-  - Clean old caches
-- [ ] Register service worker in `main.tsx`
+#### Tuesday: PWA Manifest & Install
+- [ ] Create `manifest.json`:
+  - App name, short_name, description
+  - Icons (192x192, 512x512)
+  - theme_color, background_color
+  - display: "standalone"
+  - start_url, scope
+- [ ] Generate app icons (use tool like PWA Asset Generator)
+- [ ] Add manifest link to `index.html`
+- [ ] Test "Add to Home Screen" on mobile
+- [ ] Create install prompt component (optional)
 
 #### Wednesday: Background Sync
-- [ ] Implement Background Sync API
-- [ ] Register sync event in service worker
-- [ ] Trigger sync on connectivity restore
-- [ ] Handle sync failures
+- [ ] Implement Background Sync API:
+  - Register sync when going offline
+  - Sync when connection restored
+  - Handle sync in Service Worker
+- [ ] Test background sync:
+  - Create transaction offline
+  - Close app
+  - Reopen → should sync automatically
+- [ ] Add periodic background sync (if supported):
+  - Sync every hour when online
+  - Configurable in settings
 
-#### Thursday: Workbox (Optional)
-- [ ] Evaluate using Workbox for easier SW management
-- [ ] If yes: Migrate to Workbox
-- [ ] Configure Workbox strategies:
-  - CacheFirst for assets
-  - NetworkFirst for API
-  - BackgroundSync for offline operations
+#### Thursday: E2E Testing - Offline Scenarios
+- [ ] Create E2E tests with Playwright:
+  - [ ] Test offline category creation
+  - [ ] Test offline transaction creation
+  - [ ] Test going offline and online
+  - [ ] Test sync after reconnection
+  - [ ] Test conflict resolution
+  - [ ] Test background sync
+- [ ] Test on multiple browsers:
+  - Chrome/Edge (Chromium)
+  - Firefox
+  - Safari (if available)
+- [ ] Test quota handling (simulate quota exceeded)
 
-#### Friday: Testing
-- [ ] Test PWA install
-- [ ] Test offline functionality
-- [ ] Test cache strategies
-- [ ] Test background sync
-- [ ] Test on multiple browsers
-
-#### Deliverables
-```javascript
-// Service Worker active
-// Can install app on mobile
-// Works completely offline
-// Background sync on reconnect
-```
-
----
-
-### Week 6: UI/UX & Polish
-**Focus:** User feedback and experience
-
-#### Monday-Tuesday: Sync UI Components
-- [ ] Create `SyncIndicator` component
-  - Shows: synced | syncing | pending | error
-  - Shows: pending operations count
-  - Shows: last sync time
-- [ ] Create `OfflineBanner` component
-  - Shows when offline
-  - Dismissible
-  - Auto-hide when online
-- [ ] Create `PendingSyncBadge` component
-  - Shows on settings icon
-  - Number of pending operations
-
-#### Wednesday: Hooks & Context
-- [ ] Create `useOnlineStatus()` hook
-- [ ] Create `useSyncStatus()` hook
-- [ ] Create `SyncContext` for global sync state
-- [ ] Integrate hooks in views
-
-#### Thursday: Settings Page
-- [ ] Add "Synchronization" section
-- [ ] Manual sync button
-- [ ] Show sync status
-- [ ] Show last sync time
-- [ ] Show pending operations list
-- [ ] Clear local data button (with confirmation)
-
-#### Friday: Error Handling & Feedback
-- [ ] Improve error messages
-- [ ] Add toast notifications for sync events
-- [ ] Add loading states consistency
-- [ ] Add retry button for failed syncs
-- [ ] Add optimistic UI updates
+#### Friday: Performance & Documentation
+- [ ] Performance optimization:
+  - [ ] Analyze bundle size (should be <500KB total)
+  - [ ] Code splitting for routes
+  - [ ] Lazy load RxDB schemas
+  - [ ] Optimize RxDB indexes
+- [ ] Lighthouse audit:
+  - Target: >90 PWA score
+  - Target: >90 Performance score
+- [ ] Update documentation:
+  - [ ] Update `README.md` with offline-first info
+  - [ ] Document RxDB architecture
+  - [ ] Create offline usage guide
+  - [ ] Update `STATUS.md` - mark as complete ✅
 
 #### Deliverables
 ```typescript
-// UI showing sync status
-<SyncIndicator 
-  status="synced" 
-  pendingCount={0} 
-  lastSyncAt="2 minutes ago" 
-/>
+// PWA fully functional:
+- ✅ Works offline completely
+- ✅ Installable on mobile/desktop
+- ✅ Auto-syncs when online
+- ✅ Background sync working
+- ✅ Service Worker caching assets
+- ✅ All E2E tests passing
+- ✅ Lighthouse PWA score >90
+- ✅ Test coverage >95%
 
-// Settings page with sync controls
-- Last sync: 2 minutes ago
-- Pending operations: 0
-- [Sync Now] button
-- [Clear Local Data] button
+// User can:
+- Create/edit/delete transactions offline
+- See all data instantly (from RxDB)
+- Install app to home screen
+- Use app without internet
+- Data syncs automatically when online
 ```
-
----
-
-### Week 7: Testing & Documentation
-**Status:** 🔵 Not Started (0%)  
-**Focus:** Comprehensive testing and documentation  
-**Assigned to:** [AI Agent / Developer Name]  
-**Target completion:** [Date]
-
-> **Prerequisites:** Week 1-6 must be complete
-
-#### Monday-Tuesday: E2E Offline Tests
-**Status:** [ ] Not Started | [ ] In Progress | [ ] Complete  
-**Completed:** [Date]
-- [ ] Create `packages/e2e/tests/offline/` folder
-- [ ] Test: Create transaction offline
-- [ ] Test: Edit transaction offline
-- [ ] Test: Delete transaction offline
-- [ ] Test: Sync on reconnect
-- [ ] Test: Multiple pending operations
-- [ ] Test: Conflict resolution
-- [ ] Test: Sync error handling
-
-#### Wednesday: Unit Tests
-- [ ] IndexedDB tests
-- [ ] SyncManager tests
-- [ ] Repository offline tests
-- [ ] Conflict resolver tests
-- [ ] Increase coverage to >80%
-
-#### Thursday: Performance Testing
-- [ ] Test with 1,000 transactions
-- [ ] Test with 10,000 transactions
-- [ ] Test sync performance
-- [ ] Test IndexedDB query performance
-- [ ] Optimize if needed (indexes, pagination)
-
-#### Friday: Documentation
-- [ ] Update `STATUS.md`
-- [ ] Update `QUICK_REFERENCE.md`
-- [ ] Create `OFFLINE_FIRST.md` guide
-- [ ] Document sync architecture
-- [ ] Document troubleshooting
-- [ ] Record demo video
-
-#### Deliverables
-- ✅ 95%+ E2E tests passing
-- ✅ 95%+ unit test coverage
-- ✅ Performance benchmarks documented
-- ✅ Complete documentation
-- ✅ Demo video
 
 ---
 
 ## 🎯 Success Criteria
 
 ### Functional
-- [ ] App works 100% offline
-- [ ] Data syncs automatically when online
-- [ ] Conflicts resolved correctly
-- [ ] No data loss
-- [ ] Fast response times (<100ms for local operations)
+- [ ] App works 100% offline (all CRUD operations)
+- [ ] Data syncs automatically when online (via RxDB replication)
+- [ ] Conflicts resolved correctly (Last Write Wins based on `updatedAt`)
+- [ ] No data loss during sync
+- [ ] Fast response times (<100ms for local RxDB operations)
+- [ ] Reactive UI updates (data changes reflect immediately via RxJS Observables)
 
 ### Technical
-- [ ] Test coverage >80%
+- [ ] RxDB successfully installed and configured
+- [ ] JSON Schemas defined for all entities
+- [ ] Custom replication handlers working (pull/push)
+- [ ] Backend sync endpoints implemented and tested
+- [ ] Test coverage >95% (backend and frontend)
 - [ ] E2E tests >95% passing
 - [ ] No TypeScript errors
 - [ ] No console errors
-- [ ] IndexedDB size <50MB (for typical usage)
+- [ ] Bundle size <500KB total (~70KB for RxDB)
+- [ ] IndexedDB size <50MB (for typical usage of ~1000 transactions)
 
 ### User Experience
-- [ ] Clear sync status indicator
-- [ ] Offline mode is obvious
-- [ ] No UI blocking during sync
+- [ ] Clear sync status indicator (synced/syncing/offline/error)
+- [ ] Offline mode is obvious (offline banner)
+- [ ] No UI blocking during sync (background sync)
 - [ ] Error messages are helpful
-- [ ] Manual sync available
+- [ ] Manual sync available in settings
+- [ ] PWA installable on mobile/desktop
+- [ ] Lighthouse PWA score >90
+
+### Performance
+- [ ] Local queries <100ms
+- [ ] Full sync <5 seconds (for typical dataset)
+- [ ] App loads in <2 seconds
+- [ ] Smooth 60fps UI interactions
 
 ---
 
@@ -482,7 +510,81 @@ const categories = await categoryRepo.findAll();
 
 ### Overall Progress
 - **Week 0:** 🟢 Complete (December 21, 2025)
-- **Week 1-7:** 🔵 Not Started
+- **Week 1:** 🔵 Not Started - RxDB Setup & Backend Sync API
+- **Week 2:** 🔵 Not Started - RxDB Replication & Repository Migration
+- **Week 3:** 🔵 Not Started - React Integration & UI Components
+- **Week 4:** 🔵 Not Started - PWA, Testing & Polish
+
+### Current Week: Week 1
+**Focus:** RxDB Setup & Backend Sync API  
+**Target Completion:** [Date TBD]  
+**Status:** 🔵 Not Started (0%)
+
+### Timeline
+```
+Week 0: ████████████████████ 100% ✅ (Backend Complete)
+Week 1: ░░░░░░░░░░░░░░░░░░░░   0% (RxDB Setup)
+Week 2: ░░░░░░░░░░░░░░░░░░░░   0% (Replication)
+Week 3: ░░░░░░░░░░░░░░░░░░░░   0% (React Hooks)
+Week 4: ░░░░░░░░░░░░░░░░░░░░   0% (PWA & Testing)
+```
+
+---
+
+## 📚 Resources & References
+
+### RxDB Documentation
+- [ ] [RxDB Official Docs](https://rxdb.info/)
+- [ ] [RxDB Replication Guide](https://rxdb.info/replication.html)
+- [ ] [RxDB React Integration](https://rxdb.info/react.html)
+- [ ] [RxDB Schema Validation](https://rxdb.info/schema-validation.html)
+
+### PWA & Service Workers
+- [ ] [Service Worker API](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
+- [ ] [Workbox Documentation](https://developer.chrome.com/docs/workbox/)
+- [ ] [vite-plugin-pwa](https://vite-pwa-org.netlify.app/)
+- [ ] [Background Sync API](https://developer.mozilla.org/en-US/docs/Web/API/Background_Synchronization_API)
+
+### IndexedDB & Storage
+- [ ] [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
+- [ ] [Dexie.js Documentation](https://dexie.org/) (RxDB uses it internally)
+- [ ] [Storage for the Web](https://web.dev/storage-for-the-web/)
+
+### Offline-First Patterns
+- [ ] [Offline First Principles](https://offlinefirst.org/)
+- [ ] [Progressive Web Apps](https://web.dev/progressive-web-apps/)
+
+---
+
+## 📝 Decision Log
+
+### ✅ Decision Made: RxDB for Offline-First
+
+**Date:** December 21, 2025  
+**Decision:** Use RxDB with custom replication  
+**Documented in:** [ADR-0003](../adr/0003-offline-first-sync-strategy.md)
+
+**Chosen Solution:** RxDB (Option 3)
+
+**Rationale:**
+- ✅ Works with existing NestJS + PostgreSQL backend (no migration needed)
+- ✅ TypeScript first-class support end-to-end
+- ✅ Reactive queries (RxJS Observables) perfect for React
+- ✅ JSON Schema validation (similar to our class-validator DTOs)
+- ✅ Custom replication with REST API (flexible)
+- ✅ Reasonable implementation time: 3-4 weeks
+- ✅ Acceptable bundle size: ~70KB (within <100KB target)
+- ✅ Future-proof (works with React Native if needed)
+
+**Alternatives Considered:**
+1. Custom Implementation - 6-7 weeks, full control but more work
+2. PouchDB + CouchDB - 2-3 weeks but requires CouchDB (❌ incompatible with our PostgreSQL backend)
+3. Dexie.js + Custom Sync - 4-5 weeks, similar to custom but with better IndexedDB API
+
+**Trade-offs Accepted:**
+- RxJS learning curve (manageable)
+- Medium bundle size ~70KB (acceptable for features gained)
+- Need to implement custom replication handlers (well-documented by RxDB)
 
 ### Week 0 Summary (COMPLETE)
 **Dates:** December 21, 2025  
@@ -589,34 +691,6 @@ const categories = await categoryRepo.findAll();
 
 ---
 
-## 📞 Decision Points
-
-### Week 0 Decision: Custom vs Library
-**Options:**
-1. **Custom Implementation** (this plan)
-   - Pros: Full control, learning, no dependencies
-   - Cons: More work, reinventing the wheel
-   - Time: 6-7 weeks
-
-2. **PouchDB + CouchDB**
-   - Pros: Battle-tested, automatic sync, less code
-   - Cons: Need CouchDB server, different paradigm
-   - Time: 2-3 weeks
-
-3. **RxDB**
-   - Pros: Reactive, good TypeScript support, plugins
-   - Cons: Learning curve, dependency
-   - Time: 3-4 weeks
-
-**Decision:** [ ] Custom [ ] PouchDB [ ] RxDB [ ] Other: _______
-
-**Rationale:**
-```
-[Document your decision and reasoning here]
-```
-
----
-
 ## 📝 Daily Log Template
 
 ```markdown
@@ -643,20 +717,18 @@ const categories = await categoryRepo.findAll();
 
 ## 🎉 Milestones
 
-- [ ] **M1:** Backend sync ready (End of Week 1)
-- [ ] **M2:** IndexedDB working (End of Week 2)
-- [ ] **M3:** Sync Manager implemented (End of Week 3)
-- [ ] **M4:** Repositories refactored (End of Week 4)
-- [ ] **M5:** PWA enhanced (End of Week 5)
-- [ ] **M6:** UI polished (End of Week 6)
-- [ ] **M7:** Fully tested & documented (End of Week 7)
-- [ ] **M8:** Production ready! 🚀
+- [x] **M0:** Backend complete with >95% test coverage (Week 0) ✅
+- [x] **M0.1:** Sync strategy decision made - RxDB chosen (Week 0) ✅
+- [ ] **M1:** RxDB installed, schemas defined, backend sync API ready (End of Week 1)
+- [ ] **M2:** RxDB replication working, repositories migrated (End of Week 2)
+- [ ] **M3:** React hooks for RxDB, UI components, views updated (End of Week 3)
+- [ ] **M4:** PWA complete, all tests passing, production ready! 🚀 (End of Week 4)
 
 ---
 
 **Created:** December 21, 2025  
 **Last Updated:** December 21, 2025  
-**Status:** 🟢 Week 0 Complete - Ready for Week 1
+**Status:** 🟢 Week 0 Complete - RxDB Decision Made ✅
 
 **Week 0 Achievements:**
 - ✅ Backend CRUD endpoints: 100% complete
@@ -664,7 +736,10 @@ const categories = await categoryRepo.findAll();
 - ✅ 189 tests passing (22 test suites)
 - ✅ DELETE endpoints with conflict detection
 - ✅ All TypeScript errors resolved
-- 🎯 **Next:** Decision on sync strategy (Custom/PouchDB/RxDB) before starting Week 1
+- ✅ **Sync strategy decided: RxDB** (documented in ADR-0003)
+- 🎯 **Next:** Week 1 - RxDB Setup & Backend Sync API
+
+**Timeline Updated:** 6-7 weeks → 3-4 weeks (thanks to RxDB)
 
 Good luck! 💪
 
