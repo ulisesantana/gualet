@@ -6,9 +6,13 @@ import { CategoryCard } from "../CategoryCard";
 
 export interface CategoryListProps {
   categories: Category[];
+  onDeleteCategory?: (categoryId: string) => Promise<void>;
 }
 
-export function CategoryList({ categories }: CategoryListProps) {
+export function CategoryList({
+  categories,
+  onDeleteCategory,
+}: CategoryListProps) {
   return categories.length ? (
     <ul className="category-card-list">
       {React.Children.toArray(
@@ -17,7 +21,7 @@ export function CategoryList({ categories }: CategoryListProps) {
             data-testid={`category-item-${category.id}`}
             key={category.id.toString()}
           >
-            <CategoryCard category={category} />
+            <CategoryCard category={category} onDelete={onDeleteCategory} />
           </li>
         )),
       )}

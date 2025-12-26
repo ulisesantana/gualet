@@ -1,12 +1,12 @@
 import {
   Body,
+  ConflictException,
   Controller,
   Delete,
   ForbiddenException,
   Get,
   InternalServerErrorException,
   NotFoundException,
-  ConflictException,
   Param,
   Patch,
   Post,
@@ -24,6 +24,7 @@ import {
   AuthenticatedRequest,
   ErrorResponse,
   SecureController,
+  SuccessResponse,
 } from '@src/common/infrastructure';
 import {
   ApiBearerAuth,
@@ -83,7 +84,7 @@ export class CategoriesController extends SecureController {
   async findOne(
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
-    @Param() id: string,
+    @Param('id') id: string,
   ) {
     try {
       const category = await this.categoryService.findOne(
@@ -105,6 +106,11 @@ export class CategoriesController extends SecureController {
     type: CategoryResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict - Category with same name and type already exists',
+    type: ErrorResponse<ConflictException>,
+  })
   async create(
     @Req() req: AuthenticatedRequest,
     @Body() category: CreateCategoryDto,
@@ -142,7 +148,7 @@ export class CategoriesController extends SecureController {
   async update(
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
-    @Param() id: string,
+    @Param('id') id: string,
     @Body() category: UpdateCategoryDto,
   ) {
     try {
@@ -165,8 +171,9 @@ export class CategoriesController extends SecureController {
   @Delete('/:id')
   @ApiOperation({ summary: 'Delete a category' })
   @ApiResponse({
-    status: 204,
+    status: 200,
     description: 'Category deleted successfully',
+    type: SuccessResponse,
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
@@ -191,7 +198,7 @@ export class CategoriesController extends SecureController {
   async delete(
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
-    @Param() id: string,
+    @Param('id') id: string,
   ) {
     try {
       await this.categoryService.delete(new Id(req.user.userId), new Id(id));

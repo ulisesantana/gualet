@@ -2,6 +2,27 @@
 
 Personal finance management app - Track your expenses offline-first
 
+## 🚀 Quick Start for New Developers
+
+**New to the project?** Get started in 5 minutes:
+
+```bash
+# 1. Clone and setup
+git clone <repository-url>
+cd gualet
+npm run setup
+
+# 2. Start development environment
+npm run dev:all
+
+# 3. Open http://localhost:5173
+# Login with: test@gualet.app / test1234
+```
+
+📖 **[Complete Getting Started Guide →](./docs/GETTING_STARTED.md)**
+
+---
+
 ## 📊 Project Status
 
 **Current State:** Backend migration ~80% complete, Frontend integrated, Offline-first pending
@@ -28,14 +49,14 @@ Personal finance management app - Track your expenses offline-first
 - ✅ GET    /api/me/categories/:id
 - ✅ POST   /api/me/categories
 - ✅ PATCH  /api/me/categories/:id
-- [ ] DELETE /api/me/categories/:id
+- ✅ DELETE /api/me/categories/:id
 
 #### Payment Methods
 - ✅ GET    /api/me/payment-methods
 - ✅ GET    /api/me/payment-methods/:id
 - ✅ POST   /api/me/payment-methods
 - ✅ PATCH  /api/me/payment-methods/:id
-- [ ] DELETE /api/me/payment-methods/:id
+- ✅ DELETE /api/me/payment-methods/:id
 
 #### Transactions
 - ✅ GET    /api/me/transactions
@@ -51,43 +72,66 @@ Personal finance management app - Track your expenses offline-first
 - ✅ POST   /api/auth/verify
 
 ## Roadmap
-### Features
+### Backend Migration ✅ COMPLETE
 - ✅ Create user
     - ✅ Use case
     - ✅ UI
     - ✅ Backend (NestJS)
+    - ✅ Tests (99.62% coverage)
 - ✅ Login on the app
     - ✅ Use case
     - ✅ UI
     - ✅ Backend (NestJS)
+    - ✅ Tests
 - ✅ Logout on the app
     - ✅ Use case
     - ✅ UI
     - ✅ Backend (NestJS)
+    - ✅ Tests
 - ✅ BREAD transactions
-    - ✅ Browse
+    - ✅ Browse (with advanced filters)
     - ✅ Read
     - ✅ Edit
     - ✅ Add
     - ✅ Delete
+    - ✅ Tests
 - ✅ BREAD categories
     - ✅ Browse
     - ✅ Read
     - ✅ Edit
     - ✅ Add
-    - ✅ Delete
+    - ✅ Delete (with conflict detection)
+    - ✅ Tests
 - ✅ BREAD payment methods
     - ✅ Browse
     - ✅ Read
     - ✅ Edit
     - ✅ Add
-    - ✅ Delete
-- [ ] **Offline-First (Main Goal)**
-    - [ ] IndexedDB implementation
-    - [ ] Sync Manager
-    - [ ] Conflict resolution
+    - ✅ Delete (with conflict detection)
+    - ✅ Tests
+
+### Offline-First (Next Major Milestone) 🎯
+- ✅ **Strategy Selected:** RxDB (see ADR-0003)
+- [ ] **Week 1:** RxDB Setup & Backend Sync API
+    - [ ] Install RxDB dependencies
+    - [ ] Define JSON Schemas
+    - [ ] Create backend sync endpoints
+    - [ ] Implement pull/push handlers
+- [ ] **Week 2:** RxDB Replication & Repository Migration
+    - [ ] Initialize RxDB database
+    - [ ] Implement custom replication
+    - [ ] Migrate repositories to RxDB
+- [ ] **Week 3:** React Integration & UI Components
+    - [ ] Create React hooks for RxDB
+    - [ ] Build sync status UI
+    - [ ] Update views to use RxDB hooks
+- [ ] **Week 4:** PWA, Testing & Polish
     - [ ] Service Worker strategies
     - [ ] Background sync
+    - [ ] E2E offline tests
+    - [ ] Lighthouse audit (target: >90 PWA score)
+
+### Future Features
 - [ ] Forgot password
 - [ ] Add feedback after editing
     - [ ] Transaction

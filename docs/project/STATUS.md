@@ -332,9 +332,20 @@ gualet/
 
 ---
 
-### Objective 2: Implement Offline-First with IndexedDB 🎯 (0% Done)
+### Objective 2: Implement Offline-First with RxDB 🎯 (0% Done)
 
-**Status:** Not started
+**Status:** Not started - Decision made: Using RxDB (see ADR-0003)
+
+**Decision:** After thorough analysis, we have chosen **RxDB** over custom IndexedDB implementation:
+- ✅ Works with existing NestJS + PostgreSQL backend
+- ✅ TypeScript first-class support
+- ✅ Reactive queries (RxJS Observables) perfect for React
+- ✅ JSON Schema validation
+- ✅ Custom replication with REST API
+- ✅ 3-4 week implementation timeline (vs 6-7 weeks custom)
+- ✅ ~70KB bundle size (acceptable)
+
+**See:** [ADR-0003: Offline-First Sync Strategy](../adr/0003-offline-first-sync-strategy.md)
 
 This is the **main objective** you want to achieve. It requires:
 

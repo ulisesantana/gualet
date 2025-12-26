@@ -24,8 +24,15 @@ export class UserRepositoryImplementation
   }
 
   async isLoggedIn() {
-    const result = await this.http.get<UserResponse>(`${this.path}/verify`);
-    return result.success;
+    try {
+      const result = await this.http.post<undefined, UserResponse>(
+        `${this.path}/verify`,
+      );
+      return result.success;
+    } catch (_error) {
+      // If verify fails (401, etc), user is not logged in
+      return false;
+    }
   }
 
   login(credentials: UserCredentials) {

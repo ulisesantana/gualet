@@ -63,14 +63,13 @@ describe('CategoriesRepository', () => {
         user: buildUserEntity({ id: userId.toString() }),
       });
 
-      jest
-        .spyOn(entityRepository, 'findOneBy')
-        .mockResolvedValue(categoryEntity);
+      jest.spyOn(entityRepository, 'findOne').mockResolvedValue(categoryEntity);
 
       const result = await repository.findOne(userId, categoryId);
 
-      expect(entityRepository.findOneBy).toHaveBeenCalledWith({
-        id: categoryId.toString(),
+      expect(entityRepository.findOne).toHaveBeenCalledWith({
+        where: { id: categoryId.toString() },
+        relations: ['user'],
       });
       expect(result).toBeInstanceOf(Category);
       expect(result.id).toEqual(categoryId);
@@ -80,7 +79,7 @@ describe('CategoriesRepository', () => {
       const userId = new Id('user-123');
       const categoryId = new Id('category-123');
 
-      jest.spyOn(entityRepository, 'findOneBy').mockResolvedValue(null);
+      jest.spyOn(entityRepository, 'findOne').mockResolvedValue(null);
 
       await expect(repository.findOne(userId, categoryId)).rejects.toThrow(
         CategoryNotFoundError,
@@ -95,9 +94,7 @@ describe('CategoriesRepository', () => {
         user: buildUserEntity({ id: 'different-user-456' }),
       });
 
-      jest
-        .spyOn(entityRepository, 'findOneBy')
-        .mockResolvedValue(categoryEntity);
+      jest.spyOn(entityRepository, 'findOne').mockResolvedValue(categoryEntity);
 
       await expect(repository.findOne(userId, categoryId)).rejects.toThrow(
         NotAuthorizedForCategoryError,
@@ -207,6 +204,7 @@ describe('CategoriesRepository', () => {
 
       expect(entityRepository.findOne).toHaveBeenCalledWith({
         where: { id: categoryId.toString() },
+        relations: ['user'],
       });
       expect(entityRepository.save).toHaveBeenCalledWith({
         ...existingCategory,
@@ -282,6 +280,7 @@ describe('CategoriesRepository', () => {
 
       expect(entityRepository.findOne).toHaveBeenCalledWith({
         where: { id: categoryId.toString() },
+        relations: ['user'],
       });
       expect(entityRepository.save).toHaveBeenCalled();
       expect(result).toBeInstanceOf(Category);
@@ -345,6 +344,7 @@ describe('CategoriesRepository', () => {
 
       expect(entityRepository.findOne).toHaveBeenCalledWith({
         where: { id: categoryId.toString() },
+        relations: ['user'],
       });
       expect(transactionRepository.count).toHaveBeenCalledWith({
         where: { category: { id: categoryId.toString() } },

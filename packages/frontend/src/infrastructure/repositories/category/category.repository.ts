@@ -2,7 +2,13 @@ import { CategoryRepository } from "@application/repositories";
 import { HttpRepository } from "@infrastructure/repositories/http.repository";
 import { HttpDataSource } from "@infrastructure/data-sources";
 import { BaseResponse } from "@infrastructure/types";
-import { Category, CategoryDto, Id, Nullable } from "@gualet/shared";
+import {
+  Category,
+  CategoryDto,
+  Id,
+  NewCategory,
+  Nullable,
+} from "@gualet/shared";
 
 type FindAllCategoriesResponse = BaseResponse<
   { categories: CategoryDto[] },
@@ -33,7 +39,7 @@ export class CategoryRepositoryImplementation
 
   static mapToDto(category: Category): CategoryDto {
     return {
-      id: category.id.toString(),
+      id: category.id?.toString() || "",
       name: category.name,
       icon: category.icon,
       type: category.type,
@@ -41,20 +47,41 @@ export class CategoryRepositoryImplementation
     };
   }
 
-  async create(category: Category): Promise<Nullable<Category>> {
+  static mapToDtoForUpdate(category: Category): Omit<CategoryDto, "id"> {
+    return {
+      name: category.name,
+      icon: category.icon,
+      type: category.type,
+      color: category.color,
+    };
+  }
+
+  async create(category: NewCategory): Promise<Nullable<Category>> {
+    const categoryData = category.toJSON();
     const { success, error, data } = await this.handleQueryResponse(
       this.http.post<CategoryDto, SaveCategoryResponse>(
         this.path,
-        CategoryRepositoryImplementation.mapToDto(category),
+        categoryData as CategoryDto,
       ),
     );
 
     if (!success) {
       console.error("Error creating category:", error);
-      return null;
+      throw new Error(error || "Failed to create category");
     }
 
     return CategoryRepositoryImplementation.mapToCategory(data.category);
+  }
+
+  async delete(id: Id): Promise<void> {
+    const { success, error } = await this.handleCommandResponse(
+      this.http.delete<any>(`${this.path}/${id}`),
+    );
+
+    if (!success) {
+      console.error(`Error deleting category ${id}:`, error);
+      throw new Error(error || "Failed to delete category");
+    }
   }
 
   async findAll(): Promise<Category[]> {
@@ -86,15 +113,15 @@ export class CategoryRepositoryImplementation
 
   async update(category: Category): Promise<Nullable<Category>> {
     const { success, error, data } = await this.handleQueryResponse(
-      this.http.patch<CategoryDto, SaveCategoryResponse>(
-        this.path,
-        CategoryRepositoryImplementation.mapToDto(category),
+      this.http.patch<Omit<CategoryDto, "id">, SaveCategoryResponse>(
+        `${this.path}/${category.id}`,
+        CategoryRepositoryImplementation.mapToDtoForUpdate(category),
       ),
     );
 
     if (!success) {
       console.error("Error updating category:", error);
-      return null;
+      throw new Error(error || "Failed to update category");
     }
 
     return CategoryRepositoryImplementation.mapToCategory(data.category);

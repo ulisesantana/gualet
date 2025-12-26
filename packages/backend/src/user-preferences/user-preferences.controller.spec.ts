@@ -126,6 +126,23 @@ describe('UserPreferencesController', () => {
         },
       });
     });
+
+    it('should return null when no preferences are available', async () => {
+      const req = { user: { userId: '1' } } as unknown as AuthenticatedRequest;
+
+      jest.spyOn(service, 'find').mockResolvedValue(null);
+
+      await controller.find(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        success: true,
+        data: {
+          preferences: null,
+        },
+      });
+      expect(service.find).toHaveBeenCalledWith(new Id('1'));
+    });
   });
 
   describe('save', () => {

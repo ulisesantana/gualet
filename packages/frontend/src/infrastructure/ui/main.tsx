@@ -4,10 +4,13 @@ import "./main.css";
 import "./forms.css";
 import "./theme.css";
 import {
+  DeleteCategoryUseCase,
+  DeletePaymentMethodUseCase,
   GetAllCategoriesUseCase,
   GetAllPaymentMethodsUseCase,
   GetCategoryUseCase,
   GetLastTransactionsUseCase,
+  GetPaymentMethodUseCase,
   GetReportUseCase,
   GetTransactionConfigUseCase,
   GetTransactionUseCase,
@@ -16,6 +19,7 @@ import {
   LogoutUseCase,
   RemoveTransactionUseCase,
   SaveCategoryUseCase,
+  SavePaymentMethodUseCase,
   SaveTransactionUseCase,
   SaveUserPreferencesUseCase,
   SignUpUseCase,
@@ -66,7 +70,15 @@ const cases: AppProps["cases"] = {
   getAllCategoriesUseCase: new GetAllCategoriesUseCase(categoryRepository),
   getCategoryUseCase: new GetCategoryUseCase(categoryRepository),
   saveCategoryUseCase: new SaveCategoryUseCase(categoryRepository),
+  deleteCategoryUseCase: new DeleteCategoryUseCase(categoryRepository),
   getAllPaymentMethodsUseCase: new GetAllPaymentMethodsUseCase(
+    paymentMethodRepository,
+  ),
+  getPaymentMethodUseCase: new GetPaymentMethodUseCase(paymentMethodRepository),
+  savePaymentMethodUseCase: new SavePaymentMethodUseCase(
+    paymentMethodRepository,
+  ),
+  deletePaymentMethodUseCase: new DeletePaymentMethodUseCase(
     paymentMethodRepository,
   ),
   getReportUseCase: new GetReportUseCase(transactionRepository),

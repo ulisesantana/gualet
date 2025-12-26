@@ -1,10 +1,13 @@
 import React from "react";
 import {
   AddCategoryView,
+  AddPaymentMethodView,
   CategoriesView,
   CategoryDetailsView,
   LastTransactionsView,
   LoginView,
+  PaymentMethodDetailsView,
+  PaymentMethodsView,
   RegisterView,
   ReportView,
   SettingsView,
@@ -14,10 +17,13 @@ import { Header, ProtectedRoute } from "@components";
 import { Route, Router } from "wouter";
 import { routes } from "@infrastructure/ui/routes";
 import {
+  DeleteCategoryUseCase,
+  DeletePaymentMethodUseCase,
   GetAllCategoriesUseCase,
   GetAllPaymentMethodsUseCase,
   GetCategoryUseCase,
   GetLastTransactionsUseCase,
+  GetPaymentMethodUseCase,
   GetReportUseCase,
   GetTransactionConfigUseCase,
   GetTransactionUseCase,
@@ -26,6 +32,7 @@ import {
   LogoutUseCase,
   RemoveTransactionUseCase,
   SaveCategoryUseCase,
+  SavePaymentMethodUseCase,
   SaveTransactionUseCase,
   SaveUserPreferencesUseCase,
   SignUpUseCase,
@@ -45,9 +52,13 @@ export interface AppProps {
     getCategoryUseCase: GetCategoryUseCase;
     getAllCategoriesUseCase: GetAllCategoriesUseCase;
     saveCategoryUseCase: SaveCategoryUseCase;
+    deleteCategoryUseCase: DeleteCategoryUseCase;
+    getPaymentMethodUseCase: GetPaymentMethodUseCase;
+    getAllPaymentMethodsUseCase: GetAllPaymentMethodsUseCase;
+    savePaymentMethodUseCase: SavePaymentMethodUseCase;
+    deletePaymentMethodUseCase: DeletePaymentMethodUseCase;
     getUserPreferencesUseCase: GetUserPreferencesUseCase;
     getReportUseCase: GetReportUseCase;
-    getAllPaymentMethodsUseCase: GetAllPaymentMethodsUseCase;
     saveUserPreferencesUseCase: SaveUserPreferencesUseCase;
     logoutUseCase: LogoutUseCase;
   };
@@ -104,6 +115,25 @@ export const App: React.FC<AppProps> = ({ cases }) => {
             verifySessionUseCase={cases.verifySessionUseCase}
           >
             <CategoriesView {...cases} />
+          </ProtectedRoute>
+          {/*PAYMENT METHODS*/}
+          <ProtectedRoute
+            path={routes.paymentMethods.add}
+            verifySessionUseCase={cases.verifySessionUseCase}
+          >
+            <AddPaymentMethodView {...cases} />
+          </ProtectedRoute>
+          <ProtectedRoute
+            path={routes.paymentMethods.details}
+            verifySessionUseCase={cases.verifySessionUseCase}
+          >
+            <PaymentMethodDetailsView {...cases} />
+          </ProtectedRoute>
+          <ProtectedRoute
+            path={routes.paymentMethods.list}
+            verifySessionUseCase={cases.verifySessionUseCase}
+          >
+            <PaymentMethodsView {...cases} />
           </ProtectedRoute>
           {/*REPORTS*/}
           <ProtectedRoute

@@ -60,21 +60,24 @@ describe('UserPreferencesService', () => {
 
       const result = await service.find(userId);
 
-      expect(result.userId).toEqual(userId);
-      expect(result.defaultPaymentMethod).toEqual(paymentMethod);
+      expect(result).not.toBeNull();
+      expect(result?.userId).toEqual(userId);
+      expect(result?.defaultPaymentMethod).toEqual(paymentMethod);
       expect(repository.findByUserId).toHaveBeenCalledWith(userId);
       expect(paymentMethodsService.findAll).toHaveBeenCalledWith(userId);
     });
 
-    it('should throw error when no payment methods are available', async () => {
+    it('should return null when no payment methods are available', async () => {
       const userId = new Id('user-123');
 
       repository.findByUserId.mockResolvedValue(null);
       paymentMethodsService.findAll.mockResolvedValue([]);
 
-      await expect(service.find(userId)).rejects.toThrow(
-        `No payment methods available for user ${userId.toString()}`,
-      );
+      const result = await service.find(userId);
+
+      expect(result).toBeNull();
+      expect(repository.findByUserId).toHaveBeenCalledWith(userId);
+      expect(paymentMethodsService.findAll).toHaveBeenCalledWith(userId);
     });
   });
 

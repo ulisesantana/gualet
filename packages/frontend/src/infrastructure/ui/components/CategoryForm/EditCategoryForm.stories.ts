@@ -22,5 +22,7 @@ export const EditForm: Story = {
   args: {
     category: generateDefaultIncomeCategories()[0],
     async onSubmit() {},
+    onSuccess: () => {},
+    onError: (error: Error) => console.error(error),
   },
 };

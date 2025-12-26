@@ -142,7 +142,7 @@ describe("LoginForm", () => {
 
     render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
-    // Primera llamada - error
+    // First call - error
     fireEvent.change(screen.getByLabelText(/email:/i), {
       target: { value: "test@example.com" },
     });
@@ -155,7 +155,7 @@ describe("LoginForm", () => {
       expect(screen.getByText("Error message")).toBeInTheDocument();
     });
 
-    // Segunda llamada - éxito
+    // Second call - success
     fireEvent.click(screen.getByTestId("submit-login"));
 
     await waitFor(() => {

@@ -1,33 +1,48 @@
-import React, { useEffect, useState } from "react";
-import "./LastTransactionsView.css";
-import { CategoryList } from "@components";
-import { useLoader } from "@infrastructure/ui/hooks";
-import { Category } from "@gualet/shared";
-import { GetAllCategoriesUseCase } from "@application/cases";
+import React, { useCallback, useEffect } from "react";
+import "./CategoriesView.css";
+import { CategoryList, Loader } from "@components";
+import {
+  setUseCases,
+  useCategoryStore,
+} from "@infrastructure/ui/stores/useCategoryStore";
+import {
+  DeleteCategoryUseCase,
+  GetAllCategoriesUseCase,
+} from "@application/cases";
 
 interface CategoriesViewProps {
   getAllCategoriesUseCase: GetAllCategoriesUseCase;
+  deleteCategoryUseCase: DeleteCategoryUseCase;
 }
 
 export function CategoriesView({
   getAllCategoriesUseCase,
+  deleteCategoryUseCase,
 }: CategoriesViewProps) {
-  const { isLoading, setIsLoading, Loader } = useLoader();
-  const [categories, setCategories] = useState<Category[]>([]);
+  // Use selectors to get only what we need from the store
+  const categories = useCategoryStore((state) => state.categories);
+  const isLoading = useCategoryStore((state) => state.isLoading);
+  const fetchCategories = useCategoryStore((state) => state.fetchCategories);
+  const deleteCategory = useCategoryStore((state) => state.deleteCategory);
 
+  // Inject use cases and load categories on mount
   useEffect(() => {
-    setIsLoading(true);
-    getAllCategoriesUseCase
-      .exec()
-      .then(setCategories)
-      .catch((error) => {
-        console.error("Error getting all categories.");
-        console.error(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [getAllCategoriesUseCase, setIsLoading]);
+    setUseCases(getAllCategoriesUseCase, deleteCategoryUseCase);
+    fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
+
+  const handleDeleteCategory = useCallback(
+    async (categoryId: string) => {
+      try {
+        await deleteCategory(categoryId);
+      } catch (error) {
+        // Error is already logged in the store
+        // UI can show error message if needed
+      }
+    },
+    [deleteCategory],
+  );
 
   return (
     <div className="categories-view">
@@ -36,7 +51,10 @@ export function CategoriesView({
           <Loader />
         </div>
       ) : (
-        <CategoryList categories={categories} />
+        <CategoryList
+          categories={categories}
+          onDeleteCategory={handleDeleteCategory}
+        />
       )}
     </div>
   );

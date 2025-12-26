@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PaymentMethodRepository } from "@application/repositories";
-import { PaymentMethod, Id } from "@gualet/shared";
+import { Id, PaymentMethod } from "@gualet/shared";
 
 import { SavePaymentMethodUseCase } from "./save-payment-method.use-case";
 
@@ -9,6 +9,7 @@ const mockRepository: PaymentMethodRepository = {
   update: vi.fn(),
   findById: vi.fn(),
   findAll: vi.fn(),
+  delete: vi.fn(),
 };
 
 describe("SavePaymentMethodUseCase", () => {

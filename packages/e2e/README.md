@@ -1,4 +1,52 @@
-# E2E Testing Improvements
+# E2E Testing with Full Environment
+
+## Quick Start
+
+### Run tests with complete environment (Recommended)
+
+```bash
+npm run test:full
+```
+
+This command automatically:
+1. Starts PostgreSQL test database (port 5433)
+2. Starts backend with test configuration (port 3001)
+3. Starts frontend with test configuration (port 5174)
+4. Runs all Playwright tests
+5. Cleans up all services
+
+### Run tests with UI mode (full environment)
+
+```bash
+npm run test:ui:full
+```
+
+Same as `test:full` but opens the Playwright UI for interactive testing. Close the UI window to stop all services.
+
+### Manual environment control
+
+```bash
+# Start environment manually (for development)
+npm run env:start
+
+# In another terminal, run tests
+npm test
+```
+
+### Database helpers for verification
+
+```typescript
+// Verify data in database during tests
+const category = await db.getCategoryByName(userId, 'Groceries');
+expect(category).toBeDefined();
+
+const exists = await db.categoryExists(userId, 'Groceries', 'OUTCOME');
+expect(exists).toBe(true);
+```
+
+📖 **See [E2E_TESTING_GUIDE.md](./E2E_TESTING_GUIDE.md) for complete documentation**
+
+---
 
 ## 📋 Summary of Applied Improvements
 

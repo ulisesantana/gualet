@@ -19,28 +19,30 @@ describe("UserRepositoryImplementation", () => {
 
   describe("isLoggedIn", () => {
     it("should return true when the request is successful", async () => {
-      mockHttp.get.mockResolvedValue({ success: true } as BaseResponse);
+      mockHttp.post.mockResolvedValue({ success: true } as BaseResponse);
 
       const result = await repository.isLoggedIn();
 
-      expect(mockHttp.get).toHaveBeenCalledWith("/api/auth/verify");
+      expect(mockHttp.post).toHaveBeenCalledWith("/api/auth/verify");
       expect(result).toBe(true);
     });
 
     it("should return false when the request is unsuccessful", async () => {
-      mockHttp.get.mockResolvedValue({ success: false } as BaseResponse);
+      mockHttp.post.mockResolvedValue({ success: false } as BaseResponse);
 
       const result = await repository.isLoggedIn();
 
-      expect(mockHttp.get).toHaveBeenCalledWith("/api/auth/verify");
+      expect(mockHttp.post).toHaveBeenCalledWith("/api/auth/verify");
       expect(result).toBe(false);
     });
 
-    it("should propagate the exception if the request fails", async () => {
+    it("should return false if the request fails", async () => {
       const error = new Error("Network error");
-      mockHttp.get.mockRejectedValue(error);
+      mockHttp.post.mockRejectedValue(error);
 
-      await expect(repository.isLoggedIn()).rejects.toThrow(error);
+      const result = await repository.isLoggedIn();
+
+      expect(result).toBe(false);
     });
   });
 

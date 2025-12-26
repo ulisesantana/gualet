@@ -57,6 +57,17 @@ export class PaymentMethodRepositoryImplementation
     );
   }
 
+  async delete(id: Id): Promise<void> {
+    const { success, error } = await this.handleCommandResponse(
+      this.http.delete<any>(`${this.path}/${id}`),
+    );
+
+    if (!success) {
+      console.error(`Error deleting payment method ${id}:`, error);
+      throw new Error(error || "Failed to delete payment method");
+    }
+  }
+
   async findAll(): Promise<PaymentMethod[]> {
     const { success, data, error } = await this.handleQueryResponse(
       this.http.get<

@@ -9,6 +9,7 @@ const mockCategoryRepository: CategoryRepository = {
   update: vi.fn(),
   findById: vi.fn(),
   findAll: vi.fn(),
+  delete: vi.fn(),
 };
 
 describe("GetAllCategoriesUseCase", () => {

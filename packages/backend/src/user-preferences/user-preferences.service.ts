@@ -11,7 +11,7 @@ export class UserPreferencesService {
     private readonly paymentMethodsService: PaymentMethodsService,
   ) {}
 
-  async find(userId: Id): Promise<UserPreferences> {
+  async find(userId: Id): Promise<UserPreferences | null> {
     const preferences = await this.repository.findByUserId(userId);
 
     if (!preferences) {
@@ -20,9 +20,8 @@ export class UserPreferencesService {
       const defaultPaymentMethod = paymentMethods[0];
 
       if (!defaultPaymentMethod) {
-        throw new Error(
-          `No payment methods available for user ${userId.toString()}`,
-        );
+        // Return null if no payment methods available
+        return null;
       }
 
       return new UserPreferences(userId, defaultPaymentMethod);

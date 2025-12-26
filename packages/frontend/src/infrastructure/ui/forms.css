@@ -59,3 +59,16 @@ label {
 label span {
     text-align: left;
 }
+
+.error-message {
+    background-color: #fee;
+    border: 1px solid #fcc;
+    border-radius: 4px;
+    color: #c00;
+    padding: 12px;
+    margin-bottom: 16px;
+    width: 100%;
+    text-align: center;
+    font-weight: normal;
+}
+

@@ -9,6 +9,7 @@ const mockPaymentMethodRepository: PaymentMethodRepository = {
   update: vi.fn(),
   findAll: vi.fn(),
   findById: vi.fn(),
+  delete: vi.fn(),
 };
 
 describe("GetAllPaymentMethodsUseCase", () => {

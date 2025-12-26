@@ -76,6 +76,7 @@ describe('CategoriesController', () => {
     jest.spyOn(service, 'create').mockResolvedValue(category);
 
     const result = await controller.create(req, {
+      id: category.id.toString(),
       name: category.name,
       type: category.type,
       icon: category.icon,
@@ -91,6 +92,7 @@ describe('CategoriesController', () => {
       pagination: null,
     });
     expect(service.create).toHaveBeenCalledWith(new Id(req.user.userId), {
+      id: category.id.toString(),
       name: category.name,
       type: category.type,
       icon: category.icon,
@@ -291,10 +293,7 @@ describe('CategoriesController', () => {
 
       expect(res.status).toHaveBeenCalledWith(204);
       expect(res.send).toHaveBeenCalled();
-      expect(service.delete).toHaveBeenCalledWith(
-        new Id('1'),
-        category.id,
-      );
+      expect(service.delete).toHaveBeenCalledWith(new Id('1'), category.id);
     });
 
     describe('Error handling', () => {

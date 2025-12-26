@@ -80,7 +80,9 @@ describe('CategoriesService', () => {
   });
 
   it('should create a new category', async () => {
+    const categoryId = 'new-id';
     const newCategoryData = {
+      id: categoryId,
       name: 'Shopping',
       icon: '🛒',
       color: '#00FF00',
@@ -89,22 +91,24 @@ describe('CategoriesService', () => {
 
     const savedCategory = new Category({
       ...newCategoryData,
-      id: new Id('new-id'),
+      id: new Id(categoryId),
     });
     jest.spyOn(categoryRepository, 'create').mockResolvedValue(savedCategory);
 
-    const result = await service.create(userId, new Category(newCategoryData));
+    const result = await service.create(userId, newCategoryData);
 
     expect(categoryRepository.create).toHaveBeenCalled();
     expect(result).toBeInstanceOf(Category);
-    expect(result.id).toStrictEqual(new Id('new-id'));
+    expect(result.id).toStrictEqual(new Id(categoryId));
     expect(result.name).toBe('Shopping');
     expect(result.icon).toBe('🛒');
     expect(result.color).toBe('#00FF00');
   });
 
   it('should create a category handling missing optional fields', async () => {
+    const categoryId = 'test-id';
     const categoryWithoutOptionals = buildCategory({
+      id: categoryId,
       user: buildUserEntity({ id: userId.toString() }),
       icon: undefined,
       color: undefined,
@@ -114,7 +118,13 @@ describe('CategoriesService', () => {
       .spyOn(categoryRepository, 'create')
       .mockResolvedValue(categoryWithoutOptionals);
 
-    const result = await service.create(userId, categoryWithoutOptionals);
+    const result = await service.create(userId, {
+      id: categoryId,
+      name: categoryWithoutOptionals.name,
+      type: categoryWithoutOptionals.type,
+      icon: undefined,
+      color: undefined,
+    });
 
     expect(result.icon).toBe('');
     expect(result.color).toBe('#545454');

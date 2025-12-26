@@ -59,19 +59,24 @@
 ## 📋 Necessary Adjustments by Test
 
 ### Categories Tests
-**Current problem**: Tests create categories correctly but need adjustments in verification.
+**Status**: ✅ ALL PASSING (9/9 tests)
 
-**Applied solution**:
-- Navigate explicitly to "Manage categories" after creating
-- Use `gotoManage()` to go to categories list
+**Solution applied**:
+- Navigate to "Manage categories" after operations to force list refresh
+- Use `gotoManage()` after create/update/delete operations
+- Use `{ force: true }` on delete button click to bypass any overlays
+- Wait 1 second after delete for async operations
 
-**Tests that need the same adjustment**:
-1. ✅ `should create a new expense category` - Already fixed
-2. ✅ `should create a new income category` - Already fixed
-3. ⚠️ `should edit an existing category` - Needs category ID from DB
-4. ⚠️ `should delete a category` - Needs category ID from DB
-5. ✅ `should display multiple categories` - Uses DB IDs
-6. ⚠️ `should complete full CRUD cycle` - Needs adaptation
+**Tests passing**:
+1. ✅ `should create a new expense category`
+2. ✅ `should create a new income category`
+3. ✅ `should edit an existing category`
+4. ✅ `should delete a category`
+5. ✅ `should display multiple categories grouped by type`
+6. ✅ `should complete full CRUD cycle`
+7. ✅ `should show error for empty name`
+8. ✅ `should show error for duplicate category name`
+9. ✅ `should allow categories with same name but different types`
 
 ### Transactions Tests
 **Status**: Created but not validated against your real UI

@@ -1,23 +1,49 @@
-import React, { RefObject, useRef } from "react";
-import { Category, OperationType } from "@gualet/shared";
+import React, { RefObject, useRef, useState } from "react";
+import { Category, NewCategory, OperationType } from "@gualet/shared";
 
 import { generateOnSubmitHandler } from "./submit-handler";
 
 export interface CategoryFormParams {
   category?: Category | undefined;
-  onSubmit: (category: Category) => Promise<void>;
+  onSubmit: (category: Category | NewCategory) => Promise<void>;
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
 }
 
-export function CategoryForm({ category, onSubmit }: CategoryFormParams) {
+export function CategoryForm({
+  category,
+  onSubmit,
+  onSuccess,
+  onError,
+}: CategoryFormParams) {
   const formRef: RefObject<HTMLFormElement> = useRef(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleError = (error: Error) => {
+    setErrorMessage(error.message);
+    onError?.(error);
+  };
+
+  const handleSuccess = () => {
+    setErrorMessage(null);
+    onSuccess?.();
+  };
 
   const onSubmitHandler = generateOnSubmitHandler({
     onSubmit,
     originalCategory: category,
+    onSuccess: handleSuccess,
+    onError: handleError,
   });
 
   return (
     <form className="transaction-form" onSubmit={onSubmitHandler} ref={formRef}>
+      {errorMessage && (
+        <div className="error-message" data-testid="error-message">
+          {errorMessage}
+        </div>
+      )}
+
       <label>
         Operation:
         <select required name="type" defaultValue={category?.type}>

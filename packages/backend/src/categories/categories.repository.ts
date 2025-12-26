@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
-  CategoryNotFoundError,
-  NotAuthorizedForCategoryError,
   CategoryInUseError,
+  CategoryNotFoundError,
+  DuplicateCategoryError,
+  NotAuthorizedForCategoryError,
 } from '@src/categories/errors';
 import { CategoryToUpdate } from './categories.service';
 import { CategoryEntity, TransactionEntity } from '@src/db';
@@ -30,8 +31,9 @@ export class CategoriesRepository {
   }
 
   async findOne(userId: Id, id: Id): Promise<Category> {
-    const category = await this.repository.findOneBy({
-      id: id.toString(),
+    const category = await this.repository.findOne({
+      where: { id: id.toString() },
+      relations: ['user'],
     });
 
     if (!category) {
@@ -54,9 +56,25 @@ export class CategoriesRepository {
   }
 
   async create(userId: Id, category: Category): Promise<Category> {
+    // Check for duplicate category name with same type for this user
+    const existingCategory = await this.repository.findOne({
+      where: {
+        user: { id: userId.toString() },
+        name: category.name,
+        type: category.type,
+      },
+    });
+
+    if (existingCategory) {
+      throw new DuplicateCategoryError(category.name);
+    }
+
     const categoryEntity: CategoryEntity = this.repository.create({
-      ...category.toJSON(),
-      ...this.handleNullableFields(category),
+      id: category.id.toString(),
+      name: category.name,
+      type: category.type,
+      icon: category.icon || undefined,
+      color: category.color || undefined,
       user: { id: userId.toString() },
     });
 
@@ -67,6 +85,7 @@ export class CategoriesRepository {
   async update(userId: Id, category: CategoryToUpdate): Promise<Category> {
     const existingCategory = await this.repository.findOne({
       where: { id: category.id.toString() },
+      relations: ['user'],
     });
 
     if (!existingCategory) {
@@ -87,21 +106,10 @@ export class CategoriesRepository {
     return CategoriesRepository.mapToDomain(savedCategory);
   }
 
-  private handleNullableFields(
-    toUpdate: CategoryToUpdate,
-    existing?: CategoryEntity,
-  ) {
-    return {
-      icon:
-        toUpdate.icon === null ? undefined : toUpdate.icon || existing?.icon,
-      color:
-        toUpdate.color === null ? undefined : toUpdate.color || existing?.color,
-    };
-  }
-
   async delete(userId: Id, id: Id): Promise<void> {
     const category = await this.repository.findOne({
       where: { id: id.toString() },
+      relations: ['user'],
     });
 
     if (!category) {
@@ -122,5 +130,17 @@ export class CategoriesRepository {
     }
 
     await this.repository.delete({ id: id.toString() });
+  }
+
+  private handleNullableFields(
+    toUpdate: CategoryToUpdate,
+    existing?: CategoryEntity,
+  ) {
+    return {
+      icon:
+        toUpdate.icon === null ? undefined : toUpdate.icon || existing?.icon,
+      color:
+        toUpdate.color === null ? undefined : toUpdate.color || existing?.color,
+    };
   }
 }

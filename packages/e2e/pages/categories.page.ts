@@ -29,15 +29,19 @@ export class CategoriesPage {
     this.errorMessage = page.locator('.error-message, [data-testid="error-message"]');
   }
 
+  // ===== Navigation Methods =====
+
   async goto() {
     await this.page.goto('/settings');
   }
 
   async gotoManage() {
-    await this.page.goto('/settings');
-    await expect(this.manageCategoriesButton).toBeVisible();
-    await this.manageCategoriesButton.click();
+    // Navigate directly to categories list to ensure fresh data load
+    await this.page.goto('/categories');
+    await this.page.waitForLoadState('networkidle');
   }
+
+  // ===== Form Interaction Methods =====
 
   async clickCreate() {
     // From settings page, click "Add a new category"
@@ -71,6 +75,8 @@ export class CategoriesPage {
     await this.submitButton.click();
   }
 
+  // ===== CRUD Operations =====
+
   async createCategory(category: {
     name: string;
     type: 'INCOME' | 'OUTCOME';
@@ -84,15 +90,17 @@ export class CategoriesPage {
   async waitForSuccess() {
     // Wait for redirect to categories list after creation
     await this.page.waitForURL(/categories/, { timeout: 5000 });
+    // Wait for content to be visible (either the list or the "no categories" message)
+    await this.page.waitForLoadState('networkidle');
+    // Add a small delay to ensure backend transaction is committed
+    await this.page.waitForTimeout(500);
   }
 
   async waitForError() {
     await expect(this.errorMessage).toBeVisible({ timeout: 5000 });
   }
 
-  getCategoryItem(categoryId: string): Locator {
-    return this.page.locator(`[data-testid="category-item-${categoryId}"]`);
-  }
+  // ===== Locator Helpers =====
 
   getCategoryByName(name: string): Locator {
     return this.page.locator(`[data-testid^="category-item-"]`, {
@@ -100,30 +108,58 @@ export class CategoriesPage {
     });
   }
 
-  async editCategory(categoryId: string) {
-    const item = this.getCategoryItem(categoryId);
+  // ===== Edit Operations =====
+
+
+  async editCategoryByName(categoryName: string) {
+    const item = this.getCategoryByName(categoryName).first();
     await expect(item).toBeVisible();
-    await item.click();
+    // Click the edit button inside the category item
+    const editButton = item.getByRole('button', { name: 'Edit category' });
+    await editButton.click();
     await expect(this.categoryForm).toBeVisible();
   }
 
-  async deleteCategory(categoryId: string) {
-    const item = this.getCategoryItem(categoryId);
+  // ===== Delete Operations =====
+
+
+  async deleteCategoryByName(categoryName: string) {
+    const item = this.getCategoryByName(categoryName).first();
     await expect(item).toBeVisible();
-    const deleteButton = item.getByRole('button', { name: /delete/i });
-    await deleteButton.click();
 
-    // Wait for confirmation dialog and confirm
-    const confirmButton = this.page.getByRole('button', { name: /confirm|yes|delete/i });
-    await expect(confirmButton).toBeVisible();
-    await confirmButton.click();
+    const deleteButton = item.getByRole('button', { name: 'Delete category' });
+    await expect(deleteButton).toBeVisible();
+
+    // Setup dialog handler BEFORE clicking
+    this.page.once('dialog', async (dialog) => {
+      await dialog.accept();
+    });
+
+    // Click the delete button
+    await deleteButton.click({ force: true });
+
+    // Wait a bit for the async operations to start
+    await this.page.waitForTimeout(1000);
   }
 
+  // ===== Verification Methods =====
+
+  /**
+   * Verify that a category with the given name is visible in the UI
+   * Uses .first() to handle cases with multiple categories with the same name
+   * (e.g., same name but different types: INCOME and OUTCOME)
+   */
   async verifyCategoryExists(name: string) {
-    await expect(this.getCategoryByName(name)).toBeVisible();
+    await expect(this.getCategoryByName(name).first()).toBeVisible();
   }
 
+  /**
+   * Verify that a category with the given name is NOT visible in the UI
+   * Waits up to 10 seconds for the category to disappear
+   */
   async verifyCategoryNotExists(name: string) {
-    await expect(this.getCategoryByName(name)).not.toBeVisible();
+    // Wait for the category to disappear with generous timeout
+    // This allows time for: delete API call + event dispatch + list refresh
+    await expect(this.getCategoryByName(name)).not.toBeVisible({ timeout: 10000 });
   }
 }

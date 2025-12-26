@@ -18,11 +18,12 @@ describe("CategoryCard", () => {
     expect(screen.getByText(/outcome/i)).toBeInTheDocument();
   });
 
-  it("generates a link to the correct path based on category ID", () => {
+  it("renders edit button for the category", () => {
     render(<CategoryCard category={mockCategory} />);
 
-    const link = screen.getByRole("link");
-    expect(link).toHaveAttribute("href", "/categories/details/1");
+    const editButton = screen.getByLabelText("Edit category");
+    expect(editButton).toBeInTheDocument();
+    expect(editButton).toHaveAttribute("title", "Edit");
   });
 
   it("applies the outcome CSS class when the category type is outcome", () => {

@@ -1,4 +1,4 @@
-.transaction-card-list {
+ul.transaction-card-list {
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -14,16 +14,4 @@
 
 .transaction-card-list li {
     padding: 8px;
-}
-
-@media (min-width: 768px) {
-    .transaction-card-list {
-        justify-content: center;
-    }
-}
-
-@media (min-width: 1200px) {
-    .transaction-card-list {
-        justify-content: center;
-    }
 }

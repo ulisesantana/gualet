@@ -100,7 +100,7 @@ describe("RegisterForm", () => {
 
     render(<RegisterForm signUpUseCase={mockSignUpUseCase} />);
 
-    // Primera llamada - éxito
+    // First call - success
     fireEvent.change(screen.getByLabelText(/email:/i), {
       target: { value: "test@example.com" },
     });

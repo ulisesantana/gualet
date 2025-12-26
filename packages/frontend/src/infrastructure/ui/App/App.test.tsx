@@ -15,15 +15,18 @@ vi.mock("@infrastructure/ui/contexts", () => ({
 }));
 
 vi.mock("@views", () => ({
+  AddCategoryView: () => <div>AddCategoryView</div>,
+  AddPaymentMethodView: () => <div>AddPaymentMethodView</div>,
   CategoriesView: () => <div>CategoriesView</div>,
+  CategoryDetailsView: () => <div>CategoryDetailsView</div>,
   LastTransactionsView: () => <div>LastTransactionsView</div>,
   LoginView: () => <div>LoginView</div>,
-  SettingsView: () => <div>SettingsView</div>,
-  CategoryDetailsView: () => <div>CategoryDetailsView</div>,
-  TransactionDetailsView: () => <div>TransactionDetailsView</div>,
-  AddCategoryView: () => <div>AddCategoryView</div>,
-  ReportView: () => <div>ReportView</div>,
+  PaymentMethodDetailsView: () => <div>PaymentMethodDetailsView</div>,
+  PaymentMethodsView: () => <div>PaymentMethodsView</div>,
   RegisterView: () => <div>RegisterView</div>,
+  ReportView: () => <div>ReportView</div>,
+  SettingsView: () => <div>SettingsView</div>,
+  TransactionDetailsView: () => <div>TransactionDetailsView</div>,
 }));
 
 describe("App Component", () => {

@@ -5,8 +5,9 @@
   "scripts": {
     "db:test:up": "docker compose -f docker-compose.test.yaml up -d",
     "db:test:down": "docker compose -f docker-compose.test.yaml down",
-    "test": "npm run db:test:up && npx playwright test --config=../../playwright.config.ts",
-    "test:ui": "npm run db:test:up && npx playwright test --ui --config=../../playwright.config.ts",
+    "env:start": "./scripts/start-e2e-env.sh",
+    "test": "./scripts/run-tests-with-env.sh",
+    "test:ui": "./scripts/run-tests-ui.sh",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

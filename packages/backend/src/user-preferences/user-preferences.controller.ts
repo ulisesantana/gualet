@@ -81,6 +81,17 @@ export class UserPreferencesController extends SecureController {
         new Id(req.user.userId),
       );
 
+      if (!preferences) {
+        // No preferences available (no payment methods)
+        res.status(200).json({
+          success: true,
+          data: {
+            preferences: null,
+          },
+        });
+        return;
+      }
+
       const response: UserPreferencesResponse = {
         success: true,
         data: {

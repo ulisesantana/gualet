@@ -1,4 +1,5 @@
 .category-card-list {
+    --category-card-padding: 8px;
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -9,11 +10,11 @@
     overflow: auto;
     margin: 0;
     padding: 0 0 1rem 0;
-    width: 100%;
+    width: calc(100% - var(--category-card-padding) * 2);
 }
 
 .category-card-list li {
-    padding: 8px;
+    padding: var(--category-card-padding);
 }
 
 @media (min-width: 768px) {

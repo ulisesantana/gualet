@@ -7,6 +7,7 @@ export const routes = {
   login: "/login",
   register: "/register",
   paymentMethods: {
+    add: "/payment-methods/add",
     details: "/payment-methods/details/:id",
     list: "/payment-methods",
   },

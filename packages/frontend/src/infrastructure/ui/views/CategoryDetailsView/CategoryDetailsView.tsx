@@ -3,10 +3,11 @@ import "./CategoryDetailsView.css";
 import { EditCategoryForm, Loader } from "@components";
 import { GetCategoryUseCase, SaveCategoryUseCase } from "@application/cases";
 import { routes } from "@infrastructure/ui/routes";
-import { useRoute } from "wouter";
+import { useLocation, useRoute } from "wouter";
 import { Transition } from "react-transition-group";
 import { useLoader } from "@infrastructure/ui/hooks";
-import { Category, Id } from "@gualet/shared";
+import { Category, Id, NewCategory } from "@gualet/shared";
+import { useCategoryStore } from "@infrastructure/ui/stores/useCategoryStore";
 
 interface CategoryDetailsViewProps {
   getCategoryUseCase: GetCategoryUseCase;
@@ -18,8 +19,10 @@ export function CategoryDetailsView({
   saveCategoryUseCase,
 }: CategoryDetailsViewProps) {
   const [match, params] = useRoute<{ id: string }>(routes.categories.details);
+  const [, setLocation] = useLocation();
   const { isLoading, setIsLoading } = useLoader();
   const [category, setCategory] = useState<Category | undefined>();
+  const fetchCategories = useCategoryStore((state) => state.fetchCategories);
 
   useEffect(() => {
     if (params) {
@@ -36,8 +39,15 @@ export function CategoryDetailsView({
     }
   }, [params]);
 
-  const onSubmit = async (category: Category) => {
+  const onSubmit = async (category: Category | NewCategory) => {
     await saveCategoryUseCase.exec(category);
+  };
+
+  const onSuccess = () => {
+    // Refresh categories list after successful update
+    fetchCategories();
+    // Redirect to categories list
+    setLocation(routes.categories.list);
   };
 
   return (
@@ -51,7 +61,14 @@ export function CategoryDetailsView({
           <div className="content">
             {category ? (
               <>
-                <EditCategoryForm category={category} onSubmit={onSubmit} />
+                <EditCategoryForm
+                  category={category}
+                  onSubmit={onSubmit}
+                  onSuccess={onSuccess}
+                  onError={(error) =>
+                    console.error("Error updating category:", error)
+                  }
+                />
               </>
             ) : (
               <h2>Category not found.</h2>

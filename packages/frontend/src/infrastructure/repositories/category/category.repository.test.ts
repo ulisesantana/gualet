@@ -99,7 +99,7 @@ describe("CategoryRepositoryImplementation (HTTP)", () => {
       expect(result?.id.toString()).toBe("cat-1");
     });
 
-    it("should return null if there is an error when saving", async () => {
+    it("should throw error if there is an error when saving", async () => {
       const category = new Category({
         id: new Id("cat-1"),
         name: "Food",
@@ -107,9 +107,13 @@ describe("CategoryRepositoryImplementation (HTTP)", () => {
         type: OperationType.Outcome,
         color: "#fff",
       });
-      mockHttp.patch.mockResolvedValue({ success: false, error: "fail" });
-      const result = await repository.update(category);
-      expect(result).toBeNull();
+      mockHttp.patch.mockResolvedValue({
+        success: false,
+        error: { message: "Update failed" },
+      });
+      await expect(repository.update(category)).rejects.toThrow(
+        "Update failed",
+      );
     });
   });
 });

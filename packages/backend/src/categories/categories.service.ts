@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CategoriesRepository } from './categories.repository';
-import { Nullable } from '@gualet/shared';
 import {
   Category,
   generateDefaultCategories,
   Id,
+  Nullable,
   OperationType,
 } from '@gualet/shared';
 
@@ -15,6 +15,7 @@ export type CategoryToUpdate = Omit<Partial<Category>, 'icon' | 'color'> & {
 };
 
 interface CategoryToCreate {
+  id: string;
   name: string;
   type: OperationType;
   icon?: Nullable<string>;
@@ -38,7 +39,7 @@ export class CategoriesService {
       userId,
       new Category({
         ...category,
-        id: new Id(),
+        id: new Id(category.id),
         icon: category.icon ? category.icon?.trim() : '',
         color: category.color ? category.color?.trim() : '',
       }),
@@ -57,6 +58,7 @@ export class CategoriesService {
   async createDefaultCategories(userId: Id): Promise<Category[]> {
     const promises = generateDefaultCategories().map((category) =>
       this.create(userId, {
+        id: new Id().toString(),
         name: category.name,
         type: category.type,
         icon: category.icon,

@@ -9,4 +9,6 @@ export interface PaymentMethodRepository {
   findById(id: Id): Promise<Nullable<PaymentMethod>>;
 
   findAll(): Promise<PaymentMethod[]>;
+
+  delete(id: Id): Promise<void>;
 }

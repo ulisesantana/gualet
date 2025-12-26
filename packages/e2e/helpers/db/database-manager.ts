@@ -32,7 +32,7 @@ interface PaymentMethod {
 }
 
 export class DatabaseManager {
-  private constructor(private readonly pool: Pool) {}
+  private constructor(public readonly pool: Pool) {}
 
   static async create() {
     const pool = new Pool({
@@ -130,27 +130,6 @@ export class DatabaseManager {
     return txId;
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    const query = `SELECT id, email, password FROM users WHERE email = $1`;
-    const result = await this.pool.query(query, [email]);
-    return result.rows[0] || null;
-  }
-
-  async cleanupUserData(userId: string): Promise<void> {
-    // Delete in order to respect foreign key constraints
-    await this.pool.query('DELETE FROM transactions WHERE "userId" = $1', [
-      userId,
-    ]);
-    await this.pool.query('DELETE FROM categories WHERE "userId" = $1', [
-      userId,
-    ]);
-    await this.pool.query('DELETE FROM payment_methods WHERE "userId" = $1', [
-      userId,
-    ]);
-    await this.pool.query('DELETE FROM user_preferences WHERE "userId" = $1', [
-      userId,
-    ]);
-  }
 
   async reset(): Promise<void> {
     // Delete all data respecting foreign key constraints
@@ -159,6 +138,101 @@ export class DatabaseManager {
     await this.pool.query('DELETE FROM payment_methods');
     await this.pool.query('DELETE FROM user_preferences');
     await this.pool.query('DELETE FROM users');
+  }
+
+  // ===== Helper methods for test verification =====
+
+  /**
+   * Get a category by name and userId
+   */
+  async getCategoryByName(userId: string, name: string): Promise<any | null> {
+    const result = await this.pool.query(
+      'SELECT * FROM categories WHERE "userId" = $1 AND name = $2',
+      [userId, name]
+    );
+    return result.rows[0] || null;
+  }
+
+  /**
+   * Get all categories for a user
+   */
+  async getUserCategories(userId: string): Promise<any[]> {
+    const result = await this.pool.query(
+      'SELECT * FROM categories WHERE "userId" = $1 ORDER BY type, name',
+      [userId]
+    );
+    return result.rows;
+  }
+
+  /**
+   * Count categories for a user
+   */
+  async countUserCategories(userId: string): Promise<number> {
+    const result = await this.pool.query(
+      'SELECT COUNT(*) as count FROM categories WHERE "userId" = $1',
+      [userId]
+    );
+    return parseInt(result.rows[0].count, 10);
+  }
+
+  /**
+   * Verify if a category exists
+   */
+  async categoryExists(userId: string, name: string, type?: 'INCOME' | 'OUTCOME'): Promise<boolean> {
+    let query = 'SELECT id FROM categories WHERE "userId" = $1 AND name = $2';
+    const params: any[] = [userId, name];
+
+    if (type) {
+      query += ' AND type = $3';
+      params.push(type);
+    }
+
+    const result = await this.pool.query(query, params);
+    return result.rows.length > 0;
+  }
+
+  /**
+   * Get a payment method by name and userId
+   */
+  async getPaymentMethodByName(userId: string, name: string): Promise<any | null> {
+    const result = await this.pool.query(
+      'SELECT * FROM payment_methods WHERE "userId" = $1 AND name = $2',
+      [userId, name]
+    );
+    return result.rows[0] || null;
+  }
+
+  /**
+   * Get all payment methods for a user
+   */
+  async getUserPaymentMethods(userId: string): Promise<any[]> {
+    const result = await this.pool.query(
+      'SELECT * FROM payment_methods WHERE "userId" = $1 ORDER BY name',
+      [userId]
+    );
+    return result.rows;
+  }
+
+  /**
+   * Get all transactions for a user
+   */
+  async getUserTransactions(userId: string): Promise<any[]> {
+    const result = await this.pool.query(
+      'SELECT * FROM transactions WHERE "userId" = $1 ORDER BY date DESC',
+      [userId]
+    );
+    return result.rows;
+  }
+
+  /**
+   * Count transactions for a user
+   */
+  async countUserTransactions(userId: string): Promise<number> {
+    const result = await this.pool.query(
+      'SELECT COUNT(*) as count FROM transactions WHERE "userId" = $1',
+      [userId]
+    );
+    return parseInt(result.rows[0].count, 10);
   }
 
   async close(): Promise<void> {
