@@ -2,10 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto, UpdateTransactionDto } from './dto';
-import { Id, OperationType } from '@gualet/shared';
+import { Id, OperationType, TimeString } from '@gualet/shared';
 import { buildFindTransactionsCriteria } from '@test/builders/dto/find-transactions-criteria.dto.builder';
 import { buildTransaction } from '@test/builders/entities/transaction.entity.builder';
-import { TimeString } from '@gualet/shared';
 import { AuthenticatedRequest, Pagination } from '@src/common/infrastructure';
 import { TransactionNotFoundError } from '@src/transactions/errors';
 import { Response } from 'express';
@@ -49,6 +48,7 @@ describe('TransactionsController', () => {
   describe('create', () => {
     it('should create a transaction successfully', async () => {
       const createDto: CreateTransactionDto = {
+        id: new Id().toString(),
         amount: 100,
         description: 'Test transaction',
         categoryId: 'category-123',
@@ -70,14 +70,15 @@ describe('TransactionsController', () => {
         data: { transaction: transaction.toJSON() },
         pagination: null,
       });
-      expect(transactionsService.create).toHaveBeenCalledWith(
-        expect.any(Id),
-        createDto,
-      );
+      expect(transactionsService.create).toHaveBeenCalledWith(expect.any(Id), {
+        ...createDto,
+        id: new Id(createDto.id),
+      });
     });
 
     it('should throw InternalServerErrorException when service fails', async () => {
       const createDto: CreateTransactionDto = {
+        id: new Id().toString(),
         amount: 100,
         operation: OperationType.Outcome,
         description: 'Test transaction',
@@ -353,6 +354,7 @@ describe('TransactionsController', () => {
 
   it('should handle specific domain error in create method', async () => {
     const createDto: CreateTransactionDto = {
+      id: new Id().toString(),
       amount: 100,
       operation: OperationType.Outcome,
       description: 'Test transaction',

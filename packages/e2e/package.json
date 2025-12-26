@@ -16,6 +16,7 @@
     "typeorm": "0.3.22"
   },
   "devDependencies": {
-    "@types/pg": "8.11.13"
+    "@types/pg": "8.11.13",
+    "baseline-browser-mapping": "^2.9.11"
   }
 }

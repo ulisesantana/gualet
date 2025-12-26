@@ -77,9 +77,13 @@ export class PaymentMethodsPage {
   }
 
   getPaymentMethodItem(name: string): Locator {
-    return this.page.locator(`[data-testid="payment-method-item"]`, {
+    return this.page.locator(`[data-testid^="payment-method-item-"]`, {
       hasText: name,
     });
+  }
+
+  async getPaymentMethodByDataTestId(id: string): Promise<Locator> {
+    return this.page.locator(`[data-testid="payment-method-item-${id}"]`);
   }
 
   async editPaymentMethod(name: string) {

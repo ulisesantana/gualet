@@ -32,7 +32,7 @@ export class TransactionsPage {
     description: string;
     amount: number;
     category: string;
-    paymentMethod?: string;
+    paymentMethod?: string | number;
     operation?: 'INCOME' | 'OUTCOME';
     date?: string;
   }) {
@@ -58,8 +58,13 @@ export class TransactionsPage {
     await this.descriptionInput.fill(transaction.description);
 
     // Select payment method if provided
-    if (transaction.paymentMethod) {
-      await this.paymentMethodSelect.selectOption(transaction.paymentMethod);
+    if (transaction.paymentMethod !== undefined) {
+      // If it's a number, select by index, otherwise by label
+      if (typeof transaction.paymentMethod === 'number') {
+        await this.paymentMethodSelect.selectOption({ index: transaction.paymentMethod });
+      } else {
+        await this.paymentMethodSelect.selectOption(transaction.paymentMethod);
+      }
     }
   }
 
@@ -74,7 +79,7 @@ export class TransactionsPage {
     description: string;
     amount: number;
     category: string;
-    paymentMethod?: string;
+    paymentMethod?: string | number;
     operation?: 'INCOME' | 'OUTCOME';
     date?: string;
   }) {

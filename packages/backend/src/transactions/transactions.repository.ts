@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Between,
@@ -36,6 +36,7 @@ type TransactionPayload = TransactionToCreate & { id: Id };
 
 @Injectable()
 export class TransactionsRepository {
+  private readonly logger = new Logger(TransactionsRepository.name);
   private readonly categoryRepository: Repository<CategoryEntity>;
   private readonly paymentMethodRepository: Repository<PaymentMethodEntity>;
 
@@ -73,6 +74,7 @@ export class TransactionsRepository {
     transaction: TransactionPayload,
   ): Promise<Transaction> {
     await this.validateTransactionRelationship(userId, transaction);
+
     await this.entityRepository.save({
       id: transaction.id.toString(),
       user: { id: userId.toString() },
@@ -83,6 +85,7 @@ export class TransactionsRepository {
       operation: transaction.operation,
       date: transaction.date,
     });
+
     return this.findById(userId, transaction.id);
   }
 
@@ -237,11 +240,13 @@ export class TransactionsRepository {
     const [category, paymentMethod] = await Promise.all([
       this.categoryRepository.findOne({
         where: { id: transaction.categoryId },
+        relations: ['user'],
       }),
       this.paymentMethodRepository.findOne({
         where: {
           id: transaction.paymentMethodId,
         },
+        relations: ['user'],
       }),
     ]);
 

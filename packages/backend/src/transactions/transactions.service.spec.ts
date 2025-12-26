@@ -1,5 +1,5 @@
 import { TransactionNotFoundError } from './errors';
-import { Id, OperationType } from '@gualet/shared';
+import { Id, OperationType, TimeString } from '@gualet/shared';
 import { Transaction } from './transaction.model';
 import {
   TransactionsService,
@@ -11,7 +11,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { buildTransaction, buildUserEntity } from '@test/builders';
 import { Pagination } from '@src/common/infrastructure';
 import { TransactionEntity } from '@src/db';
-import { TimeString } from '@gualet/shared';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;
@@ -42,6 +41,7 @@ describe('TransactionsService', () => {
 
   it('should create a transaction', async () => {
     const transactionToCreate = {
+      id: new Id(),
       name: 'transaction-name',
       amount: 100,
       type: OperationType.Outcome,

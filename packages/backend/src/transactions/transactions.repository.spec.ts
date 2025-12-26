@@ -16,7 +16,7 @@ import {
   buildTransactionEntity,
   buildUserEntity,
 } from '@test/builders';
-import { Id, OperationType } from '@gualet/shared';
+import { DateString, Id, OperationType, TimeString } from '@gualet/shared';
 import {
   NotAuthorizedForTransactionError,
   TransactionNotFoundError,
@@ -29,8 +29,6 @@ import {
   NotAuthorizedForPaymentMethodError,
   PaymentMethodNotFoundError,
 } from '@src/payment-methods/errors';
-
-import { DateString, TimeString } from '@gualet/shared';
 import {
   CategoryEntity,
   PaymentMethodEntity,
@@ -544,10 +542,12 @@ describe('TransactionsRepository', () => {
       // Assert
       expect(categoryRepository.findOne).toHaveBeenCalledWith({
         where: { id: categoryId },
+        relations: ['user'],
       });
 
       expect(paymentMethodRepository.findOne).toHaveBeenCalledWith({
         where: { id: paymentMethodId },
+        relations: ['user'],
       });
 
       expect(entityRepository.save).toHaveBeenCalledWith({
@@ -748,10 +748,12 @@ describe('TransactionsRepository', () => {
 
       expect(categoryRepository.findOne).toHaveBeenCalledWith({
         where: { id: categoryId },
+        relations: ['user'],
       });
 
       expect(paymentMethodRepository.findOne).toHaveBeenCalledWith({
         where: { id: paymentMethodId },
+        relations: ['user'],
       });
 
       expect(entityRepository.save).toHaveBeenCalledWith({

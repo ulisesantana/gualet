@@ -60,14 +60,14 @@ export class TransactionsController extends SecureController {
     description: 'Category or payment method not found',
   })
   async create(
-    @Body() createTransactionDto: CreateTransactionDto,
+    @Body() { id, ...dto }: CreateTransactionDto,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
   ) {
     try {
       const transaction = await this.transactionsService.create(
         new Id(req.user.userId),
-        createTransactionDto,
+        { ...dto, id: new Id(id) },
       );
       return res.status(200).send(new TransactionResponseDto(transaction));
     } catch (error) {

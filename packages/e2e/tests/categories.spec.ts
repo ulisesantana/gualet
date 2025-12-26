@@ -13,7 +13,7 @@ test.describe('Categories Management', () => {
     await loginAsTestUser(page);
   });
 
-  test('should create a new expense category', async ({ page }) => {
+  test('should create a new expense category', async ({ page, db }) => {
     const categoriesPage = new CategoriesPage(page);
     const categoryName = `Movies ${testTimestamp}`;
     await categoriesPage.goto();
@@ -26,9 +26,15 @@ test.describe('Categories Management', () => {
 
     await categoriesPage.waitForSuccess();
     await categoriesPage.verifyCategoryExists(categoryName);
+
+    // Verify in database
+    const dbCategory = await db.getCategoryByName(userId, categoryName);
+    expect(dbCategory).toBeTruthy();
+    expect(dbCategory.type).toBe('OUTCOME');
+    expect(dbCategory.icon).toBe('🎬');
   });
 
-  test('should create a new income category', async ({ page }) => {
+  test('should create a new income category', async ({ page, db }) => {
     const categoriesPage = new CategoriesPage(page);
     const categoryName = `Consulting ${testTimestamp}`;
     await categoriesPage.goto();
@@ -41,9 +47,15 @@ test.describe('Categories Management', () => {
 
     await categoriesPage.waitForSuccess();
     await categoriesPage.verifyCategoryExists(categoryName);
+
+    // Verify in database
+    const dbCategory = await db.getCategoryByName(userId, categoryName);
+    expect(dbCategory).toBeTruthy();
+    expect(dbCategory.type).toBe('INCOME');
+    expect(dbCategory.icon).toBe('💼');
   });
 
-  test('should edit an existing category', async ({ page }) => {
+  test('should edit an existing category', async ({ page, db }) => {
     const categoriesPage = new CategoriesPage(page);
     const originalName = `Original ${testTimestamp}`;
     const updatedName = `Updated ${testTimestamp}`;
@@ -67,9 +79,17 @@ test.describe('Categories Management', () => {
     await categoriesPage.waitForSuccess();
     await categoriesPage.verifyCategoryExists(updatedName);
     await categoriesPage.verifyCategoryNotExists(originalName);
+
+    // Verify in database
+    const dbCategory = await db.getCategoryByName(userId, updatedName);
+    expect(dbCategory).toBeTruthy();
+    expect(dbCategory.icon).toBe('🎯');
+
+    const oldCategory = await db.getCategoryByName(userId, originalName);
+    expect(oldCategory).toBeNull();
   });
 
-  test('should delete a category', async ({ page }) => {
+  test('should delete a category', async ({ page, db }) => {
     const categoriesPage = new CategoriesPage(page);
     const categoryName = `ToDelete ${testTimestamp}`;
 
@@ -92,9 +112,13 @@ test.describe('Categories Management', () => {
     // Verify it's gone by navigating to the list again
     await categoriesPage.gotoManage();
     await categoriesPage.verifyCategoryNotExists(categoryName);
+
+    // Verify in database
+    const dbCategory = await db.getCategoryByName(userId, categoryName);
+    expect(dbCategory).toBeNull();
   });
 
-  test('should display multiple categories grouped by type', async ({ page }) => {
+  test('should display multiple categories grouped by type', async ({ page, db }) => {
     const categoriesPage = new CategoriesPage(page);
 
     // Create some income categories
@@ -137,9 +161,19 @@ test.describe('Categories Management', () => {
     await categoriesPage.verifyCategoryExists(`Investments ${testTimestamp}`);
     await categoriesPage.verifyCategoryExists(`Rent ${testTimestamp}`);
     await categoriesPage.verifyCategoryExists(`Groceries ${testTimestamp}`);
+
+    // Verify in database
+    const categories = await db.getUserCategories(userId);
+    expect(categories.length).toBeGreaterThanOrEqual(4);
+
+    const incomeCategories = categories.filter(c => c.type === 'INCOME');
+    const outcomeCategories = categories.filter(c => c.type === 'OUTCOME');
+
+    expect(incomeCategories.length).toBeGreaterThanOrEqual(2);
+    expect(outcomeCategories.length).toBeGreaterThanOrEqual(2);
   });
 
-  test('should complete full CRUD cycle', async ({ page }) => {
+  test('should complete full CRUD cycle', async ({ page, db }) => {
     const categoriesPage = new CategoriesPage(page);
     const categoryName = `TestCRUD ${testTimestamp}`;
     const updatedName = `ModifiedCRUD ${testTimestamp}`;
@@ -156,6 +190,11 @@ test.describe('Categories Management', () => {
     await categoriesPage.gotoManage();
     await categoriesPage.verifyCategoryExists(categoryName);
 
+    // Verify creation in database
+    let dbCategory = await db.getCategoryByName(userId, categoryName);
+    expect(dbCategory).toBeTruthy();
+    expect(dbCategory.icon).toBe('🧪');
+
     // Update
     await categoriesPage.editCategoryByName(categoryName);
     await categoriesPage.nameInput.fill(updatedName);
@@ -166,10 +205,22 @@ test.describe('Categories Management', () => {
     await categoriesPage.verifyCategoryExists(updatedName);
     await categoriesPage.verifyCategoryNotExists(categoryName);
 
+    // Verify update in database
+    dbCategory = await db.getCategoryByName(userId, updatedName);
+    expect(dbCategory).toBeTruthy();
+    expect(dbCategory.icon).toBe('✏️');
+
+    const oldCategory = await db.getCategoryByName(userId, categoryName);
+    expect(oldCategory).toBeNull();
+
     // Delete
     await categoriesPage.deleteCategoryByName(updatedName);
     await categoriesPage.gotoManage();
     await categoriesPage.verifyCategoryNotExists(updatedName);
+
+    // Verify deletion in database
+    dbCategory = await db.getCategoryByName(userId, updatedName);
+    expect(dbCategory).toBeNull();
   });
 });
 
@@ -197,7 +248,7 @@ test.describe('Category Form Validations', () => {
     await expect(categoriesPage.categoryForm).toBeVisible();
   });
 
-  test('should show error for duplicate category name', async ({ page }) => {
+  test('should show error for duplicate category name', async ({ page, db }) => {
     const categoriesPage = new CategoriesPage(page);
     const categoryName = `UniqueTest ${testTimestamp}`;
 
@@ -210,6 +261,10 @@ test.describe('Category Form Validations', () => {
     });
     await categoriesPage.waitForSuccess();
 
+    // Verify first category exists in database
+    const dbCategory = await db.getCategoryByName(userId, categoryName);
+    expect(dbCategory).toBeTruthy();
+
     // Try to create another category with the same name and type
     await categoriesPage.goto();
     await categoriesPage.createCategory({
@@ -218,9 +273,14 @@ test.describe('Category Form Validations', () => {
     });
 
     await categoriesPage.waitForError();
+
+    // Verify only one category exists in database
+    const categories = await db.getUserCategories(userId);
+    const duplicates = categories.filter(c => c.name === categoryName && c.type === 'OUTCOME');
+    expect(duplicates.length).toBe(1);
   });
 
-  test('should allow categories with same name but different types', async ({ page }) => {
+  test('should allow categories with same name but different types', async ({ page, db }) => {
     const categoriesPage = new CategoriesPage(page);
     const categoryName = `Bonuses ${testTimestamp}`;
 
@@ -245,5 +305,13 @@ test.describe('Category Form Validations', () => {
 
     // Both should exist
     await categoriesPage.verifyCategoryExists(categoryName);
+
+    // Verify both exist in database with different types
+    const categories = await db.getUserCategories(userId);
+    const bonusCategories = categories.filter(c => c.name === categoryName);
+
+    expect(bonusCategories.length).toBe(2);
+    expect(bonusCategories.some(c => c.type === 'INCOME')).toBe(true);
+    expect(bonusCategories.some(c => c.type === 'OUTCOME')).toBe(true);
   });
 });

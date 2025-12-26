@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Id, OperationType } from '@gualet/shared';
+import { Id, OperationType, TimeString } from '@gualet/shared';
 import { Transaction } from './transaction.model';
-import { TimeString } from '@gualet/shared';
 import { FindTransactionsCriteria } from './dto';
 import { TransactionsRepository } from './transactions.repository';
 import { Pagination } from '@src/common/infrastructure';
 
 export interface TransactionToCreate {
+  id: Id;
   amount: number;
   categoryId: string;
   date: TimeString;
@@ -27,8 +27,7 @@ export class TransactionsService {
   constructor(private readonly repository: TransactionsRepository) {}
 
   create(userId: Id, transaction: TransactionToCreate): Promise<Transaction> {
-    const id = new Id();
-    return this.repository.create(userId, { ...transaction, id });
+    return this.repository.create(userId, transaction);
   }
 
   find(

@@ -4,82 +4,115 @@ import {PaymentMethodsPage} from '@pages';
 import {loginAsTestUser, TEST_USER} from '../helpers/auth.helpers';
 
 test.describe.skip('Payment Methods Management', () => {
+  // TODO: Payment methods UI needs to be reviewed - no create button found on /payment-methods page
+  // Similar to categories, they might need to be accessed via Settings
   let userId: string;
+  let testTimestamp: string;
 
   test.beforeEach(async ({ page, db }) => {
     userId = await db.createUser(TEST_USER);
+    testTimestamp = Date.now().toString();
     await loginAsTestUser(page);
   });
 
-  test('should create a new payment method', async ({ page }) => {
+  test('should create a new payment method', async ({ page, db }) => {
     const paymentMethodsPage = new PaymentMethodsPage(page);
+    const pmName = `Debit Card ${testTimestamp}`;
+
     await paymentMethodsPage.goto();
 
     await paymentMethodsPage.createPaymentMethod({
-      name: 'Debit Card',
+      name: pmName,
       icon: '💳',
-      color: '#4287f5',
     });
 
     await paymentMethodsPage.waitForSuccess();
-    await paymentMethodsPage.verifyPaymentMethodExists('Debit Card');
+    await paymentMethodsPage.verifyPaymentMethodExists(pmName);
+
+    // Verify in database
+    const dbPaymentMethod = await db.getPaymentMethodByName(userId, pmName);
+    expect(dbPaymentMethod).toBeTruthy();
+    expect(dbPaymentMethod.icon).toBe('💳');
   });
 
-  test('should create a payment method without icon and color', async ({ page }) => {
+  test('should create a payment method without icon', async ({ page, db }) => {
     const paymentMethodsPage = new PaymentMethodsPage(page);
+    const pmName = `Cash ${testTimestamp}`;
+
     await paymentMethodsPage.goto();
 
     await paymentMethodsPage.createPaymentMethod({
-      name: 'Cash',
+      name: pmName,
     });
 
     await paymentMethodsPage.waitForSuccess();
-    await paymentMethodsPage.verifyPaymentMethodExists('Cash');
+    await paymentMethodsPage.verifyPaymentMethodExists(pmName);
+
+    // Verify in database
+    const dbPaymentMethod = await db.getPaymentMethodByName(userId, pmName);
+    expect(dbPaymentMethod).toBeTruthy();
   });
 
   test('should edit an existing payment method', async ({ page, db }) => {
     // Create a payment method first
+    const originalName = `Original Payment ${testTimestamp}`;
+    const updatedName = `Updated Payment ${testTimestamp}`;
+
     await db.createPaymentMethod({
       userId,
-      name: 'Original Payment',
+      name: originalName,
     });
 
     const paymentMethodsPage = new PaymentMethodsPage(page);
     await paymentMethodsPage.goto();
 
-    await paymentMethodsPage.editPaymentMethod('Original Payment');
-    await paymentMethodsPage.nameInput.fill('Updated Payment');
+    await paymentMethodsPage.editPaymentMethod(originalName);
+    await paymentMethodsPage.nameInput.fill(updatedName);
     await paymentMethodsPage.iconInput.fill('🏦');
     await paymentMethodsPage.submit();
 
     await paymentMethodsPage.waitForSuccess();
-    await paymentMethodsPage.verifyPaymentMethodExists('Updated Payment');
-    await paymentMethodsPage.verifyPaymentMethodNotExists('Original Payment');
+    await paymentMethodsPage.verifyPaymentMethodExists(updatedName);
+    await paymentMethodsPage.verifyPaymentMethodNotExists(originalName);
+
+    // Verify in database
+    const dbPaymentMethod = await db.getPaymentMethodByName(userId, updatedName);
+    expect(dbPaymentMethod).toBeTruthy();
+    expect(dbPaymentMethod.icon).toBe('🏦');
+
+    const oldPaymentMethod = await db.getPaymentMethodByName(userId, originalName);
+    expect(oldPaymentMethod).toBeNull();
   });
 
   test('should delete a payment method', async ({ page, db }) => {
     // Create a payment method first
+    const pmName = `Payment to Delete ${testTimestamp}`;
+
     await db.createPaymentMethod({
       userId,
-      name: 'Payment to Delete',
+      name: pmName,
     });
 
     const paymentMethodsPage = new PaymentMethodsPage(page);
     await paymentMethodsPage.goto();
 
-    await paymentMethodsPage.verifyPaymentMethodExists('Payment to Delete');
-    await paymentMethodsPage.deletePaymentMethod('Payment to Delete');
+    await paymentMethodsPage.verifyPaymentMethodExists(pmName);
+    await paymentMethodsPage.deletePaymentMethod(pmName);
 
-    await paymentMethodsPage.verifyPaymentMethodNotExists('Payment to Delete');
+    await paymentMethodsPage.verifyPaymentMethodNotExists(pmName);
+
+    // Verify in database
+    const dbPaymentMethod = await db.getPaymentMethodByName(userId, pmName);
+    expect(dbPaymentMethod).toBeNull();
   });
 
   test('should display multiple payment methods', async ({ page, db }) => {
     // Create multiple payment methods
     const paymentMethods = [
-      { name: 'Credit Card', icon: '💳' },
-      { name: 'Bank Transfer', icon: '🏦' },
-      { name: 'PayPal', icon: '💰' },
-      { name: 'Cash', icon: '💵' },
+      { name: `Credit Card ${testTimestamp}`, icon: '💳' },
+      { name: `Bank Transfer ${testTimestamp}`, icon: '🏦' },
+      { name: `PayPal ${testTimestamp}`, icon: '💰' },
+      { name: `Cash ${testTimestamp}`, icon: '💵' },
     ];
 
     for (const pm of paymentMethods) {
@@ -96,45 +129,70 @@ test.describe.skip('Payment Methods Management', () => {
     for (const pm of paymentMethods) {
       await paymentMethodsPage.verifyPaymentMethodExists(pm.name);
     }
+
+    // Verify in database
+    const dbPaymentMethods = await db.getUserPaymentMethods(userId);
+    expect(dbPaymentMethods.length).toBe(paymentMethods.length);
   });
 
-  test('should complete full CRUD cycle', async ({ page }) => {
+  test('should complete full CRUD cycle', async ({ page, db }) => {
     const paymentMethodsPage = new PaymentMethodsPage(page);
+    const pmName = `Test Payment ${testTimestamp}`;
+    const modifiedName = `Modified Payment ${testTimestamp}`;
+
     await paymentMethodsPage.goto();
 
     // Create
     await paymentMethodsPage.createPaymentMethod({
-      name: 'Test Payment',
+      name: pmName,
       icon: '🧪',
-      color: '#ff0000',
     });
     await paymentMethodsPage.waitForSuccess();
-    await paymentMethodsPage.verifyPaymentMethodExists('Test Payment');
+    await paymentMethodsPage.verifyPaymentMethodExists(pmName);
+
+    // Verify creation in database
+    let dbPaymentMethod = await db.getPaymentMethodByName(userId, pmName);
+    expect(dbPaymentMethod).toBeTruthy();
+    expect(dbPaymentMethod.icon).toBe('🧪');
 
     // Update
-    await paymentMethodsPage.editPaymentMethod('Test Payment');
-    await paymentMethodsPage.nameInput.fill('Modified Payment');
+    await paymentMethodsPage.editPaymentMethod(pmName);
+    await paymentMethodsPage.nameInput.fill(modifiedName);
     await paymentMethodsPage.iconInput.fill('✏️');
-    await paymentMethodsPage.colorInput.fill('#00ff00');
     await paymentMethodsPage.submit();
     await paymentMethodsPage.waitForSuccess();
-    await paymentMethodsPage.verifyPaymentMethodExists('Modified Payment');
+    await paymentMethodsPage.verifyPaymentMethodExists(modifiedName);
+
+    // Verify update in database
+    dbPaymentMethod = await db.getPaymentMethodByName(userId, modifiedName);
+    expect(dbPaymentMethod).toBeTruthy();
+    expect(dbPaymentMethod.icon).toBe('✏️');
+
+    const oldPaymentMethod = await db.getPaymentMethodByName(userId, pmName);
+    expect(oldPaymentMethod).toBeNull();
 
     // Delete
-    await paymentMethodsPage.deletePaymentMethod('Modified Payment');
-    await paymentMethodsPage.verifyPaymentMethodNotExists('Modified Payment');
+    await paymentMethodsPage.deletePaymentMethod(modifiedName);
+    await paymentMethodsPage.verifyPaymentMethodNotExists(modifiedName);
+
+    // Verify deletion in database
+    dbPaymentMethod = await db.getPaymentMethodByName(userId, modifiedName);
+    expect(dbPaymentMethod).toBeNull();
   });
 });
 
 test.describe.skip('Payment Method Form Validations', () => {
+  // TODO: Payment methods UI needs to be reviewed
   let userId: string;
+  let testTimestamp: string;
 
   test.beforeEach(async ({ page, db }) => {
     userId = await db.createUser(TEST_USER);
+    testTimestamp = Date.now().toString();
     await loginAsTestUser(page);
   });
 
-  test('should show error for empty name', async ({ page }) => {
+  test('should show error for empty name', async ({ page, db }) => {
     const paymentMethodsPage = new PaymentMethodsPage(page);
     await paymentMethodsPage.goto();
     await paymentMethodsPage.clickCreate();
@@ -142,15 +200,23 @@ test.describe.skip('Payment Method Form Validations', () => {
     // Try to submit without name
     await paymentMethodsPage.submit();
 
-    await paymentMethodsPage.waitForError();
-    await expect(page.getByText(/name is required|name cannot be empty/i)).toBeVisible();
+    // Browser validation should prevent submission or error message should appear
+    await expect(paymentMethodsPage.nameInput).toHaveAttribute('required', '');
+
+    // TODO: expect validation message "Please fill out this field." or similar
+
+    // Verify no payment method was created in database
+    const paymentMethods = await db.getUserPaymentMethods(userId);
+    expect(paymentMethods.length).toBe(0);
   });
 
   test('should show error for duplicate payment method name', async ({ page, db }) => {
     // Create a payment method first
+    const pmName = `Existing Payment ${testTimestamp}`;
+
     await db.createPaymentMethod({
       userId,
-      name: 'Existing Payment',
+      name: pmName,
     });
 
     const paymentMethodsPage = new PaymentMethodsPage(page);
@@ -158,14 +224,18 @@ test.describe.skip('Payment Method Form Validations', () => {
 
     // Try to create another payment method with the same name
     await paymentMethodsPage.createPaymentMethod({
-      name: 'Existing Payment',
+      name: pmName,
     });
 
     await paymentMethodsPage.waitForError();
-    await expect(page.getByText(/payment method.*already exists|duplicate payment/i)).toBeVisible();
+
+    // Verify only one payment method exists in database
+    const paymentMethods = await db.getUserPaymentMethods(userId);
+    const duplicates = paymentMethods.filter(pm => pm.name === pmName);
+    expect(duplicates.length).toBe(1);
   });
 
-  test('should trim whitespace from name', async ({ page }) => {
+  test.skip('should trim whitespace from name', async ({ page, db }) => {
     const paymentMethodsPage = new PaymentMethodsPage(page);
     await paymentMethodsPage.goto();
 
@@ -175,12 +245,13 @@ test.describe.skip('Payment Method Form Validations', () => {
 
     await paymentMethodsPage.waitForSuccess();
 
-    // Verify the name is trimmed
-    const item = paymentMethodsPage.getPaymentMethodItem('Visa Card');
-    await expect(item).toBeVisible();
+    // Verify the name is trimmed in database
+    const dbPaymentMethod = await db.getPaymentMethodByName(userId, 'Visa Card');
+    expect(dbPaymentMethod).toBeTruthy();
+    expect(dbPaymentMethod.name).toBe('Visa Card');
   });
 
-  test('should show error for very long name', async ({ page }) => {
+  test.skip('should show error for very long name', async ({ page, db }) => {
     const paymentMethodsPage = new PaymentMethodsPage(page);
     await paymentMethodsPage.goto();
     await paymentMethodsPage.clickCreate();
@@ -191,7 +262,10 @@ test.describe.skip('Payment Method Form Validations', () => {
     await paymentMethodsPage.submit();
 
     await paymentMethodsPage.waitForError();
-    await expect(page.getByText(/name is too long|maximum.*characters/i)).toBeVisible();
+
+    // Verify no payment method was created in database
+    const paymentMethods = await db.getUserPaymentMethods(userId);
+    expect(paymentMethods.length).toBe(0);
   });
 });
 

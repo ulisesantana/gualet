@@ -23,6 +23,7 @@ import { CommandResponse } from "@domain/types";
 import { HttpRepository } from "../http.repository";
 
 interface CreateTransactionDto {
+  id: string;
   description: string;
   amount: number;
   categoryId: string;
@@ -30,6 +31,8 @@ interface CreateTransactionDto {
   operation: OperationType;
   paymentMethodId: string;
 }
+
+type UpdateTransactionDto = Omit<CreateTransactionDto, "id">;
 
 type FindTransactionsResponse = BaseResponse<
   { transactions: TransactionDto[] },
@@ -93,6 +96,7 @@ export class TransactionRepositoryImplementation
   async create(transaction: Transaction): Promise<Nullable<Transaction>> {
     const { success, error, data } = await this.handleQueryResponse(
       this.http.post<CreateTransactionDto, SaveTransactionResponse>(this.path, {
+        id: transaction.id.toString(),
         description: transaction.description,
         amount: transaction.amount,
         categoryId: transaction.category.id.toString(),
@@ -201,7 +205,7 @@ export class TransactionRepositoryImplementation
 
   async update(transaction: Transaction): Promise<Nullable<Transaction>> {
     const { success, error, data } = await this.handleQueryResponse(
-      this.http.patch<CreateTransactionDto, SaveTransactionResponse>(
+      this.http.patch<UpdateTransactionDto, SaveTransactionResponse>(
         this.path,
         {
           description: transaction.description,
