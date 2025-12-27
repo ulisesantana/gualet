@@ -45,7 +45,7 @@ export function PaymentMethodDetailsView({
           setIsLoading(false);
         });
     }
-  }, [params]);
+  }, []);
 
   const onSubmit = async (paymentMethod: PaymentMethod) => {
     await savePaymentMethodUseCase.exec(paymentMethod);

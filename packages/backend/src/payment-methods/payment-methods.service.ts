@@ -15,6 +15,7 @@ export interface PaymentMethodToUpdate {
 }
 
 export interface PaymentMethodToCreate {
+  id: string;
   name: string;
   icon?: string;
   color?: string;
@@ -27,7 +28,7 @@ export class PaymentMethodsService {
   create(userId: Id, pm: PaymentMethodToCreate): Promise<PaymentMethod> {
     return this.repository.create(
       userId,
-      new PaymentMethod({ ...pm, id: new Id() }),
+      new PaymentMethod({ ...pm, id: new Id(pm.id) }),
     );
   }
 
@@ -50,6 +51,7 @@ export class PaymentMethodsService {
   async createDefaultPaymentMethods(userId: Id): Promise<PaymentMethod[]> {
     const promises = generateDefaultPaymentMethods().map((pm) =>
       this.create(userId, {
+        id: pm.id.toString(),
         name: pm.name,
         icon: pm.icon,
         color: pm.color,

@@ -14,12 +14,12 @@ export class PaymentMethodsPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.createButton = page.getByRole('button', { name: /new payment method|add payment|create/i });
+    this.createButton = page.getByRole('button', { name: /add.*payment method/i });
     this.paymentMethodForm = page.locator('[data-testid="payment-method-form"]');
     this.nameInput = page.locator('input[name="name"]');
     this.iconInput = page.locator('input[name="icon"]');
     this.colorInput = page.locator('input[name="color"]');
-    this.submitButton = page.getByRole('button', { name: /save|submit|create/i });
+    this.submitButton = page.locator('[data-testid="payment-method-submit-button"]');
     this.cancelButton = page.getByRole('button', { name: /cancel/i });
     this.successMessage = page.locator('[data-testid="success-message"]');
     this.errorMessage = page.locator('[data-testid="error-message"]');
@@ -27,6 +27,15 @@ export class PaymentMethodsPage {
 
   async goto() {
     await this.page.goto('/payment-methods');
+    await this.page.waitForLoadState('networkidle');
+
+    // Wait for loader to disappear if present
+    const loader = this.page.locator('[data-testid="loader-container"]');
+    try {
+      await loader.waitFor({ state: 'hidden', timeout: 10000 });
+    } catch {
+      // Loader might not appear if data loads fast
+    }
   }
 
   async clickCreate() {
@@ -69,7 +78,8 @@ export class PaymentMethodsPage {
   }
 
   async waitForSuccess() {
-    await expect(this.successMessage).toBeVisible({ timeout: 5000 });
+    // After successful create/edit, the app redirects to the payment methods list
+    await this.page.waitForURL('/payment-methods', { timeout: 5000 });
   }
 
   async waitForError() {
@@ -82,9 +92,6 @@ export class PaymentMethodsPage {
     });
   }
 
-  async getPaymentMethodByDataTestId(id: string): Promise<Locator> {
-    return this.page.locator(`[data-testid="payment-method-item-${id}"]`);
-  }
 
   async editPaymentMethod(name: string) {
     const item = this.getPaymentMethodItem(name);
@@ -98,12 +105,14 @@ export class PaymentMethodsPage {
     const item = this.getPaymentMethodItem(name);
     await expect(item).toBeVisible();
     const deleteButton = item.getByRole('button', { name: /delete/i });
-    await deleteButton.click();
 
-    // Wait for confirmation dialog and confirm
-    const confirmButton = this.page.getByRole('button', { name: /confirm|yes|delete/i });
-    await expect(confirmButton).toBeVisible();
-    await confirmButton.click();
+    // Handle the browser's confirm dialog
+    this.page.once('dialog', async dialog => {
+      expect(dialog.type()).toBe('confirm');
+      await dialog.accept();
+    });
+
+    await deleteButton.click();
   }
 
   async verifyPaymentMethodExists(name: string) {

@@ -144,15 +144,7 @@ test.describe('Transactions Management', () => {
     expect(updatedTransaction.amount).toBe("150.00");
   });
 
-  test.skip('should delete a transaction', async ({ page, db }) => {
-    // FIXME: La funcionalidad de eliminación no está funcionando correctamente.
-    // El botón de eliminar se hace click correctamente, pero la transacción no se está
-    // eliminando de la base de datos. Esto requiere investigar el frontend/backend:
-    // - Verificar que el RemoveTransactionUseCase está llamando correctamente al repository
-    // - Verificar que el repository está haciendo la llamada DELETE al backend
-    // - Verificar que el backend endpoint DELETE /api/me/transactions/:id está funcionando
-    // - Verificar los logs del backend para ver si hay errores
-
+  test('should delete a transaction', async ({ page, db }) => {
     const transactionsPage = new TransactionsPage(page);
     const description = `Transaction to delete ${Date.now()}`;
 

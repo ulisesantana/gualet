@@ -63,7 +63,7 @@ export class TransactionRepositoryImplementation
   private static mapToTransaction(dto: TransactionDto) {
     return new Transaction({
       id: new Id(dto.id),
-      amount: dto.amount,
+      amount: Number(dto.amount),
       category: TransactionRepositoryImplementation.mapCategory(dto.category),
       date: new Day(dto.date),
       description: dto.description || "",
@@ -150,8 +150,28 @@ export class TransactionRepositoryImplementation
     if (!criteria.to) {
       criteria.to = new Day();
     }
+
+    // Build query params
+    const params = new URLSearchParams();
+    if (criteria.from) {
+      params.append("from", criteria.from.toString());
+    }
+    if (criteria.to) {
+      params.append("to", criteria.to.toString());
+    }
+    // If pageSize is not specified, request all transactions (pageSize=0)
+    if (criteria.pageSize === undefined) {
+      params.append("pageSize", "0");
+    } else {
+      params.append("pageSize", criteria.pageSize.toString());
+    }
+    if (criteria.page !== undefined) {
+      params.append("page", criteria.page.toString());
+    }
+
+    const url = `${this.path}?${params.toString()}`;
     const { success, error, data } = await this.handleQueryResponse(
-      this.http.get<FindTransactionsResponse>(this.path),
+      this.http.get<FindTransactionsResponse>(url),
     );
 
     if (!success) {

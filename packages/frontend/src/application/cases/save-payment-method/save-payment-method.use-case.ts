@@ -8,6 +8,10 @@ export class SavePaymentMethodUseCase
   constructor(private readonly repository: PaymentMethodRepository) {}
 
   async exec(paymentMethod: PaymentMethod): Promise<void> {
-    await this.repository.update(paymentMethod);
+    if (paymentMethod.isNew()) {
+      await this.repository.create(paymentMethod);
+    } else {
+      await this.repository.update(paymentMethod);
+    }
   }
 }

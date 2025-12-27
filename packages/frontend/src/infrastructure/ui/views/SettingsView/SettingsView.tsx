@@ -78,6 +78,16 @@ export function SettingsView({
         </Link>
       </li>
       <li>
+        <Link to={routes.paymentMethods.add}>
+          <button className="cta">Add a new payment method</button>
+        </Link>
+      </li>
+      <li>
+        <Link to={routes.paymentMethods.list}>
+          <button className="cta">Manage payment methods</button>
+        </Link>
+      </li>
+      <li>
         <Link to={routes.reports}>
           <button className="cta">Reports</button>
         </Link>

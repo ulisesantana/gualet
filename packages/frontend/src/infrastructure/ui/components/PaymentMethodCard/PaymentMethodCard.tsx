@@ -42,10 +42,7 @@ export function PaymentMethodCard({
   };
 
   return (
-    <div
-      className="payment-method-card-container"
-      data-testid={`payment-method-item-${paymentMethod.id.toString()}`}
-    >
+    <div className="payment-method-card-container">
       <div className="payment-method-card">
         <div className="payment-method-card-icon">
           {paymentMethod.icon || "💳"}

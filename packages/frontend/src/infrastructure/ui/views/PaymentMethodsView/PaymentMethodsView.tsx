@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import "./PaymentMethodsView.css";
-import { PaymentMethodList, Loader } from "@components";
+import { Loader, PaymentMethodList } from "@components";
 import {
   setUseCases,
   usePaymentMethodStore,
@@ -9,6 +9,9 @@ import {
   DeletePaymentMethodUseCase,
   GetAllPaymentMethodsUseCase,
 } from "@application/cases";
+import { useLocation } from "wouter";
+import { routes } from "@infrastructure/ui/routes";
+
 interface PaymentMethodsViewProps {
   getAllPaymentMethodsUseCase: GetAllPaymentMethodsUseCase;
   deletePaymentMethodUseCase: DeletePaymentMethodUseCase;
@@ -17,6 +20,7 @@ export function PaymentMethodsView({
   getAllPaymentMethodsUseCase,
   deletePaymentMethodUseCase,
 }: PaymentMethodsViewProps) {
+  const [, setLocation] = useLocation();
   const paymentMethods = usePaymentMethodStore((state) => state.paymentMethods);
   const isLoading = usePaymentMethodStore((state) => state.isLoading);
   const fetchPaymentMethods = usePaymentMethodStore(
@@ -25,10 +29,12 @@ export function PaymentMethodsView({
   const deletePaymentMethod = usePaymentMethodStore(
     (state) => state.deletePaymentMethod,
   );
+
   useEffect(() => {
     setUseCases(getAllPaymentMethodsUseCase, deletePaymentMethodUseCase);
     fetchPaymentMethods();
   }, []);
+
   const handleDeletePaymentMethod = useCallback(
     async (paymentMethodId: string) => {
       try {
@@ -39,17 +45,33 @@ export function PaymentMethodsView({
     },
     [deletePaymentMethod],
   );
+
+  const handleAddPaymentMethod = () => {
+    setLocation(routes.paymentMethods.add);
+  };
+
   return (
     <div className="payment-methods-view">
       {isLoading ? (
-        <div className="loader-container">
+        <div className="loader-container" data-testid="loader-container">
           <Loader />
         </div>
       ) : (
-        <PaymentMethodList
-          paymentMethods={paymentMethods}
-          onDeletePaymentMethod={handleDeletePaymentMethod}
-        />
+        <>
+          <div className="payment-methods-header">
+            <button
+              onClick={handleAddPaymentMethod}
+              className="btn-primary"
+              aria-label="Add new payment method"
+            >
+              Add Payment Method
+            </button>
+          </div>
+          <PaymentMethodList
+            paymentMethods={paymentMethods}
+            onDeletePaymentMethod={handleDeletePaymentMethod}
+          />
+        </>
       )}
     </div>
   );

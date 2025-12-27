@@ -9,12 +9,16 @@ export interface CategoryDto {
   color: Nullable<string>;
 }
 
+export type UpdateCategoryDto = Omit<Partial<CategoryDto>, 'id'>;
+
 export interface PaymentMethodDto {
   id: string;
   name: string;
   icon: Nullable<string>;
   color: Nullable<string>;
 }
+
+export type UpdatePaymentMethodDto = Omit<Partial<PaymentMethodDto>, 'id'>;
 
 export interface TransactionDto {
   id: string;
@@ -25,3 +29,5 @@ export interface TransactionDto {
   operation: OperationType;
   paymentMethod: PaymentMethodDto;
 }
+
+export type UpdateTransactionDto = Omit<Partial<TransactionDto>, 'id'>;

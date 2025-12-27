@@ -1,6 +1,11 @@
 import { PaymentMethodRepository } from "@application/repositories";
 import { Nullable } from "@domain/types";
-import { Id, PaymentMethod, PaymentMethodDto } from "@gualet/shared";
+import {
+  Id,
+  PaymentMethod,
+  PaymentMethodDto,
+  UpdatePaymentMethodDto,
+} from "@gualet/shared";
 import { BaseResponse } from "@infrastructure/types";
 import { HttpDataSource } from "@infrastructure/data-sources";
 
@@ -30,9 +35,19 @@ export class PaymentMethodRepositoryImplementation
     });
   }
 
-  static mapToDto(paymentMethod: PaymentMethod): PaymentMethodDto {
+  static mapToPaymentMethodDto(paymentMethod: PaymentMethod): PaymentMethodDto {
     return {
       id: paymentMethod.id.toString(),
+      name: paymentMethod.name,
+      icon: paymentMethod.icon,
+      color: paymentMethod.color,
+    };
+  }
+
+  static mapToUpdatePaymentMethodDto(
+    paymentMethod: PaymentMethod,
+  ): UpdatePaymentMethodDto {
+    return {
       name: paymentMethod.name,
       icon: paymentMethod.icon,
       color: paymentMethod.color,
@@ -43,7 +58,9 @@ export class PaymentMethodRepositoryImplementation
     const { success, error, data } = await this.handleQueryResponse(
       this.http.post<PaymentMethodDto, SavePaymentMethodResponse>(
         this.path,
-        PaymentMethodRepositoryImplementation.mapToDto(paymentMethod),
+        PaymentMethodRepositoryImplementation.mapToPaymentMethodDto(
+          paymentMethod,
+        ),
       ),
     );
 
@@ -104,9 +121,11 @@ export class PaymentMethodRepositoryImplementation
 
   async update(paymentMethod: PaymentMethod): Promise<Nullable<PaymentMethod>> {
     const { success, error, data } = await this.handleQueryResponse(
-      this.http.patch<PaymentMethodDto, SavePaymentMethodResponse>(
-        this.path,
-        PaymentMethodRepositoryImplementation.mapToDto(paymentMethod),
+      this.http.patch<UpdatePaymentMethodDto, SavePaymentMethodResponse>(
+        this.path.concat(`/${paymentMethod.id}`),
+        PaymentMethodRepositoryImplementation.mapToUpdatePaymentMethodDto(
+          paymentMethod,
+        ),
       ),
     );
 

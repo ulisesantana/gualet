@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
   NotAuthorizedForPaymentMethodError,
-  PaymentMethodNotFoundError,
   PaymentMethodInUseError,
+  PaymentMethodNotFoundError,
 } from './errors';
 import { PaymentMethodToUpdate } from '@src/payment-methods';
 import { PaymentMethodEntity, TransactionEntity } from '@src/db';
@@ -39,17 +39,15 @@ export class PaymentMethodsRepository {
   }
 
   async findAll(userId: Id): Promise<PaymentMethod[]> {
-    const categories = await this.repository.find({
+    const paymentMethod = await this.repository.find({
       where: { user: { id: userId.toString() } },
     });
 
-    return categories.map(PaymentMethodsRepository.mapToDomain);
+    return paymentMethod.map(PaymentMethodsRepository.mapToDomain);
   }
 
   async findOne(userId: Id, id: Id): Promise<PaymentMethod> {
-    const pm = await this.repository.findOneBy({
-      id: id.toString(),
-    });
+    const pm = await this.findOneRaw(id);
 
     if (!pm) {
       throw new PaymentMethodNotFoundError(id);
@@ -63,9 +61,7 @@ export class PaymentMethodsRepository {
   }
 
   async update(userId: Id, pm: PaymentMethodToUpdate): Promise<PaymentMethod> {
-    const existingPaymentMethod = await this.repository.findOne({
-      where: { id: pm.id.toString() },
-    });
+    const existingPaymentMethod = await this.findOneRaw(pm.id);
 
     if (!existingPaymentMethod) {
       throw new PaymentMethodNotFoundError(pm.id);
@@ -84,22 +80,8 @@ export class PaymentMethodsRepository {
     return PaymentMethodsRepository.mapToDomain(savedPaymentMethod);
   }
 
-  private handleNullableFields(
-    toUpdate: PaymentMethodToUpdate,
-    existing?: PaymentMethodEntity,
-  ) {
-    return {
-      icon:
-        toUpdate.icon === null ? undefined : toUpdate.icon || existing?.icon,
-      color:
-        toUpdate.color === null ? undefined : toUpdate.color || existing?.color,
-    };
-  }
-
   async delete(userId: Id, id: Id): Promise<void> {
-    const pm = await this.repository.findOne({
-      where: { id: id.toString() },
-    });
+    const pm = await this.findOneRaw(id);
 
     if (!pm) {
       throw new PaymentMethodNotFoundError(id);
@@ -119,5 +101,29 @@ export class PaymentMethodsRepository {
     }
 
     await this.repository.delete({ id: id.toString() });
+  }
+
+  private async findOneRaw(id: Id): Promise<PaymentMethodEntity> {
+    const [pm] = await this.repository.find({
+      where: {
+        id: id.toString(),
+      },
+      take: 1,
+      relations: ['user'],
+    });
+
+    return pm;
+  }
+
+  private handleNullableFields(
+    toUpdate: PaymentMethodToUpdate,
+    existing?: PaymentMethodEntity,
+  ) {
+    return {
+      icon:
+        toUpdate.icon === null ? undefined : toUpdate.icon || existing?.icon,
+      color:
+        toUpdate.color === null ? undefined : toUpdate.color || existing?.color,
+    };
   }
 }

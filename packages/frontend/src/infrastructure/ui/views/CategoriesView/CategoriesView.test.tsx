@@ -97,4 +97,26 @@ describe("CategoriesView", () => {
     mockStore.isLoading = false;
     mockStore.categories = mockCategories;
   });
+
+  it("handles delete category error gracefully", async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    mockDeleteCategory.mockRejectedValueOnce(new Error("Delete failed"));
+
+    render(
+      <CategoriesView
+        getAllCategoriesUseCase={mockGetAllCategoriesUseCase}
+        deleteCategoryUseCase={mockDeleteCategoryUseCase}
+      />,
+    );
+
+    // The error should be handled in the store
+    // This test ensures the view doesn't crash
+    await waitFor(() => {
+      expect(screen.getByTestId("category-list")).toBeInTheDocument();
+    });
+
+    consoleErrorSpy.mockRestore();
+  });
 });

@@ -24,6 +24,10 @@ export class PaymentMethod {
     return this.icon ? `${this.icon} ${this.name}` : this.name;
   }
 
+  isNew() {
+    return false;
+  }
+
   toJSON() {
     return {
       id: this.id.toString(),
@@ -31,5 +35,15 @@ export class PaymentMethod {
       icon: this.icon,
       color: this.color,
     };
+  }
+}
+
+export class NewPaymentMethod extends PaymentMethod {
+  constructor(input: Omit<PaymentMethodParams, "id">) {
+    super(input);
+  }
+
+  isNew() {
+    return true;
   }
 }

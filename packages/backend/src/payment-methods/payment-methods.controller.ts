@@ -1,12 +1,12 @@
 import {
   Body,
+  ConflictException,
   Controller,
   Delete,
   ForbiddenException,
   Get,
   InternalServerErrorException,
   NotFoundException,
-  ConflictException,
   Param,
   Patch,
   Post,
@@ -19,6 +19,7 @@ import {
   AuthenticatedRequest,
   ErrorResponse,
   SecureController,
+  SuccessResponse,
 } from '@src/common/infrastructure';
 import {
   CreatePaymentMethodDto,
@@ -143,8 +144,9 @@ export class PaymentMethodsController extends SecureController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a payment method' })
   @ApiResponse({
-    status: 204,
+    status: 200,
     description: 'Payment method deleted successfully',
+    type: SuccessResponse,
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
@@ -176,7 +178,7 @@ export class PaymentMethodsController extends SecureController {
         new Id(req.user.userId),
         new Id(id),
       );
-      res.status(204).send();
+      res.status(200).send(new SuccessResponse(null));
     } catch (error) {
       console.error(`Error deleting payment method ${id.toString()}:`, error);
       this.handlePaymentMethodsError(res, error);

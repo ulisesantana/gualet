@@ -3,9 +3,7 @@ import {test} from '@fixtures';
 import {PaymentMethodsPage} from '@pages';
 import {loginAsTestUser, TEST_USER} from '../helpers/auth.helpers';
 
-test.describe.skip('Payment Methods Management', () => {
-  // TODO: Payment methods UI needs to be reviewed - no create button found on /payment-methods page
-  // Similar to categories, they might need to be accessed via Settings
+test.describe('Payment Methods Management', () => {
   let userId: string;
   let testTimestamp: string;
 
@@ -235,7 +233,7 @@ test.describe.skip('Payment Method Form Validations', () => {
     expect(duplicates.length).toBe(1);
   });
 
-  test.skip('should trim whitespace from name', async ({ page, db }) => {
+  test('should trim whitespace from name', async ({ page, db }) => {
     const paymentMethodsPage = new PaymentMethodsPage(page);
     await paymentMethodsPage.goto();
 
@@ -251,7 +249,7 @@ test.describe.skip('Payment Method Form Validations', () => {
     expect(dbPaymentMethod.name).toBe('Visa Card');
   });
 
-  test.skip('should show error for very long name', async ({ page, db }) => {
+  test('should show error for very long name', async ({ page, db }) => {
     const paymentMethodsPage = new PaymentMethodsPage(page);
     await paymentMethodsPage.goto();
     await paymentMethodsPage.clickCreate();

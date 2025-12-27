@@ -1,12 +1,15 @@
 import React, { RefObject, useRef, useState } from "react";
 import { PaymentMethod } from "@gualet/shared";
+
 import { generateOnSubmitHandler } from "./submit-handler";
+
 export interface PaymentMethodFormParams {
   paymentMethod?: PaymentMethod | undefined;
   onSubmit: (paymentMethod: PaymentMethod) => Promise<void>;
   onSuccess?: () => void;
   onError?: (error: Error) => void;
 }
+
 export function PaymentMethodForm({
   paymentMethod,
   onSubmit,
@@ -30,7 +33,12 @@ export function PaymentMethodForm({
     onError: handleError,
   });
   return (
-    <form className="transaction-form" onSubmit={onSubmitHandler} ref={formRef}>
+    <form
+      className="transaction-form"
+      onSubmit={onSubmitHandler}
+      ref={formRef}
+      data-testid="payment-method-form"
+    >
       {errorMessage && (
         <div className="error-message" data-testid="error-message">
           {errorMessage}
