@@ -1,5 +1,5 @@
 import {describe, expect, it} from "vitest";
-import {Category, Day, Id, OperationType, PaymentMethod, Transaction} from "@gualet/shared";
+import {Category, Day, Id, NewTransaction, OperationType, PaymentMethod, Transaction} from "@gualet/shared";
 
 
 describe("Transaction", () => {
@@ -161,8 +161,48 @@ describe("Transaction", () => {
     });
 
     const expectedString =
-      "Transaction in category 🛒 Groceries with an amount of -500,00 € on 2023/01/15, via 💳 Card";
+      "Transaction in category 🛒 Groceries with an amount of -500,00 € on 2023/01/15, via 💳 Card";
 
     expect(transaction.toString()).toBe(expectedString);
+  });
+
+  it("should return false for isNew() when Transaction has no ID provided", () => {
+    const transaction = new Transaction({
+      amount: 1000,
+      category: mockCategory,
+      date: mockDay,
+      description: "Test",
+      operation: OperationType.Outcome,
+      paymentMethod: mockPaymentMethod,
+    });
+
+    expect(transaction.isNew()).toBe(false);
+  });
+
+  it("should return false for isNew() when Transaction has an ID provided", () => {
+    const transaction = new Transaction({
+      id: new Id("test-id"),
+      amount: 1000,
+      category: mockCategory,
+      date: mockDay,
+      description: "Test",
+      operation: OperationType.Outcome,
+      paymentMethod: mockPaymentMethod,
+    });
+
+    expect(transaction.isNew()).toBe(false);
+  });
+
+  it("should return true for isNew() when using NewTransaction", () => {
+    const transaction = new NewTransaction({
+      amount: 1000,
+      category: mockCategory,
+      date: mockDay,
+      description: "Test",
+      operation: OperationType.Outcome,
+      paymentMethod: mockPaymentMethod,
+    });
+
+    expect(transaction.isNew()).toBe(true);
   });
 });

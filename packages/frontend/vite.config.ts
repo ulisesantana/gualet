@@ -50,9 +50,10 @@ export default defineConfig(({ mode }) => {
       coverage: {
         include: ["src"],
         exclude: [
-          "src/infrastructure/data-sources",
-          "src/application/repositories",
-          "src/infrastructure/ui/main.tsx",
+          "src/features/common/infrastructure/http",
+          "src/features/common/infrastructure/storage",
+          "src/**/application/*repository.ts",
+          "src/features/common/ui/main.tsx",
           "src/**/index.ts",
           "src/**/*.stories.ts",
           "src/**/*.test.ts",
@@ -72,12 +73,81 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        "@application": resolve(__dirname, "src/application"),
-        "@components": resolve(__dirname, "src/infrastructure/ui/components"),
-        "@domain": resolve(__dirname, "src/domain"),
-        "@infrastructure": resolve(__dirname, "src/infrastructure"),
+        "@": resolve(__dirname, "src"),
+        "@features": resolve(__dirname, "src/features"),
+        "@common": resolve(__dirname, "src/features/common"),
+        "@common/infrastructure": resolve(
+          __dirname,
+          "src/features/common/infrastructure",
+        ),
+        "@common/application/use-case": resolve(
+          __dirname,
+          "src/features/common/application/use-case",
+        ),
+        "@common/domain/types": resolve(
+          __dirname,
+          "src/features/common/domain/types",
+        ),
+        "@common/infrastructure/http": resolve(
+          __dirname,
+          "src/features/common/infrastructure/http",
+        ),
+        "@common/ui/components": resolve(
+          __dirname,
+          "src/features/common/ui/components",
+        ),
+        "@infrastructure/types": resolve(
+          __dirname,
+          "src/features/common/infrastructure/types",
+        ),
+        "@infrastructure/repositories": resolve(
+          __dirname,
+          "src/features/common/infrastructure",
+        ),
+        "@infrastructure/ui/App/App": resolve(
+          __dirname,
+          "src/features/common/ui/App/App",
+        ),
+        "@domain/models": resolve(__dirname, "src/features/common/domain"),
+        "@application/cases": resolve(
+          __dirname,
+          "src/features/common/application/cases",
+        ),
+        "@application/repositories": resolve(
+          __dirname,
+          "src/features/common/application/repositories",
+        ),
+        "@auth": resolve(__dirname, "src/features/auth"),
+        "@auth/application": resolve(
+          __dirname,
+          "src/features/auth/application",
+        ),
+        "@categories": resolve(__dirname, "src/features/categories"),
+        "@categories/application": resolve(
+          __dirname,
+          "src/features/categories/application",
+        ),
+        "@payment-methods": resolve(__dirname, "src/features/payment-methods"),
+        "@payment-methods/application": resolve(
+          __dirname,
+          "src/features/payment/application",
+        ),
+        "@transactions": resolve(__dirname, "src/features/transactions"),
+        "@transactions/application": resolve(
+          __dirname,
+          "src/features/transactions/application",
+        ),
+        "@reports": resolve(__dirname, "src/features/reports"),
+        "@reports/application": resolve(
+          __dirname,
+          "src/features/reports/application",
+        ),
+        "@settings": resolve(__dirname, "src/features/settings"),
+        "@settings/application": resolve(
+          __dirname,
+          "src/features/settings/application",
+        ),
         "@test": resolve(__dirname, "test"),
-        "@views": resolve(__dirname, "src/infrastructure/ui/views"),
         "@gualet/shared": resolve(__dirname, "../shared/src"),
       },
     },

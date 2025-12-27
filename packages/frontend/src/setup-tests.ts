@@ -5,7 +5,7 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
-vi.mock("@infrastructure/data-sources", () => ({
+vi.mock("@common/infrastructure", () => ({
   StorageDataSource: vi.fn(),
 }));
 

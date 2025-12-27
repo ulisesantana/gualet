@@ -193,7 +193,7 @@ export class TransactionsRepository {
     transaction: TransactionPayload,
   ): Promise<Transaction> {
     const existingTransaction = await this.entityRepository.findOne({
-      where: { id: transaction.id.toString() },
+      where: { id: transaction.id.toString(), user: { id: userId.toString() } },
     });
 
     if (!existingTransaction) {

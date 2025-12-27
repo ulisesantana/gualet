@@ -59,7 +59,21 @@ export class Transaction {
     return Transaction.isIncome(this.operation);
   }
 
+  isNew(): boolean {
+    return false;
+  }
+
   toString(): string {
     return `Transaction${this.description ? ` "${this.description}" ` : " "}in category ${this.category.title} with an amount of ${this.amountFormatted} on ${this.date.toString("/")}, via ${this.paymentMethod.title}`;
+  }
+}
+
+export class NewTransaction extends Transaction {
+  constructor(input: Omit<TransactionParams, "id">) {
+    super(input);
+  }
+
+  isNew(): boolean {
+    return true;
   }
 }
