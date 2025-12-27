@@ -80,7 +80,11 @@ export function TransactionDetailsView({
                   settings={transactionConfig}
                   onSubmit={onSubmit}
                 />
-                <button className="remove" onClick={onRemove}>
+                <button
+                  className="remove"
+                  onClick={onRemove}
+                  data-testid="delete-transaction-button"
+                >
                   🚮
                 </button>
               </>

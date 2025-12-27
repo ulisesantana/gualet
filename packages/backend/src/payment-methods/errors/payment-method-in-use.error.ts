@@ -5,9 +5,6 @@ export class PaymentMethodInUseError extends BaseError<PaymentMethodsErrorCodes>
   code = PaymentMethodsErrorCodes.PaymentMethodInUse;
 
   constructor(id: Id) {
-    super(
-      `Payment method ${id.toString()} is in use and cannot be deleted`,
-    );
+    super(`Payment method ${id.toString()} is in use and cannot be deleted`);
   }
 }
-

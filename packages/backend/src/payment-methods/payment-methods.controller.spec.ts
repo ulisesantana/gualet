@@ -14,7 +14,11 @@ import {
 } from './errors';
 import { Id } from '@gualet/shared';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
-import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PaymentMethodsRepository } from '@src/payment-methods/payment-methods.repository';
 import { Response } from 'express';
 import Mocked = jest.Mocked;

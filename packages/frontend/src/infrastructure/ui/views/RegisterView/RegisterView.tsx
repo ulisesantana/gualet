@@ -33,6 +33,7 @@ export function RegisterForm({ signUpUseCase }: RegisterFormProps) {
           if (success) {
             callback();
           } else {
+            console.error("Registration error:", error);
             callback(error);
           }
         })

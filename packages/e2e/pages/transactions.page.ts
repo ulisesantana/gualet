@@ -114,5 +114,75 @@ export class TransactionsPage {
     const items = this.page.locator('li[data-id]');
     return await items.count();
   }
+
+  async clickTransactionByText(text: string) {
+    await this.getTransactionByText(text).first().click();
+  }
+
+  async clickTransactionByDataId(dataId: string) {
+    // Click on the link inside the transaction card
+    const transactionElement = this.getTransactionByDataId(dataId);
+    const link = transactionElement.locator('a').first();
+    await expect(link).toBeVisible();
+    await link.click();
+  }
+
+  async editTransaction(transaction: {
+    description?: string;
+    amount?: number;
+    category?: string;
+    paymentMethod?: string | number;
+    operation?: 'INCOME' | 'OUTCOME';
+    date?: string;
+  }) {
+    // Fill only the fields that are provided
+    if (transaction.operation) {
+      await this.operationSelect.selectOption(transaction.operation);
+      await this.page.waitForTimeout(200);
+    }
+
+    if (transaction.category) {
+      await this.categoryInput.fill(transaction.category);
+    }
+
+    if (transaction.amount !== undefined) {
+      await this.amountInput.fill(transaction.amount.toString());
+    }
+
+    if (transaction.date) {
+      await this.dateInput.fill(transaction.date);
+    }
+
+    if (transaction.description) {
+      await this.descriptionInput.fill(transaction.description);
+    }
+
+    if (transaction.paymentMethod !== undefined) {
+      if (typeof transaction.paymentMethod === 'number') {
+        await this.paymentMethodSelect.selectOption({ index: transaction.paymentMethod });
+      } else {
+        await this.paymentMethodSelect.selectOption(transaction.paymentMethod);
+      }
+    }
+
+    // Click the submit button
+    const submitButton = this.page.getByTestId('submit-transaction-button');
+    await expect(submitButton).toBeEnabled();
+    await submitButton.click();
+    await this.page.waitForTimeout(1000);
+  }
+
+  async deleteTransaction() {
+    const deleteButton = this.page.getByTestId('delete-transaction-button');
+    await expect(deleteButton).toBeVisible();
+
+    // Click with force to ensure it's triggered
+    await deleteButton.click({ force: true });
+
+    // Wait for navigation
+    await this.page.waitForURL('/');
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(1000);
+  }
 }
 

@@ -235,6 +235,27 @@ export class DatabaseManager {
     return parseInt(result.rows[0].count, 10);
   }
 
+  /**
+   * Get a transaction by ID
+   */
+  async getTransactionById(transactionId: string): Promise<any | null> {
+    const result = await this.pool.query(
+      'SELECT * FROM transactions WHERE id = $1',
+      [transactionId]
+    );
+    return result.rows[0] || null;
+  }
+
+  /**
+   * Delete a transaction by ID
+   */
+  async deleteTransaction(transactionId: string): Promise<void> {
+    await this.pool.query(
+      'DELETE FROM transactions WHERE id = $1',
+      [transactionId]
+    );
+  }
+
   async close(): Promise<void> {
     await this.pool.end();
   }

@@ -94,9 +94,7 @@ export class AuthController extends BaseController {
         this.isBaseError(error) &&
         error.code === UserErrorCodes.UserAlreadyExists
       ) {
-        res
-          .status(409)
-          .send(new ErrorResponse(new UnauthorizedException(error)));
+        res.status(409).send(new ErrorResponse(error.message));
       } else {
         this.handleAuthError(res, error);
       }

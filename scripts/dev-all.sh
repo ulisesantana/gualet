@@ -9,9 +9,9 @@ NC='\033[0m' # No Color
 
 echo -e "${BLUE}"
 echo "╔════════════════════════════════════════════════╗"
-echo "║                                                 ║"
-echo "║      Gualet - Start Complete Environment        ║"
-echo "║                                                 ║"
+echo "║                                                ║"
+echo "║      Gualet - Start Complete Environment       ║"
+echo "║                                                ║"
 echo "╚════════════════════════════════════════════════╝"
 echo -e "${NC}"
 echo ""

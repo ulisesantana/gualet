@@ -36,4 +36,3 @@ describe('FindTransactionsCriteria', () => {
     expect(criteria.pageSize).toBeUndefined();
   });
 });
-

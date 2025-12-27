@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { resolve } from 'node:path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { resolve } from 'node:path';
 import { AuthController, AuthModule, AuthService } from '@src/auth';
 import { UserModule, UserService } from '@src/users';
 import {
@@ -35,15 +35,9 @@ import {
 } from '@src/db';
 import { DatabaseSeederService } from '@src/db/database-seeder.service';
 
-const envFilePath = resolve(
-  __dirname,
-  `../../../${process.env.ENV_FILE || '.env'}`,
-);
-console.debug('🔍 envFilePath', envFilePath);
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: envFilePath,
       isGlobal: true,
       ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),

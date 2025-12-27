@@ -6,7 +6,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Source common functions
 source "$SCRIPT_DIR/common.sh"
@@ -16,6 +16,9 @@ echo "================================================"
 
 # Setup cleanup on exit
 setup_cleanup_trap
+
+# Clean up ports before starting
+cleanup_ports
 
 # Start all services
 start_database
@@ -32,8 +35,8 @@ echo "✅ E2E Test Environment is ready!"
 echo ""
 echo "Services running:"
 echo "  🗄️  PostgreSQL: localhost:5433"
-echo "  🔧 Backend:    http://localhost:3001"
-echo "  🎨 Frontend:   http://localhost:5174"
+echo "  🔧 Backend:    http://localhost:5060"
+echo "  🎨 Frontend:   http://localhost:3010"
 echo ""
 echo "Press Ctrl+C to stop all services"
 echo "================================================"

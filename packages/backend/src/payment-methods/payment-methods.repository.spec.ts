@@ -44,7 +44,9 @@ describe('PaymentMethodsRepository', () => {
       PaymentMethodsRepository,
     );
     mockRepository = moduleRef.get(getRepositoryToken(PaymentMethodEntity));
-    mockTransactionRepository = moduleRef.get(getRepositoryToken(TransactionEntity));
+    mockTransactionRepository = moduleRef.get(
+      getRepositoryToken(TransactionEntity),
+    );
   });
 
   it('should create a payment method', async () => {

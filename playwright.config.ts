@@ -7,22 +7,11 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: [['list'],['html', {open: 'never'}]],
-  webServer: [
-    {
-      command: 'ENV_FILE=.env.e2e npm run dev -w packages/backend',
-      url: 'http://localhost:5050/api/health',
-      reuseExistingServer: !process.env.CI,
-      timeout: 30000,
-    },
-    {
-      command: 'npm run dev -w packages/frontend',
-      url: 'http://localhost:3000',
-      reuseExistingServer: !process.env.CI,
-      timeout: 30000,
-    }
-  ],
+  // NOTE: Web servers are started manually via scripts/run-tests-with-env.sh
+  // This allows running e2e tests with dedicated ports while development continues
+  // on the default ports (frontend: 3000, backend: 5050)
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3010', // Frontend e2e port (dev uses 3000)
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     viewport: { width: 393, height: 852 }

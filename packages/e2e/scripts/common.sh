@@ -3,6 +3,24 @@
 # Common functions for E2E test scripts
 # This file contains shared functionality used by all E2E scripts
 
+# Kill any process using a specific port
+kill_port() {
+    local port=$1
+    echo "🔍 Checking port $port..."
+    if lsof -ti:$port > /dev/null 2>&1; then
+        echo "⚠️  Port $port is in use, killing process..."
+        lsof -ti:$port | xargs kill -9 2>/dev/null || true
+        sleep 1
+    fi
+}
+
+# Clean up ports before starting services
+cleanup_ports() {
+    echo "🧹 Cleaning up ports..."
+    kill_port 5060  # Backend e2e port
+    kill_port 3010  # Frontend e2e port
+}
+
 # Start PostgreSQL test database
 start_database() {
     echo "📦 Starting PostgreSQL test database..."
@@ -17,13 +35,20 @@ start_backend() {
     local log_file="${1:-/tmp/e2e-backend.log}"
 
     echo "🔧 Starting Backend server..."
-    cd "$PROJECT_ROOT/backend"
-    cp "$PROJECT_ROOT/e2e/.env.backend" .env.e2e.local
+    cd "$PROJECT_ROOT/packages/backend"
+
+    # Backup existing .env if it exists
+    [ -f .env ] && cp .env .env.backup
+
+    # Load the .env variables
+    set -o allexport
+    source "$PROJECT_ROOT/packages/e2e/.env.backend"
+    set +o allexport
 
     if [ "$log_file" = "/dev/stdout" ]; then
-        NODE_ENV=test npm run start:dev -- --env-file .env.e2e.local &
+        NODE_ENV=test npm run start:dev &
     else
-        NODE_ENV=test npm run start:dev -- --env-file .env.e2e.local > "$log_file" 2>&1 &
+        NODE_ENV=test npm run start:dev > "$log_file" 2>&1 &
     fi
 
     BACKEND_PID=$!
@@ -35,13 +60,15 @@ start_frontend() {
     local log_file="${1:-/tmp/e2e-frontend.log}"
 
     echo "🎨 Starting Frontend dev server..."
-    cd "$PROJECT_ROOT/frontend"
-    cp "$PROJECT_ROOT/e2e/.env.frontend" .env.e2e.local
+    cd "$PROJECT_ROOT/packages/frontend"
+
+    # Vite loads .env.{mode} files when using --mode flag
+    cp "$PROJECT_ROOT/packages/e2e/.env.frontend" .env.e2e
 
     if [ "$log_file" = "/dev/stdout" ]; then
-        VITE_PORT=5174 npm run dev -- --port 5174 &
+        npm run dev -- --port 3010 --mode e2e &
     else
-        VITE_PORT=5174 npm run dev -- --port 5174 > "$log_file" 2>&1 &
+        npm run dev -- --port 3010 --mode e2e > "$log_file" 2>&1 &
     fi
 
     FRONTEND_PID=$!
@@ -54,10 +81,12 @@ wait_for_services() {
     sleep 8
 
     # Check backend health
-    if curl -f http://localhost:3001/api/health > /dev/null 2>&1; then
+    if curl -f http://localhost:5060/api/health > /dev/null 2>&1; then
         echo "✅ Backend is healthy"
     else
         echo "⚠️  Backend health check failed, check logs at /tmp/e2e-backend.log"
+        # Exit if backend is not healthy
+        exit 1
     fi
 }
 
@@ -67,6 +96,18 @@ cleanup_services() {
     echo "🛑 Stopping services..."
     [ ! -z "$BACKEND_PID" ] && kill $BACKEND_PID 2>/dev/null || true
     [ ! -z "$FRONTEND_PID" ] && kill $FRONTEND_PID 2>/dev/null || true
+
+    # Restore backend .env if backup exists
+    if [ -f "$PROJECT_ROOT/packages/backend/.env.backup" ]; then
+        mv "$PROJECT_ROOT/packages/backend/.env.backup" "$PROJECT_ROOT/packages/backend/.env"
+    else
+        # Remove the e2e .env if no backup exists
+        rm -f "$PROJECT_ROOT/packages/backend/.env"
+    fi
+
+    # Remove frontend e2e env file
+    rm -f "$PROJECT_ROOT/packages/frontend/.env.e2e"
+
     echo "✅ Services stopped"
 }
 

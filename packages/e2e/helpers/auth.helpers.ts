@@ -16,7 +16,7 @@ export async function loginAsTestUser(page: Page): Promise<void> {
 
   // Wait for successful login
   await expect(page).toHaveURL('/');
-  await expect(page.locator('header').getByRole('link', { name: 'Settings' })).toBeVisible();
+  await expect(page.locator('header').getByRole('link', { name: /settings/i })).toBeVisible();
 }
 
 /**

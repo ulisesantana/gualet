@@ -40,4 +40,3 @@ describe('BaseResponse', () => {
     expect(response.pagination).toEqual(pagination);
   });
 });
-

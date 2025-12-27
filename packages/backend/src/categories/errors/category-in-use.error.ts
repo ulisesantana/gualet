@@ -5,9 +5,6 @@ export class CategoryInUseError extends BaseError<CategoriesErrorCodes> {
   code = CategoriesErrorCodes.CategoryInUse;
 
   constructor(id: Id) {
-    super(
-      `Category ${id.toString()} is in use and cannot be deleted`,
-    );
+    super(`Category ${id.toString()} is in use and cannot be deleted`);
   }
 }
-

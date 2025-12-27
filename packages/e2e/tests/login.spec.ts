@@ -8,13 +8,13 @@ test.describe('login success', () => {
     await page.goto('/home');
 
     await expect(page).toHaveURL('/login');
-    await expect(page.locator('header').getByRole('link', {name: 'Settings'})).not.toBeVisible();
+    await expect(page.locator('header').getByRole('link', {name: /settings/i})).not.toBeVisible();
   })
 
   test('should not show settings link on header', async ({page}) => {
     await new LoginPage(page).goto();
 
-    await expect(page.locator('header').getByRole('link', {name: 'Settings'})).not.toBeVisible();
+    await expect(page.locator('header').getByRole('link', {name: /settings/i})).not.toBeVisible();
   })
 
   test('should login successfully', async ({page, db}) => {
@@ -25,7 +25,7 @@ test.describe('login success', () => {
     await loginPage.login(user);
 
     await expect(page).toHaveURL('/');
-    await expect(page.locator('header').getByRole('link', {name: 'Settings'})).toBeVisible();
+    await expect(page.locator('header').getByRole('link', {name: /settings/i})).toBeVisible();
   })
 });
 

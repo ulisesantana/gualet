@@ -98,6 +98,7 @@ export function TransactionForm({
           type="number"
           name="amount"
           step="0.01"
+          min="0.01"
           required
           inputMode="decimal"
           placeholder="Enter amount"
@@ -120,6 +121,7 @@ export function TransactionForm({
         <input
           type="text"
           name="description"
+          required
           defaultValue={transaction?.description}
           placeholder="Enter description"
         />
@@ -145,7 +147,9 @@ export function TransactionForm({
         </select>
       </label>
       <footer>
-        <button type="submit">{transaction ? "💾" : "➕"}</button>
+        <button type="submit" data-testid="submit-transaction-button">
+          {transaction ? "💾" : "➕"}
+        </button>
       </footer>
     </form>
   );

@@ -10,8 +10,8 @@ npm run test:full
 
 This command automatically:
 1. Starts PostgreSQL test database (port 5433)
-2. Starts backend with test configuration (port 3001)
-3. Starts frontend with test configuration (port 5174)
+2. Starts backend with test configuration (port 5060)
+3. Starts frontend with test configuration (port 3010)
 4. Runs all Playwright tests
 5. Cleans up all services
 
@@ -43,8 +43,6 @@ expect(category).toBeDefined();
 const exists = await db.categoryExists(userId, 'Groceries', 'OUTCOME');
 expect(exists).toBe(true);
 ```
-
-📖 **See [E2E_TESTING_GUIDE.md](./E2E_TESTING_GUIDE.md) for complete documentation**
 
 ---
 

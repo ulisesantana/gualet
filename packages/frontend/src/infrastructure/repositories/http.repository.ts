@@ -17,10 +17,13 @@ export abstract class HttpRepository {
             error: error?.message || "Failed to execute command",
           };
     } catch (error: any) {
+      console.error("HTTP Repository Command Error:", error);
       return {
         success: false,
         error:
-          error?.response?.data?.error?.message || "An unknown error occurred",
+          error?.response?.data?.error?.message ||
+          error?.response?.data?.error ||
+          "An unknown error occurred",
       };
     }
   }

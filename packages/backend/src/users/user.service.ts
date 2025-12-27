@@ -37,7 +37,7 @@ export class UserService {
   async findByEmailWithPassword(email: string): Promise<UserWithPassword> {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
-      throw new Error('User not found.');
+      throw new UserNotFoundError(email);
     }
 
     return UserMapper.toUserWithPassword(user);

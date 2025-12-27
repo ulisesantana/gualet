@@ -92,12 +92,116 @@ test.describe('Transactions Management', () => {
     expect(transaction.operation).toBe('INCOME');
   });
 
-  test.skip('should edit an existing transaction', async ({ page, db }) => {
-    // TODO: Implement when edit functionality is available in UI
+  test('should edit an existing transaction', async ({ page, db }) => {
+    const transactionsPage = new TransactionsPage(page);
+    const originalDescription = `Original transaction ${testTimestamp}`;
+    const updatedDescription = `Updated transaction ${testTimestamp}`;
+
+    await transactionsPage.goto();
+
+    // Create a transaction
+    await transactionsPage.createTransaction({
+      description: originalDescription,
+      amount: 100,
+      category: 'Groceries',
+      paymentMethod: 0,
+      operation: 'OUTCOME',
+    });
+
+    await page.waitForTimeout(1000);
+
+    // Get the transaction ID from database
+    const transactions = await db.getUserTransactions(userId);
+    const transaction = transactions.find(t => t.description === originalDescription);
+    expect(transaction).toBeTruthy();
+
+    // Click on the transaction to edit it
+    await transactionsPage.clickTransactionByDataId(transaction.id);
+
+    // Wait for navigation to details page
+    await page.waitForURL(`/transactions/details/${transaction.id}`);
+
+    // Edit the transaction
+    await transactionsPage.editTransaction({
+      description: updatedDescription,
+      amount: 150,
+    });
+
+    // The edit form doesn't redirect automatically, so we manually navigate back
+    // Wait for transaction to persist to database
+    await page.waitForTimeout(1000);
+
+    // Navigate back to transactions list
+    await page.goto('/');
+    await page.waitForTimeout(500);
+
+    // Verify the updated transaction is visible
+    await transactionsPage.verifyTransactionExists('Groceries');
+
+    // Verify in database
+    const updatedTransaction = await db.getTransactionById(transaction.id);
+    expect(updatedTransaction.description).toBe(updatedDescription);
+    expect(updatedTransaction.amount).toBe("150.00");
   });
 
   test.skip('should delete a transaction', async ({ page, db }) => {
-    // TODO: Implement when delete functionality is available in UI
+    // FIXME: La funcionalidad de eliminación no está funcionando correctamente.
+    // El botón de eliminar se hace click correctamente, pero la transacción no se está
+    // eliminando de la base de datos. Esto requiere investigar el frontend/backend:
+    // - Verificar que el RemoveTransactionUseCase está llamando correctamente al repository
+    // - Verificar que el repository está haciendo la llamada DELETE al backend
+    // - Verificar que el backend endpoint DELETE /api/me/transactions/:id está funcionando
+    // - Verificar los logs del backend para ver si hay errores
+
+    const transactionsPage = new TransactionsPage(page);
+    const description = `Transaction to delete ${Date.now()}`;
+
+    await transactionsPage.goto();
+
+    // Create a transaction
+    await transactionsPage.createTransaction({
+      description,
+      amount: 75,
+      category: 'Groceries',
+      paymentMethod: 0,
+      operation: 'OUTCOME',
+    });
+
+    await page.waitForTimeout(1000);
+
+    // Get the transaction ID from database
+    const transactions = await db.getUserTransactions(userId);
+    const transaction = transactions.find(t => t.description === description);
+    expect(transaction).toBeTruthy();
+
+    const countBefore = await db.countUserTransactions(userId);
+    expect(countBefore).toBe(1);
+
+    // Click on the transaction to view details
+    await transactionsPage.clickTransactionByDataId(transaction.id);
+
+    // Wait for navigation to details page
+    await page.waitForURL(`/transactions/details/${transaction.id}`);
+
+    // Delete the transaction
+    await transactionsPage.deleteTransaction();
+
+    // Should navigate back to transactions list
+    await expect(page).toHaveURL('/');
+
+    // Wait for the page to fully load and transactions to be fetched
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1500);
+
+    // Verify in database first (this is the source of truth)
+    const countAfter = await db.countUserTransactions(userId);
+    expect(countAfter).toBe(0);
+
+    const deletedTransaction = await db.getTransactionById(transaction.id);
+    expect(deletedTransaction).toBeNull();
+
+    // Verify the transaction is not visible in UI
+    await transactionsPage.verifyTransactionNotExists('Groceries');
   });
 
   test('should display multiple transactions', async ({ page, db }) => {
@@ -181,8 +285,10 @@ test.describe('Transactions Management', () => {
   });
 
   test.skip('should set last transaction date after creating a new one', async ({ page, db }) => {
-
-  })
+    // TODO: This feature requires implementing user preferences for lastTransactionDate
+    // The backend needs to track and update lastTransactionDate in user_preferences table
+    // when a transaction is created. This functionality is not yet implemented.
+  });
 });
 
 test.describe('Transaction Form Validations', () => {
@@ -215,8 +321,7 @@ test.describe('Transaction Form Validations', () => {
     await loginAsTestUser(page);
   });
 
-  test.skip('should prevent creating transaction with empty description', async ({ page, db }) => {
-    // TODO: Add proper validation in frontend
+  test('should prevent creating transaction with empty description', async ({ page, db }) => {
     const transactionsPage = new TransactionsPage(page);
 
     await transactionsPage.goto();
@@ -230,13 +335,20 @@ test.describe('Transaction Form Validations', () => {
     // Browser validation should prevent submission
     await expect(transactionsPage.descriptionInput).toHaveAttribute('required', '');
 
+    // Try to submit the form
+    const submitButton = page.getByTestId('submit-transaction-button');
+    await submitButton.click();
+
+    // Should stay on the same page (validation prevents navigation)
+    await expect(page).toHaveURL('/');
+
     // Verify no transaction was created in database
+    await page.waitForTimeout(500);
     const count = await db.countUserTransactions(userId);
     expect(count).toBe(0);
   });
 
-  test.skip('should prevent creating transaction with zero amount', async ({ page, db }) => {
-    // TODO: Add proper validation in frontend
+  test('should prevent creating transaction with zero amount', async ({ page, db }) => {
     const transactionsPage = new TransactionsPage(page);
 
     await transactionsPage.goto();
@@ -248,15 +360,22 @@ test.describe('Transaction Form Validations', () => {
     await transactionsPage.paymentMethodSelect.selectOption({ index: 0 });
 
     // Amount should have min validation
-    await expect(transactionsPage.amountInput).toHaveAttribute('min');
+    await expect(transactionsPage.amountInput).toHaveAttribute('min', '0.01');
+
+    // Try to submit the form
+    const submitButton = page.getByTestId('submit-transaction-button');
+    await submitButton.click();
+
+    // Should stay on the same page (validation prevents navigation)
+    await expect(page).toHaveURL('/');
 
     // Verify no transaction was created in database
+    await page.waitForTimeout(500);
     const count = await db.countUserTransactions(userId);
     expect(count).toBe(0);
   });
 
-  test.skip('should prevent creating transaction without category', async ({ page, db }) => {
-    // TODO: Add proper validation in frontend
+  test('should prevent creating transaction without category', async ({ page, db }) => {
     const transactionsPage = new TransactionsPage(page);
 
     await transactionsPage.goto();
@@ -268,7 +387,15 @@ test.describe('Transaction Form Validations', () => {
     // Category should be required
     await expect(transactionsPage.categoryInput).toHaveAttribute('required', '');
 
+    // Try to submit the form
+    const submitButton = page.getByTestId('submit-transaction-button');
+    await submitButton.click();
+
+    // Should stay on the same page (validation prevents navigation)
+    await expect(page).toHaveURL('/');
+
     // Verify no transaction was created in database
+    await page.waitForTimeout(500);
     const count = await db.countUserTransactions(userId);
     expect(count).toBe(0);
   });
