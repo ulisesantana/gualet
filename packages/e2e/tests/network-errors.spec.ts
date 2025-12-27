@@ -36,9 +36,9 @@ test.describe.skip('Network Error Handling - Transactions', () => {
     await transactionsPage.createTransaction({
       description: 'Test transaction',
       amount: 100,
-      categoryId,
-      paymentMethodId,
-      type: 'OUTCOME',
+      category: categoryId,
+      paymentMethod: paymentMethodId,
+      operation: 'OUTCOME',
     });
 
     // Should show error message
@@ -65,9 +65,9 @@ test.describe.skip('Network Error Handling - Transactions', () => {
     await transactionsPage.createTransaction({
       description: 'Test transaction',
       amount: 100,
-      categoryId,
-      paymentMethodId,
-      type: 'OUTCOME',
+      category: categoryId,
+      paymentMethod: paymentMethodId,
+      operation: 'OUTCOME',
     });
 
     await expect(
@@ -88,9 +88,9 @@ test.describe.skip('Network Error Handling - Transactions', () => {
     await transactionsPage.createTransaction({
       description: 'Test transaction',
       amount: 100,
-      categoryId,
-      paymentMethodId,
-      type: 'OUTCOME',
+      category: categoryId,
+      paymentMethod: paymentMethodId,
+      operation: 'OUTCOME',
     });
 
     // Should show timeout or loading state
@@ -252,13 +252,13 @@ test.describe.skip('Retry Mechanism', () => {
     await transactionsPage.createTransaction({
       description: 'Retry test transaction',
       amount: 100,
-      categoryId,
-      paymentMethodId,
-      type: 'OUTCOME',
+      category: categoryId,
+      paymentMethod: paymentMethodId,
+      operation: 'OUTCOME',
     });
 
     // Should eventually succeed after retries
-    await transactionsPage.waitForSuccess();
+    await page.waitForTimeout(2000); // Wait for retries to complete
     await transactionsPage.verifyTransactionExists('Retry test transaction');
 
     // Verify it retried at least once
@@ -289,9 +289,9 @@ test.describe.skip('Retry Mechanism', () => {
     await transactionsPage.createTransaction({
       description: 'Max retries test',
       amount: 100,
-      categoryId,
-      paymentMethodId,
-      type: 'OUTCOME',
+      category: categoryId,
+      paymentMethod: paymentMethodId,
+      operation: 'OUTCOME',
     });
 
     // Should show error after max retries

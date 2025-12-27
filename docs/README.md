@@ -7,9 +7,8 @@ Welcome to the Gualet documentation. This directory contains all project documen
 **First time here?** Follow these guides in order:
 
 1. **[Getting Started Guide](./GETTING_STARTED.md)** ⭐ - Complete setup guide (5 minutes)
-2. **[Development Test User](../DEVELOPMENT_TEST_USER.md)** - Login credentials and test data
-3. **[Project Status](./project/STATUS.md)** - Understand current state and roadmap
-4. **[Quick Reference](./project/QUICK_REFERENCE.md)** - Common commands and shortcuts
+2. **[Project Status](./project/STATUS.md)** - Understand current state and roadmap
+3. **[Quick Reference](./project/QUICK_REFERENCE.md)** - Common commands and shortcuts
 
 ---
 
@@ -18,6 +17,7 @@ Welcome to the Gualet documentation. This directory contains all project documen
 ### 📊 Project Documentation (`/project`)
 - **[Project Status & Roadmap](./project/STATUS.md)** - Current state, progress tracking, and future plans
 - **[Action Plan](./project/ACTION_PLAN.md)** - Detailed implementation plan for offline-first features
+- **[Changelog](./project/CHANGELOG.md)** - Recent changes and project progress ⭐ NEW
 - **[Quick Reference](./project/QUICK_REFERENCE.md)** - Quick overview of project structure and commands
 - **[API Design Patterns](./project/API_DESIGN.md)** - CRUD vs BREAD patterns explanation
 
