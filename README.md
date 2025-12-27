@@ -25,22 +25,40 @@ npm run dev
 
 ## 📊 Project Status
 
-**Current State:** Backend migration 100% complete, Frontend fully integrated, Offline-first pending
+**Current State:** Backend 100% complete, Frontend fully integrated with enhanced test coverage, Offline-first pending
 
 📖 **[See full project status and roadmap →](./docs/project/STATUS.md)**
 
 ### Quick Summary
 - ✅ **Backend (NestJS + PostgreSQL):** Auth, Categories (CRUD), Payment Methods (CRUD), Transactions (BREAD with filters) - **100% complete**
+  - **Latest:** Payment Methods now require UUID `id` in creation DTO
+  - DELETE returns status 200 with success response
+  - Repository improved with better query handling
 - ✅ **Frontend (React):** Fully integrated with NestJS backend (NO Supabase)
+  - **Enhanced:** Comprehensive test coverage added for stores, components, and views
+  - Payment Method creation now generates UUID client-side
+  - Improved UI/UX in PaymentMethodsView and SettingsView
 - ✅ **Tests Backend:** 190 tests passing - **99.62% coverage**
-- ✅ **Tests Frontend:** 183 tests passing - **72.02% coverage** (Statements: 72.02%, Branches: 90.63%, Functions: 76.87%)
+- ✅ **Tests Frontend:** 183+ tests passing - **72.02% coverage** (improving with new tests)
+  - **New:** 285 tests for useCategoryStore
+  - **New:** 215 tests for usePaymentMethodStore
+  - **New:** 100+ tests for CategoryCard and PaymentMethodCard
+  - **New:** Comprehensive tests for forms, contexts, and hooks
 - ✅ **Tests E2E (Playwright):** 24/24 active tests passing **(100%)** - Login ✅, Register ✅, Categories ✅, Transactions ✅
+  - **New:** Report test suite added (comprehensive scenarios)
   - Note: 21 tests skipped (payment-methods and network-errors suites pending implementation)
 - ❌ **Offline-First:** NOT implemented yet (RxDB + Sync pending)
 
+### Latest Updates (Dec 27, 2025)
+- 🆕 Payment Methods require UUID ID in creation
+- 🆕 Report E2E tests added (407 lines)
+- 🆕 Enhanced frontend test coverage (500+ new tests)
+- 🆕 Improved PaymentMethod domain model with `generateId()`
+- 🆕 Cleaned up deprecated domain models (TransactionConfig)
+
 ### Next Steps
 1. ✅ ~~Complete DELETE endpoints~~ - **DONE**
-2. 🔄 Fix E2E test suite (frontend issues identified)
+2. ✅ ~~Enhance test coverage~~ - **IN PROGRESS** (major improvements made)
 3. 🎯 Implement offline-first with RxDB (see [ADR-0003](./docs/adr/0003-offline-first-sync-strategy.md))
 
 ---

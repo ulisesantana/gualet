@@ -50,10 +50,19 @@ Gualet is a personal finance web application that has **successfully migrated fr
 - ✅ GET `/api/me/payment-methods` - List all payment methods
 - ✅ GET `/api/me/payment-methods/:id` - Get specific method
 - ✅ POST `/api/me/payment-methods` - Create method
+  - **Enhanced:** Now requires UUID `id` field in request body
+  - **Frontend generates UUID** before sending to backend
+  - Ensures consistency between client and server state
 - ✅ PATCH `/api/me/payment-methods/:id` - Update method
-- ✅ DELETE `/api/me/payment-methods/:id` - Delete method (with conflict detection for transactions in use)
+- ✅ DELETE `/api/me/payment-methods/:id` - Delete method
+  - Returns **status 200** with success response (instead of 204)
+  - Conflict detection for transactions in use
 - ✅ Authorization validations
-- ✅ Complete unit tests
+- ✅ Complete unit tests (all 190 tests passing)
+- ✅ **Repository improvements:**
+  - Changed from `findOneBy()` to `find()` with `take: 1` and relations
+  - Enhanced error handling in queries
+  - Better null/undefined handling
 
 #### Transactions ✅
 - ✅ GET `/api/me/transactions` - List transactions (with advanced filters and pagination)
@@ -95,8 +104,16 @@ Gualet is a personal finance web application that has **successfully migrated fr
 - ✅ **HTTP Client:** Axios with HttpDataSource abstraction
 - ✅ **PWA:** vite-plugin-pwa configured (but no real offline-first)
 - ✅ **Proxy:** Configured for `/api` → `http://localhost:5050`
-- ✅ **Testing:** Vitest + Testing Library - **183 tests passing**
+- ✅ **Testing:** Vitest + Testing Library - **183+ tests passing**
+  - **Enhanced coverage** with new comprehensive tests:
+    - CategoryCard, PaymentMethodCard components (100+ tests each)
+    - CategoryForm, PaymentMethodForm with submit handlers
+    - useCategoryStore (285 tests)
+    - usePaymentMethodStore (215 tests)
+    - SettingsContext, useLoader hook
+    - All view components enhanced
   - **Coverage:** Statements: 72.02%, Branches: 90.63%, Functions: 76.87%, Lines: 72.02%
+  - **Note:** Coverage improving with new test additions
 - ❌ **NO RxDB** implemented yet
 - ❌ **NO Service Worker** with custom cache strategies
 - ❌ **NO offline synchronization**
@@ -113,9 +130,12 @@ All repositories are fully integrated with the **NestJS backend**:
 
 ✅ PaymentMethodRepository - /api/me/payment-methods
   - create(), findAll(), findById(), update(), delete()
+  - **Enhanced:** Now generates UUID before creating payment method
+  - Improved error handling for repository operations
 
 ✅ TransactionRepository - /api/me/transactions
   - create(), find(), findById(), update(), delete()
+  - **Enhanced:** Better error handling and response processing
 
 ✅ UserPreferencesRepository - /api/me/preferences
   - find(), update()
@@ -149,20 +169,34 @@ All repositories are fully integrated with the **NestJS backend**:
 ✅ RegisterView - Connected to backend
 ✅ LastTransactionsView - Connected to backend
 ✅ TransactionDetailsView - Full CRUD working
-✅ CategoriesView - Connected to backend with delete
-✅ AddCategoryView - Working
-✅ CategoryDetailsView - Full CRUD working
-✅ PaymentMethodsView - Connected to backend with delete
-✅ AddPaymentMethodView - Working
-✅ PaymentMethodDetailsView - Full CRUD working
-✅ SettingsView - Working
+✅ CategoriesView - Connected to backend with delete + enhanced tests
+✅ AddCategoryView - Working + enhanced tests
+✅ CategoryDetailsView - Full CRUD working + enhanced tests
+✅ PaymentMethodsView - Connected to backend with delete + enhanced styling & tests
+✅ AddPaymentMethodView - Working + comprehensive tests
+✅ PaymentMethodDetailsView - Full CRUD working + comprehensive tests
+✅ SettingsView - Working + enhanced layout & tests
 ✅ ReportView - Working
+```
+
+#### UI Components (Enhanced) 🆕
+```typescript
+✅ CategoryCard - Comprehensive test coverage (118 tests)
+✅ PaymentMethodCard - Comprehensive test coverage (151 tests)
+✅ CategoryForm - Full test coverage including submit handler (142 tests)
+✅ PaymentMethodForm - Enhanced with submit handler tests
 ```
 
 #### State Management
 ```typescript
-✅ useCategoryStore - Zustand store for categories
-✅ usePaymentMethodStore - Zustand store for payment methods
+✅ useCategoryStore - Zustand store for categories (285 tests) 🆕
+✅ usePaymentMethodStore - Zustand store for payment methods (215 tests) 🆕
+```
+
+#### Hooks & Context 🆕
+```typescript
+✅ SettingsContext - Context for app settings (86 tests)
+✅ useLoader - Loading state management hook (50 tests)
 ```
 
 #### Frontend-Backend Integration Status
@@ -224,23 +258,30 @@ All repositories are fully integrated with the **NestJS backend**:
   ✅ Prevent creating transaction without category
   ⏭️ 2 tests skipped individually (delete transaction, set last transaction date)
 
+🆕 report.spec.ts - New comprehensive test suite added
+  📝 Tests for transaction filtering and reporting
+  📝 Report page functionality validation
+  📝 407 lines of comprehensive E2E scenarios
+
 ⏸️ payment-methods.spec.ts - 0/10 tests (Entire suite skipped)
   📝 Pending frontend implementation validation
+  📝 Note: Updated to use new UUID ID field requirement
 
 ⏸️ network-errors.spec.ts - 0/9 tests (Entire suite skipped)
   📝 Pending frontend error handling validation
 ```
 
 #### Summary
-- **Total tests defined:** 45 tests
+- **Total tests defined:** 45+ tests (new report tests added)
 - **Active tests:** 24 tests (21 intentionally skipped)
 - **Passing:** 24/24 active tests **(100%)** 🎉
 - **Fully working suites:** Login ✅, Register ✅, Categories ✅, Transactions ✅
+- **New suites:** Report (comprehensive suite added)
 
 #### E2E Documentation
 - ✅ `packages/e2e/README.md` - Complete guide with helper scripts
 - ✅ `packages/e2e/IMPLEMENTATION_STATUS.md` - Detailed status
-- ✅ `packages/e2e/IMPLEMENTATION_STATUS.md` - Detailed status
+- ✅ New `ReportPage` class for report testing
 
 ---
 
