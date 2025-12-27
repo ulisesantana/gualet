@@ -17,7 +17,8 @@ Welcome to the Gualet documentation. This directory contains all project documen
 ### 📊 Project Documentation (`/project`)
 - **[Project Status & Roadmap](./project/STATUS.md)** - Current state, progress tracking, and future plans
 - **[Action Plan](./project/ACTION_PLAN.md)** - Detailed implementation plan for offline-first features
-- **[Changelog](./project/CHANGELOG.md)** - Recent changes and project progress ⭐ NEW
+- **[Complete Feature List](./project/FEATURES.md)** - Comprehensive documentation of all implemented features ⭐ NEW
+- **[Changelog](./project/CHANGELOG.md)** - Recent changes and project progress
 - **[Quick Reference](./project/QUICK_REFERENCE.md)** - Quick overview of project structure and commands
 - **[API Design Patterns](./project/API_DESIGN.md)** - CRUD vs BREAD patterns explanation
 

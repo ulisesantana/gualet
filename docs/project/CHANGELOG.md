@@ -50,13 +50,20 @@
   - `delete()` method in CategoryRepository
   - `delete()` method in PaymentMethodRepository
 - **Testing:**
-  - 183 frontend tests passing (47 test suites) - **100% passing**
+  - 183 frontend tests passing (47 test suites)
+  - Coverage: Statements 72.02%, Branches 90.63%, Functions 76.87%, Lines 72.02%
   - All TypeScript compilation errors resolved
 
 #### Changed
 - **Removed all Supabase dependencies** - fully migrated to NestJS backend
 - Updated all repositories to use HTTP data sources exclusively
 - Improved routing structure with new detail views
+
+#### Note on Coverage
+- Current coverage is 72.02%, which is below the ideal 95% target
+- Main areas with lower coverage: stores (22.64%), some views, and UI components
+- Business logic (use cases) has good coverage (mostly 100%)
+- Future improvement: increase test coverage for UI components and stores
 
 ### ✅ E2E Tests (100% of Active Tests Complete) 🎉
 
@@ -126,10 +133,15 @@ See:
 - **Coverage:** Statements 99.62%, Functions 97.97%, Lines 99.6%, Branches 92.99%
 
 ### Frontend
-- **Tests:** 183 passing (100%)
-- **Test Suites:** 47
+- **Tests:** 183 passing (47 test suites)
 - **TypeScript Errors:** 0
 - **Supabase Dependencies:** 0 (fully removed)
+- **Coverage:**
+  - Statements: 72.02%
+  - Branches: 90.63%
+  - Functions: 76.87%
+  - Lines: 72.02%
+- **Note:** Coverage below ideal 95% target; improvement needed for stores and UI components
 
 ### E2E
 - **Tests Passing:** 24/24 active tests **(100%)** 🎉

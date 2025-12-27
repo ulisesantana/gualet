@@ -2,7 +2,25 @@
 
 Welcome to **Gualet** - your offline-first personal expense tracking application.
 
-This guide will help you set up your local development environment in just a few minutes.
+This guide will help you set up your local development environment in just **5 minutes**.
+
+---
+
+## 🚀 Quick Start (Recommended - 5 minutes)
+
+**TL;DR - Just want to start coding?** Run these two commands:
+
+```bash
+# 1. Setup everything automatically (installs deps, starts DB, runs migrations, seeds data)
+npm run setup
+
+# 2. Start development servers (backend + frontend)
+npm run dev
+```
+
+**That's it!** Open http://localhost:3000 and login with:
+- **Email:** test@gualet.app
+- **Password:** test1234
 
 ---
 
@@ -26,32 +44,50 @@ git --version   # should show git version 2.x.x or higher
 
 ---
 
-## 🚀 Quick Setup (5 minutes)
+## 🛠️ Detailed Setup Instructions
 
 ### Option 1: Automated Script ⚡ (Recommended)
+
+This is the easiest and fastest way to get started:
 
 ```bash
 # 1. Clone the repository
 git clone <repository-url>
 cd gualet
 
-# 2. Run the setup script
+# 2. Run the setup script (does everything for you)
 npm run setup
 
-# 3. Start the complete environment
-npm run dev:all
+# 3. Start the development environment
+npm run dev
 ```
 
-**Done!** Your application will be available at:
-- **Frontend:** http://localhost:5173
-- **Backend:** http://localhost:5050
+**What does `npm run setup` do?**
+- ✅ Installs all dependencies (root + all packages)
+- ✅ Creates `.env` files from `.env.example`
+- ✅ Starts PostgreSQL in Docker
+- ✅ Runs database migrations
+- ✅ Seeds test data (test user + default categories + payment methods)
+
+**What does `npm run dev` do?**
+- ✅ Starts backend server (http://localhost:5050)
+- ✅ Starts frontend dev server (http://localhost:3000)
+- ✅ Automatically restarts on file changes
+
+**Access the application:**
+- **Frontend:** http://localhost:3000
+- **Backend API:** http://localhost:5050
 - **API Docs:** http://localhost:5050/api/docs
+
+**Test credentials:**
+- **Email:** test@gualet.app
+- **Password:** test1234
 
 ---
 
 ### Option 2: Step-by-Step Manual Setup
 
-If you prefer to understand each step or the automated script fails:
+If you prefer to understand each step or need to troubleshoot:
 
 #### 1️⃣ Clone the Repository
 
@@ -135,13 +171,13 @@ Wait to see:
 ```
   VITE v5.x.x  ready in xxx ms
 
-  ➜  Local:   http://localhost:5173/
+  ➜  Local:   http://localhost:3000/
   ➜  Network: use --host to expose
 ```
 
 #### 8️⃣ Open the Application
 
-Open your browser at: **http://localhost:5173**
+Open your browser at: **http://localhost:3000**
 
 **Test credentials:**
 ```
@@ -157,7 +193,7 @@ Password: test1234
 
 ```bash
 # Start everything (backend + frontend + DB)
-npm run dev:all
+npm run dev
 
 # Backend only
 npm run dev -w @gualet/backend
@@ -277,8 +313,6 @@ Password: test1234
 - ✅ 10+ default categories
 - ✅ 5 payment methods
 - ✅ 20 sample transactions
-
-See more details in: [`DEVELOPMENT_TEST_USER.md`](../DEVELOPMENT_TEST_USER.md)
 
 ---
 
@@ -529,7 +563,7 @@ Use this list to verify everything is configured:
 - [ ] Migrations executed
 - [ ] Backend started and seeders executed
 - [ ] Frontend started
-- [ ] Application accessible at http://localhost:5173
+- [ ] Application accessible at http://localhost:3000
 - [ ] Successful login with test user
 - [ ] Tests passing (`npm test`)
 

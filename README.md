@@ -13,9 +13,9 @@ cd gualet
 npm run setup
 
 # 2. Start development environment
-npm run dev:all
+npm run dev
 
-# 3. Open http://localhost:5173
+# 3. Open http://localhost:3000
 # Login with: test@gualet.app / test1234
 ```
 
@@ -33,7 +33,7 @@ npm run dev:all
 - ✅ **Backend (NestJS + PostgreSQL):** Auth, Categories (CRUD), Payment Methods (CRUD), Transactions (BREAD with filters) - **100% complete**
 - ✅ **Frontend (React):** Fully integrated with NestJS backend (NO Supabase)
 - ✅ **Tests Backend:** 190 tests passing - **99.62% coverage**
-- ✅ **Tests Frontend:** 183 tests passing - **100% complete**
+- ✅ **Tests Frontend:** 183 tests passing - **72.02% coverage** (Statements: 72.02%, Branches: 90.63%, Functions: 76.87%)
 - ✅ **Tests E2E (Playwright):** 24/24 active tests passing **(100%)** - Login ✅, Register ✅, Categories ✅, Transactions ✅
   - Note: 21 tests skipped (payment-methods and network-errors suites pending implementation)
 - ❌ **Offline-First:** NOT implemented yet (RxDB + Sync pending)

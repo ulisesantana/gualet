@@ -95,7 +95,8 @@ Gualet is a personal finance web application that has **successfully migrated fr
 - ✅ **HTTP Client:** Axios with HttpDataSource abstraction
 - ✅ **PWA:** vite-plugin-pwa configured (but no real offline-first)
 - ✅ **Proxy:** Configured for `/api` → `http://localhost:5050`
-- ✅ **Testing:** Vitest + Testing Library - **183 tests passing (100%)**
+- ✅ **Testing:** Vitest + Testing Library - **183 tests passing**
+  - **Coverage:** Statements: 72.02%, Branches: 90.63%, Functions: 76.87%, Lines: 72.02%
 - ❌ **NO RxDB** implemented yet
 - ❌ **NO Service Worker** with custom cache strategies
 - ❌ **NO offline synchronization**
