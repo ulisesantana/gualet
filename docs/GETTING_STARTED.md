@@ -409,8 +409,8 @@ docker volume prune
 
 ### Project Documentation
 
-- 📖 [Action Plan](../docs/project/ACTION_PLAN.md) - Project roadmap
-- 🔌 [API Design](../docs/project/API_DESIGN.md) - API design
+- 📖 [Action Plan](./project/ACTION_PLAN.md) - Project roadmap
+- 🔌 [API Design](./project/API_DESIGN.md) - API design
 - 🧪 [Testing Guide](../.github/instructions/TESTS.instructions.md) - Testing guide
 - 🔒 [Security Guide](../.github/instructions/SECURITY.instructions.md) - Best practices
 - 📝 [Git Workflow](../.github/instructions/GIT.instructions.md) - Git workflow
