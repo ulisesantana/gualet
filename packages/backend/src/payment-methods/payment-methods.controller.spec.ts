@@ -9,8 +9,8 @@ import {
 } from '@test/builders';
 import {
   NotAuthorizedForPaymentMethodError,
-  PaymentMethodNotFoundError,
   PaymentMethodInUseError,
+  PaymentMethodNotFoundError,
 } from './errors';
 import { Id } from '@gualet/shared';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
@@ -84,6 +84,7 @@ describe('PaymentMethodsController', () => {
       buildPaymentMethodEntity(),
     );
     const payload = {
+      id: paymentMethod.id.toString(),
       name: paymentMethod.name,
       icon: paymentMethod.icon,
       color: paymentMethod.color,
@@ -278,7 +279,7 @@ describe('PaymentMethodsController', () => {
 
       await controller.delete(paymentMethodId, req, res);
 
-      expect(res.status).toHaveBeenCalledWith(204);
+      expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalled();
       expect(service.delete).toHaveBeenCalledWith(
         new Id(req.user.userId),

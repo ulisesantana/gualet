@@ -37,13 +37,16 @@ describe('PaymentMethodsService', () => {
   it('creates a payment method successfully', async () => {
     const userId = new Id('user-123');
     const paymentMethodToCreate: PaymentMethodToCreate = {
+      id: 'pm-123',
       name: 'New Payment Method',
       icon: '💳',
       color: '#00AAFF',
     };
     const createdPaymentMethod = new PaymentMethod({
-      ...paymentMethodToCreate,
-      id: new Id('pm-123'),
+      id: new Id(paymentMethodToCreate.id),
+      name: paymentMethodToCreate.name,
+      icon: paymentMethodToCreate.icon,
+      color: paymentMethodToCreate.color,
     });
 
     repository.create.mockResolvedValue(createdPaymentMethod);
@@ -53,7 +56,10 @@ describe('PaymentMethodsService', () => {
     expect(result).toEqual(createdPaymentMethod);
     expect(repository.create).toHaveBeenCalledWith(
       userId,
-      expect.objectContaining(paymentMethodToCreate),
+      expect.objectContaining({
+        id: new Id(paymentMethodToCreate.id),
+        name: paymentMethodToCreate.name,
+      }),
     );
   });
 

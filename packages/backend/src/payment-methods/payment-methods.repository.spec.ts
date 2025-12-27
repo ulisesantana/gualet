@@ -105,12 +105,16 @@ describe('PaymentMethodsRepository', () => {
       user: buildUserEntity({ id: userId.toString() }),
     });
 
-    mockRepository.findOneBy.mockResolvedValue(mockEntity);
+    mockRepository.find.mockResolvedValue([mockEntity]);
 
     const result = await repository.findOne(userId, paymentMethodId);
 
-    expect(mockRepository.findOneBy).toHaveBeenCalledWith({
-      id: paymentMethodId.toString(),
+    expect(mockRepository.find).toHaveBeenCalledWith({
+      where: {
+        id: paymentMethodId.toString(),
+      },
+      take: 1,
+      relations: ['user'],
     });
     expect(result).toEqual(PaymentMethodsRepository.mapToDomain(mockEntity));
   });
@@ -119,7 +123,7 @@ describe('PaymentMethodsRepository', () => {
     const userId = new Id('user-123');
     const paymentMethodId = new Id('pm-123');
 
-    mockRepository.findOneBy.mockResolvedValue(null);
+    mockRepository.find.mockResolvedValue([]);
 
     await expect(repository.findOne(userId, paymentMethodId)).rejects.toThrow(
       PaymentMethodNotFoundError,
@@ -134,7 +138,7 @@ describe('PaymentMethodsRepository', () => {
       user: buildUserEntity({ id: 'other-user' }),
     });
 
-    mockRepository.findOneBy.mockResolvedValue(mockEntity);
+    mockRepository.find.mockResolvedValue([mockEntity]);
 
     await expect(repository.findOne(userId, paymentMethodId)).rejects.toThrow(
       NotAuthorizedForPaymentMethodError,
@@ -163,7 +167,7 @@ describe('PaymentMethodsRepository', () => {
       icon: '💳', // Keeps existing value when undefined is passed
     };
 
-    mockRepository.findOne.mockResolvedValue(existingEntity);
+    mockRepository.find.mockResolvedValue([existingEntity]);
     mockRepository.save.mockResolvedValue(updatedEntity);
 
     const result = await repository.update(userId, paymentMethodToUpdate);
@@ -179,7 +183,7 @@ describe('PaymentMethodsRepository', () => {
       name: 'Updated Name',
     };
 
-    mockRepository.findOne.mockResolvedValue(null);
+    mockRepository.find.mockResolvedValue([]);
 
     await expect(
       repository.update(userId, paymentMethodToUpdate),
@@ -197,7 +201,7 @@ describe('PaymentMethodsRepository', () => {
       user: buildUserEntity({ id: 'other-user' }),
     });
 
-    mockRepository.findOne.mockResolvedValue(existingEntity);
+    mockRepository.find.mockResolvedValue([existingEntity]);
 
     await expect(
       repository.update(userId, paymentMethodToUpdate),
@@ -226,7 +230,7 @@ describe('PaymentMethodsRepository', () => {
       color: undefined,
     };
 
-    mockRepository.findOne.mockResolvedValue(existingEntity);
+    mockRepository.find.mockResolvedValue([existingEntity]);
     mockRepository.save.mockResolvedValue(updatedEntity);
 
     const result = await repository.update(userId, paymentMethodToUpdate);
@@ -244,7 +248,7 @@ describe('PaymentMethodsRepository', () => {
         user: buildUserEntity({ id: userId.toString() }),
       });
 
-      mockRepository.findOne.mockResolvedValue(existingEntity);
+      mockRepository.find.mockResolvedValue([existingEntity]);
       mockTransactionRepository.count.mockResolvedValue(0);
       mockRepository.delete.mockResolvedValue({
         raw: [],
@@ -253,8 +257,12 @@ describe('PaymentMethodsRepository', () => {
 
       await repository.delete(userId, pmId);
 
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
-        where: { id: pmId.toString() },
+      expect(mockRepository.find).toHaveBeenCalledWith({
+        where: {
+          id: pmId.toString(),
+        },
+        take: 1,
+        relations: ['user'],
       });
       expect(mockTransactionRepository.count).toHaveBeenCalledWith({
         where: { payment_method: { id: pmId.toString() } },
@@ -268,7 +276,7 @@ describe('PaymentMethodsRepository', () => {
       const userId = new Id('user-123');
       const pmId = new Id('pm-123');
 
-      mockRepository.findOne.mockResolvedValue(null);
+      mockRepository.find.mockResolvedValue([]);
 
       await expect(repository.delete(userId, pmId)).rejects.toThrow(
         PaymentMethodNotFoundError,
@@ -284,7 +292,7 @@ describe('PaymentMethodsRepository', () => {
         user: buildUserEntity({ id: 'other-user' }),
       });
 
-      mockRepository.findOne.mockResolvedValue(existingEntity);
+      mockRepository.find.mockResolvedValue([existingEntity]);
 
       await expect(repository.delete(userId, pmId)).rejects.toThrow(
         NotAuthorizedForPaymentMethodError,
@@ -300,7 +308,7 @@ describe('PaymentMethodsRepository', () => {
         user: buildUserEntity({ id: userId.toString() }),
       });
 
-      mockRepository.findOne.mockResolvedValue(existingEntity);
+      mockRepository.find.mockResolvedValue([existingEntity]);
       mockTransactionRepository.count.mockResolvedValue(3);
 
       await expect(repository.delete(userId, pmId)).rejects.toThrow(
