@@ -36,7 +36,10 @@ export function AddPaymentMethodView({
 
   return (
     <Transition in={match} timeout={500}>
-      <div className="payment-method-details-view">
+      <div
+        className="payment-method-details-view"
+        data-testid="add-payment-method-view"
+      >
         <AddPaymentMethodForm onSubmit={onSubmit} onSuccess={onSuccess} />
       </div>
     </Transition>

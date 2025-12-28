@@ -4,7 +4,7 @@ import { CategoryForm, CategoryFormParams } from "./CategoryForm";
 
 export type AddCategoryFormProps = Pick<
   CategoryFormParams,
-  "onSubmit" | "onSuccess"
+  "onSubmit" | "onSuccess" | "onError"
 >;
 
 export function AddCategoryForm(props: AddCategoryFormProps) {

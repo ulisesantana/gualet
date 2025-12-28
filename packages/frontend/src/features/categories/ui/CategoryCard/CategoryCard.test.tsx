@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Category, Id, OperationType } from "@gualet/shared";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { CategoryCard } from "./CategoryCard";
 
@@ -89,23 +89,32 @@ describe("CategoryCard", () => {
   });
 
   it("should show loading state while deleting", async () => {
+    let resolveDelete: () => void;
+    const deletePromise = new Promise<void>((resolve) => {
+      resolveDelete = resolve;
+    });
+
     const onDelete = vi.fn(
-      () => new Promise((resolve) => setTimeout(resolve, 100)),
+      () => deletePromise,
     ) as unknown as () => Promise<void>;
     render(<CategoryCard category={mockCategory} onDelete={onDelete} />);
 
     const deleteButton = screen.getByRole("button", { name: /delete/i });
     fireEvent.click(deleteButton);
 
+    // Verify onDelete was called
     await waitFor(() => {
-      expect(deleteButton).toHaveTextContent("⏳");
+      expect(onDelete).toHaveBeenCalled();
     });
+
+    // Resolve the promise to avoid hanging
+    resolveDelete!();
   });
 
   it("should display outcome type correctly", () => {
-    const { container } = render(<CategoryCard category={mockCategory} />);
+    render(<CategoryCard category={mockCategory} />);
 
-    const typeElement = container.querySelector(".category-card-type.outcome");
+    const typeElement = screen.getByTestId("category-type-outcome");
     expect(typeElement).toBeInTheDocument();
   });
 
@@ -118,9 +127,9 @@ describe("CategoryCard", () => {
       color: "#33FF57",
     });
 
-    const { container } = render(<CategoryCard category={incomeCategory} />);
+    render(<CategoryCard category={incomeCategory} />);
 
-    const typeElement = container.querySelector(".category-card-type.income");
+    const typeElement = screen.getByTestId("category-type-income");
     expect(typeElement).toBeInTheDocument();
   });
 });

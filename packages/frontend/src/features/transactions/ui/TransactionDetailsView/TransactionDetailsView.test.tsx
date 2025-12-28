@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
 import { defaultTransactionConfig, TransactionConfig } from "@domain/models";
 import { TransactionBuilder } from "@test/builders";
 import { useLoader } from "@common/infrastructure/hooks";
 import { Router } from "wouter";
 import { TestRouter } from "@test/TestRouter";
 import userEvent from "@testing-library/user-event";
+import { render, screen, waitFor } from "@test/test-utils";
 
 import { TransactionDetailsView } from "./TransactionDetailsView";
 

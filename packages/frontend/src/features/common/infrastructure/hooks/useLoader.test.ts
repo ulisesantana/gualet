@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook } from "@test/test-utils";
 
 import { useLoader } from "./useLoader";
 

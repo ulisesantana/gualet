@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
 import {
   Day,
   defaultTransactionConfig,
@@ -10,6 +9,7 @@ import {
   UserPreferences,
 } from "@gualet/shared";
 import { TransactionBuilder } from "@test/builders";
+import { render, screen, waitFor } from "@test/test-utils";
 
 import { LastTransactionsView } from "./LastTransactionsView";
 import {

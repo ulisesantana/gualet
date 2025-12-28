@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render } from "@testing-library/react";
 import { useCategoryStore } from "@categories/infrastructure/useCategoryStore";
+import { render, screen } from "@test/test-utils";
 
 import { SaveCategoryUseCase } from "../../application/cases";
 import { AddCategoryView } from "./AddCategoryView";
@@ -25,12 +25,8 @@ describe("AddCategoryView", () => {
   });
 
   it("should render the view", () => {
-    const { container } = render(
-      <AddCategoryView saveCategoryUseCase={mockSaveCategoryUseCase} />,
-    );
-    expect(
-      container.querySelector(".category-details-view"),
-    ).toBeInTheDocument();
+    render(<AddCategoryView saveCategoryUseCase={mockSaveCategoryUseCase} />);
+    expect(screen.getByTestId("add-category-view")).toBeInTheDocument();
   });
 
   it("should initialize without errors", () => {
@@ -56,13 +52,9 @@ describe("AddCategoryView", () => {
   });
 
   it("should have onSubmit and onSuccess handlers defined", () => {
-    const { container } = render(
-      <AddCategoryView saveCategoryUseCase={mockSaveCategoryUseCase} />,
-    );
+    render(<AddCategoryView saveCategoryUseCase={mockSaveCategoryUseCase} />);
 
     // The view should render the form with the handlers
-    expect(
-      container.querySelector(".category-details-view"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("add-category-view")).toBeInTheDocument();
   });
 });

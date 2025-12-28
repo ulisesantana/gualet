@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Id, PaymentMethod, UserPreferences } from "@domain/models";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { SettingsView } from "./SettingsView";
 import { GetUserPreferencesUseCase } from "../../application/get-user-preferences/get-user-preferences.use-case";

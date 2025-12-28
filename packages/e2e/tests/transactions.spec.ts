@@ -2,6 +2,7 @@ import {expect} from '@playwright/test';
 import {test} from '@fixtures';
 import {TransactionsPage} from '@pages';
 import {loginAsTestUser, TEST_USER} from '../helpers/auth.helpers';
+import {Day} from "@gualet/shared";
 
 test.describe('Transactions Management', () => {
   let userId: string;
@@ -282,10 +283,50 @@ test.describe('Transactions Management', () => {
     expect(dbDate.toISOString().split('T')[0]).toBe(specificDate);
   });
 
-  test.skip('should set last transaction date after creating a new one', async ({ page, db }) => {
-    // TODO: This feature requires implementing user preferences for lastTransactionDate
-    // The backend needs to track and update lastTransactionDate in user_preferences table
-    // when a transaction is created. This functionality is not yet implemented.
+  test('should keep last transaction date after creating a new one', async ({ page, db }) => {
+    const transactionsPage = new TransactionsPage(page);
+    const description = `Irrelevant transaction ${testTimestamp}`;
+
+    await transactionsPage.goto();
+
+    await transactionsPage.createTransaction({
+      description,
+      amount: 42,
+      category: 'Salary',
+      paymentMethod: 0, // Use first payment method
+      operation: 'INCOME',
+      date: '2024-03-10',
+    });
+
+    // Verify by category (which is what's displayed in the card)
+    await transactionsPage.verifyTransactionExists('Salary');
+    await expect(transactionsPage.dateInput).toHaveValue('2024-03-10');
+
+    // Now create another transaction and verify date is still the same
+    const description2 = `Second transaction ${testTimestamp}`;
+
+    await transactionsPage.createTransaction({
+      description: description2,
+      amount: 58,
+      category: 'Groceries',
+      paymentMethod: 0, // Use first payment method
+      operation: 'OUTCOME',
+    });
+
+    await transactionsPage.verifyTransactionExists('Groceries');
+    await expect(transactionsPage.dateInput).toHaveValue('2024-03-10');
+
+    // Verify in database
+    const transactions = await db.getUserTransactions(userId);
+    const transaction1 = transactions.find(t => t.description === description);
+    const transaction2 = transactions.find(t => t.description === description2);
+
+    expect(transaction1).toBeTruthy();
+    expect(transaction2).toBeTruthy();
+    const dbDate1 = new Day(transaction1.date.toISOString());
+    const dbDate2 = new Day(transaction2.date.toISOString());
+    expect(dbDate1.toString()).toBe('2024-03-10');
+    expect(dbDate2.toString()).toBe('2024-03-10');
   });
 });
 

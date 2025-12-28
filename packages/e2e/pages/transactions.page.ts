@@ -13,14 +13,15 @@ export class TransactionsPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.transactionForm = page.locator('form.transaction-form');
+    // Form no longer has transaction-form class after Chakra migration
+    this.transactionForm = page.locator('form').first();
     this.descriptionInput = page.locator('input[name="description"]');
     this.amountInput = page.locator('input[name="amount"]');
     this.dateInput = page.locator('input[name="date"]');
     this.categoryInput = page.locator('input[name="category"]');
     this.paymentMethodSelect = page.locator('select[name="payment-method"]');
     this.operationSelect = page.locator('select[name="operation"]');
-    this.submitButton = this.transactionForm.locator('button[type="submit"]');
+    this.submitButton = page.locator('button[type="submit"]').first();
   }
 
   async goto() {

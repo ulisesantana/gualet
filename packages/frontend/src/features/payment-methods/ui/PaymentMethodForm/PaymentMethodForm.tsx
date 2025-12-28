@@ -1,5 +1,6 @@
 import React, { RefObject, useRef, useState } from "react";
 import { PaymentMethod } from "@gualet/shared";
+import { AlertMessage, Button, Input, Stack } from "@common/ui/components";
 
 import { generateOnSubmitHandler } from "./submit-handler";
 
@@ -34,19 +35,19 @@ export function PaymentMethodForm({
   });
   return (
     <form
-      className="transaction-form"
       onSubmit={onSubmitHandler}
       ref={formRef}
       data-testid="payment-method-form"
     >
-      {errorMessage && (
-        <div className="error-message" data-testid="error-message">
-          {errorMessage}
-        </div>
-      )}
-      <label>
-        <span>Name:</span>
-        <input
+      <Stack gap={4}>
+        {errorMessage && (
+          <AlertMessage status="error" data-testid="error-message">
+            {errorMessage}
+          </AlertMessage>
+        )}
+
+        <Input
+          label="Name"
           type="text"
           name="name"
           required
@@ -54,32 +55,33 @@ export function PaymentMethodForm({
           defaultValue={paymentMethod?.name}
           data-testid="payment-method-name-input"
         />
-      </label>
-      <label>
-        <span>Icon:</span>
-        <input
+
+        <Input
+          label="Icon"
           type="text"
           name="icon"
           defaultValue={paymentMethod?.icon}
           placeholder="Add an emoji as an icon (optional)"
           data-testid="payment-method-icon-input"
         />
-      </label>
-      <label>
-        <span>Color:</span>
-        <input
+
+        <Input
+          label="Color"
           type="text"
           name="color"
           defaultValue={paymentMethod?.color}
           placeholder="#4287f5 (optional)"
           data-testid="payment-method-color-input"
         />
-      </label>
-      <footer>
-        <button type="submit" data-testid="payment-method-submit-button">
-          {paymentMethod ? "💾" : "➕"}
-        </button>
-      </footer>
+
+        <Button
+          type="submit"
+          variant="primary"
+          data-testid="payment-method-submit-button"
+        >
+          {paymentMethod ? "💾 Save" : "➕ Add"}
+        </Button>
+      </Stack>
     </form>
   );
 }

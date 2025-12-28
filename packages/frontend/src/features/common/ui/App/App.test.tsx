@@ -1,9 +1,9 @@
 import { beforeEach, describe, it, Mocked, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
 import { Router } from "wouter";
 import { TestRouter } from "@test/TestRouter";
 import { UseCase } from "@common/application/use-case";
 import React from "react";
+import { render, screen, waitFor } from "@test/test-utils";
 
 import {
   LoginUseCase,

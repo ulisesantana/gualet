@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Category, Id, OperationType } from "@gualet/shared";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { CategoryForm } from "./CategoryForm";
 
@@ -19,17 +19,20 @@ describe("CategoryForm", () => {
 
   it("should render form with operation selector", () => {
     const onSubmit = vi.fn();
-    render(<CategoryForm onSubmit={onSubmit} />);
+    const { container } = render(<CategoryForm onSubmit={onSubmit} />);
 
-    expect(screen.getByLabelText(/operation/i)).toBeInTheDocument();
+    const operationSelect = container.querySelector('[name="type"]');
+    expect(operationSelect).toBeInTheDocument();
   });
 
   it("should populate form with category data when provided", () => {
     const onSubmit = vi.fn();
-    render(<CategoryForm category={mockCategory} onSubmit={onSubmit} />);
+    const { container } = render(
+      <CategoryForm category={mockCategory} onSubmit={onSubmit} />,
+    );
 
-    const operationSelect = screen.getByLabelText(
-      /operation/i,
+    const operationSelect = container.querySelector(
+      '[name="type"]',
     ) as HTMLSelectElement;
     expect(operationSelect.value).toBe("OUTCOME");
   });
@@ -52,8 +55,8 @@ describe("CategoryForm", () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId("error-message")).toBeInTheDocument();
-        expect(screen.getByTestId("error-message")).toHaveTextContent(
+        expect(screen.getByRole("alert")).toBeInTheDocument();
+        expect(screen.getByRole("alert")).toHaveTextContent(
           "Submission failed",
         );
       });
@@ -92,14 +95,14 @@ describe("CategoryForm", () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(screen.getByTestId("error-message")).toBeInTheDocument();
+        expect(screen.getByRole("alert")).toBeInTheDocument();
       });
 
       // Second submission - should succeed and clear error
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(screen.queryByTestId("error-message")).not.toBeInTheDocument();
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
       });
     }
   });
@@ -108,7 +111,7 @@ describe("CategoryForm", () => {
     const onSubmit = vi.fn();
     render(<CategoryForm onSubmit={onSubmit} />);
 
-    const nameInput = screen.getByLabelText(/name/i);
+    const nameInput = screen.getByPlaceholderText(/enter category name/i);
     expect(nameInput).toBeInTheDocument();
   });
 
@@ -116,7 +119,7 @@ describe("CategoryForm", () => {
     const onSubmit = vi.fn();
     render(<CategoryForm onSubmit={onSubmit} />);
 
-    const iconInput = screen.getByLabelText(/icon/i);
+    const iconInput = screen.getByPlaceholderText(/add an emoji as an icon/i);
     expect(iconInput).toBeInTheDocument();
   });
 

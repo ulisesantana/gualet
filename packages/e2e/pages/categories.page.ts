@@ -26,7 +26,8 @@ export class CategoriesPage {
     this.submitButton = page.locator('button[type="submit"]');
     this.cancelButton = page.getByRole('button', { name: /cancel/i });
     this.successMessage = page.locator('[data-testid="success-message"]');
-    this.errorMessage = page.locator('.error-message, [data-testid="error-message"]');
+    // AlertMessage uses role="alert" or role="status" instead of CSS class
+    this.errorMessage = page.locator('[role="alert"], [role="status"], [data-testid="error-message"]');
   }
 
   // ===== Navigation Methods =====

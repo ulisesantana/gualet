@@ -15,7 +15,8 @@ export class ReportPage {
     this.fromDateInput = page.locator('#fromDate');
     this.toDateInput = page.locator('#toDate');
     this.getReportButton = page.getByRole('button', { name: /get report/i });
-    this.balanceText = page.locator('.balance');
+    // Balance text no longer has .balance class after Chakra migration
+    this.balanceText = page.getByText(/Balance for transactions between/i);
     this.incomeSection = page.getByRole('button', { name: /^Income:/i });
     this.outcomeSection = page.getByRole('button', { name: /^Outcome:/i });
     this.noDataMessage = page.getByText('No data');

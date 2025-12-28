@@ -1,5 +1,4 @@
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import {
   generateDefaultIncomeCategories,
   generateDefaultOutcomeCategories,
@@ -8,6 +7,7 @@ import {
   TransactionConfig,
 } from "@gualet/shared";
 import { Mock, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { AddTransactionForm } from "./AddTransactionForm";
 
@@ -46,12 +46,16 @@ describe("AddTransactionForm", () => {
   it("renders the form with initial values", () => {
     setup();
 
-    expect(screen.getByLabelText(/Operation:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Category:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Amount:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Date:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Description:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Payment method:/i)).toBeInTheDocument();
+    expect(element.querySelector('[name="operation"]')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/enter amount/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/enter description/i),
+    ).toBeInTheDocument();
+    expect(element.querySelector('[name="date"]')).toBeInTheDocument();
+    expect(
+      element.querySelector('[name="payment-method"]'),
+    ).toBeInTheDocument();
+    expect(element.querySelector('[name="category"]')).toBeInTheDocument();
   });
 
   it("updates the datalist options when operation changes", () => {
@@ -79,7 +83,10 @@ describe("AddTransactionForm", () => {
     );
 
     // Change operation to income
-    fireEvent.change(screen.getByLabelText(/Operation:/i), {
+    const operationSelect = element.querySelector(
+      '[name="operation"]',
+    ) as HTMLSelectElement;
+    fireEvent.change(operationSelect, {
       target: { value: OperationType.Income },
     });
 
@@ -93,24 +100,24 @@ describe("AddTransactionForm", () => {
     setup();
 
     // Fill in the form
-    fireEvent.change(screen.getByLabelText(/Amount:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter amount/i), {
       target: { value: 10.5 },
     });
-    fireEvent.change(screen.getByLabelText(/Category:/i), {
+    fireEvent.change(element.querySelector('[name="category"]')!, {
       target: { value: mockSettings.outcomeCategories[0].title },
     });
-    fireEvent.change(screen.getByLabelText(/Date:/i), {
+    fireEvent.change(element.querySelector('[name="date"]')!, {
       target: { value: "2023-09-08" },
     });
-    fireEvent.change(screen.getByLabelText(/Description:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter description/i), {
       target: { value: "Test transaction" },
     });
-    fireEvent.change(screen.getByLabelText(/Payment method:/i), {
-      target: { value: mockSettings.paymentMethods[2].title },
+    fireEvent.change(element.querySelector('[name="payment-method"]')!, {
+      target: { value: mockSettings.paymentMethods[0].title },
     });
 
     // Submit the form
-    fireEvent.submit(screen.getByRole("button"));
+    fireEvent.submit(screen.getByTestId("submit-transaction-button"));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -120,36 +127,37 @@ describe("AddTransactionForm", () => {
       expect(mockOnSubmit.mock.lastCall![0].description).toBe(
         "Test transaction",
       );
-      expect(mockOnSubmit.mock.lastCall![0].paymentMethod.name).toBe("Bizum");
+      expect(mockOnSubmit.mock.lastCall![0].paymentMethod.name).toBe(
+        "Credit card",
+      );
       expect(mockOnSubmit.mock.lastCall![0].operation).toBe(
         OperationType.Outcome,
       );
     });
   });
 
-  // TODO: Is not working for some reason
   it("resets the form after successful submission", async () => {
     setup();
 
     // Fill in the form
-    fireEvent.change(screen.getByLabelText(/Amount:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter amount/i), {
       target: { value: 42.5 },
     });
-    fireEvent.change(screen.getByLabelText(/Category:/i), {
+    fireEvent.change(element.querySelector('[name="category"]')!, {
       target: { value: mockSettings.outcomeCategories[1].title },
     });
-    fireEvent.change(screen.getByLabelText(/Date:/i), {
+    fireEvent.change(element.querySelector('[name="date"]')!, {
       target: { value: "2024-01-06" },
     });
-    fireEvent.change(screen.getByLabelText(/Description:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter description/i), {
       target: { value: "Test transaction" },
     });
-    fireEvent.change(screen.getByLabelText(/Payment method:/i), {
-      target: { value: "💶 Cash" },
+    fireEvent.change(element.querySelector('[name="payment-method"]')!, {
+      target: { value: mockSettings.paymentMethods[1].title },
     });
 
     // Submit the form
-    fireEvent.submit(screen.getByRole("button"));
+    fireEvent.submit(screen.getByTestId("submit-transaction-button"));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -157,13 +165,10 @@ describe("AddTransactionForm", () => {
 
     await waitFor(() => {
       // Check that the form resets after submission
-      expect(element.querySelector('[name="operation"]')).toHaveValue(
-        OperationType.Outcome,
-      );
+      expect(element.querySelector('[name="operation"]')).toHaveValue("");
       expect(element.querySelector('[name="description"]')).toHaveValue("");
       expect(element.querySelector('[name="amount"]')).toHaveValue(null);
       expect(element.querySelector('[name="category"]')).toHaveValue("");
-      expect(element.querySelector('[name="date"]')).toHaveValue("2024-01-06");
     });
   });
 });

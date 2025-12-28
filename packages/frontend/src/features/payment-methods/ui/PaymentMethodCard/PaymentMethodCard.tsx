@@ -1,8 +1,8 @@
-import "./PaymentMethodCard.css";
 import { generatePath, routes } from "@common/infrastructure/routes";
 import { useLocation } from "wouter";
 import { PaymentMethod } from "@gualet/shared";
 import { useState } from "react";
+import { Button, Card, Flex, Text } from "@common/ui/components";
 
 export interface PaymentMethodCardProps {
   paymentMethod: PaymentMethod;
@@ -42,32 +42,36 @@ export function PaymentMethodCard({
   };
 
   return (
-    <div className="payment-method-card-container">
-      <div className="payment-method-card">
-        <div className="payment-method-card-icon">
-          {paymentMethod.icon || "💳"}
-        </div>
-        <div className="payment-method-card-name">{paymentMethod.name}</div>
-        <div className="payment-method-card-actions">
+    <Card marginBottom={3}>
+      <Flex justify="space-between" align="center" gap={3}>
+        <Text fontSize="2xl">{paymentMethod.icon || "💳"}</Text>
+        <Text flex="1" fontWeight="semibold">
+          {paymentMethod.name}
+        </Text>
+        <Flex gap={2}>
           {onDelete && (
-            <button
+            <Button
               onClick={handleDelete}
               aria-label="Delete payment method"
               title="Delete"
               disabled={isDeleting}
+              variant="danger"
+              size="sm"
             >
               {isDeleting ? "⏳" : "🗑️"}
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             onClick={handleEdit}
             aria-label="Edit payment method"
             title="Edit"
+            variant="ghost"
+            size="sm"
           >
             ✏️
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Flex>
+      </Flex>
+    </Card>
   );
 }

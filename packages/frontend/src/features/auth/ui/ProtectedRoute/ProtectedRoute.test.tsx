@@ -1,6 +1,6 @@
-import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, Mock, Mocked, vi } from "vitest";
 import * as wouter from "wouter";
+import { render, screen, waitFor } from "@test/test-utils";
 
 import { ProtectedRoute } from "./ProtectedRoute";
 import { VerifySessionUseCase } from "../../application/cases";

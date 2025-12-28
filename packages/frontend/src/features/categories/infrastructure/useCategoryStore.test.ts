@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { act, renderHook, waitFor } from "@testing-library/react";
 import { Category, Id, OperationType } from "@gualet/shared";
 
+import { act, renderHook, waitFor } from "../../../../test/test-utils";
 import {
   DeleteCategoryUseCase,
   GetAllCategoriesUseCase,

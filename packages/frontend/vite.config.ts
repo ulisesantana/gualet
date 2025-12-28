@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => {
       globals: true,
       reporters: ["verbose"],
       environment: "jsdom",
-      setupFiles: "./src/setup-tests.ts",
+      setupFiles: ["./src/setup-tests.ts", "./test/setup-chakra.tsx"],
       coverage: {
         include: ["src"],
         exclude: [

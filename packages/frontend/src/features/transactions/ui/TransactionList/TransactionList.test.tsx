@@ -1,5 +1,4 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
 import {
   Category,
   Day,
@@ -9,6 +8,7 @@ import {
   Transaction,
 } from "@gualet/shared";
 import { vi } from "vitest";
+import { render, screen } from "@test/test-utils";
 
 import { TransactionList } from "./TransactionList";
 

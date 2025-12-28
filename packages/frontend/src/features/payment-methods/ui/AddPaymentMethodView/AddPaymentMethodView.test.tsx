@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render } from "@testing-library/react";
 import { usePaymentMethodStore } from "@payment-methods/infrastructure/usePaymentMethodStore";
+import { render, screen } from "@test/test-utils";
 
 import { SavePaymentMethodUseCase } from "../../application/cases";
 import { AddPaymentMethodView } from "./AddPaymentMethodView";
@@ -56,14 +56,12 @@ describe("AddPaymentMethodView", () => {
   });
 
   it("should have onSubmit handler defined", () => {
-    const { container } = render(
+    render(
       <AddPaymentMethodView
         savePaymentMethodUseCase={mockSavePaymentMethodUseCase}
       />,
     );
 
-    expect(
-      container.querySelector(".payment-method-details-view"),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("add-payment-method-view")).toBeInTheDocument();
   });
 });

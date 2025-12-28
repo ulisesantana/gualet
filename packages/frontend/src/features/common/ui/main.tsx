@@ -49,6 +49,7 @@ import { HttpDataSource } from "@common/infrastructure/http";
 
 // Common
 import { App, AppProps } from "./App";
+import { ChakraProvider } from "./components";
 // DATA SOURCES
 const http = new HttpDataSource();
 
@@ -104,8 +105,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <SettingsProvider>
-      <App cases={cases} />
-    </SettingsProvider>
+    <ChakraProvider>
+      <SettingsProvider>
+        <App cases={cases} />
+      </SettingsProvider>
+    </ChakraProvider>
   </React.StrictMode>,
 );

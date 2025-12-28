@@ -1,5 +1,4 @@
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import {
   Day,
   generateDefaultIncomeCategories,
@@ -10,6 +9,7 @@ import {
   TransactionConfig,
 } from "@gualet/shared";
 import { Mock, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { EditTransactionForm } from "./EditTransactionForm";
 
@@ -57,24 +57,34 @@ describe("EditTransactionForm", () => {
   it("renders the form with given values", () => {
     setup();
 
-    expect(screen.getByLabelText(/Operation:/i)).toHaveValue(
-      mockTransaction.operation,
-    );
+    const operationSelect = element.querySelector(
+      '[name="operation"]',
+    ) as HTMLSelectElement;
+    expect(operationSelect).toHaveValue(mockTransaction.operation);
+
     expect(
       screen.findByDisplayValue(mockTransaction.category.title),
     ).not.toBeUndefined();
-    expect(screen.getByLabelText(/Amount:/i)).toHaveValue(
-      mockTransaction.amount,
-    );
-    expect(screen.getByLabelText(/Date:/i)).toHaveValue(
-      mockTransaction.date.toString("-"),
-    );
-    expect(screen.getByLabelText(/Description:/i)).toHaveValue(
-      mockTransaction.description,
-    );
-    expect(screen.getByLabelText(/Payment method:/i)).toHaveValue(
-      mockTransaction.paymentMethod.title,
-    );
+
+    const amountInput = screen.getByPlaceholderText(
+      /enter amount/i,
+    ) as HTMLInputElement;
+    expect(amountInput).toHaveValue(mockTransaction.amount);
+
+    const dateInput = element.querySelector(
+      '[name="date"]',
+    ) as HTMLInputElement;
+    expect(dateInput).toHaveValue(mockTransaction.date.toString("-"));
+
+    const descriptionInput = screen.getByPlaceholderText(
+      /enter description/i,
+    ) as HTMLInputElement;
+    expect(descriptionInput).toHaveValue(mockTransaction.description);
+
+    const paymentSelect = element.querySelector(
+      '[name="payment-method"]',
+    ) as HTMLSelectElement;
+    expect(paymentSelect).toHaveValue(mockTransaction.paymentMethod.title);
   });
 
   it("updates the datalist options when operation changes", () => {
@@ -102,7 +112,10 @@ describe("EditTransactionForm", () => {
     );
 
     // Change operation to income
-    fireEvent.change(screen.getByLabelText(/Operation:/i), {
+    const operationSelect = element.querySelector(
+      '[name="operation"]',
+    ) as HTMLSelectElement;
+    fireEvent.change(operationSelect, {
       target: { value: OperationType.Income },
     });
 
@@ -116,24 +129,24 @@ describe("EditTransactionForm", () => {
     setup();
 
     // Fill in the form
-    fireEvent.change(screen.getByLabelText(/Amount:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter amount/i), {
       target: { value: 10.5 },
     });
-    fireEvent.change(screen.getByLabelText(/Category:/i), {
+    fireEvent.change(element.querySelector('[name="category"]')!, {
       target: { value: mockSettings.outcomeCategories[0].title },
     });
-    fireEvent.change(screen.getByLabelText(/Date:/i), {
+    fireEvent.change(element.querySelector('[name="date"]')!, {
       target: { value: "2023-09-08" },
     });
-    fireEvent.change(screen.getByLabelText(/Description:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter description/i), {
       target: { value: "Test transaction" },
     });
-    fireEvent.change(screen.getByLabelText(/Payment method:/i), {
-      target: { value: mockSettings.paymentMethods[1].title },
+    fireEvent.change(element.querySelector('[name="payment-method"]')!, {
+      target: { value: mockSettings.paymentMethods[0].title },
     });
 
     // Submit the form
-    fireEvent.submit(screen.getByRole("button"));
+    fireEvent.submit(screen.getByTestId("submit-transaction-button"));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
@@ -143,7 +156,9 @@ describe("EditTransactionForm", () => {
       expect(mockOnSubmit.mock.lastCall![0].description).toBe(
         "Test transaction",
       );
-      expect(mockOnSubmit.mock.lastCall![0].paymentMethod.name).toBe("Cash");
+      expect(mockOnSubmit.mock.lastCall![0].paymentMethod.name).toBe(
+        "Credit card",
+      );
       expect(mockOnSubmit.mock.lastCall![0].operation).toBe(
         OperationType.Outcome,
       );

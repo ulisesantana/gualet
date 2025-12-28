@@ -7,6 +7,8 @@ import {
   PaymentMethod,
   Transaction,
 } from "@gualet/shared";
+import { Button, Input, Select, Stack } from "@common/ui/components";
+import { Field } from "@chakra-ui/react";
 
 import { generateOnSubmitHandler } from "./submit-handler";
 
@@ -61,40 +63,46 @@ export function TransactionForm({
   });
 
   return (
-    <form className="transaction-form" onSubmit={onSubmitHandler} ref={formRef}>
-      <label>
-        Operation:
-        <select
-          required
+    <form onSubmit={onSubmitHandler} ref={formRef}>
+      <Stack gap={4}>
+        <Select
+          label="Operation"
           name="operation"
+          required
           value={operation}
-          onChange={(e) => setOperation(e.target.value as OperationType)}
-        >
-          <option value={OperationType.Outcome}>{OperationType.Outcome}</option>
-          <option value={OperationType.Income}>{OperationType.Income}</option>
-        </select>
-      </label>
-
-      <label>
-        <span>Category:</span>
-        <input
-          list="category-options"
-          id="category-input"
-          name="category"
-          placeholder={transaction?.category.title || ""}
-          defaultValue={transaction?.category.title || ""}
-          required={!transaction}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setOperation(e.target.value as OperationType)
+          }
+          options={[
+            { value: OperationType.Outcome, label: OperationType.Outcome },
+            { value: OperationType.Income, label: OperationType.Income },
+          ]}
         />
-        <datalist id="category-options">
-          {categories.map((category) => (
-            <option key={category.id.toString()} value={category.title} />
-          ))}
-        </datalist>
-      </label>
 
-      <label>
-        <span>Amount:</span>
-        <input
+        <Field.Root required={!transaction}>
+          <input
+            list="category-options"
+            id="category-input"
+            name="category"
+            required={!transaction}
+            placeholder={transaction?.category.title || ""}
+            defaultValue={transaction?.category.title || ""}
+            style={{
+              width: "100%",
+              padding: "0.5rem",
+              border: "1px solid #e2e8f0",
+              borderRadius: "0.375rem",
+            }}
+          />
+          <datalist id="category-options">
+            {categories.map((category) => (
+              <option key={category.id.toString()} value={category.title} />
+            ))}
+          </datalist>
+        </Field.Root>
+
+        <Input
+          label="Amount"
           type="number"
           name="amount"
           step="0.01"
@@ -104,53 +112,45 @@ export function TransactionForm({
           placeholder="Enter amount"
           defaultValue={transaction?.amount}
         />
-      </label>
 
-      <label>
-        <span>Date:</span>
-        <input
+        <Input
+          label="Date"
           type="date"
           name="date"
           value={date}
           onChange={(e) => setDate(e.target.value as string)}
         />
-      </label>
 
-      <label>
-        <span>Description:</span>
-        <input
+        <Input
+          label="Description"
           type="text"
           name="description"
           required
           defaultValue={transaction?.description}
           placeholder="Enter description"
         />
-      </label>
 
-      <label>
-        <span>Payment method:</span>
-        <select
+        <Select
+          label="Payment method"
           name="payment-method"
           required
-          defaultValue={
-            transaction?.paymentMethod.title || defaultPaymentMethod
-          }
+          value={transaction?.paymentMethod.title || defaultPaymentMethod}
+          options={settings.paymentMethods.map(
+            (paymentMethod: PaymentMethod) => ({
+              value: paymentMethod.title,
+              label: paymentMethod.title,
+            }),
+          )}
+        />
+
+        <Button
+          type="submit"
+          data-testid="submit-transaction-button"
+          variant="primary"
         >
-          {settings.paymentMethods.map((paymentMethod: PaymentMethod) => (
-            <option
-              key={paymentMethod.id.toString()}
-              value={paymentMethod.title}
-            >
-              {paymentMethod.title}
-            </option>
-          ))}
-        </select>
-      </label>
-      <footer>
-        <button type="submit" data-testid="submit-transaction-button">
-          {transaction ? "💾" : "➕"}
-        </button>
-      </footer>
+          {transaction ? "💾 Save" : "➕ Add"}
+        </Button>
+      </Stack>
     </form>
   );
 }

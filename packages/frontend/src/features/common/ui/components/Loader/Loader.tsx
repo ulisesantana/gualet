@@ -1,6 +1,11 @@
 import React from "react";
-import "./Loader.css";
+
+import { LoadingSpinner } from "../Layout";
 
 export function Loader(props: React.HTMLProps<HTMLDivElement>) {
-  return <div {...props} className="loader" data-testid="loader"></div>;
+  return (
+    <div {...props} data-testid="loader">
+      <LoadingSpinner />
+    </div>
+  );
 }

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
+import { render, screen } from "@test/test-utils";
 
 import { SettingsProvider, useSettingsContext } from "./SettingsContext";
 

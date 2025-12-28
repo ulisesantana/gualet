@@ -1,5 +1,4 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
 import {
   Category,
   Day,
@@ -9,6 +8,7 @@ import {
   Transaction,
 } from "@gualet/shared";
 import { vi } from "vitest";
+import { render, screen } from "@test/test-utils";
 
 import { TransactionCard } from "./TransactionCard";
 
@@ -42,10 +42,15 @@ describe("TransactionCard", () => {
   });
 
   it("render outcome transactions", () => {
-    render(<TransactionCard transaction={mockTransaction} />);
+    const { container } = render(
+      <TransactionCard transaction={mockTransaction} />,
+    );
 
     const amountElement = screen.getByText("-150,00 €");
-    expect(amountElement).toHaveClass("outcome");
+    expect(amountElement).toBeInTheDocument();
+    // Chakra UI Badge with red colorScheme for outcome
+    const badge = container.querySelector('[class*="chakra-badge"]');
+    expect(badge).toBeInTheDocument();
   });
 
   it("render income transaction", () => {
@@ -54,9 +59,14 @@ describe("TransactionCard", () => {
       operation: OperationType.Income,
     });
 
-    render(<TransactionCard transaction={mockIncomeTransaction} />);
+    const { container } = render(
+      <TransactionCard transaction={mockIncomeTransaction} />,
+    );
 
     const amountElement = screen.getByText("150,00 €"); // No '-' for income
-    expect(amountElement).toHaveClass("income");
+    expect(amountElement).toBeInTheDocument();
+    // Chakra UI Badge with green colorScheme for income
+    const badge = container.querySelector('[class*="chakra-badge"]');
+    expect(badge).toBeInTheDocument();
   });
 });

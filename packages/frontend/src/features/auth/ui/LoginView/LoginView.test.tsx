@@ -1,8 +1,8 @@
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { routes } from "@common/infrastructure/routes";
 import { CommandResponse } from "@common/domain/types";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { LoginUseCase } from "../../application/cases";
 import { LoginForm, LoginView } from "./LoginView";
@@ -31,8 +31,12 @@ describe("LoginForm", () => {
     const mockLoginUseCase = createMockLoginUseCase({ success: true });
     render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
-    expect(screen.getByLabelText(/email:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password:/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/enter your email/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/enter your password/i),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("submit-login")).toBeInTheDocument();
   });
 
@@ -40,10 +44,10 @@ describe("LoginForm", () => {
     const mockLoginUseCase = createMockLoginUseCase({ success: true });
     render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
-    fireEvent.change(screen.getByLabelText(/email:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), {
       target: { value: "test@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/password:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
       target: { value: "password123" },
     });
     fireEvent.click(screen.getByTestId("submit-login"));
@@ -65,10 +69,10 @@ describe("LoginForm", () => {
     });
     render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
-    fireEvent.change(screen.getByLabelText(/email:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), {
       target: { value: "test@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/password:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
       target: { value: "password123" },
     });
     fireEvent.click(screen.getByTestId("submit-login"));
@@ -82,7 +86,7 @@ describe("LoginForm", () => {
     const mockLoginUseCase = createMockLoginUseCase({ success: true });
     render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
-    fireEvent.change(screen.getByLabelText(/password:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
       target: { value: "password123" },
     });
     fireEvent.click(screen.getByTestId("submit-login"));
@@ -94,7 +98,7 @@ describe("LoginForm", () => {
     const mockLoginUseCase = createMockLoginUseCase({ success: true });
     render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
-    fireEvent.change(screen.getByLabelText(/email:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), {
       target: { value: "test@example.com" },
     });
     fireEvent.click(screen.getByTestId("submit-login"));
@@ -105,15 +109,15 @@ describe("LoginForm", () => {
   it("shows error message when login throws an exception", async () => {
     const errorMessage = "Server error";
     const mockLoginUseCase = {
-      exec: vi.fn().mockRejectedValue(errorMessage),
+      exec: vi.fn().mockRejectedValue(new Error(errorMessage)),
     } as unknown as LoginUseCase;
 
     render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
-    fireEvent.change(screen.getByLabelText(/email:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), {
       target: { value: "test@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/password:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
       target: { value: "password123" },
     });
     fireEvent.click(screen.getByTestId("submit-login"));
@@ -143,10 +147,10 @@ describe("LoginForm", () => {
     render(<LoginForm loginUseCase={mockLoginUseCase} />);
 
     // First call - error
-    fireEvent.change(screen.getByLabelText(/email:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), {
       target: { value: "test@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/password:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
       target: { value: "password123" },
     });
     fireEvent.click(screen.getByTestId("submit-login"));
@@ -169,8 +173,12 @@ describe("LoginView", () => {
     const mockLoginUseCase = createMockLoginUseCase({ success: true });
     render(<LoginView loginUseCase={mockLoginUseCase} />);
 
-    expect(screen.getByLabelText(/email:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password:/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/enter your email/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/enter your password/i),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("submit-login")).toBeInTheDocument();
   });
 });

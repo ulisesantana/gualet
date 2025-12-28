@@ -1,6 +1,14 @@
 import React, { useState } from "react";
+import {
+  AlertMessage,
+  Box,
+  Button,
+  Container,
+  Heading,
+  Input,
+  Stack,
+} from "@common/ui/components";
 
-import "./RegisterView.css";
 import { SignUpUseCase } from "../../application/cases";
 
 export interface RegisterFormProps {
@@ -35,36 +43,63 @@ export function RegisterForm({ signUpUseCase }: RegisterFormProps) {
             callback();
           } else {
             console.error("Registration error:", result.error);
-            callback(result.error);
+            callback(result.error || "Registration failed");
           }
         })
-        .catch(callback);
+        .catch((error) => {
+          // Extract error message from Error object
+          const message = error?.message || "An unexpected error occurred";
+          callback(message);
+        });
     }
   };
 
   return (
-    <div className="register-view">
-      <form className="sign-up-form" onSubmit={onSubmitHandler}>
-        <label>
-          <span>Email:</span>
-          <input type="text" name="email" required />
-        </label>
-        <label>
-          <span>Password:</span>
-          <input type="password" name="password" required />
-        </label>
-        <small>Password must contain at least 6 characters</small>
-        <footer>
-          <button type="submit" name="sign-up" data-testid="submit-sign-up">
-            REGISTER
-          </button>
-        </footer>
-      </form>
-      {successMessage && (
-        <span className="success-message">{successMessage}</span>
-      )}
-      {errorMessage && <span className="error-message">{errorMessage}</span>}
-    </div>
+    <Container maxW="md" py={8}>
+      <Box bg="white" p={8} borderRadius="lg" boxShadow="md">
+        <Heading marginBottom={6} textAlign="center">
+          Register
+        </Heading>
+        <form onSubmit={onSubmitHandler}>
+          <Stack gap={4}>
+            <Input
+              label="Email"
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              required
+            />
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+              helperText="Password must contain at least 6 characters"
+            />
+            <Button
+              type="submit"
+              name="sign-up"
+              data-testid="submit-sign-up"
+              width="full"
+              mt={4}
+            >
+              REGISTER
+            </Button>
+          </Stack>
+        </form>
+        {successMessage && (
+          <Box mt={4}>
+            <AlertMessage status="success">{successMessage}</AlertMessage>
+          </Box>
+        )}
+        {errorMessage && (
+          <Box mt={4}>
+            <AlertMessage status="error">{errorMessage}</AlertMessage>
+          </Box>
+        )}
+      </Box>
+    </Container>
   );
 }
 

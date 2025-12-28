@@ -1,13 +1,18 @@
 import React, { FormEventHandler, useEffect, useState } from "react";
 import { useLoader } from "@common/infrastructure/hooks";
 import { Nullable } from "@common/domain/types";
-
-import { CategoryReport } from "../../domain/report/categoryReport";
-import { Report } from "../../domain/report/report";
-import { GetReportUseCase } from "../../application/get-report/get-report.use-case";
-
-import "./ReportView.css";
+import {
+  Box,
+  Button,
+  Container,
+  Heading,
+  Input,
+  Stack,
+  Text,
+} from "@common/ui/components";
 import { Day } from "@gualet/shared";
+
+import { CategoryReport, GetReportUseCase, Report } from "../..";
 
 interface FetchReportParams {
   getReportUseCase: GetReportUseCase;
@@ -49,6 +54,8 @@ export function ReportView({ getReportUseCase }: ReportViewProps) {
   const [toDate, setToDate] = useState(today.toString());
   const { isLoading, setIsLoading } = useLoader();
   const [report, setReport] = useState<Nullable<Report>>(null);
+  const [expandedIncome, setExpandedIncome] = useState(false);
+  const [expandedOutcome, setExpandedOutcome] = useState(false);
 
   useEffect(() => {
     fetchReport({
@@ -72,83 +79,120 @@ export function ReportView({ getReportUseCase }: ReportViewProps) {
   };
 
   return (
-    <div className="report-view">
-      <h2>Report</h2>
-      <form onSubmit={onSubmit}>
-        <div>
-          <label htmlFor="fromDate">From:</label>
-          <input
-            type="date"
-            id="fromDate"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="toDate">To:</label>
-          <input
-            type="date"
-            id="toDate"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Fetching..." : "Get report"}
-        </button>
-      </form>
+    <Container maxW="1200px" py={6}>
+      <Stack gap={6}>
+        <Heading as="h2" size="xl">
+          Report
+        </Heading>
 
-      {report ? (
-        <>
-          <h3 className="balance">
-            {`Balance for transactions between ${report.from} and ${report.to}: `}
-            <span className={report.total >= 0 ? "income" : "outcome"}>
-              {report.total}
-            </span>
-          </h3>
-          {!!report.incomeReport.totalByCategories.length && (
-            <CategoryReportList title="Income" report={report.incomeReport} />
-          )}
-          {!!report.outcomeReport.totalByCategories.length && (
-            <CategoryReportList title="Outcome" report={report.outcomeReport} />
-          )}
-        </>
-      ) : (
-        <p>No data</p>
-      )}
-    </div>
+        <Box as="form" onSubmit={onSubmit}>
+          <Stack gap={4}>
+            <Input
+              label="From"
+              type="date"
+              id="fromDate"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              required
+            />
+            <Input
+              label="To"
+              type="date"
+              id="toDate"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              required
+            />
+            <Button type="submit" disabled={isLoading} variant="primary">
+              {isLoading ? "Fetching..." : "Get report"}
+            </Button>
+          </Stack>
+        </Box>
+
+        {report ? (
+          <Stack gap={4}>
+            <Box>
+              <Text fontSize="lg">
+                {`Balance for transactions between ${report.from} and ${report.to}: `}
+                <Text
+                  as="span"
+                  fontWeight="bold"
+                  color={report.total >= 0 ? "green.600" : "red.600"}
+                >
+                  {report.total}
+                </Text>
+              </Text>
+            </Box>
+            {!!report.incomeReport.totalByCategories.length && (
+              <CategoryReportList
+                title="Income"
+                report={report.incomeReport}
+                isExpanded={expandedIncome}
+                onToggle={() => setExpandedIncome(!expandedIncome)}
+              />
+            )}
+            {!!report.outcomeReport.totalByCategories.length && (
+              <CategoryReportList
+                title="Outcome"
+                report={report.outcomeReport}
+                isExpanded={expandedOutcome}
+                onToggle={() => setExpandedOutcome(!expandedOutcome)}
+              />
+            )}
+          </Stack>
+        ) : (
+          <Text>No data</Text>
+        )}
+      </Stack>
+    </Container>
   );
 }
 
 function CategoryReportList({
   title,
   report,
+  isExpanded,
+  onToggle,
 }: {
   title: string;
   report: CategoryReport;
+  isExpanded: boolean;
+  onToggle: () => void;
 }) {
   return (
-    <details>
-      <summary role="button">
-        {title}:{" "}
-        <span className={report.total >= 0 ? "income" : "outcome"}>
-          {report.total}
-        </span>
-      </summary>
-      <ul>
-        {report.totalByCategories.map(
-          ([total, category]: [
-            number,
-            { id: { toString: () => string }; title: string },
-          ]) => (
-            <li
-              key={category.id.toString()}
-            >{`${category.title}: ${total}`}</li>
-          ),
-        )}
-      </ul>
-    </details>
+    <Box>
+      <Button
+        variant="ghost"
+        w="full"
+        justifyContent="space-between"
+        onClick={onToggle}
+      >
+        <Text>
+          {title}:{" "}
+          <Text
+            as="span"
+            fontWeight="bold"
+            color={report.total >= 0 ? "green.600" : "red.600"}
+          >
+            {report.total}
+          </Text>
+        </Text>
+        <Text>{isExpanded ? "▼" : "▶"}</Text>
+      </Button>
+      {isExpanded && (
+        <Stack gap={2} pl={4} pt={2}>
+          {report.totalByCategories.map(
+            ([total, category]: [
+              number,
+              { id: { toString: () => string }; title: string },
+            ]) => (
+              <Text key={category.id.toString()}>
+                {`${category.title}: ${total}`}
+              </Text>
+            ),
+          )}
+        </Stack>
+      )}
+    </Box>
   );
 }

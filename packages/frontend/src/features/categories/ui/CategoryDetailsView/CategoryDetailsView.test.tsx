@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
 import { Category, Id, OperationType } from "@gualet/shared";
 import { useCategoryStore } from "@categories/infrastructure/useCategoryStore";
+import { render, screen, waitFor } from "@test/test-utils";
 
 import {
   GetCategoryUseCase,
@@ -48,14 +48,14 @@ describe("CategoryDetailsView", () => {
       () => new Promise(() => {}),
     );
 
-    const { container } = render(
+    render(
       <CategoryDetailsView
         getCategoryUseCase={mockGetCategoryUseCase}
         saveCategoryUseCase={mockSaveCategoryUseCase}
       />,
     );
 
-    expect(container.querySelector(".loader-container")).toBeInTheDocument();
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
   });
 
   it("should fetch and display category details", async () => {

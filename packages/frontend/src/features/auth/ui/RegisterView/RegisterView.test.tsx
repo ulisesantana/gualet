@@ -1,7 +1,7 @@
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CommandResponse } from "@common/domain/types";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { SignUpUseCase } from "../../application/cases";
 import { RegisterForm, RegisterView } from "./RegisterView";
@@ -20,8 +20,12 @@ describe("RegisterForm", () => {
     const mockSignUpUseCase = createMockSignUpUseCase({ success: true });
     render(<RegisterForm signUpUseCase={mockSignUpUseCase} />);
 
-    expect(screen.getByLabelText(/email:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password:/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/enter your email/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/enter your password/i),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("submit-sign-up")).toBeInTheDocument();
   });
 
@@ -29,10 +33,10 @@ describe("RegisterForm", () => {
     const mockSignUpUseCase = createMockSignUpUseCase({ success: true });
     render(<RegisterForm signUpUseCase={mockSignUpUseCase} />);
 
-    fireEvent.change(screen.getByLabelText(/email:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), {
       target: { value: "test@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/password:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
       target: { value: "password123" },
     });
     fireEvent.click(screen.getByTestId("submit-sign-up"));
@@ -56,10 +60,10 @@ describe("RegisterForm", () => {
     });
     render(<RegisterForm signUpUseCase={mockSignUpUseCase} />);
 
-    fireEvent.change(screen.getByLabelText(/email:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), {
       target: { value: "existing@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/password:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
       target: { value: "password123" },
     });
     fireEvent.click(screen.getByTestId("submit-sign-up"));
@@ -72,15 +76,15 @@ describe("RegisterForm", () => {
   it("shows error message when registration throws an exception", async () => {
     const errorMessage = "Server error";
     const mockSignUpUseCase = {
-      exec: vi.fn().mockRejectedValue(errorMessage),
+      exec: vi.fn().mockRejectedValue(new Error(errorMessage)),
     } as unknown as SignUpUseCase;
 
     render(<RegisterForm signUpUseCase={mockSignUpUseCase} />);
 
-    fireEvent.change(screen.getByLabelText(/email:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), {
       target: { value: "test@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/password:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
       target: { value: "password123" },
     });
     fireEvent.click(screen.getByTestId("submit-sign-up"));
@@ -101,10 +105,10 @@ describe("RegisterForm", () => {
     render(<RegisterForm signUpUseCase={mockSignUpUseCase} />);
 
     // First call - success
-    fireEvent.change(screen.getByLabelText(/email:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), {
       target: { value: "test@example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/password:/i), {
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
       target: { value: "password123" },
     });
     fireEvent.click(screen.getByTestId("submit-sign-up"));
@@ -131,8 +135,12 @@ describe("RegisterView", () => {
     const mockSignUpUseCase = createMockSignUpUseCase({ success: true });
     render(<RegisterView signUpUseCase={mockSignUpUseCase} />);
 
-    expect(screen.getByLabelText(/email:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password:/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/enter your email/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/enter your password/i),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("submit-sign-up")).toBeInTheDocument();
   });
 });

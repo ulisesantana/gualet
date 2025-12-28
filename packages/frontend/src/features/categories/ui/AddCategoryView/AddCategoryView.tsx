@@ -1,5 +1,4 @@
 import React from "react";
-
 import "./AddCategoryView.css";
 import { Category, NewCategory } from "@gualet/shared";
 import { routes } from "@common/infrastructure/routes";
@@ -30,10 +29,19 @@ export function AddCategoryView({ saveCategoryUseCase }: AddCategoryViewProps) {
     setLocation(routes.categories.list);
   };
 
+  const onError = (error: Error) => {
+    // Error will be displayed by the form's AlertMessage
+    console.error("Category save error:", error);
+  };
+
   return (
     <Transition in={match} timeout={500}>
-      <div className="category-details-view">
-        <AddCategoryForm onSubmit={onSubmit} onSuccess={onSuccess} />
+      <div className="category-details-view" data-testid="add-category-view">
+        <AddCategoryForm
+          onSubmit={onSubmit}
+          onSuccess={onSuccess}
+          onError={onError}
+        />
       </div>
     </Transition>
   );

@@ -13,8 +13,9 @@ export class RegisterPage {
     this.inputUser = page.locator('input[name="email"]');
     this.inputPass = page.locator('input[name="password"]');
     this.btnSubmit = page.locator('button[type="submit"]');
-    this.success = page.locator('span.success-message');
-    this.error = page.locator('span.error-message');
+    // AlertMessage uses role="alert" or role="status" depending on severity
+    this.success = page.locator('[role="alert"], [role="status"]');
+    this.error = page.locator('[role="alert"], [role="status"]');
   }
 
   async goto() {

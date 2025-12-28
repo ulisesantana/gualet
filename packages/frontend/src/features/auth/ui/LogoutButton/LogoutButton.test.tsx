@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@test/test-utils";
 
 import { LogoutButton } from "./LogoutButton";
 import { LogoutUseCase } from "../../application/cases";

@@ -1,7 +1,16 @@
 import React, { useState } from "react";
-import "./LoginView.css";
 import { routes } from "@common/infrastructure/routes";
 import { Link, useLocation } from "wouter";
+import {
+  AlertMessage,
+  Box,
+  Button,
+  Container,
+  Heading,
+  Input,
+  Stack,
+  Text,
+} from "@common/ui/components";
 
 import { LoginUseCase } from "../../application/cases";
 
@@ -13,7 +22,6 @@ export function LoginForm({ loginUseCase }: LoginFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [_location, setLocation] = useLocation();
   const callback = (error?: string) => {
-    console.log("error", error, error === undefined);
     if (error) {
       setErrorMessage(error);
     } else {
@@ -36,35 +44,70 @@ export function LoginForm({ loginUseCase }: LoginFormProps) {
           if (result.success) {
             callback();
           } else {
-            callback(result.error);
+            callback(result.error || "Login failed");
           }
         })
-        .catch(callback);
+        .catch((error) => {
+          // Extract error message from Error object
+          const message = error?.message || "An unexpected error occurred";
+          callback(message);
+        });
     }
   };
 
   return (
-    <div className="login-view">
-      <form className="login-form" onSubmit={onSubmitHandler}>
-        <label>
-          <span>Email:</span>
-          <input type="text" name="email" required />
-        </label>
-        <label>
-          <span>Password:</span>
-          <input type="password" name="password" required />
-        </label>
-        <footer>
-          <button type="submit" name="login" data-testid="submit-login">
-            LOGIN
-          </button>
-        </footer>
-      </form>
-      {errorMessage && <span className="error-message">{errorMessage}</span>}
-      <span className="register-cta">
-        Doesn't have an account? <Link to={routes.register}>Register!</Link>
-      </span>
-    </div>
+    <Container maxW="md" py={8}>
+      <Box bg="white" p={8} borderRadius="lg" boxShadow="md">
+        <Heading marginBottom={6} textAlign="center">
+          Login
+        </Heading>
+        <form onSubmit={onSubmitHandler}>
+          <Stack gap={4}>
+            <Input
+              label="Email"
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              required
+            />
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
+            <Button
+              type="submit"
+              name="login"
+              data-testid="submit-login"
+              width="full"
+              mt={4}
+            >
+              LOGIN
+            </Button>
+          </Stack>
+        </form>
+        {errorMessage && (
+          <Box mt={4}>
+            <AlertMessage status="error">{errorMessage}</AlertMessage>
+          </Box>
+        )}
+        <Text mt={6} textAlign="center">
+          Don't have an account?{" "}
+          <Link to={routes.register}>
+            <Text
+              as="span"
+              color="brand.500"
+              fontWeight="bold"
+              cursor="pointer"
+            >
+              Register!
+            </Text>
+          </Link>
+        </Text>
+      </Box>
+    </Container>
   );
 }
 

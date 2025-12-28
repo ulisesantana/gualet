@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Id, PaymentMethod } from "@gualet/shared";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { PaymentMethodCard } from "./PaymentMethodCard";
 

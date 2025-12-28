@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { act, renderHook, waitFor } from "@testing-library/react";
 import { Category, Day, Id, OperationType, Transaction } from "@gualet/shared";
 import { TransactionBuilder } from "@test/builders";
 
+import { act, renderHook, waitFor } from "../../../../test/test-utils";
 import {
   GetLastTransactionsUseCase,
   GetTransactionUseCase,

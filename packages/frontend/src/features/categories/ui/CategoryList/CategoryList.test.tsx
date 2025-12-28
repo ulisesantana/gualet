@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
 import { Category, Id, OperationType } from "@gualet/shared";
+import { render, screen } from "@test/test-utils";
 
 import { CategoryList } from "./CategoryList";
 

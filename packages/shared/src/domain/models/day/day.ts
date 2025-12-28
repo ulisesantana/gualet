@@ -4,10 +4,8 @@ export class Day {
   private readonly date: Date;
 
   constructor(date?: string) {
-    if (!date) {
-      [date] = new Date().toISOString().split("T");
-    }
-    const [year, month, day] = date.split(/\D+/).map((x) => Number(x));
+    const d = date || new Date().toISOString().split("T")[0];
+    const [year, month, day] = d.split(/\D+/).map((x) => Number(x));
     this.date = new Date();
     this.date.setUTCHours(12);
     this.date.setUTCMinutes(0);

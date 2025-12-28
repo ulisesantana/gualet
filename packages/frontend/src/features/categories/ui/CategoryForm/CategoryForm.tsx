@@ -1,5 +1,12 @@
 import React, { RefObject, useRef, useState } from "react";
 import { Category, NewCategory, OperationType } from "@gualet/shared";
+import {
+  AlertMessage,
+  Button,
+  Input,
+  Select,
+  Stack,
+} from "@common/ui/components";
 
 import { generateOnSubmitHandler } from "./submit-handler";
 
@@ -37,44 +44,46 @@ export function CategoryForm({
   });
 
   return (
-    <form className="transaction-form" onSubmit={onSubmitHandler} ref={formRef}>
-      {errorMessage && (
-        <div className="error-message" data-testid="error-message">
-          {errorMessage}
-        </div>
-      )}
+    <form onSubmit={onSubmitHandler} ref={formRef}>
+      <Stack gap={4}>
+        {errorMessage && (
+          <AlertMessage status="error" data-testid="error-message">
+            {errorMessage}
+          </AlertMessage>
+        )}
 
-      <label>
-        Operation:
-        <select required name="type" defaultValue={category?.type}>
-          <option value={OperationType.Outcome}>{OperationType.Outcome}</option>
-          <option value={OperationType.Income}>{OperationType.Income}</option>
-        </select>
-      </label>
+        <Select
+          label="Operation"
+          name="type"
+          required
+          value={category?.type}
+          options={[
+            { value: OperationType.Outcome, label: OperationType.Outcome },
+            { value: OperationType.Income, label: OperationType.Income },
+          ]}
+        />
 
-      <label>
-        <span>Name:</span>
-        <input
+        <Input
+          label="Name"
           type="text"
           name="name"
           required
           placeholder="Enter category name"
           defaultValue={category?.name}
         />
-      </label>
 
-      <label>
-        <span>Icon:</span>
-        <input
+        <Input
+          label="Icon"
           type="text"
           name="icon"
           defaultValue={category?.icon}
           placeholder="Add an emoji as an icon"
         />
-      </label>
-      <footer>
-        <button type="submit">{category ? "💾" : "➕"}</button>
-      </footer>
+
+        <Button type="submit" variant="primary">
+          {category ? "💾 Save" : "➕ Add"}
+        </Button>
+      </Stack>
     </form>
   );
 }

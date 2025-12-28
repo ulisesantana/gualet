@@ -12,7 +12,8 @@ export class LoginPage {
     this.inputUser = page.locator('input[name="email"]');
     this.inputPass = page.locator('input[name="password"]');
     this.btnSubmit = page.locator('button[type="submit"]');
-    this.error = page.locator('span.error-message');
+    // AlertMessage component uses role="alert" or role="status" depending on severity
+    this.error = page.locator('[role="alert"], [role="status"]');
   }
 
   async goto() {

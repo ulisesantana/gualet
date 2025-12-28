@@ -1,8 +1,16 @@
-import "./CategoryCard.css";
 import { generatePath, routes } from "@common/infrastructure/routes";
 import { useLocation } from "wouter";
 import { Category, Transaction } from "@gualet/shared";
 import { useState } from "react";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Stack,
+  Text,
+} from "@common/ui/components";
 
 export interface CategoryCardProps {
   category: Category;
@@ -37,33 +45,44 @@ export function CategoryCard({ category, onDelete }: CategoryCardProps) {
   };
 
   return (
-    <div className="category-card-container">
-      <div className="category-card">
-        <div className="category-card-title">{category.title}</div>
-        <div
-          className={
-            "category-card-type " +
-            (Transaction.isOutcome(category.type) ? "outcome" : "income")
-          }
-        >
-          {category.type}
-        </div>
-        <div className="category-card-actions">
+    <Card marginBottom={3}>
+      <Flex justify="space-between" align="center">
+        <Box flex="1">
+          <Text fontWeight="semibold" fontSize="lg">
+            {category.title}
+          </Text>
+          <Badge
+            colorScheme={Transaction.isOutcome(category.type) ? "red" : "green"}
+            mt={1}
+            data-testid={`category-type-${Transaction.isOutcome(category.type) ? "outcome" : "income"}`}
+          >
+            {category.type}
+          </Badge>
+        </Box>
+        <Stack direction="row" gap={2}>
           {onDelete && (
-            <button
+            <Button
+              variant="danger"
               onClick={handleDelete}
               aria-label="Delete category"
               title="Delete"
-              disabled={isDeleting}
+              isLoading={isDeleting}
+              size="sm"
             >
-              {isDeleting ? "⏳" : "🗑️"}
-            </button>
+              🗑️
+            </Button>
           )}
-          <button onClick={handleEdit} aria-label="Edit category" title="Edit">
+          <Button
+            variant="secondary"
+            onClick={handleEdit}
+            aria-label="Edit category"
+            title="Edit"
+            size="sm"
+          >
             ✏️
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Stack>
+      </Flex>
+    </Card>
   );
 }
