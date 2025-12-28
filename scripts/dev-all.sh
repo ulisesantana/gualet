@@ -57,7 +57,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # Start backend and frontend in parallel
-npm run dev -w @gualet/backend &
+npm run start:debug -w @gualet/backend &
 BACKEND_PID=$!
 
 # Wait a bit for backend to start

@@ -1,22 +1,25 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useCallback, useEffect, useState } from "react";
+import { Transition } from "react-transition-group";
+import { useLocation, useRoute } from "wouter";
 import "./TransactionDetailsView.css";
 import { TransactionConfig } from "@domain/models";
 import { routes } from "@common/infrastructure/routes";
-import { useRoute } from "wouter";
-import { Transition } from "react-transition-group";
 import { useLoader } from "@common/infrastructure/hooks";
-import { Id, Nullable, Transaction } from "@gualet/shared";
+import { Id, Nullable } from "@gualet/shared";
 
 import {
+  GetLastTransactionsUseCase,
   GetTransactionConfigUseCase,
   GetTransactionUseCase,
   RemoveTransactionUseCase,
   SaveTransactionUseCase,
-} from "../../application/cases";
+  setUseCases,
+  useTransactionStore,
+} from "../..";
 import { EditTransactionForm } from "../TransactionForm";
 
 interface TransactionDetailsViewProps {
+  getLastTransactionsUseCase: GetLastTransactionsUseCase;
   getTransactionUseCase: GetTransactionUseCase;
   getTransactionConfigUseCase: GetTransactionConfigUseCase;
   saveTransactionUseCase: SaveTransactionUseCase;
@@ -24,50 +27,77 @@ interface TransactionDetailsViewProps {
 }
 
 export function TransactionDetailsView({
+  getLastTransactionsUseCase,
   getTransactionUseCase,
   getTransactionConfigUseCase,
   saveTransactionUseCase,
   removeTransactionUseCase,
 }: TransactionDetailsViewProps) {
-  const [match, params] = useRoute(routes.transactions.details);
+  const [match, params] = useRoute<{ id: string }>(routes.transactions.details);
+  const [, setLocation] = useLocation();
   const { isLoading, setIsLoading, Loader } = useLoader();
-  const [transaction, setTransaction] = useState<Transaction | undefined>(
-    undefined,
+
+  // Use transaction store
+  const currentTransaction = useTransactionStore(
+    (state) => state.currentTransaction,
   );
+  const fetchTransaction = useTransactionStore(
+    (state) => state.fetchTransaction,
+  );
+  const saveTransaction = useTransactionStore((state) => state.saveTransaction);
+  const removeTransaction = useTransactionStore(
+    (state) => state.removeTransaction,
+  );
+
+  // Local state for config (not in store yet)
   const [transactionConfig, setTransactionConfig] =
     useState<Nullable<TransactionConfig>>(null);
 
   useEffect(() => {
-    getTransactionUseCase
-      // @ts-ignore
-      .exec(new Id(params?.id))
-      .then((transaction: Transaction) => {
-        setTransaction(transaction);
-        return getTransactionConfigUseCase.exec();
-      })
-      .then(setTransactionConfig)
-      .catch((error: Error) => {
-        console.error("Error getting data");
-        console.error(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
+    // Inject use cases
+    setUseCases(
+      getLastTransactionsUseCase,
+      getTransactionUseCase,
+      saveTransactionUseCase,
+      removeTransactionUseCase,
+    );
 
-  const onSubmit = async (transaction: Transaction) => {
-    await saveTransactionUseCase.exec(transaction);
-    // Redirect to home after saving
-    window.location.href = "/";
-  };
+    if (params?.id) {
+      // Fetch transaction from store
+      fetchTransaction(new Id(params.id));
 
-  const onRemove = () => {
-    if (transaction) {
-      removeTransactionUseCase.exec(transaction.id).then(() => {
-        window.location.href = "/";
-      });
+      // Fetch config
+      getTransactionConfigUseCase
+        .exec()
+        .then(setTransactionConfig)
+        .catch((error: Error) => {
+          console.error("Error getting transaction config");
+          console.error(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.id]);
+
+  const onSubmit = useCallback(
+    async (transaction: typeof currentTransaction) => {
+      if (!transaction) return;
+
+      await saveTransaction(transaction);
+      // Navigate using wouter to preserve store state (SPA navigation)
+      setLocation("/");
+    },
+    [saveTransaction, setLocation],
+  );
+
+  const onRemove = useCallback(async () => {
+    if (currentTransaction) {
+      await removeTransaction(currentTransaction.id);
+      setLocation("/");
+    }
+  }, [currentTransaction, removeTransaction, setLocation]);
 
   return (
     <Transition in={match} timeout={500}>
@@ -78,11 +108,11 @@ export function TransactionDetailsView({
           </div>
         ) : (
           <div className="content">
-            {transaction && transactionConfig ? (
+            {currentTransaction && transactionConfig ? (
               <>
-                <p className="description">{transaction.toString()}</p>
+                <p className="description">{currentTransaction.toString()}</p>
                 <EditTransactionForm
-                  transaction={transaction}
+                  transaction={currentTransaction}
                   settings={transactionConfig}
                   onSubmit={onSubmit}
                 />

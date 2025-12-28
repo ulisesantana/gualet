@@ -8,6 +8,7 @@ export * from "./application/get-transaction-settings";
 
 // Infrastructure exports
 export * from "./infrastructure/transaction";
+export * from "./infrastructure/useTransactionStore";
 
 // UI exports
 export * from "./ui/LastTransactionsView";

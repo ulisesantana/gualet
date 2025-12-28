@@ -37,12 +37,12 @@ vi.mock("@common/infrastructure/hooks", () => ({
   useLoader: vi.fn(() => ({
     isLoading: false,
     setIsLoading: vi.fn(),
-    Loader: () => <div>Loader</div>,
+    Loader: () => <div data-testid="loader">Loading...</div>,
   })),
 }));
 
 vi.mock("@components", () => ({
-  Loader: () => <div>Loader</div>,
+  Loader: () => <div data-testid="loader">Loading...</div>,
   LogoutButton: () => <button>Logout</button>,
 }));
 
@@ -68,7 +68,7 @@ describe("SettingsView", () => {
         logoutUseCase={mockLogoutUseCase}
       />,
     );
-    expect(screen.getByText("Loader")).toBeInTheDocument();
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
   });
 
   it("renders settings options after loading", async () => {

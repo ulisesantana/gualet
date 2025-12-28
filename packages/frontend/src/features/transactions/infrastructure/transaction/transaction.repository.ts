@@ -147,7 +147,9 @@ export class TransactionRepositoryImplementation
       criteria.from = new Day("1970-01-01");
     }
     if (!criteria.to) {
-      criteria.to = new Day();
+      const today = new Date();
+      today.setDate(today.getDate() + 1);
+      criteria.to = new Day(today.toISOString());
     }
 
     // Build query params
@@ -157,6 +159,21 @@ export class TransactionRepositoryImplementation
     }
     if (criteria.to) {
       params.append("to", criteria.to.toString());
+    }
+    if (criteria.categoryId) {
+      params.append("categoryId", criteria.categoryId.toString());
+    }
+    if (criteria.paymentMethodId) {
+      params.append("paymentMethodId", criteria.paymentMethodId.toString());
+    }
+    if (criteria.operation) {
+      params.append("operation", criteria.operation);
+    }
+    // Add sort parameter (default to descending for most recent first)
+    if (criteria.sort) {
+      params.append("sort", criteria.sort);
+    } else {
+      params.append("sort", "desc");
     }
     // If pageSize is not specified, request all transactions (pageSize=0)
     if (criteria.pageSize === undefined) {
@@ -202,7 +219,7 @@ export class TransactionRepositoryImplementation
   async findLast(limit: number): Promise<Transaction[]> {
     const { success, error, data } = await this.handleQueryResponse(
       this.http.get<FindTransactionsResponse>(
-        `${this.path}?limit=${limit}&sort=desc`,
+        `${this.path}?pageSize=${limit}&sort=desc`,
       ),
     );
 
@@ -211,9 +228,10 @@ export class TransactionRepositoryImplementation
       return [];
     }
 
-    return data.transactions
-      .map(TransactionRepositoryImplementation.mapToTransaction)
-      .slice(0, limit);
+    // Backend returns transactions already sorted by date descending
+    return data.transactions.map(
+      TransactionRepositoryImplementation.mapToTransaction,
+    );
   }
 
   remove(id: Id): Promise<CommandResponse> {

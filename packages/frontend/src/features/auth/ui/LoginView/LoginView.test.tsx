@@ -1,13 +1,11 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-
-import { LoginForm, LoginView } from "./LoginView";
-import { LoginUseCase } from "../../application/cases";
-
-import "@testing-library/jest-dom";
 import { describe, expect, it, vi } from "vitest";
 import { routes } from "@common/infrastructure/routes";
 import { CommandResponse } from "@common/domain/types";
+
+import { LoginUseCase } from "../../application/cases";
+import { LoginForm, LoginView } from "./LoginView";
 
 // Mock para useLocation
 const mockSetLocation = vi.fn();

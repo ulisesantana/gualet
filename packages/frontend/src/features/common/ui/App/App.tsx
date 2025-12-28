@@ -1,6 +1,5 @@
 import React from "react";
 import { Route, Router } from "wouter";
-
 // Auth
 import {
   LoginUseCase,
@@ -11,7 +10,6 @@ import {
   SignUpUseCase,
   VerifySessionUseCase,
 } from "@auth";
-
 // Categories
 import {
   AddCategoryView,
@@ -22,7 +20,6 @@ import {
   GetCategoryUseCase,
   SaveCategoryUseCase,
 } from "@categories";
-
 // Payment Methods
 import {
   AddPaymentMethodView,
@@ -33,7 +30,6 @@ import {
   PaymentMethodsView,
   SavePaymentMethodUseCase,
 } from "@payment-methods";
-
 // Transactions
 import {
   GetLastTransactionsUseCase,
@@ -44,17 +40,14 @@ import {
   SaveTransactionUseCase,
   TransactionDetailsView,
 } from "@transactions";
-
 // Reports
 import { GetReportUseCase, ReportView } from "@reports";
-
 // Settings
 import {
   GetUserPreferencesUseCase,
   SaveUserPreferencesUseCase,
   SettingsView,
 } from "@settings";
-
 // Common
 import { Header } from "@common/ui/components";
 
@@ -106,8 +99,10 @@ export const App: React.FC<AppProps> = ({ cases }) => {
           >
             <LastTransactionsView
               getLastTransactionsUseCase={cases.getLastTransactionsUseCase}
+              getTransactionUseCase={cases.getTransactionUseCase}
               getTransactionConfigUseCase={cases.getTransactionConfigUseCase}
               saveTransactionUseCase={cases.saveTransactionUseCase}
+              removeTransactionUseCase={cases.removeTransactionUseCase}
               getUserPreferencesUseCase={cases.getUserPreferencesUseCase}
             />
           </ProtectedRoute>

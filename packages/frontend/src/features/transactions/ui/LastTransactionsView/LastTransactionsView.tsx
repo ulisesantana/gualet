@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./LastTransactionsView.css";
 import { Loader } from "@common/ui/components";
 import { TransactionConfig, UserPreferences } from "@domain/models";
@@ -7,88 +7,100 @@ import {
   AddTransactionForm,
   GetLastTransactionsUseCase,
   GetTransactionConfigUseCase,
+  GetTransactionUseCase,
+  RemoveTransactionUseCase,
   SaveTransactionUseCase,
+  setUseCases,
   TransactionList,
+  useTransactionStore,
 } from "@features/transactions";
 import { GetUserPreferencesUseCase } from "@settings";
 
-function sortByDay(transactions: Transaction[]) {
-  return Array.from(transactions).sort((a, b) => {
-    if (a.date.toString() < b.date.toString()) {
-      return 1;
-    }
-    if (a.date.toString() > b.date.toString()) {
-      return -1;
-    }
-    return 0;
-  });
-}
-
 interface LastTransactionsViewProps {
   getLastTransactionsUseCase: GetLastTransactionsUseCase;
+  getTransactionUseCase: GetTransactionUseCase;
   getTransactionConfigUseCase: GetTransactionConfigUseCase;
   getUserPreferencesUseCase: GetUserPreferencesUseCase;
   saveTransactionUseCase: SaveTransactionUseCase;
+  removeTransactionUseCase: RemoveTransactionUseCase;
 }
 
 export function LastTransactionsView({
   getLastTransactionsUseCase,
+  getTransactionUseCase,
   getTransactionConfigUseCase,
   getUserPreferencesUseCase,
   saveTransactionUseCase,
+  removeTransactionUseCase,
 }: LastTransactionsViewProps) {
-  const [isLoading, setIsLoading] = useState(true);
+  // Use transaction store
+  const transactions = useTransactionStore((state) => state.transactions);
+  const storeIsLoading = useTransactionStore((state) => state.isLoading);
+  const fetchLastTransactions = useTransactionStore(
+    (state) => state.fetchLastTransactions,
+  );
+  const saveTransaction = useTransactionStore((state) => state.saveTransaction);
+
+  // Local state for config and preferences (not in store yet)
+  const [configIsLoading, setConfigIsLoading] = useState(true);
   const [transactionConfig, setTransactionConfig] =
     useState<Nullable<TransactionConfig>>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [preferences, setPreferences] =
     useState<Nullable<UserPreferences>>(null);
 
+  // Inject use cases and load data on mount
   useEffect(() => {
-    setIsLoading(true);
-    getLastTransactionsUseCase
-      .exec(25)
-      .then((transactions) => {
-        setTransactions(sortByDay(transactions));
-        return getTransactionConfigUseCase.exec();
-      })
+    setUseCases(
+      getLastTransactionsUseCase,
+      getTransactionUseCase,
+      saveTransactionUseCase,
+      removeTransactionUseCase,
+    );
+
+    // Fetch transactions from store
+    fetchLastTransactions(25);
+
+    // Fetch config and preferences
+    setConfigIsLoading(true);
+    getTransactionConfigUseCase
+      .exec()
       .then((config) => {
         console.log("Transaction config", config);
         setTransactionConfig(config);
+        return getUserPreferencesUseCase.exec();
+      })
+      .then((userPreferences: UserPreferences | null) => {
+        console.log("User preferences", userPreferences);
+        if (userPreferences) {
+          setPreferences(userPreferences);
+        } else if (transactionConfig) {
+          console.warn("No user preferences found, using defaults.");
+          setPreferences({
+            defaultPaymentMethod: transactionConfig.paymentMethods[0],
+          });
+        } else {
+          console.error("No user preferences or transaction config found.");
+        }
       })
       .catch((error) => {
-        console.error("Error getting last transactions");
+        console.error("Error getting transaction config or preferences");
         console.error(error);
       })
       .finally(() => {
-        setIsLoading(false);
+        setConfigIsLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (transactionConfig && !preferences) {
-      getUserPreferencesUseCase
-        .exec()
-        .then((userPreferences: UserPreferences | null) => {
-          console.log("User preferences", userPreferences);
-          if (userPreferences) {
-            setPreferences(userPreferences);
-          } else if (transactionConfig) {
-            console.warn("No user preferences found, using defaults.");
-            setPreferences(() => ({
-              defaultPaymentMethod: transactionConfig.paymentMethods[0],
-            }));
-          } else {
-            console.error("No user preferences or transaction config found.");
-          }
-        });
-    }
-  }, [transactionConfig]);
+  const onSubmit = useCallback(
+    async (transaction: Transaction) => {
+      await saveTransaction(transaction);
+      // Store automatically updates transactions list with sorting
+    },
+    [saveTransaction],
+  );
 
-  const onSubmit = async (transaction: Transaction) => {
-    await saveTransactionUseCase.exec(transaction);
-    setTransactions(sortByDay([transaction, ...transactions]));
-  };
+  const isLoading = storeIsLoading || configIsLoading;
 
   return (
     <div

@@ -121,22 +121,28 @@ test.describe('Transactions Management', () => {
     // Wait for navigation to details page
     await page.waitForURL(`/transactions/details/${transaction.id}`);
 
-    // Edit the transaction
+    // Edit the transaction (will wait for automatic redirect to home)
     await transactionsPage.editTransaction({
       description: updatedDescription,
       amount: 150,
     });
 
-    // The edit form doesn't redirect automatically, so we manually navigate back
-    // Wait for transaction to persist to database
-    await page.waitForTimeout(1000);
+    // Now we should be on the home page
+    await expect(page).toHaveURL('/');
 
-    // Navigate back to transactions list
-    await page.goto('/');
-    await page.waitForTimeout(500);
+    // Wait for the page to fully load and transactions to be fetched
+    await page.waitForLoadState('networkidle');
 
-    // Verify the updated transaction is visible
-    await transactionsPage.verifyTransactionExists('Groceries');
+    // Wait extra time for the location effect to trigger and fetch transactions
+    await page.waitForTimeout(3000);
+
+
+    // Verify the transaction card is still visible (by data-id, since description is not shown in card)
+    await transactionsPage.verifyTransactionExistsByDataId(transaction.id);
+
+    // Verify the amount is updated in the card (150.00 formatted)
+    const transactionCard = transactionsPage.getTransactionByDataId(transaction.id);
+    await expect(transactionCard).toContainText('150');
 
     // Verify in database
     const updatedTransaction = await db.getTransactionById(transaction.id);

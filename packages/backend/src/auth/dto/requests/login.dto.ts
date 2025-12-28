@@ -11,7 +11,7 @@ export class LoginDto {
 
   @ApiProperty({
     description: 'User password',
-    example: '1234',
+    example: 'test1234',
   })
   @Required('1234')
   password: string;

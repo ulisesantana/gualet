@@ -15,6 +15,5 @@ export * from "./infrastructure/index";
 export * from "./infrastructure/types";
 
 // UI exports
-export * from "./ui/Header";
-export * from "./ui/Loader";
+export * from "./ui/components";
 export * from "./ui/App";

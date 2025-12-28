@@ -193,7 +193,11 @@ export class TransactionsRepository {
     transaction: TransactionPayload,
   ): Promise<Transaction> {
     const existingTransaction = await this.entityRepository.findOne({
-      where: { id: transaction.id.toString(), user: { id: userId.toString() } },
+      where: {
+        id: transaction.id.toString(),
+        user: { id: userId.toString() },
+      },
+      relations: ['user'],
     });
 
     if (!existingTransaction) {
@@ -214,12 +218,17 @@ export class TransactionsRepository {
         category: { id: transaction.categoryId },
         payment_method: { id: transaction.paymentMethodId },
       });
-    return TransactionsRepository.mapToDomain(savedTransaction);
+    return TransactionsRepository.mapToDomain({
+      ...savedTransaction,
+      category: existingTransaction.category,
+      payment_method: existingTransaction.payment_method,
+    });
   }
 
   async delete(userId: Id, transactionId: Id): Promise<void> {
     const existingTransaction = await this.entityRepository.findOne({
       where: { id: transactionId.toString() },
+      relations: ['user'],
     });
 
     if (!existingTransaction) {

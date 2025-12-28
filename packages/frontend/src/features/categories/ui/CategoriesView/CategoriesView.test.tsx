@@ -52,13 +52,13 @@ vi.mock("@categories/infrastructure/useCategoryStore", () => ({
 
 vi.mock("@components", () => ({
   CategoryList: ({ categories }: { categories: Category[] }) => (
-    <div data-testid="category-list">
+    <ul className="category-card-list">
       {categories.map((category) => (
-        <div key={category.id.toString()}>{category.name}</div>
+        <li key={category.id.toString()}>{category.name}</li>
       ))}
-    </div>
+    </ul>
   ),
-  Loader: () => <div>Loader</div>,
+  Loader: () => <div data-testid="loader">Loading...</div>,
 }));
 
 describe("CategoriesView", () => {
@@ -92,7 +92,7 @@ describe("CategoriesView", () => {
       />,
     );
 
-    expect(screen.getByText("Loader")).toBeInTheDocument();
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
 
     // Reset for other tests
     mockStore.isLoading = false;
@@ -103,6 +103,10 @@ describe("CategoriesView", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
+
+    // Ensure the store is not loading and has categories
+    mockStore.isLoading = false;
+    mockStore.categories = mockCategories;
     mockDeleteCategory.mockRejectedValueOnce(new Error("Delete failed"));
 
     render(
@@ -115,7 +119,7 @@ describe("CategoriesView", () => {
     // The error should be handled in the store
     // This test ensures the view doesn't crash
     await waitFor(() => {
-      expect(screen.getByTestId("category-list")).toBeInTheDocument();
+      expect(screen.getByRole("list")).toBeInTheDocument();
     });
 
     consoleErrorSpy.mockRestore();

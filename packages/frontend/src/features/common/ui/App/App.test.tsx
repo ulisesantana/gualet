@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { Router } from "wouter";
 import { TestRouter } from "@test/TestRouter";
 import { UseCase } from "@common/application/use-case";
+import React from "react";
 
 import {
   LoginUseCase,
@@ -11,23 +12,61 @@ import {
 } from "../../../auth/application/cases";
 import { App, AppProps } from "./App";
 
-vi.mock("@settings/ui/contexts", () => ({
-  useSession: vi.fn(),
-}));
+vi.mock("@auth", () => {
+  const actualAuth = vi.importActual("@auth");
+  return {
+    ...actualAuth,
+    LoginView: () => <div>LoginView</div>,
+    RegisterView: () => <div>RegisterView</div>,
+    ProtectedRoute: ({ children, verifySessionUseCase, path }: any) => {
+      const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+      const [loading, setLoading] = React.useState(true);
 
-vi.mock("@views", () => ({
+      React.useEffect(() => {
+        verifySessionUseCase
+          .exec()
+          .then((result: any) => {
+            setIsAuthenticated(result.success);
+          })
+          .catch(() => {
+            setIsAuthenticated(false);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }, [verifySessionUseCase]);
+
+      if (loading) return null;
+      if (!isAuthenticated) return null;
+
+      return <>{children}</>;
+    },
+  };
+});
+
+vi.mock("@categories", () => ({
   AddCategoryView: () => <div>AddCategoryView</div>,
-  AddPaymentMethodView: () => <div>AddPaymentMethodView</div>,
   CategoriesView: () => <div>CategoriesView</div>,
   CategoryDetailsView: () => <div>CategoryDetailsView</div>,
-  LastTransactionsView: () => <div>LastTransactionsView</div>,
-  LoginView: () => <div>LoginView</div>,
+}));
+
+vi.mock("@payment-methods", () => ({
+  AddPaymentMethodView: () => <div>AddPaymentMethodView</div>,
   PaymentMethodDetailsView: () => <div>PaymentMethodDetailsView</div>,
   PaymentMethodsView: () => <div>PaymentMethodsView</div>,
-  RegisterView: () => <div>RegisterView</div>,
-  ReportView: () => <div>ReportView</div>,
-  SettingsView: () => <div>SettingsView</div>,
+}));
+
+vi.mock("@transactions", () => ({
+  LastTransactionsView: () => <div>LastTransactionsView</div>,
   TransactionDetailsView: () => <div>TransactionDetailsView</div>,
+}));
+
+vi.mock("@reports", () => ({
+  ReportView: () => <div>ReportView</div>,
+}));
+
+vi.mock("@settings", () => ({
+  SettingsView: () => <div>SettingsView</div>,
 }));
 
 describe("App Component", () => {
@@ -58,7 +97,7 @@ describe("App Component", () => {
   it("renders login view when no session is present", async () => {
     render(
       <Router>
-        <TestRouter path="/" />
+        <TestRouter path="/login" />
         <App {...props} />
       </Router>,
     );

@@ -1,6 +1,7 @@
-import { TransactionRepository } from "../transaction.repository";
 import { UseCase } from "@common/application/use-case";
 import { Transaction } from "@gualet/shared";
+
+import { TransactionRepository } from "../transaction.repository";
 
 export class GetLastTransactionsUseCase
   implements UseCase<number, Promise<Transaction[]>>

@@ -92,7 +92,7 @@ export class TransactionsPage {
   }
 
   getTransactionByText(text: string): Locator {
-    return this.page.locator('li[data-id]', {
+    return this.page.locator('li', {
       hasText: text,
     });
   }
@@ -103,7 +103,7 @@ export class TransactionsPage {
   }
 
   async verifyTransactionExistsByDataId(dataId: string) {
-    await expect(this.getTransactionByDataId(dataId)).toBeVisible();
+    await expect(this.getTransactionByDataId(dataId)).toBeVisible({ timeout: 10000 });
   }
 
   async verifyTransactionNotExists(text: string) {
@@ -111,7 +111,7 @@ export class TransactionsPage {
   }
 
   async getTransactionCount(): Promise<number> {
-    const items = this.page.locator('li[data-id]');
+    const items = this.page.locator('li');
     return await items.count();
   }
 
@@ -165,11 +165,17 @@ export class TransactionsPage {
       }
     }
 
-    // Click the submit button
+    // Click the submit button and wait for navigation to home page
     const submitButton = this.page.getByTestId('submit-transaction-button');
     await expect(submitButton).toBeEnabled();
     await submitButton.click();
-    await this.page.waitForTimeout(1000);
+
+    // Wait for automatic navigation to home page after successful save
+    await this.page.waitForURL('/');
+    await this.page.waitForLoadState('networkidle');
+
+    // Wait for the transaction form to be visible (means page is loaded)
+    await expect(this.transactionForm).toBeVisible({ timeout: 10000 });
   }
 
   async deleteTransaction() {

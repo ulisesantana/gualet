@@ -5,9 +5,14 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
-vi.mock("@common/infrastructure", () => ({
-  StorageDataSource: vi.fn(),
-}));
+vi.mock("@common/infrastructure", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@common/infrastructure")>();
+  return {
+    ...actual,
+    StorageDataSource: vi.fn(),
+  };
+});
 
 console.log = () => {};
 console.error = () => {};

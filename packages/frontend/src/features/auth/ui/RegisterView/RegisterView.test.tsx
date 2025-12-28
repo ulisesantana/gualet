@@ -1,14 +1,10 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { CommandResponse } from "@common/domain/types";
 
 import { SignUpUseCase } from "../../application/cases";
-
-import "@testing-library/jest-dom";
-import { describe, expect, it, vi } from "vitest";
-
 import { RegisterForm, RegisterView } from "./RegisterView";
-
-import { CommandResponse } from "@common/domain/types";
 
 function createMockSignUpUseCase({
   success = false,

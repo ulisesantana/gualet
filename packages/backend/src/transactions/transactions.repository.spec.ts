@@ -743,7 +743,11 @@ describe('TransactionsRepository', () => {
 
       // Assert
       expect(entityRepository.findOne).toHaveBeenCalledWith({
-        where: { id: transactionId.toString() },
+        where: {
+          id: transactionId.toString(),
+          user: { id: userId.toString() },
+        },
+        relations: ['user'],
       });
 
       expect(categoryRepository.findOne).toHaveBeenCalledWith({
@@ -849,6 +853,7 @@ describe('TransactionsRepository', () => {
       // Assert
       expect(entityRepository.findOne).toHaveBeenCalledWith({
         where: { id: transactionId.toString() },
+        relations: ['user'],
       });
 
       expect(entityRepository.delete).toHaveBeenCalledWith({
