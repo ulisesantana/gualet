@@ -27,6 +27,9 @@ export class UserPreferencesEntity {
   @JoinColumn({ name: 'defaultPaymentMethodId' })
   defaultPaymentMethod: PaymentMethodEntity;
 
+  @Column({ type: 'varchar', length: 2, default: 'en' })
+  language: string;
+
   @CreateDateColumn()
   createdAt: TimeString;
 

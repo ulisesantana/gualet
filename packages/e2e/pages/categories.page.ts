@@ -15,7 +15,7 @@ export class CategoriesPage {
 
   constructor(page: Page) {
     this.page = page;
-    // Buttons are in Settings view
+    // Buttons are in Settings view - using i18n English translations
     this.addCategoryButton = page.getByRole('button', { name: /add a new category/i });
     this.manageCategoriesButton = page.getByRole('button', { name: /manage categories/i });
     this.categoryForm = page.locator('form');

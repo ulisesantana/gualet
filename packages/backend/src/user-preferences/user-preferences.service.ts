@@ -24,16 +24,20 @@ export class UserPreferencesService {
         return null;
       }
 
-      return new UserPreferences(userId, defaultPaymentMethod);
+      return new UserPreferences(userId, defaultPaymentMethod, 'en');
     }
 
     return preferences;
   }
 
-  async save(userId: Id, defaultPaymentMethodId: Id): Promise<UserPreferences> {
+  async save(
+    userId: Id,
+    defaultPaymentMethodId: Id,
+    language?: string,
+  ): Promise<UserPreferences> {
     // Verify that the payment method exists and belongs to the user
     await this.paymentMethodsService.findOne(userId, defaultPaymentMethodId);
 
-    return this.repository.save(userId, defaultPaymentMethodId);
+    return this.repository.save(userId, defaultPaymentMethodId, language);
   }
 }

@@ -56,7 +56,7 @@ export function CategoryForm({
           label="Operation"
           name="type"
           required
-          value={category?.type}
+          defaultValue={category?.type}
           options={[
             { value: OperationType.Outcome, label: OperationType.Outcome },
             { value: OperationType.Income, label: OperationType.Income },

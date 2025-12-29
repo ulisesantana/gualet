@@ -1,5 +1,7 @@
 import React from "react";
 import { Route, Router } from "wouter";
+// i18n
+import "@common/infrastructure/i18n/config";
 // Auth
 import {
   LoginUseCase,

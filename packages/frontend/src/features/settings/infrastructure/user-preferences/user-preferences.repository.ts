@@ -1,10 +1,9 @@
-import { UserPreferencesRepository } from "../../application/user-preferences.repository";
 import { UserPreferences } from "@domain/models";
 import { Id, Nullable, PaymentMethod } from "@gualet/shared";
 import { BaseResponse } from "@infrastructure/types";
-import { HttpDataSource } from "@common/infrastructure";
+import { HttpDataSource, HttpRepository } from "@common/infrastructure";
 
-import { HttpRepository } from "@common/infrastructure";
+import { UserPreferencesRepository } from "../../application/user-preferences.repository";
 
 interface UserPreferencesDto {
   defaultPaymentMethod: {
@@ -13,6 +12,7 @@ interface UserPreferencesDto {
     icon: string;
     color: string;
   };
+  language: string;
 }
 
 type GetUserPreferencesResponse = BaseResponse<
@@ -52,16 +52,18 @@ export class UserPreferencesRepositoryImplementation
         icon: data.preferences.defaultPaymentMethod.icon,
         color: data.preferences.defaultPaymentMethod.color,
       }),
+      language: (data.preferences.language || "en") as "en" | "es",
     };
   }
 
   async save(preferences: UserPreferences): Promise<void> {
     const { success, error } = await this.handleQueryResponse(
       this.http.put<
-        { defaultPaymentMethodId: string },
+        { defaultPaymentMethodId: string; language?: string },
         SaveUserPreferencesResponse
       >(this.path, {
         defaultPaymentMethodId: preferences.defaultPaymentMethod.id.toString(),
+        language: preferences.language,
       }),
     );
 

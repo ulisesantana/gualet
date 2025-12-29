@@ -30,21 +30,30 @@ export class UserPreferencesRepository {
         icon: entity.defaultPaymentMethod.icon,
         color: entity.defaultPaymentMethod.color,
       }),
+      entity.language as 'en' | 'es',
     );
   }
 
-  async save(userId: Id, defaultPaymentMethodId: Id): Promise<UserPreferences> {
+  async save(
+    userId: Id,
+    defaultPaymentMethodId: Id,
+    language?: string,
+  ): Promise<UserPreferences> {
     const existing = await this.repository.findOne({
       where: { userId: userId.value },
     });
 
     if (existing) {
       existing.defaultPaymentMethodId = defaultPaymentMethodId.value;
+      if (language) {
+        existing.language = language;
+      }
       await this.repository.save(existing);
     } else {
       await this.repository.save({
         userId: userId.value,
         defaultPaymentMethodId: defaultPaymentMethodId.value,
+        language: language || 'en',
       });
     }
 

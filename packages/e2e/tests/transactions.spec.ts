@@ -369,7 +369,7 @@ test.describe('Transaction Form Validations', () => {
     await transactionsPage.operationSelect.selectOption('OUTCOME');
     await transactionsPage.categoryInput.fill('Groceries');
     await transactionsPage.amountInput.fill('100');
-    await transactionsPage.paymentMethodSelect.selectOption({ index: 0 });
+    await transactionsPage.paymentMethodSelect.selectOption({ index: 1 }); // Index 1 to skip placeholder
 
     // Browser validation should prevent submission
     await expect(transactionsPage.descriptionInput).toHaveAttribute('required', '');
@@ -396,7 +396,7 @@ test.describe('Transaction Form Validations', () => {
     await transactionsPage.categoryInput.fill('Groceries');
     await transactionsPage.amountInput.fill('0');
     await transactionsPage.descriptionInput.fill('Zero amount test');
-    await transactionsPage.paymentMethodSelect.selectOption({ index: 0 });
+    await transactionsPage.paymentMethodSelect.selectOption({ index: 1 }); // Index 1 to skip placeholder
 
     // Amount should have min validation
     await expect(transactionsPage.amountInput).toHaveAttribute('min', '0.01');
@@ -421,7 +421,7 @@ test.describe('Transaction Form Validations', () => {
 
     await transactionsPage.descriptionInput.fill('No category test');
     await transactionsPage.amountInput.fill('100');
-    await transactionsPage.paymentMethodSelect.selectOption({ index: 0 });
+    await transactionsPage.paymentMethodSelect.selectOption({ index: 1 }); // Index 1 to skip placeholder
 
     // Category should be required
     await expect(transactionsPage.categoryInput).toHaveAttribute('required', '');

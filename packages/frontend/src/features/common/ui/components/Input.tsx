@@ -11,21 +11,14 @@ export interface InputProps extends ChakraInputProps {
 export function Input({ label, error, helperText, ...props }: InputProps) {
   return (
     <Field.Root invalid={!!error}>
-      {label && (
-        <Field.Label asChild>
-          <span>{label}</span>
-        </Field.Label>
-      )}
+      {/* @ts-expect-error - Chakra UI Field components accept children despite type definitions */}
+      {label && <Field.Label>{label}</Field.Label>}
       <ChakraInput {...props} />
-      {error && (
-        <Field.ErrorText asChild>
-          <span>{error}</span>
-        </Field.ErrorText>
-      )}
+      {/* @ts-expect-error - Chakra UI Field components accept children despite type definitions */}
+      {error && <Field.ErrorText>{error}</Field.ErrorText>}
       {helperText && !error && (
-        <Field.HelperText asChild>
-          <span>{helperText}</span>
-        </Field.HelperText>
+        // @ts-expect-error - Chakra UI Field components accept children despite type definitions
+        <Field.HelperText>{helperText}</Field.HelperText>
       )}
     </Field.Root>
   );

@@ -60,9 +60,10 @@ export class TransactionsPage {
 
     // Select payment method if provided
     if (transaction.paymentMethod !== undefined) {
-      // If it's a number, select by index, otherwise by label
+      // If it's a number, select by index (adding 1 to skip placeholder), otherwise by label
       if (typeof transaction.paymentMethod === 'number') {
-        await this.paymentMethodSelect.selectOption({ index: transaction.paymentMethod });
+        // Add 1 to skip the placeholder option
+        await this.paymentMethodSelect.selectOption({ index: transaction.paymentMethod + 1 });
       } else {
         await this.paymentMethodSelect.selectOption(transaction.paymentMethod);
       }
@@ -160,7 +161,8 @@ export class TransactionsPage {
 
     if (transaction.paymentMethod !== undefined) {
       if (typeof transaction.paymentMethod === 'number') {
-        await this.paymentMethodSelect.selectOption({ index: transaction.paymentMethod });
+        // Add 1 to skip the placeholder option
+        await this.paymentMethodSelect.selectOption({ index: transaction.paymentMethod + 1 });
       } else {
         await this.paymentMethodSelect.selectOption(transaction.paymentMethod);
       }

@@ -39,6 +39,12 @@ export function TransactionForm({
       ? settings.incomeCategories
       : settings.outcomeCategories,
   );
+  const [paymentMethod, setPaymentMethod] = React.useState<string>(
+    transaction?.paymentMethod.title ||
+      defaultPaymentMethod ||
+      settings.paymentMethods[0]?.title ||
+      "",
+  );
 
   useEffect(() => {
     setCategories(
@@ -55,6 +61,9 @@ export function TransactionForm({
     afterSubmit: (transaction: Transaction) => {
       setDate(transaction.date.toString(dateSeparator));
       setOperation(OperationType.Outcome);
+      setPaymentMethod(
+        defaultPaymentMethod || settings.paymentMethods[0]?.title || "",
+      );
     },
     categories,
     paymentMethods: settings.paymentMethods,
@@ -118,7 +127,9 @@ export function TransactionForm({
           type="date"
           name="date"
           value={date}
-          onChange={(e) => setDate(e.target.value as string)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setDate(e.target.value as string)
+          }
         />
 
         <Input
@@ -134,7 +145,10 @@ export function TransactionForm({
           label="Payment method"
           name="payment-method"
           required
-          value={transaction?.paymentMethod.title || defaultPaymentMethod}
+          value={paymentMethod}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setPaymentMethod(e.target.value)
+          }
           options={settings.paymentMethods.map(
             (paymentMethod: PaymentMethod) => ({
               value: paymentMethod.title,

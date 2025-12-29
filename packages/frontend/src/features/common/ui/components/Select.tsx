@@ -13,6 +13,7 @@ export interface SelectProps {
   placeholder?: string;
   name?: string;
   value?: string;
+  defaultValue?: string;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   required?: boolean;
 }
@@ -22,17 +23,32 @@ export function Select({
   error,
   options,
   placeholder = "Select an option",
+  value,
+  defaultValue,
+  onChange,
   ...props
 }: SelectProps) {
+  // Decide if this is a controlled or uncontrolled component
+  // Controlled: has value + onChange
+  // Uncontrolled: has defaultValue (or neither)
+  const isControlled = value !== undefined && onChange !== undefined;
+
   return (
     <Field.Root invalid={!!error}>
-      {label && (
-        <Field.Label asChild>
-          <span>{label}</span>
-        </Field.Label>
-      )}
+      {/* @ts-expect-error - Chakra UI Field components accept children despite type definitions */}
+      {label && <Field.Label>{label}</Field.Label>}
       <NativeSelectRoot>
-        <NativeSelectField placeholder={placeholder} {...props}>
+        <NativeSelectField
+          {...props}
+          {...(isControlled
+            ? { value, onChange }
+            : { defaultValue: defaultValue || value })}
+        >
+          {placeholder && (
+            <option value="" disabled>
+              {placeholder}
+            </option>
+          )}
           {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -40,11 +56,8 @@ export function Select({
           ))}
         </NativeSelectField>
       </NativeSelectRoot>
-      {error && (
-        <Field.ErrorText asChild>
-          <span>{error}</span>
-        </Field.ErrorText>
-      )}
+      {/* @ts-expect-error - Chakra UI Field components accept children despite type definitions */}
+      {error && <Field.ErrorText>{error}</Field.ErrorText>}
     </Field.Root>
   );
 }

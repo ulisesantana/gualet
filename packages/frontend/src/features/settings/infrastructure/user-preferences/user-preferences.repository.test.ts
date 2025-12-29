@@ -28,6 +28,7 @@ describe("UserPreferencesRepositoryImplementation", () => {
           icon: "💳",
           color: "#343434",
         }),
+        language: "en",
       };
 
       mockHttp.put.mockResolvedValue({
@@ -40,6 +41,7 @@ describe("UserPreferencesRepositoryImplementation", () => {
               icon: "💳",
               color: "#343434",
             },
+            language: "en",
           },
         },
       });
@@ -48,6 +50,7 @@ describe("UserPreferencesRepositoryImplementation", () => {
 
       expect(mockHttp.put).toHaveBeenCalledWith("/api/me/preferences", {
         defaultPaymentMethodId: "pm-1",
+        language: "en",
       });
     });
 
@@ -59,6 +62,7 @@ describe("UserPreferencesRepositoryImplementation", () => {
           icon: "💳",
           color: "#343434",
         }),
+        language: "en",
       };
 
       mockHttp.put.mockResolvedValue({
@@ -84,6 +88,7 @@ describe("UserPreferencesRepositoryImplementation", () => {
               icon: "💳",
               color: "#343434",
             },
+            language: "en",
           },
         },
       });
@@ -97,6 +102,7 @@ describe("UserPreferencesRepositoryImplementation", () => {
           icon: "💳",
           color: "#343434",
         }),
+        language: "en",
       });
       expect(mockHttp.get).toHaveBeenCalledWith("/api/me/preferences");
     });

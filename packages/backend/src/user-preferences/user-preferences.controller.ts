@@ -24,6 +24,7 @@ interface UserPreferencesResponse {
         icon: string;
         color: string;
       };
+      language: string;
     };
   };
 }
@@ -102,6 +103,7 @@ export class UserPreferencesController extends SecureController {
               icon: preferences.defaultPaymentMethod.icon ?? '',
               color: preferences.defaultPaymentMethod.color ?? '',
             },
+            language: preferences.language,
           },
         },
       };
@@ -164,6 +166,7 @@ export class UserPreferencesController extends SecureController {
       const preferences = await this.userPreferencesService.save(
         new Id(req.user.userId),
         new Id(dto.defaultPaymentMethodId),
+        dto.language,
       );
 
       const response: UserPreferencesResponse = {
@@ -176,6 +179,7 @@ export class UserPreferencesController extends SecureController {
               icon: preferences.defaultPaymentMethod.icon ?? '',
               color: preferences.defaultPaymentMethod.color ?? '',
             },
+            language: preferences.language,
           },
         },
       };

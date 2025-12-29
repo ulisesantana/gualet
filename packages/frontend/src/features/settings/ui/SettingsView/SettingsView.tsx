@@ -5,13 +5,14 @@ import { routes } from "@common/infrastructure/routes";
 import { Loader } from "@common/ui/components";
 import { UserPreferences } from "@domain/models";
 import { useLoader } from "@common/infrastructure/hooks";
-import { Nullable, PaymentMethod } from "@gualet/shared";
+import { Language, Nullable, PaymentMethod } from "@gualet/shared";
 import { LogoutButton, LogoutUseCase } from "@auth";
 import {
   GetUserPreferencesUseCase,
   SaveUserPreferencesUseCase,
 } from "@settings";
 import { GetAllPaymentMethodsUseCase } from "@payment-methods";
+import { useTranslation } from "react-i18next";
 
 interface SettingsViewProps {
   getAllPaymentMethodsUseCase: GetAllPaymentMethodsUseCase;
@@ -26,6 +27,7 @@ export function SettingsView({
   saveUserPreferencesUseCase,
   logoutUseCase,
 }: SettingsViewProps) {
+  const { t, i18n } = useTranslation();
   const { isLoading, setIsLoading } = useLoader();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [userPreferences, setUserPreferences] =
@@ -39,7 +41,13 @@ export function SettingsView({
         setPaymentMethods(methods);
         return getUserPreferencesUseCase.exec();
       })
-      .then(setUserPreferences)
+      .then((preferences) => {
+        setUserPreferences(preferences);
+        // Set i18n language from user preferences
+        if (preferences?.language) {
+          i18n.changeLanguage(preferences.language);
+        }
+      })
       .catch((error: Error) => {
         console.error("Error getting data.");
         console.error(error);
@@ -54,11 +62,27 @@ export function SettingsView({
     if (method) {
       const preferences = userPreferences
         ? { ...userPreferences, defaultPaymentMethod: method }
-        : { defaultPaymentMethod: method };
+        : { defaultPaymentMethod: method, language: "en" as Language };
       saveUserPreferencesUseCase.exec(preferences).then(() => {
         setUserPreferences(preferences);
       });
     }
+  };
+
+  const onChangeLanguage = (e: ChangeEvent<HTMLSelectElement>) => {
+    const newLanguage = e.target.value as Language;
+    const preferences = userPreferences
+      ? { ...userPreferences, language: newLanguage }
+      : {
+          defaultPaymentMethod: paymentMethods[0],
+          language: newLanguage,
+        };
+
+    saveUserPreferencesUseCase.exec(preferences).then(() => {
+      setUserPreferences(preferences);
+      i18n.changeLanguage(newLanguage);
+      localStorage.setItem("language", newLanguage);
+    });
   };
 
   return isLoading ? (
@@ -69,27 +93,31 @@ export function SettingsView({
     <ul className="settings-view">
       <li>
         <Link to={routes.categories.add}>
-          <button className="cta">Add a new category</button>
+          <button className="cta">{t("categories.addCategory")}</button>
         </Link>
       </li>
       <li>
         <Link to={routes.categories.list}>
-          <button className="cta">Manage categories</button>
+          <button className="cta">{t("categories.manageCategories")}</button>
         </Link>
       </li>
       <li>
         <Link to={routes.paymentMethods.add}>
-          <button className="cta">Add a new payment method</button>
+          <button className="cta">
+            {t("paymentMethods.addPaymentMethod")}
+          </button>
         </Link>
       </li>
       <li>
         <Link to={routes.paymentMethods.list}>
-          <button className="cta">Manage payment methods</button>
+          <button className="cta">
+            {t("paymentMethods.managePaymentMethods")}
+          </button>
         </Link>
       </li>
       <li>
         <Link to={routes.reports}>
-          <button className="cta">Reports</button>
+          <button className="cta">{t("reports.title")}</button>
         </Link>
       </li>
       <li>
@@ -97,7 +125,7 @@ export function SettingsView({
           style={{ flexDirection: "column" }}
           htmlFor="default-payment-method"
         >
-          Default payment method:
+          {t("paymentMethods.defaultPaymentMethod")}:
           <select
             name="default-payment-method"
             data-testid="select-default-payment-method"
@@ -112,13 +140,22 @@ export function SettingsView({
           </select>
         </label>
       </li>
-      {/*<li>*/}
-      {/*  <Link to={routes.paymentMethods.list}>*/}
-      {/*    <button className="cta">Manage payment methods</button>*/}
-      {/*  </Link>*/}
-      {/*</li>*/}
       <li>
-        <span>Logout</span>
+        <label style={{ flexDirection: "column" }} htmlFor="language">
+          {t("settings.language")}:
+          <select
+            name="language"
+            data-testid="select-language"
+            onChange={onChangeLanguage}
+            value={userPreferences?.language || "en"}
+          >
+            <option value="en">{t("settings.english")}</option>
+            <option value="es">{t("settings.spanish")}</option>
+          </select>
+        </label>
+      </li>
+      <li>
+        <span>{t("auth.logout")}</span>
         <LogoutButton logoutUseCase={logoutUseCase} />
       </li>
     </ul>

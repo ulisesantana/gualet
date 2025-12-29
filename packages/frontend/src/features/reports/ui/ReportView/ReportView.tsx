@@ -92,7 +92,9 @@ export function ReportView({ getReportUseCase }: ReportViewProps) {
               type="date"
               id="fromDate"
               value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setFromDate(e.target.value)
+              }
               required
             />
             <Input
@@ -100,7 +102,9 @@ export function ReportView({ getReportUseCase }: ReportViewProps) {
               type="date"
               id="toDate"
               value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setToDate(e.target.value)
+              }
               required
             />
             <Button type="submit" disabled={isLoading} variant="primary">

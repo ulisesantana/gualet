@@ -42,6 +42,7 @@ const mockPreferences: UserPreferences = {
   defaultPaymentMethod: new PaymentMethod({
     ...generateDefaultPaymentMethods()[0],
   }),
+  language: "en",
 };
 
 const mockGetLastTransactionsUseCase = {

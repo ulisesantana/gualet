@@ -77,6 +77,7 @@ export function LastTransactionsView({
           console.warn("No user preferences found, using defaults.");
           setPreferences({
             defaultPaymentMethod: transactionConfig.paymentMethods[0],
+            language: "en",
           });
         } else {
           console.error("No user preferences or transaction config found.");

@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
+import { Id, PaymentMethod, UserPreferences } from "@domain/models";
+
 import { GetUserPreferencesUseCase } from "../cases";
 import { UserPreferencesRepository } from "../user-preferences.repository";
-import { Id, PaymentMethod, UserPreferences } from "@domain/models";
 
 const mockRepository: UserPreferencesRepository = {
   find: vi.fn(),
@@ -16,6 +17,7 @@ describe("GetUserPreferencesUseCase", () => {
     });
     const preferences: UserPreferences = {
       defaultPaymentMethod: paymentMethod,
+      language: "en",
     };
 
     mockRepository.find = vi.fn().mockResolvedValue(preferences);

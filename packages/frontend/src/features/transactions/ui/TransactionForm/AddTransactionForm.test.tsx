@@ -165,7 +165,10 @@ describe("AddTransactionForm", () => {
 
     await waitFor(() => {
       // Check that the form resets after submission
-      expect(element.querySelector('[name="operation"]')).toHaveValue("");
+      // Operation resets to OUTCOME (default)
+      expect(element.querySelector('[name="operation"]')).toHaveValue(
+        "OUTCOME",
+      );
       expect(element.querySelector('[name="description"]')).toHaveValue("");
       expect(element.querySelector('[name="amount"]')).toHaveValue(null);
       expect(element.querySelector('[name="category"]')).toHaveValue("");

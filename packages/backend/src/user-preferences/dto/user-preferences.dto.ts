@@ -1,4 +1,4 @@
-import { IsString, IsUUID } from 'class-validator';
+import { IsIn, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserPreferencesDto {
@@ -9,4 +9,15 @@ export class UserPreferencesDto {
   @IsUUID()
   @IsString()
   defaultPaymentMethodId: string;
+
+  @ApiProperty({
+    description: 'User preferred language',
+    example: 'en',
+    enum: ['en', 'es'],
+    default: 'en',
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['en', 'es'])
+  language?: string;
 }
