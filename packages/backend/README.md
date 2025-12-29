@@ -57,42 +57,94 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Deployment
+## 🏗️ Architecture
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+The backend follows clean architecture principles:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- **Controllers:** Handle HTTP requests, validation, and response formatting
+- **Services:** Business logic and orchestration
+- **Repositories:** Data access using TypeORM
+- **Entities:** Database models
+- **DTOs:** Data validation with class-validator
 
+## 📚 API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - Login (sets HttpOnly cookie)
+- `POST /api/auth/logout` - Logout
+- `POST /api/auth/verify` - Verify session
+
+### Categories
+- `GET /api/me/categories` - List categories
+- `GET /api/me/categories/:id` - Get category
+- `POST /api/me/categories` - Create category
+- `PATCH /api/me/categories/:id` - Update category
+- `DELETE /api/me/categories/:id` - Delete category
+
+### Payment Methods
+- `GET /api/me/payment-methods` - List payment methods
+- `GET /api/me/payment-methods/:id` - Get payment method
+- `POST /api/me/payment-methods` - Create payment method
+- `PATCH /api/me/payment-methods/:id` - Update payment method
+- `DELETE /api/me/payment-methods/:id` - Delete payment method
+
+### Transactions
+- `GET /api/me/transactions` - List transactions (with filters)
+- `GET /api/me/transactions/:id` - Get transaction
+- `POST /api/me/transactions` - Create transaction
+- `PATCH /api/me/transactions/:id` - Update transaction
+- `DELETE /api/me/transactions/:id` - Delete transaction
+
+### User Preferences
+- `GET /api/me/preferences` - Get preferences
+- `PUT /api/me/preferences` - Update preferences
+
+### Health
+- `GET /api/health` - Health check
+
+## 🔒 Security
+
+- JWT-based authentication with HttpOnly cookies
+- Password hashing with bcrypt
+- CORS configured for frontend origin
+- Input validation with class-validator
+- SQL injection prevention via TypeORM parameterized queries
+
+## 📖 Documentation
+
+- **Swagger UI:** http://localhost:5050/api/docs
+- **Project Documentation:** [../../docs/](../../docs/)
+- **Database Seeding:** [DATABASE_SEEDING.md](./DATABASE_SEEDING.md)
+
+## 🛠️ Development
+
+### Type Checking
 ```bash
-$ npm install -g mau
-$ mau deploy
+npm run typecheck
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Database Migrations
+```bash
+# Generate new migration
+npm run migration:generate
 
-## Resources
+# Run migrations
+npm run migration:run
 
-Check out a few resources that may come in handy when working with NestJS:
+# Revert last migration
+npm run migration:revert
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Database Management
+```bash
+# Seed test data
+npm run db:seed
 
-## Support
+# Clean database
+npm run db:clean
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 📄 License
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+ISC

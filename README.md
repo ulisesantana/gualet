@@ -49,12 +49,12 @@ npm run dev
   - Note: 21 tests skipped (payment-methods and network-errors suites pending implementation)
 - ❌ **Offline-First:** NOT implemented yet (RxDB + Sync pending)
 
-### Latest Updates (Dec 27, 2025)
-- 🆕 Payment Methods require UUID ID in creation
-- 🆕 Report E2E tests added (407 lines)
-- 🆕 Enhanced frontend test coverage (500+ new tests)
-- 🆕 Improved PaymentMethod domain model with `generateId()`
-- 🆕 Cleaned up deprecated domain models (TransactionConfig)
+### Latest Updates (Dec 29, 2025)
+- 🆕 Documentation fully reviewed and updated
+- 🆕 Backend README rewritten with Gualet-specific information
+- 🆕 Frontend README enhanced with complete details
+- 🆕 All dates updated to current status
+- ✅ Payment Methods require UUID ID in creation
 
 ### Next Steps
 1. ✅ ~~Complete DELETE endpoints~~ - **DONE**

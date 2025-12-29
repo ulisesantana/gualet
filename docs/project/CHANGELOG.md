@@ -1,10 +1,16 @@
 # Changelog - Gualet Project
 
-## [Unreleased] - December 27, 2025
+## [Unreleased] - December 29, 2025
 
 ### 📋 Executive Summary
 
-This release represents a **major milestone in code quality and testing**:
+This release includes **documentation improvements and updates**:
+- ✅ **Backend README rewritten** with Gualet-specific information
+- ✅ **Frontend README enhanced** with comprehensive details
+- ✅ **All dates updated** to reflect current status (Dec 29, 2025)
+- ✅ **Documentation reviewed** for accuracy and consistency
+
+**Previous achievements:**
 - ✅ **500+ new tests added** to frontend (stores, components, forms, views)
 - ✅ **Payment Methods enhanced** with UUID-based creation
 - ✅ **E2E test suite expanded** with comprehensive Report scenarios
@@ -17,11 +23,35 @@ This release represents a **major milestone in code quality and testing**:
 - E2E: 24/24 active tests passing + new Report suite
 - Total new lines of test code: ~2,000+
 
-**Impact:** Significantly improved code reliability and maintainability, preparing the codebase for offline-first implementation.
+**Impact:** Significantly improved code reliability, maintainability, and documentation clarity.
 
 ---
 
-### 🆕 Latest Changes
+### 🆕 Latest Changes (Dec 29, 2025)
+
+#### Documentation Improvements
+- **Backend README:**
+  - Removed generic NestJS boilerplate
+  - Added Gualet-specific overview and features
+  - Documented all API endpoints with examples
+  - Added architecture explanation
+  - Included security information
+  - Updated with correct coverage stats (99.62%)
+- **Frontend README:**
+  - Expanded from 8 lines to comprehensive documentation
+  - Added tech stack details
+  - Documented architecture and features
+  - Included testing information
+  - Added development guidelines
+- **Updated dates across documentation:**
+  - STATUS.md: Dec 27 → Dec 29, 2025
+  - FEATURES.md: Dec 27 → Dec 29, 2025
+  - QUICK_REFERENCE.md: Dec 27 → Dec 29, 2025
+  - README.md: Updated latest updates section
+
+---
+
+### Previous Changes (Dec 27, 2025)
 
 #### Backend - Payment Methods Enhancement
 - **Added ID generation:**

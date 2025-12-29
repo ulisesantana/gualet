@@ -8,16 +8,19 @@
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  Backend (NestJS + PostgreSQL)        ████████████  100%       │
-│  Frontend (React + Vite)              ████████░░░░   72%       │
+│  Frontend (React + Vite)              ████████████  100%       │
 │  E2E Tests (Playwright)               ████████████  100%       │
 │  Offline-First (RxDB + Sync)          ░░░░░░░░░░░░   0%       │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Last Updated:** December 27, 2025
+**Last Updated:** December 29, 2025
 
-**Note:** Frontend is 100% complete functionally, but test coverage is 72% (target: 95%)
+**Test Coverage Status:**
+- Backend: **99.62% coverage** (190 tests passing)
+- Frontend: **183 tests passing** (72.02% coverage - below 95% target)
+- E2E: **24/24 active tests passing** (100% success rate)
 
 ## 📂 Project Structure
 
@@ -43,6 +46,7 @@ gualet/
 │   │   ├── register.spec.ts     ✅ 2/2 passing
 │   │   ├── categories.spec.ts   ✅ 9/9 passing
 │   │   ├── transactions.spec.ts ✅ 8/8 active passing
+│   │   ├── report.spec.ts       🆕 Comprehensive suite added
 │   │   ├── payment-methods.spec.ts ⏸️ Skipped (10 tests)
 │   │   └── network-errors.spec.ts  ⏸️ Skipped (9 tests)
 │   │
@@ -127,15 +131,16 @@ npm run typecheck       # All packages
 - [x] Transaction pagination and sorting
 - [x] User preferences management
 - [x] Frontend-backend complete integration
-- [x] Backend tests: 190 tests, 99.62% coverage
-- [x] Frontend tests: 183 tests, 72.02% coverage (⚠️ below 95% target)
-- [x] E2E tests: 24/24 active tests passing (100%)
+- [x] Backend tests: **190 tests, 99.62% coverage** ✅
+- [x] Frontend tests: **183 tests passing, 72.02% coverage** (⚠️ below 95% target)
+- [x] E2E tests: **24/24 active tests passing** (100%) ✅
 - [x] Database seeding with test data
 - [x] PWA manifest and service worker
 - [x] Complete API documentation (Swagger)
-- [x] Reports view
+- [x] Reports view with comprehensive testing
 - [x] Settings view
 - [x] Zustand state management
+- [x] Enhanced UI components with comprehensive tests (CategoryCard, PaymentMethodCard, etc.)
 
 ### ❌ Not Started (Next Milestone)
 - [ ] **RxDB integration** (see ADR-0003)
@@ -146,9 +151,12 @@ npm run typecheck       # All packages
 - [ ] **Sync status indicators**
 
 ### 📝 Optional Enhancements
+- [ ] Improve frontend test coverage to 95%+ (currently 72.02%)
 - [ ] Enable payment methods E2E test suite (10 tests ready)
 - [ ] Enable network errors E2E test suite (9 tests ready)
 - [ ] Data export (CSV, PDF)
+- [ ] Rate limiting implementation
+- [ ] Centralized logging service
 - [ ] Data import
 - [ ] Multi-currency support
 - [ ] Budgets and goals
@@ -159,81 +167,54 @@ npm run typecheck       # All packages
 
 ## 🎯 Implementation Phases for Offline-First (RxDB)
 
-**See:** [ADR-0003: Offline-First Sync Strategy](../adr/0003-offline-first-sync-strategy.md) and [ACTION_PLAN.md](./ACTION_PLAN.md) for complete details.
+**Decision:** Using **RxDB** per [ADR-0003: Offline-First Sync Strategy](../adr/0003-offline-first-sync-strategy.md)
+
+**Timeline:** 3-4 weeks | **See:** [ACTION_PLAN.md](./ACTION_PLAN.md) for complete implementation details
 
 ### Week 1: RxDB Foundation (5-7 days)
 ```bash
 Goal: Set up RxDB with basic operations
-- Install RxDB and dependencies
-- Create database schema
-- Implement basic CRUD with RxDB
-- Set up collections (users, categories, payment-methods, transactions)
+- Install RxDB and dependencies (rxdb, rxjs)
+- Create RxDB database instance
+- Define JSON schemas for all entities
+- Create collections (users, categories, payment-methods, transactions)
+- Implement basic CRUD operations with RxDB
+- Test reactive queries with React
 ```
 
 ### Week 2: Custom Replication Plugin (5-7 days)
 ```bash
 Goal: Implement sync with NestJS backend
-- Create custom replication handler
-- Implement push mechanism
-- Implement pull mechanism
-- Add conflict resolution (last-write-wins)
+- Create custom replication handler for REST API
+- Implement pull mechanism (fetch from server)
+- Implement push mechanism (send to server)
+- Handle authentication with JWT tokens
+- Add conflict resolution (last-write-wins based on updated_at)
+- Error handling and retry logic
 ```
 
 ### Week 3: Integration & UI (5-7 days)
 ```bash
 Goal: Connect RxDB with React components
-- Update repositories to use RxDB
-- Migrate views to use reactive queries
-- Add sync status indicators
-- Implement error handling
+- Update all repositories to use RxDB
+- Migrate views to use reactive RxDB queries
+- Add sync status indicators to UI
+- Implement offline banner/notification
+- Add pending operations badge
+- Implement error handling UI
+- Manual sync button
 ```
 
 ### Week 4: Testing & Polish (5-7 days)
 ```bash
 Goal: Validate offline functionality
-- Test offline scenarios
-- Fix edge cases
-- Update E2E tests
-- Performance optimization
+- Test offline scenarios (create, edit, delete while offline)
+- Test sync on reconnect
+- Test conflict resolution
+- Update E2E tests for offline scenarios
+- Performance optimization (query optimization, indexes)
 - Documentation update
-```
-- Conflict resolution (last write wins)
-```
-
-### Phase 4: Repositories Refactor (1 week)
-```bash
-Goal: Offline-first pattern
-- Write to IndexedDB first
-- Queue sync operations
-- Read from local storage
-- Background sync
-```
-
-### Phase 5: Service Worker (1 week)
-```bash
-Goal: PWA capabilities
-- Cache static assets
-- Network-first strategy for API
-- Background sync API
-- Offline fallback
-```
-
-### Phase 6: UI/UX (3-5 days)
-```bash
-Goal: User feedback
-- Sync status indicator
-- Offline banner
-- Pending operations badge
-- Manual sync button
-```
-
-### Phase 7: Testing (1 week)
-```bash
-Goal: Offline scenarios
-- Create offline tests
-- Sync on reconnect tests
-- Conflict resolution tests
-- Performance tests
+- Final validation and bug fixes
 ```
 
 ## 📚 Important Files
@@ -254,9 +235,10 @@ Goal: Offline scenarios
 
 ## 🐛 Known Issues
 
-1. **E2E Test:** Login "user not found" error message mismatch
-2. **Frontend:** No offline capability yet
-3. **E2E:** Some category tests need adjustments for UI flow
+1. **Frontend:** Test coverage at 72.02% (target: 95%)
+2. **Frontend:** No offline capability yet (RxDB implementation pending)
+3. **E2E:** Payment methods suite (10 tests) intentionally skipped
+4. **E2E:** Network errors suite (9 tests) intentionally skipped
 
 ## 💡 Tips
 
@@ -303,11 +285,15 @@ npm run dev
 - [Service Worker Cookbook](https://serviceworke.rs/)
 - [Background Sync API](https://developer.chrome.com/blog/background-sync/)
 
-### Libraries to Consider
-- [idb](https://github.com/jakearchibald/idb) - IndexedDB wrapper (recommended)
-- [PouchDB](https://pouchdb.com/) - Full offline-first DB with sync
-- [RxDB](https://rxdb.info/) - Reactive offline database
-- [Workbox](https://developers.google.com/web/tools/workbox) - Service Worker toolkit
+### Libraries for Offline-First
+- ✅ **[RxDB](https://rxdb.info/)** - **SELECTED** (see ADR-0003)
+  - Reactive offline database with TypeScript support
+  - Custom replication for NestJS REST API
+  - RxJS Observables integration with React
+  - JSON Schema validation
+  - ~70KB bundle size
+- [idb](https://github.com/jakearchibald/idb) - IndexedDB wrapper (used internally by RxDB)
+- [Workbox](https://developers.google.com/web/tools/workbox) - Service Worker toolkit (future enhancement)
 
 ### Technology Stack
 - **Backend:** NestJS, TypeORM, PostgreSQL, JWT
@@ -317,23 +303,25 @@ npm run dev
 
 ## 🎓 Next Actions
 
-### Immediate (Today)
-1. Read `PROJECT_STATUS.md` thoroughly
-2. Run `npm run test:e2e` to see current test status
-3. Decide: custom offline-first vs library (PouchDB/RxDB)
+### Immediate Priority
+1. ✅ Backend migration complete - All CRUD endpoints working
+2. ✅ E2E tests - 24/24 active tests passing (100%)
+3. 🎯 **Start RxDB implementation** (see ADR-0003 and ACTION_PLAN.md)
 
 ### This Week
-1. Implement DELETE endpoints (backend)
-2. Fix failing E2E tests
-3. Start Phase 1: Backend preparation for sync
+1. Begin Phase 1: RxDB Setup and Configuration
+2. Install RxDB and dependencies
+3. Create RxDB schemas for all entities
+4. (Optional) Improve frontend test coverage towards 95%
 
 ### This Month
-1. Complete backend sync infrastructure
-2. Implement IndexedDB layer
-3. Build basic sync manager
+1. Complete RxDB implementation (Phases 1-3)
+2. Implement custom replication plugin for NestJS API
+3. Build conflict resolution (last-write-wins)
+4. Add sync status indicators in UI
 
 ---
 
-**Last Updated:** December 21, 2025  
+**Last Updated:** December 29, 2025  
 **For complete documentation:** See [Documentation Index](../README.md)
 
