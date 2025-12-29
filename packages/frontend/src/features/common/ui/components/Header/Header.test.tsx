@@ -1,27 +1,22 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { Router } from "wouter";
 import { routes } from "@common/infrastructure/routes";
-import { render, screen } from "@test/test-utils";
+import { cleanup, render, screen } from "@test/test-utils";
+import { TestRouter } from "@test/TestRouter";
 
 import { Header } from "./Header";
 
-let { mockLocation, mockSetLocation } = vi.hoisted(() => {
-  return { mockLocation: "/settings", mockSetLocation: vi.fn() };
-});
-// Mock wouter
-vi.mock("wouter", () => ({
-  Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
-    <a href={to}>{children}</a>
-  ),
-  useLocation: () => [mockLocation, mockSetLocation],
-}));
-
 describe("Header", () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
+  afterEach(() => {
+    cleanup();
   });
 
   it("renders the logo with link to home", () => {
-    render(<Header />);
+    render(
+      <Router>
+        <Header />
+      </Router>,
+    );
 
     const logoImage = screen.getByAltText("Gualet logo");
     const logoLink = screen.getByRole("link", { name: /gualet logo/i });
@@ -32,7 +27,12 @@ describe("Header", () => {
   });
 
   it("shows settings icon when on a protected route", () => {
-    render(<Header />);
+    render(
+      <Router>
+        <TestRouter path={routes.reports} />
+        <Header />
+      </Router>,
+    );
 
     const settingsIcon = screen.getByTestId("header-settings-cta");
     const settingsLink = screen.getByRole("link", { name: /settings/i });
@@ -43,8 +43,12 @@ describe("Header", () => {
   });
 
   it("hides settings icon when on login route", () => {
-    mockLocation = routes.login;
-    render(<Header />);
+    render(
+      <Router>
+        <TestRouter path={routes.login} />
+        <Header />
+      </Router>,
+    );
 
     expect(screen.queryByTestId("header-settings-cta")).not.toBeInTheDocument();
     expect(
@@ -53,7 +57,11 @@ describe("Header", () => {
   });
 
   it("displays the correct logo text", async () => {
-    render(<Header />);
+    render(
+      <Router>
+        <Header />
+      </Router>,
+    );
 
     expect(screen.getByText("Gualet")).toBeInTheDocument();
   });
