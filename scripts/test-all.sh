@@ -1,5 +1,29 @@
 #!/bin/bash
 
+# Parse arguments
+SKIP_E2E=false
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --skip-e2e)
+      SKIP_E2E=true
+      shift
+      ;;
+    --help|-h)
+      echo "Usage: $0 [OPTIONS]"
+      echo ""
+      echo "Options:"
+      echo "  --skip-e2e    Skip E2E tests (faster, unit tests only)"
+      echo "  --help, -h    Show this help message"
+      echo ""
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -51,8 +75,13 @@ run_package_tests() {
   fi
 }
 
-# Run all tests in parallel
-echo -e "${BOLD}Starting test execution in parallel...${NC}"
+# Run unit tests in parallel
+echo -e "${BOLD}Starting unit test execution in parallel...${NC}"
+if [ "$SKIP_E2E" = false ]; then
+  echo -e "${CYAN}(E2E tests will run after unit tests complete)${NC}"
+else
+  echo -e "${YELLOW}(E2E tests will be skipped)${NC}"
+fi
 echo ""
 
 # Run backend tests
@@ -67,11 +96,7 @@ FRONTEND_PID=$!
 run_package_tests "Shared" "$SHARED_LOG" "npm run test -w @gualet/shared" SHARED_EXIT &
 SHARED_PID=$!
 
-# Run E2E tests (these might take longer)
-run_package_tests "E2E" "$E2E_LOG" "npm run test:e2e" E2E_EXIT &
-E2E_PID=$!
-
-# Wait for all background jobs to complete
+# Wait for all unit tests to complete
 wait $BACKEND_PID
 BACKEND_EXIT=$?
 
@@ -81,8 +106,43 @@ FRONTEND_EXIT=$?
 wait $SHARED_PID
 SHARED_EXIT=$?
 
-wait $E2E_PID
-E2E_EXIT=$?
+# Run E2E tests sequentially after unit tests (if not skipped)
+if [ "$SKIP_E2E" = false ]; then
+  echo ""
+  echo -e "${BOLD}${CYAN}Starting E2E test execution...${NC}"
+  echo -e "${YELLOW}⏳ Setting up test environment (Docker, backend, frontend)...${NC}"
+
+  # Run E2E with timeout (3 minutes max)
+  E2E_TIMEOUT=180
+
+  # Run E2E in background to enable timeout
+  run_package_tests "E2E" "$E2E_LOG" "npm run test:e2e" E2E_EXIT &
+  E2E_PID=$!
+
+  # Wait with timeout
+  E2E_COMPLETED=false
+  ELAPSED=0
+  while kill -0 $E2E_PID 2>/dev/null; do
+    if [ $ELAPSED -ge $E2E_TIMEOUT ]; then
+      echo -e "${RED}✗ E2E tests timed out after ${E2E_TIMEOUT}s${NC}"
+      kill -9 $E2E_PID 2>/dev/null
+      E2E_EXIT=124  # Standard timeout exit code
+      E2E_COMPLETED=true
+      break
+    fi
+    sleep 1
+    ELAPSED=$((ELAPSED + 1))
+  done
+
+  if [ "$E2E_COMPLETED" = false ]; then
+    wait $E2E_PID
+    E2E_EXIT=$?
+  fi
+else
+  echo ""
+  echo -e "${YELLOW}⊘ Skipping E2E tests${NC}"
+  E2E_EXIT=-1  # Mark as skipped
+fi
 
 # Calculate duration
 END_TIME=$(date +%s)
@@ -133,7 +193,12 @@ parse_results() {
 BACKEND_RESULTS=$(parse_results "$BACKEND_LOG" "jest")
 FRONTEND_RESULTS=$(parse_results "$FRONTEND_LOG" "vitest")
 SHARED_RESULTS=$(parse_results "$SHARED_LOG" "vitest")
-E2E_RESULTS=$(parse_results "$E2E_LOG" "playwright")
+
+if [ "$SKIP_E2E" = false ]; then
+  E2E_RESULTS=$(parse_results "$E2E_LOG" "playwright")
+else
+  E2E_RESULTS="0/0|0"
+fi
 
 # Print detailed report
 echo ""
@@ -183,30 +248,47 @@ echo ""
 
 # E2E results
 echo -e "${BOLD}${PURPLE}🎭 E2E (Playwright)${NC}"
-if [ $E2E_EXIT -eq 0 ]; then
+if [ "$SKIP_E2E" = true ]; then
+  echo -e "   ${YELLOW}⊘ Status: SKIPPED${NC}"
+  echo -e "   (Use script without --skip-e2e to run E2E tests)"
+elif [ $E2E_EXIT -eq 124 ]; then
+  echo -e "   ${RED}⏱ Status: TIMEOUT${NC}"
+  echo -e "   E2E tests exceeded 3 minute timeout"
+  echo -e "   This usually means the environment failed to start"
+elif [ $E2E_EXIT -eq 0 ]; then
   echo -e "   ${GREEN}✓ Status: PASSED${NC}"
+  E2E_TESTS=$(echo "$E2E_RESULTS" | cut -d'|' -f1)
+  E2E_SKIPPED=$(echo "$E2E_RESULTS" | cut -d'|' -f2)
+  echo -e "   Tests:   ${E2E_TESTS}"
+  echo -e "   Skipped: ${E2E_SKIPPED}"
 else
   echo -e "   ${RED}✗ Status: FAILED${NC}"
+  E2E_TESTS=$(echo "$E2E_RESULTS" | cut -d'|' -f1)
+  E2E_SKIPPED=$(echo "$E2E_RESULTS" | cut -d'|' -f2)
+  echo -e "   Tests:   ${E2E_TESTS}"
+  echo -e "   Skipped: ${E2E_SKIPPED}"
 fi
-E2E_TESTS=$(echo "$E2E_RESULTS" | cut -d'|' -f1)
-E2E_SKIPPED=$(echo "$E2E_RESULTS" | cut -d'|' -f2)
-echo -e "   Tests:   ${E2E_TESTS}"
-echo -e "   Skipped: ${E2E_SKIPPED}"
 echo ""
 
 # Calculate totals (extract just the passed numbers)
 BACKEND_PASSED=$(echo "$BACKEND_TESTS" | cut -d'/' -f1)
 FRONTEND_PASSED=$(echo "$FRONTEND_TESTS" | cut -d'/' -f1)
 SHARED_PASSED=$(echo "$SHARED_TESTS" | cut -d'/' -f1)
-E2E_PASSED=$(echo "$E2E_TESTS" | cut -d'/' -f1)
 
 BACKEND_TOTAL=$(echo "$BACKEND_TESTS" | cut -d'/' -f2)
 FRONTEND_TOTAL=$(echo "$FRONTEND_TESTS" | cut -d'/' -f2)
 SHARED_TOTAL=$(echo "$SHARED_TESTS" | cut -d'/' -f2)
-E2E_TOTAL=$(echo "$E2E_TESTS" | cut -d'/' -f2)
 
-TOTAL_PASSED=$((BACKEND_PASSED + FRONTEND_PASSED + SHARED_PASSED + E2E_PASSED))
-TOTAL_TESTS=$((BACKEND_TOTAL + FRONTEND_TOTAL + SHARED_TOTAL + E2E_TOTAL))
+if [ "$SKIP_E2E" = false ]; then
+  E2E_PASSED=$(echo "$E2E_TESTS" | cut -d'/' -f1)
+  E2E_TOTAL=$(echo "$E2E_TESTS" | cut -d'/' -f2)
+  TOTAL_PASSED=$((BACKEND_PASSED + FRONTEND_PASSED + SHARED_PASSED + E2E_PASSED))
+  TOTAL_TESTS=$((BACKEND_TOTAL + FRONTEND_TOTAL + SHARED_TOTAL + E2E_TOTAL))
+else
+  TOTAL_PASSED=$((BACKEND_PASSED + FRONTEND_PASSED + SHARED_PASSED))
+  TOTAL_TESTS=$((BACKEND_TOTAL + FRONTEND_TOTAL + SHARED_TOTAL))
+fi
+
 PASS_RATE=$(awk "BEGIN {printf \"%.1f\", ($TOTAL_PASSED/$TOTAL_TESTS)*100}")
 
 # Summary
@@ -223,7 +305,7 @@ FAILED_COUNT=0
 if [ $BACKEND_EXIT -ne 0 ]; then FAILED_COUNT=$((FAILED_COUNT + 1)); fi
 if [ $FRONTEND_EXIT -ne 0 ]; then FAILED_COUNT=$((FAILED_COUNT + 1)); fi
 if [ $SHARED_EXIT -ne 0 ]; then FAILED_COUNT=$((FAILED_COUNT + 1)); fi
-if [ $E2E_EXIT -ne 0 ]; then FAILED_COUNT=$((FAILED_COUNT + 1)); fi
+if [ "$SKIP_E2E" = false ] && [ $E2E_EXIT -ne 0 ]; then FAILED_COUNT=$((FAILED_COUNT + 1)); fi
 
 if [ $FAILED_COUNT -eq 0 ]; then
   echo -e "${BOLD}${GREEN}✓ ALL TESTS PASSED! 🎉${NC}"
@@ -246,7 +328,11 @@ else
     echo -e "${RED}  • Shared tests failed${NC}"
     echo "    See detailed output: $SHARED_LOG"
   fi
-  if [ $E2E_EXIT -ne 0 ]; then
+  if [ "$SKIP_E2E" = false ] && [ $E2E_EXIT -eq 124 ]; then
+    echo -e "${RED}  • E2E tests timed out (3 min limit)${NC}"
+    echo "    Check if Docker is running and services can start"
+    echo "    See detailed output: $E2E_LOG"
+  elif [ "$SKIP_E2E" = false ] && [ $E2E_EXIT -ne 0 ]; then
     echo -e "${RED}  • E2E tests failed${NC}"
     echo "    See detailed output: $E2E_LOG"
   fi

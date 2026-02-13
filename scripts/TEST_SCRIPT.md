@@ -30,7 +30,9 @@ npm run test:unit
 
 ## Features
 
-- ✅ **Parallel execution**: All test suites run simultaneously for maximum speed
+- ✅ **Parallel execution**: Unit tests run simultaneously for maximum speed
+- ✅ **Sequential E2E**: E2E tests run after unit tests to ensure environment is ready
+- ✅ **Timeout protection**: E2E tests have a 3-minute timeout to prevent hanging
 - ✅ **Comprehensive reporting**: Shows results for each package and overall summary
 - ✅ **Colored output**: Easy-to-read terminal output with status indicators
 - ✅ **Pass rate calculation**: Automatic calculation of total pass percentage
@@ -40,20 +42,23 @@ npm run test:unit
 
 ## Output Example
 
+### With unit tests only (--skip-e2e)
 ```
 ╔════════════════════════════════════════════════════════════╗
 ║                  GUALET TEST SUITE                         ║
 ╚════════════════════════════════════════════════════════════╝
 
-Starting test execution in parallel...
+Starting unit test execution in parallel...
+(E2E tests will be skipped)
 
 ▶ Running Backend tests...
 ▶ Running Frontend tests...
 ▶ Running Shared tests...
-⊘ Skipping E2E tests
 ✓ Backend tests completed
 ✓ Frontend tests completed
 ✓ Shared tests completed
+
+⊘ Skipping E2E tests
 
 ╔════════════════════════════════════════════════════════════╗
 ║                    TEST RESULTS                            ║
@@ -84,6 +89,61 @@ Starting test execution in parallel...
 
 Total Tests:    553/553 passed (100.0%)
 Duration:       0m 20s
+
+✓ ALL TESTS PASSED! 🎉
+```
+
+### With all tests (including E2E)
+```
+╔════════════════════════════════════════════════════════════╗
+║                  GUALET TEST SUITE                         ║
+╚════════════════════════════════════════════════════════════╝
+
+Starting unit test execution in parallel...
+(E2E tests will run after unit tests complete)
+
+▶ Running Backend tests...
+▶ Running Frontend tests...
+▶ Running Shared tests...
+✓ Backend tests completed
+✓ Frontend tests completed
+✓ Shared tests completed
+
+Starting E2E test execution...
+⏳ Setting up test environment (Docker, backend, frontend)...
+▶ Running E2E tests...
+✓ E2E tests completed
+
+╔════════════════════════════════════════════════════════════╗
+║                    TEST RESULTS                            ║
+╚════════════════════════════════════════════════════════════╝
+
+📦 Backend (Jest)
+   ✓ Status: PASSED
+   Suites: 22/22
+   Tests:  190/190
+
+⚛️  Frontend (Vitest)
+   ✓ Status: PASSED
+   Files:  61/61
+   Tests:  332/332
+
+📚 Shared (Vitest)
+   ✓ Status: PASSED
+   Files:  6/6
+   Tests:  31/31
+
+🎭 E2E (Playwright)
+   ✓ Status: PASSED
+   Tests:   41/41
+   Skipped: 13
+
+╔════════════════════════════════════════════════════════════╗
+║                       SUMMARY                              ║
+╚════════════════════════════════════════════════════════════╝
+
+Total Tests:    594/594 passed (100.0%)
+Duration:       2m 15s
 
 ✓ ALL TESTS PASSED! 🎉
 ```
@@ -151,8 +211,20 @@ The script is designed to work well in CI/CD pipelines:
 
 ## Notes
 
-- Tests run in parallel using background processes (`&`)
+- Unit tests (Backend, Frontend, Shared) run in parallel using background processes (`&`)
+- E2E tests run sequentially after unit tests complete to ensure environment stability
+- E2E tests have a 3-minute timeout to prevent the script from hanging
 - E2E tests require Docker to be running (for the database)
 - Logs are automatically cleaned up on success
 - Colors are ANSI escape codes (may not display in all terminals)
+
+## Timeout Behavior
+
+If E2E tests take longer than 3 minutes, the script will:
+1. Kill the E2E test process
+2. Mark E2E as TIMEOUT in the report
+3. Provide guidance on checking Docker and service startup
+4. Preserve the E2E log file for debugging
+
+This prevents CI/CD pipelines from hanging indefinitely if the environment fails to start.
 
