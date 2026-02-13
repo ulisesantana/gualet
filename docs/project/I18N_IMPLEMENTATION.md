@@ -129,18 +129,51 @@ function MyComponent() {
 
 ## 🧪 Testing
 
+### Automated Test Suite
+
+The i18n system includes **26 comprehensive tests** that verify translation quality and consistency:
+
 ```bash
-# Frontend tests
+# Frontend tests (includes 26 i18n tests)
 cd packages/frontend
 npm run test
+
+# Run only translation validation tests
+npm test -- locales/translations.test.ts
 
 # Backend tests
 cd packages/backend
 npm run test
 
-# Typecheck
+# Type checking
 npm run typecheck
+
+# Automated verification script
+cd ../..
+bash scripts/verify-i18n.sh
 ```
+
+### Test Coverage
+
+**Structure Consistency (8 tests)**
+- Verifies all keys match between English and Spanish
+- Ensures no missing translations in either language
+
+**Required Translations (12 tests)**
+- Validates presence of all required keys
+- Confirms translations are actually different between languages
+- Covers: common, auth, categories, paymentMethods, transactions, reports, settings
+
+**Translation Values (4 tests)**
+- No empty string values
+- Proper capitalization
+- Formatting consistency
+
+**Complete Coverage (2 tests)**
+- Same number of translations in both languages
+- All main category sections present
+
+**Results:** All 26 tests passing ✅
 
 ## 📦 Added Dependencies
 

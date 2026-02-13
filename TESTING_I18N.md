@@ -97,9 +97,12 @@ SELECT * FROM user_preferences;
 ## 🧪 Run Tests
 
 ```bash
-# Frontend tests
+# Frontend tests (includes 26 i18n validation tests)
 cd packages/frontend
 npm run test
+
+# Run only translation tests
+npm test -- src/features/common/infrastructure/i18n/locales/translations.test.ts
 
 # Backend tests
 cd packages/backend
@@ -107,7 +110,34 @@ npm run test
 
 # Type checking
 npm run typecheck
+
+# Verify i18n system (automated script)
+cd ../..
+bash scripts/verify-i18n.sh
 ```
+
+### Translation Tests
+
+The project includes **26 automated tests** that verify:
+
+✅ **Structure Consistency** (8 tests)
+- All translation keys match between English and Spanish
+- Every key in English exists in Spanish and vice versa
+
+✅ **Required Translations** (12 tests)
+- All required keys exist in both languages
+- Values are different between languages (actual translations)
+- Coverage for: common, auth, categories, payment methods, transactions, reports, settings
+
+✅ **Translation Values** (4 tests)
+- No empty strings in any translation
+- Proper capitalization in both languages
+
+✅ **Complete Coverage** (2 tests)
+- Same number of translations in both languages
+- All main category sections present
+
+**Test results:** All 26 tests passing ✅
 
 ## 📚 Documentation
 

@@ -99,10 +99,36 @@ t('settings.language')     // "Language" / "Idioma"
 1. Edit `/src/features/common/infrastructure/i18n/locales/en.ts`
 2. Edit `/src/features/common/infrastructure/i18n/locales/es.ts`
 3. Use the new key: `t('your.new.key')`
+4. Run tests to verify consistency: `npm test -- locales/translations.test.ts`
+
+**Important:** The test suite will automatically verify that:
+- Both English and Spanish have the same keys
+- No empty strings exist
+- Translation counts match between languages
 
 ## 🧪 Testing
 
-Translations can be mocked in tests:
+### Unit Tests
+
+The project includes **26 automated tests** for translation validation:
+
+```bash
+# Run all frontend tests
+npm run test
+
+# Run only translation tests
+npm test -- locales/translations.test.ts
+```
+
+**What the tests verify:**
+- ✅ Key consistency between English and Spanish (8 tests)
+- ✅ Required translations present (12 tests)
+- ✅ No empty strings, proper formatting (4 tests)
+- ✅ Complete coverage (2 tests)
+
+### Mocking in Component Tests
+
+Translations can be mocked in component tests:
 
 ```typescript
 vi.mock('react-i18next', () => ({
@@ -112,6 +138,22 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 ```
+
+### Verification Script
+
+Run the automated verification script:
+
+```bash
+# From project root
+bash scripts/verify-i18n.sh
+```
+
+This checks:
+- Dependencies installed
+- Configuration files present
+- Translation files exist
+- Database migration exists
+- TypeScript compiles
 
 ## 📦 Modified/Created Files
 
