@@ -17,7 +17,7 @@
     "dev:frontend": "npm run dev -w @gualet/frontend",
     "dev:shared": "npm run dev -w @gualet/shared",
     "build": "npm run build -w @gualet/shared && npm run build -w @gualet/frontend && cp -r ./packages/frontend/dist ./packages/backend/dist/public",
-    "test": "npm run test -ws",
+    "test": "./scripts/test-all.sh",
     "test:backend": "npm run test -w @gualet/backend",
     "test:backend:cov": "npm run test:cov -w @gualet/backend",
     "test:frontend": "npm run test -w @gualet/frontend",
