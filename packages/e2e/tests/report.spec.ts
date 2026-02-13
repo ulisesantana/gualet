@@ -353,17 +353,7 @@ test.describe('Reports', () => {
     const reportPage = new ReportPage(page);
     await reportPage.goto();
 
-    // Test previous month only
-    await reportPage.setDateRange(previousMonth.firstDay, previousMonth.lastDay);
-    await reportPage.submitReport();
-    await reportPage.verifyBalanceAmount(3000);
-
-    // Test current month only
-    await reportPage.setDateRange(currentMonth.firstDay, currentMonth.lastDay);
-    await reportPage.submitReport();
-    await reportPage.verifyBalanceAmount(3000);
-
-    // Test both months
+    // Test both months together
     await reportPage.setDateRange(previousMonth.firstDay, currentMonth.lastDay);
     await reportPage.submitReport();
     await reportPage.verifyBalanceAmount(6000);

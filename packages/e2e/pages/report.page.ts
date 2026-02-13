@@ -31,33 +31,46 @@ export class ReportPage {
   }
 
   async setDateRange(from: string, to: string) {
-    // Set values using evaluate to ensure React detects the change
-    await this.fromDateInput.evaluate((el: HTMLInputElement, value) => {
-      el.value = value;
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-      el.dispatchEvent(new Event('change', { bubbles: true }));
-    }, from);
+    // Directly set the input values and trigger React events
+    await this.page.evaluate(({fromDate, toDate}) => {
+      const fromInput = document.querySelector('#fromDate') as HTMLInputElement;
+      const toInput = document.querySelector('#toDate') as HTMLInputElement;
 
-    await this.toDateInput.evaluate((el: HTMLInputElement, value) => {
-      el.value = value;
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-      el.dispatchEvent(new Event('change', { bubbles: true }));
-    }, to);
+      if (fromInput && toInput) {
+        // Set values
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          window.HTMLInputElement.prototype,
+          'value'
+        )?.set;
 
-    // Small wait to ensure state updates
-    await this.page.waitForTimeout(200);
+        if (nativeInputValueSetter) {
+          nativeInputValueSetter.call(fromInput, fromDate);
+          fromInput.dispatchEvent(new Event('input', { bubbles: true }));
+          fromInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+          nativeInputValueSetter.call(toInput, toDate);
+          toInput.dispatchEvent(new Event('input', { bubbles: true }));
+          toInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+    }, { fromDate: from, toDate: to });
+
+    // Wait for React to process the state change
+    await this.page.waitForTimeout(1000);
   }
 
   async submitReport() {
     // Wait for button to be enabled (not loading)
     await expect(this.getReportButton).toBeEnabled();
+
+    // Click the button
     await this.getReportButton.click();
 
-    // Wait for the loading state to complete
-    await expect(this.getReportButton).toHaveText(/get report/i, { timeout: 10000 });
-
-    // Wait for network to be idle
+    // Wait for network to be idle (API call complete)
     await this.page.waitForLoadState('networkidle');
+
+    // Additional wait to ensure React re-renders with new data
+    await this.page.waitForTimeout(500);
   }
 
   async verifyBalanceIsVisible() {

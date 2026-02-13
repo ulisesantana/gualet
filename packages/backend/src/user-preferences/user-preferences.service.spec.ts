@@ -98,7 +98,11 @@ describe('UserPreferencesService', () => {
         userId,
         paymentMethodId,
       );
-      expect(repository.save).toHaveBeenCalledWith(userId, paymentMethodId, undefined);
+      expect(repository.save).toHaveBeenCalledWith(
+        userId,
+        paymentMethodId,
+        undefined,
+      );
     });
 
     it('should throw error if payment method does not exist', async () => {
