@@ -25,9 +25,10 @@ npm run dev
 
 ## 📊 Project Status
 
-**Current State:** Backend 100% complete, Frontend fully integrated with enhanced test coverage, Offline-first pending
+**Current State:** Backend 100% complete, Frontend fully integrated, **NOT Production Ready**
 
-📖 **[See full project status and roadmap →](./docs/project/STATUS.md)**
+📖 **[See full project status and roadmap →](./docs/project/STATUS.md)**  
+📖 **[Production Readiness Roadmap →](./docs/project/PRODUCTION_READINESS.md)**
 
 ### Quick Summary
 - ✅ **Backend (NestJS + PostgreSQL):** Auth, Categories (CRUD), Payment Methods (CRUD), Transactions (BREAD with filters) - **100% complete**
@@ -47,7 +48,18 @@ npm run dev
 - ✅ **Tests E2E (Playwright):** 24/24 active tests passing **(100%)** - Login ✅, Register ✅, Categories ✅, Transactions ✅
   - **New:** Report test suite added (comprehensive scenarios)
   - Note: 21 tests skipped (payment-methods and network-errors suites pending implementation)
+- ✅ **i18n:** Complete Spanish/English translation system implemented
 - ❌ **Offline-First:** NOT implemented yet (RxDB + Sync pending)
+- ❌ **Production Ready:** Critical gaps in GDPR, CI/CD, and deployment configuration
+
+### ⚠️ Production Blockers
+Before deploying to production, the following **MUST** be addressed:
+- 🔴 **GDPR Compliance:** 0% implemented (Privacy Policy, Terms, Data Export, Account Deletion)
+- 🔴 **CI/CD Pipeline:** Current workflow is obsolete (uses deprecated Supabase references)
+- 🔴 **Security:** Missing security headers, rate limiting, production CORS configuration
+- 🔴 **Deployment:** No production infrastructure configured
+
+**See [PRODUCTION_READINESS.md](./docs/project/PRODUCTION_READINESS.md) for detailed roadmap (6-8 weeks to production)**
 
 ### Latest Updates (Dec 29, 2025)
 - 🆕 Documentation fully reviewed and updated

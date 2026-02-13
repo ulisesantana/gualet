@@ -1,13 +1,20 @@
 # Gualet - Project Status and Roadmap
 
-**Date:** December 29, 2025  
-**Application:** Personal finance management
+**Date:** February 13, 2026  
+**Application:** Personal finance management  
+**Status:** 🟡 **Development Phase - Not Production Ready**
 
 ---
 
 ## 📋 Executive Summary
 
-Gualet is a personal finance web application that has **successfully migrated from Supabase to its own backend** with NestJS and PostgreSQL. The backend is **100% complete** with all CRUD functionalities implemented, and the frontend is **fully integrated with the new backend**. Currently, there is **NO offline-first implementation** and the next major milestone is to add RxDB for offline-first capabilities with synchronization.
+Gualet is a personal finance web application that has **successfully migrated from Supabase to its own backend** with NestJS and PostgreSQL. The backend is **100% complete** with all CRUD functionalities implemented, and the frontend is **fully integrated with the new backend**. 
+
+**Current Phase:** Pre-Production Preparation  
+**Next Milestone:** GDPR Compliance & Production Deployment Setup  
+**After That:** Offline-First Implementation with RxDB
+
+⚠️ **Production Readiness:** The application is **NOT ready for production deployment** - critical GDPR requirements, CI/CD pipeline, and security configurations are missing.
 
 ---
 
@@ -300,9 +307,201 @@ gualet/
 
 ## ❌ What's Missing
 
-### 🔴 Critical Tasks - Offline-First Implementation
+### 🔴 **CRITICAL - Production Blockers** ⚠️
 
-#### 1. Implement RxDB for Offline-First (Main Priority)
+The following items **MUST** be implemented before any production deployment:
+
+#### 1. **GDPR Compliance (0% Complete)** 🚨
+Despite having comprehensive documentation, **NO GDPR functionality is implemented**:
+
+**Legal Requirements (EU Mandatory):**
+- [ ] **Privacy Policy page** - Does not exist
+- [ ] **Terms of Service page** - Does not exist  
+- [ ] **Cookie Consent banner** - Not implemented
+- [ ] **Consent tracking in database** - Columns don't exist (`privacyPolicyConsentDate`, `marketingConsent`)
+- [ ] **Consent checkbox on registration** - Not in form
+
+**User Rights (Articles 15-22):**
+- [ ] **Data Export** - `GET /api/me/data-export` endpoint does not exist
+- [ ] **Account Deletion** - `DELETE /api/me/account` endpoint does not exist
+- [ ] **Data Portability** - No JSON export functionality
+- [ ] **Right to Rectification** - Partially covered by PATCH endpoints
+
+**Security Measures (Article 32):**
+- [ ] **Security Headers** - Helmet not configured
+- [ ] **Rate Limiting** - Not implemented (DDoS vulnerability)
+- [ ] **CORS for Production** - Still using permissive settings
+- [ ] **HTTPS Enforcement** - Not configured
+- [ ] **Access Logging** - No audit trail
+- [ ] **Data Encryption at Rest** - PostgreSQL TDE not enabled
+
+**Penalties:** Up to €20 million or 4% of global revenue for non-compliance.
+
+**Priority:** 🔴 **CRITICAL** - Must complete before EU deployment  
+**Estimated Time:** 2-3 weeks  
+**See:** [GDPR_CHECKLIST.md](../compliance/GDPR_CHECKLIST.md)
+
+#### 2. **CI/CD Pipeline (Obsolete)** 🚨
+Current GitHub Actions workflow is **broken and outdated**:
+
+**Issues:**
+```yaml
+# .github/workflows/deploy-github-pages.yml
+VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}  # ❌ DEPRECATED
+VITE_SUPABASE_API_KEY: ${{ secrets.VITE_SUPABASE_API_KEY }}          # ❌ DEPRECATED
+```
+
+**Missing:**
+- [ ] **Automated Tests** - No CI runs on PRs
+- [ ] **Backend Tests in CI** - Not running
+- [ ] **Frontend Tests in CI** - Not running  
+- [ ] **E2E Tests in CI** - Not configured
+- [ ] **Type Checking** - Not in pipeline
+- [ ] **Linting** - Not automated
+- [ ] **Build Verification** - Deploy workflow is for static pages only
+- [ ] **Docker Build** - Not in CI
+- [ ] **Environment Variables** - No secrets configured for NestJS backend
+
+**Priority:** 🔴 **CRITICAL**  
+**Estimated Time:** 1 week  
+
+#### 3. **Production Deployment (Not Configured)** 🚨
+
+**No deployment setup exists:**
+- [ ] **Production Environment Variables** - `.env.production` doesn't exist
+- [ ] **Hosting Provider** - Not selected (Hetzner/OVH/AWS?)
+- [ ] **Docker Compose for Production** - Only development setup exists
+- [ ] **Nginx/Reverse Proxy** - Not configured
+- [ ] **SSL/HTTPS Certificates** - Not set up (Let's Encrypt?)
+- [ ] **Domain Configuration** - Not documented
+- [ ] **Production Database** - Not provisioned
+- [ ] **Database Backups** - No automation
+- [ ] **Monitoring/Alerts** - No system in place
+- [ ] **Health Checks** - Basic endpoint exists but not monitored
+
+**Current State:**  
+```dockerfile
+# Dockerfile exists but:
+- No production optimizations
+- No multi-stage builds for smaller images
+- Exposes port 5050 (not standard 80/443)
+- No health check defined
+```
+
+**Priority:** 🔴 **CRITICAL**  
+**Estimated Time:** 2 weeks  
+
+#### 4. **Security Hardening (Incomplete)** 🚨
+
+**Critical Security Gaps:**
+
+```typescript
+// packages/backend/src/main.ts - MISSING:
+- helmet() for security headers
+- rate limiting middleware
+- CORS restricted to production domain
+- Request body size limits
+- File upload restrictions (if added later)
+```
+
+**Vulnerabilities:**
+- ⚠️ **No Rate Limiting** - Vulnerable to brute force attacks
+- ⚠️ **Permissive CORS** - Currently allows all origins in dev
+- ⚠️ **No HSTS Headers** - Browsers can use HTTP
+- ⚠️ **No CSP Headers** - XSS attacks possible
+- ⚠️ **No Request Size Limits** - DoS vulnerability
+- ⚠️ **JWT Secret in .env** - Should use secrets manager in production
+- ⚠️ **Database Connection String** - Plain text in config
+
+**Priority:** 🔴 **CRITICAL**  
+**Estimated Time:** 1 week
+
+---
+
+### 🟡 **High Priority - Before Launch**
+
+#### 5. **E2E Test Coverage Incomplete**
+```typescript
+// 21 tests intentionally skipped:
+- payment-methods.spec.ts: 10 tests (entire suite)
+- network-errors.spec.ts: 9 tests (entire suite)  
+- transactions.spec.ts: 2 individual tests
+```
+
+**Current:** 24/45 tests running (53%)  
+**Target:** 45/45 tests running (100%)
+
+**Priority:** 🟡 **High**  
+**Estimated Time:** 1 week
+
+#### 6. **Frontend Test Coverage Low (72%)**
+Backend has 99.62% coverage, frontend only 72.02%:
+
+```
+Coverage Summary:
+- Statements: 72.02% (Target: >95%)
+- Branches: 90.63% (Target: >95%)
+- Functions: 76.87% (Target: >95%)
+- Lines: 72.02% (Target: >95%)
+```
+
+**Missing Coverage:**
+- [ ] Repository implementations (data-sources)
+- [ ] Error boundary components
+- [ ] Edge cases in forms
+- [ ] Loading states
+- [ ] Network error scenarios
+
+**Priority:** 🟡 **High**  
+**Estimated Time:** 1-2 weeks
+
+#### 7. **Storybook Configured But Empty**
+```typescript
+// .storybook/main.ts exists
+stories: ["../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"]
+
+// But: 0 story files found
+```
+
+**Missing Stories:**
+- [ ] CategoryCard.stories.tsx
+- [ ] PaymentMethodCard.stories.tsx
+- [ ] TransactionCard.stories.tsx
+- [ ] Form components (CategoryForm, PaymentMethodForm, TransactionForm)
+- [ ] Button variants
+- [ ] Input components
+- [ ] Loading spinners
+- [ ] Error messages
+
+**Benefits:**
+- Visual component testing
+- Design system documentation
+- Component isolation
+- Faster UI development
+
+**Priority:** 🟡 **High** (Developer Experience)  
+**Estimated Time:** 1 week
+
+#### 8. **Monitoring and Logging**
+**No observability infrastructure:**
+
+- [ ] **Centralized Logging** - No Winston/Pino configuration
+- [ ] **Error Tracking** - No Sentry/Rollbar integration
+- [ ] **Performance Monitoring** - No APM (Application Performance Monitoring)
+- [ ] **Metrics** - No Prometheus/Grafana
+- [ ] **Uptime Monitoring** - No UptimeRobot/Pingdom
+- [ ] **Alert System** - No PagerDuty/email alerts
+- [ ] **Log Rotation** - Not configured
+- [ ] **Audit Logs** - Not tracking user actions
+
+**Priority:** 🟡 **High** (Production Operations)  
+**Estimated Time:** 1 week
+
+---
+
+### 🟢 **Medium Priority - Post-Launch**
+
+#### 9. Offline-First Implementation (RxDB)
 See [ADR-0003: Offline-First Sync Strategy](../adr/0003-offline-first-sync-strategy.md) and [ACTION_PLAN.md](./ACTION_PLAN.md)
 
 **RxDB Implementation:**
@@ -317,9 +516,9 @@ See [ADR-0003: Offline-First Sync Strategy](../adr/0003-offline-first-sync-strat
 
 **Timeline:** 3-4 weeks (see ACTION_PLAN.md)
 
-### 🟡 Secondary Tasks - Improvements
+### � Secondary Tasks - Improvements
 
-#### 2. Complete E2E Test Suite ✅ COMPLETE
+#### 10. Complete E2E Test Suite ✅ COMPLETE
 - [x] ~~Adjust login tests~~ - **DONE** (5/5 passing - 100%)
 - [x] ~~Adjust register tests~~ - **DONE** (2/2 passing - 100%)
 - [x] ~~Fix categories tests~~ - **DONE** (9/9 passing - 100%)
@@ -410,7 +609,145 @@ See [ADR-0003: Offline-First Sync Strategy](../adr/0003-offline-first-sync-strat
 
 ---
 
-## 🎯 Main Objectives
+## 🎯 Main Objectives (Updated February 2026)
+
+### Objective 0: Pre-Production Readiness 🚨 **IN PROGRESS** (0% Done)
+**Status:** 🔴 **Critical - Must complete before any production deployment**
+
+**Why This is Now Priority #1:**
+The original plan was to implement offline-first next, but a comprehensive audit revealed that the application has **critical production blockers** that must be addressed first. Deploying without these would violate GDPR regulations and create security vulnerabilities.
+
+**Sub-Objectives:**
+
+#### 0.1 GDPR Compliance Implementation (2-3 weeks)
+**Priority:** 🔴 **CRITICAL** - Legal requirement for EU deployment
+
+**Tasks:**
+1. **Week 1: Legal Documents & User Rights**
+   - [ ] Create Privacy Policy page (`/privacy-policy`)
+   - [ ] Create Terms of Service page (`/terms`)
+   - [ ] Implement cookie consent banner
+   - [ ] Add consent checkbox to registration form
+   - [ ] Create database migration for consent tracking
+   - [ ] Implement `GET /api/me/data-export` endpoint
+   - [ ] Implement `DELETE /api/me/account` endpoint
+
+2. **Week 2: Security Hardening**
+   - [ ] Configure Helmet for security headers (HSTS, CSP, etc.)
+   - [ ] Implement rate limiting (express-rate-limit)
+   - [ ] Configure production CORS (whitelist specific domain)
+   - [ ] Add access logging middleware
+   - [ ] Implement request body size limits
+   - [ ] Review and fix all security headers
+
+3. **Week 3: Testing & Documentation**
+   - [ ] Test account deletion (cascade deletes all user data)
+   - [ ] Test data export (complete user data in JSON)
+   - [ ] Update GDPR documentation with implementation details
+   - [ ] Security audit checklist
+   - [ ] Create GDPR compliance verification script
+
+**Deliverables:**
+- ✅ Full GDPR compliance
+- ✅ Privacy Policy and Terms of Service live
+- ✅ User can export all their data
+- ✅ User can delete their account
+- ✅ Security headers configured
+- ✅ Rate limiting active
+
+**Success Criteria:**
+- All GDPR_CHECKLIST.md items checked
+- Legal review passed (if required)
+- Security scan shows no critical vulnerabilities
+
+#### 0.2 CI/CD Pipeline Setup (1 week)
+**Priority:** 🔴 **CRITICAL** - Quality assurance automation
+
+**Tasks:**
+1. **Day 1-2: GitHub Actions Workflows**
+   - [ ] Create `.github/workflows/ci.yml` - Run on all PRs
+   - [ ] Add backend tests job
+   - [ ] Add frontend tests job
+   - [ ] Add type checking job
+   - [ ] Add linting job
+   - [ ] Remove obsolete Supabase references from existing workflow
+
+2. **Day 3-4: E2E Tests in CI**
+   - [ ] Create `.github/workflows/e2e.yml`
+   - [ ] Set up Docker containers for test database
+   - [ ] Configure Playwright in CI environment
+   - [ ] Add E2E test job with proper setup/teardown
+
+3. **Day 5: Deployment Automation**
+   - [ ] Update deployment workflow for NestJS + React
+   - [ ] Configure production environment secrets
+   - [ ] Add Docker build and push steps
+   - [ ] Document deployment process
+
+**Deliverables:**
+- ✅ Automated tests on every PR
+- ✅ Type checking enforced
+- ✅ E2E tests running in CI
+- ✅ Deployment pipeline documented
+
+#### 0.3 Production Deployment Configuration (2 weeks)
+**Priority:** 🔴 **CRITICAL** - Infrastructure for going live
+
+**Tasks:**
+1. **Week 1: Infrastructure Setup**
+   - [ ] Select hosting provider (Hetzner/OVH/DigitalOcean EU region)
+   - [ ] Provision production database (PostgreSQL in EU)
+   - [ ] Set up domain and DNS
+   - [ ] Configure SSL/TLS certificates (Let's Encrypt)
+   - [ ] Create production environment variables
+   - [ ] Set up Nginx reverse proxy configuration
+
+2. **Week 2: Deployment & Monitoring**
+   - [ ] Create Docker Compose for production
+   - [ ] Implement database backup automation
+   - [ ] Configure health check monitoring
+   - [ ] Set up basic error tracking (Sentry or similar)
+   - [ ] Create deployment runbook
+   - [ ] Test complete deployment process on staging
+
+**Deliverables:**
+- ✅ Production environment provisioned
+- ✅ HTTPS configured
+- ✅ Automated backups running
+- ✅ Monitoring in place
+- ✅ Deployment documentation complete
+
+**Success Criteria:**
+- Application accessible via HTTPS
+- Database backups automated (daily)
+- Health checks reporting correctly
+- Rollback procedure documented and tested
+
+#### 0.4 Quality Assurance Improvements (1-2 weeks)
+**Priority:** 🟡 **High** - Code quality and coverage
+
+**Tasks:**
+1. **Week 1: Test Coverage**
+   - [ ] Enable payment-methods E2E suite (10 tests)
+   - [ ] Enable network-errors E2E suite (9 tests)
+   - [ ] Fix 2 skipped transaction tests
+   - [ ] Add missing frontend tests to reach >90% coverage
+   - [ ] Add integration tests for critical paths
+
+2. **Week 2: Developer Experience** (Optional)
+   - [ ] Create Storybook stories for main components
+   - [ ] Improve pre-commit hooks
+   - [ ] Add commit message linting
+   - [ ] Create contributor guide
+
+**Deliverables:**
+- ✅ E2E tests: 45/45 passing (100%)
+- ✅ Frontend coverage: >90%
+- ✅ Storybook with component documentation
+
+**Total Estimated Time for Objective 0:** 6-8 weeks
+
+---
 
 ### Objective 1: Complete Backend Migration ✅ COMPLETE (Dec 27, 2025)
 **Status:** ✅ **100% Complete**

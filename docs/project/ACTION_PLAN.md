@@ -1,15 +1,120 @@
-# Gualet - Action Plan: Offline-First Implementation with RxDB
+# Gualet - Action Plan: Path to Production & Offline-First
 
-**Goal:** Transform Gualet into a fully functional offline-first application using RxDB  
-**Sync Strategy:** RxDB with custom replication (see ADR-0003)  
-**Timeline:** 3-4 weeks (full-time) or 6-8 weeks (part-time)  
-**Starting Date:** December 21, 2025  
+**Updated:** February 13, 2026  
+**Current Status:** Development Complete, Production Preparation Required  
+**Timeline:** 6-8 weeks to Production Ready, then 3-4 weeks for Offline-First
 
 ---
 
-## 🎯 Strategy Overview
+## 🚨 CRITICAL UPDATE: Production First, Then Offline-First
 
-**Chosen Solution: RxDB** (documented in [ADR-0003](../adr/0003-offline-first-sync-strategy.md))
+**Change in Priority:** After a comprehensive project audit (February 2026), we have identified **critical production blockers** that must be addressed before implementing offline-first functionality.
+
+**New Roadmap:**
+1. **Phase 0:** Production Readiness (6-8 weeks) ← **Current Priority**
+2. **Phase 1:** Offline-First with RxDB (3-4 weeks)
+
+**Rationale:**
+- GDPR compliance is mandatory for EU deployment (legal requirement)
+- CI/CD automation ensures code quality and deployment reliability
+- Security hardening prevents vulnerabilities in production
+- Without production infrastructure, offline-first has nowhere to deploy
+
+---
+
+## 📋 Phase 0: Production Readiness (CURRENT PRIORITY)
+
+**Goal:** Make Gualet production-ready and deployable  
+**Status:** 🔴 **Not Started** (0% complete)  
+**Timeline:** 6-8 weeks full-time, 12-16 weeks part-time  
+**See:** [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md) for detailed implementation plan
+
+### Overview of Critical Gaps
+
+#### 1. GDPR Compliance (0% Implemented) 🚨
+**Estimated Time:** 2-3 weeks
+
+**Missing:**
+- Privacy Policy and Terms of Service pages
+- Cookie consent banner
+- Data export endpoint (`GET /api/me/data-export`)
+- Account deletion endpoint (`DELETE /api/me/account`)
+- Consent tracking in database
+- Security headers (Helmet, HSTS, CSP)
+- Rate limiting
+- Access logging
+
+**Legal Requirement:** Mandatory for EU deployment. Penalties up to €20M or 4% of revenue.
+
+#### 2. CI/CD Pipeline (Obsolete) 🚨
+**Estimated Time:** 1 week
+
+**Current Issues:**
+```yaml
+# .github/workflows/deploy-github-pages.yml contains:
+VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}  # ❌ DEPRECATED
+```
+
+**Missing:**
+- Automated tests on PRs (backend, frontend, e2e)
+- Type checking in CI
+- Linting automation
+- Docker build pipeline
+- Deployment automation
+
+#### 3. Production Infrastructure (Not Configured) 🚨
+**Estimated Time:** 2 weeks
+
+**Missing:**
+- Production server (recommended: Hetzner EU region)
+- Database provisioning (PostgreSQL in EU)
+- Domain and SSL/TLS configuration
+- Nginx reverse proxy
+- Environment variables for production
+- Database backup automation
+- Health check monitoring
+
+#### 4. Security Hardening (Incomplete) 🚨
+**Estimated Time:** 1 week
+
+**Missing:**
+- Security headers (Helmet)
+- Rate limiting middleware
+- CORS restricted to production domain
+- Request size limits
+- HTTPS enforcement
+
+### Quick Wins (Can Start Immediately)
+
+While planning the full production readiness implementation, you can start with:
+
+1. **Fix GitHub Actions Workflow** (2-3 hours)
+   - Remove Supabase references
+   - Add basic test jobs
+
+2. **Enable Skipped E2E Tests** (1 week)
+   - payment-methods.spec.ts (10 tests)
+   - network-errors.spec.ts (9 tests)
+   - 2 individual transaction tests
+
+3. **Improve Frontend Test Coverage** (1-2 weeks)
+   - Current: 72.02%, Target: >90%
+   - Focus on repositories and error handling
+
+4. **Create Storybook Stories** (1 week)
+   - CategoryCard, PaymentMethodCard, TransactionCard
+   - Form components
+   - Common UI components
+
+---
+
+## 📋 Phase 1: Offline-First Implementation with RxDB (FUTURE)
+
+**Goal:** Transform Gualet into a fully functional offline-first application using RxDB  
+**Status:** 🔵 **Not Started** (0% complete)  
+**Prerequisites:** Production Readiness (Phase 0) complete  
+**Timeline:** 3-4 weeks full-time, 6-8 weeks part-time  
+**Sync Strategy:** RxDB with custom replication (see ADR-0003)
 
 ### Why RxDB?
 - ✅ Works with existing NestJS + PostgreSQL backend
