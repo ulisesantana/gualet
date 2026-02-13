@@ -39,6 +39,7 @@ describe('UserPreferencesRepository', () => {
         user: buildUserEntity({ id: userId.value }),
         defaultPaymentMethodId: paymentMethod.id,
         defaultPaymentMethod: paymentMethod,
+        language: 'en',
         createdAt: new Date().toISOString() as any,
         updatedAt: new Date().toISOString() as any,
       };
@@ -84,6 +85,7 @@ describe('UserPreferencesRepository', () => {
         user: buildUserEntity({ id: userId.value }),
         defaultPaymentMethodId: 'old-pm-id',
         defaultPaymentMethod: buildPaymentMethodEntity({ id: 'old-pm-id' }),
+        language: 'en',
         createdAt: new Date().toISOString() as any,
         updatedAt: new Date().toISOString() as any,
       };
@@ -124,6 +126,7 @@ describe('UserPreferencesRepository', () => {
         user: buildUserEntity({ id: userId.value }),
         defaultPaymentMethodId: paymentMethodId.value,
         defaultPaymentMethod: paymentMethod,
+        language: 'en',
         createdAt: new Date().toISOString() as any,
         updatedAt: new Date().toISOString() as any,
       };
