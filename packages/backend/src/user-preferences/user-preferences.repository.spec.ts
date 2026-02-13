@@ -144,6 +144,7 @@ describe('UserPreferencesRepository', () => {
       expect(mockRepository.save).toHaveBeenCalledWith({
         userId: userId.value,
         defaultPaymentMethodId: paymentMethodId.value,
+        language: 'en',
       });
       expect(result.userId).toEqual(userId);
       expect(result.defaultPaymentMethod.id).toEqual(paymentMethodId);

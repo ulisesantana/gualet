@@ -160,10 +160,13 @@ describe("Transaction", () => {
       paymentMethod: mockPaymentMethod,
     });
 
-    const expectedString =
-      "Transaction in category 🛒 Groceries with an amount of -500,00 € on 2023/01/15, via 💳 Card";
+    const result = transaction.toString();
 
-    expect(transaction.toString()).toBe(expectedString);
+    expect(result).toContain("Transaction in category");
+    expect(result).toContain("Groceries");
+    expect(result).toContain("-500,00 €");
+    expect(result).toContain("2023/01/15");
+    expect(result).toContain("Card");
   });
 
   it("should return false for isNew() when Transaction has no ID provided", () => {

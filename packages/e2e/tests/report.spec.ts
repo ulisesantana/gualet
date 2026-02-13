@@ -2,6 +2,63 @@ import {test} from '@fixtures';
 import {ReportPage} from '@pages';
 import {loginAsTestUser, TEST_USER} from '../helpers/auth.helpers';
 
+/**
+ * Helper to get dates for the current month
+ */
+function getCurrentMonthDates() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth(); // 0-indexed
+
+  // First day of current month
+  const firstDay = new Date(year, month, 1);
+
+  // Last day of current month
+  const lastDay = new Date(year, month + 1, 0);
+
+  // Middle of the month (15th)
+  const midMonth = new Date(year, month, 15);
+
+  // 20th of the month
+  const day20 = new Date(year, month, 20);
+
+  // 10th of the month
+  const day10 = new Date(year, month, 10);
+
+  const format = (date: Date) => date.toISOString().split('T')[0];
+
+  return {
+    firstDay: format(firstDay),
+    lastDay: format(lastDay),
+    midMonth: format(midMonth),
+    day20: format(day20),
+    day10: format(day10),
+  };
+}
+
+/**
+ * Helper to get dates for previous month
+ */
+function getPreviousMonthDates() {
+  const today = new Date();
+
+  // Calculate previous month (handles year boundary correctly)
+  const year = today.getMonth() === 0 ? today.getFullYear() - 1 : today.getFullYear();
+  const month = today.getMonth() === 0 ? 11 : today.getMonth() - 1;
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const midMonth = new Date(year, month, 15);
+
+  const format = (date: Date) => date.toISOString().split('T')[0];
+
+  return {
+    firstDay: format(firstDay),
+    lastDay: format(lastDay),
+    midMonth: format(midMonth),
+  };
+}
+
 test.describe('Reports', () => {
   let userId: string;
 
@@ -20,6 +77,8 @@ test.describe('Reports', () => {
   });
 
   test('should display report with income transactions', async ({ page, db }) => {
+    const dates = getCurrentMonthDates();
+
     // Create test data
     const categoryId = await db.createCategory({
       userId,
@@ -32,7 +91,7 @@ test.describe('Reports', () => {
       name: 'Bank Account',
     });
 
-    // Create income transaction
+    // Create income transaction in the middle of current month
     await db.createTransaction({
       userId,
       categoryId,
@@ -40,14 +99,14 @@ test.describe('Reports', () => {
       amount: 3000,
       description: 'Monthly salary',
       operation: 'INCOME',
-      date: '2025-01-15',
+      date: dates.midMonth,
     });
 
     const reportPage = new ReportPage(page);
     await reportPage.goto();
 
-    // Set date range to include the transaction
-    await reportPage.setDateRange('2025-01-01', '2025-01-31');
+    // Set date range to include the transaction (full current month)
+    await reportPage.setDateRange(dates.firstDay, dates.lastDay);
     await reportPage.submitReport();
 
     // Verify balance shows positive amount
@@ -60,6 +119,8 @@ test.describe('Reports', () => {
   });
 
   test('should display report with outcome transactions', async ({ page, db }) => {
+    const dates = getCurrentMonthDates();
+
     // Create test data
     const categoryId = await db.createCategory({
       userId,
@@ -80,14 +141,14 @@ test.describe('Reports', () => {
       amount: 150.50,
       description: 'Weekly shopping',
       operation: 'OUTCOME',
-      date: '2025-01-15',
+      date: dates.midMonth,
     });
 
     const reportPage = new ReportPage(page);
     await reportPage.goto();
 
     // Set date range to include the transaction
-    await reportPage.setDateRange('2025-01-01', '2025-01-31');
+    await reportPage.setDateRange(dates.firstDay, dates.lastDay);
     await reportPage.submitReport();
 
     // Verify balance shows negative amount (outcome is negative)
@@ -100,6 +161,8 @@ test.describe('Reports', () => {
   });
 
   test('should display report with both income and outcome transactions', async ({ page, db }) => {
+    const dates = getCurrentMonthDates();
+
     // Create test data
     const incomeCategory = await db.createCategory({
       userId,
@@ -126,7 +189,7 @@ test.describe('Reports', () => {
       amount: 3000,
       description: 'Salary',
       operation: 'INCOME',
-      date: '2025-01-15',
+      date: dates.midMonth,
     });
 
     // Create outcome transaction (amount should be positive)
@@ -137,14 +200,14 @@ test.describe('Reports', () => {
       amount: 500,
       description: 'Groceries',
       operation: 'OUTCOME',
-      date: '2025-01-20',
+      date: dates.day20,
     });
 
     const reportPage = new ReportPage(page);
     await reportPage.goto();
 
     // Set date range to include the transactions
-    await reportPage.setDateRange('2025-01-01', '2025-01-31');
+    await reportPage.setDateRange(dates.firstDay, dates.lastDay);
     await reportPage.submitReport();
 
     // Verify balance (3000 - 500 = 2500)
@@ -157,6 +220,8 @@ test.describe('Reports', () => {
   });
 
   test('should show category breakdown when expanding sections', async ({ page, db }) => {
+    const dates = getCurrentMonthDates();
+
     // Create test data
     const salaryCategory = await db.createCategory({
       userId,
@@ -195,7 +260,7 @@ test.describe('Reports', () => {
       amount: 3000,
       description: 'Salary',
       operation: 'INCOME',
-      date: '2025-01-15',
+      date: dates.midMonth,
     });
 
     await db.createTransaction({
@@ -205,7 +270,7 @@ test.describe('Reports', () => {
       amount: 500,
       description: 'Freelance work',
       operation: 'INCOME',
-      date: '2025-01-20',
+      date: dates.day20,
     });
 
     // Create multiple outcome transactions (amounts should be positive)
@@ -216,7 +281,7 @@ test.describe('Reports', () => {
       amount: 300,
       description: 'Groceries',
       operation: 'OUTCOME',
-      date: '2025-01-10',
+      date: dates.day10,
     });
 
     await db.createTransaction({
@@ -226,14 +291,14 @@ test.describe('Reports', () => {
       amount: 1200,
       description: 'Rent',
       operation: 'OUTCOME',
-      date: '2025-01-01',
+      date: dates.firstDay,
     });
 
     const reportPage = new ReportPage(page);
     await reportPage.goto();
 
     // Set date range to include all transactions
-    await reportPage.setDateRange('2025-01-01', '2025-01-31');
+    await reportPage.setDateRange(dates.firstDay, dates.lastDay);
     await reportPage.submitReport();
 
     // Expand income section and verify categories
@@ -248,6 +313,10 @@ test.describe('Reports', () => {
   });
 
   test('should filter transactions by date range', async ({ page, db }) => {
+    const currentMonth = getCurrentMonthDates();
+    const previousMonth = getPreviousMonthDates();
+
+
     // Create test data
     const categoryId = await db.createCategory({
       userId,
@@ -266,9 +335,9 @@ test.describe('Reports', () => {
       categoryId,
       paymentMethodId,
       amount: 3000,
-      description: 'January salary',
+      description: 'Previous month salary',
       operation: 'INCOME',
-      date: '2025-01-15',
+      date: previousMonth.midMonth,
     });
 
     await db.createTransaction({
@@ -276,31 +345,33 @@ test.describe('Reports', () => {
       categoryId,
       paymentMethodId,
       amount: 3000,
-      description: 'February salary',
+      description: 'Current month salary',
       operation: 'INCOME',
-      date: '2025-02-15',
+      date: currentMonth.midMonth,
     });
 
     const reportPage = new ReportPage(page);
     await reportPage.goto();
 
-    // Test January only
-    await reportPage.setDateRange('2025-01-01', '2025-01-31');
+    // Test previous month only
+    await reportPage.setDateRange(previousMonth.firstDay, previousMonth.lastDay);
     await reportPage.submitReport();
     await reportPage.verifyBalanceAmount(3000);
 
-    // Test February only
-    await reportPage.setDateRange('2025-02-01', '2025-02-28');
+    // Test current month only
+    await reportPage.setDateRange(currentMonth.firstDay, currentMonth.lastDay);
     await reportPage.submitReport();
     await reportPage.verifyBalanceAmount(3000);
 
     // Test both months
-    await reportPage.setDateRange('2025-01-01', '2025-02-28');
+    await reportPage.setDateRange(previousMonth.firstDay, currentMonth.lastDay);
     await reportPage.submitReport();
     await reportPage.verifyBalanceAmount(6000);
   });
 
   test('should handle reversed date range (to date before from date)', async ({ page, db }) => {
+    const dates = getCurrentMonthDates();
+
     // Create test data
     const categoryId = await db.createCategory({
       userId,
@@ -320,14 +391,14 @@ test.describe('Reports', () => {
       amount: 3000,
       description: 'Salary',
       operation: 'INCOME',
-      date: '2025-01-15',
+      date: dates.midMonth,
     });
 
     const reportPage = new ReportPage(page);
     await reportPage.goto();
 
     // Set reversed date range - should still work
-    await reportPage.setDateRange('2025-01-31', '2025-01-01');
+    await reportPage.setDateRange(dates.lastDay, dates.firstDay);
     await reportPage.submitReport();
 
     // Should still show the transaction (use case swaps dates)
@@ -335,6 +406,9 @@ test.describe('Reports', () => {
   });
 
   test('should update report on form submission', async ({ page, db }) => {
+    const currentMonth = getCurrentMonthDates();
+    const previousMonth = getPreviousMonthDates();
+
     // Create test data
     const categoryId = await db.createCategory({
       userId,
@@ -354,25 +428,27 @@ test.describe('Reports', () => {
       amount: 3000,
       description: 'Salary',
       operation: 'INCOME',
-      date: '2025-01-15',
+      date: currentMonth.midMonth,
     });
 
     const reportPage = new ReportPage(page);
     await reportPage.goto();
 
-    // First, set a date range that excludes the transaction
-    await reportPage.setDateRange('2025-02-01', '2025-02-28');
+    // First, set a date range that excludes the transaction (previous month)
+    await reportPage.setDateRange(previousMonth.firstDay, previousMonth.lastDay);
     await reportPage.submitReport();
     // Should show balance 0 when no transactions in range
     await reportPage.verifyBalanceAmount(0);
 
-    // Then change to include the transaction
-    await reportPage.setDateRange('2025-01-01', '2025-01-31');
+    // Then change to include the transaction (current month)
+    await reportPage.setDateRange(currentMonth.firstDay, currentMonth.lastDay);
     await reportPage.submitReport();
     await reportPage.verifyBalanceAmount(3000);
   });
 
   test('should show correct date range in balance text', async ({ page, db }) => {
+    const dates = getCurrentMonthDates();
+
     const categoryId = await db.createCategory({
       userId,
       name: 'Salary',
@@ -391,17 +467,17 @@ test.describe('Reports', () => {
       amount: 3000,
       description: 'Salary',
       operation: 'INCOME',
-      date: '2025-01-15',
+      date: dates.midMonth,
     });
 
     const reportPage = new ReportPage(page);
     await reportPage.goto();
 
-    await reportPage.setDateRange('2025-01-01', '2025-01-31');
+    await reportPage.setDateRange(dates.firstDay, dates.lastDay);
     await reportPage.submitReport();
 
     // Verify the date range is shown in the balance text
-    await reportPage.verifyDateRange('2025-01-01', '2025-01-31');
+    await reportPage.verifyDateRange(dates.firstDay, dates.lastDay);
   });
 });
 

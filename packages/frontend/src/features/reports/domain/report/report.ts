@@ -1,5 +1,6 @@
 import { Day, Transaction } from "@gualet/shared";
-import { CategoryReport } from "../report/categoryReport";
+
+import { CategoryReport } from "../report/category-report";
 
 interface ReportParams {
   from: Day;

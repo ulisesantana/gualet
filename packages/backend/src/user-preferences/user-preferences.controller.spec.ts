@@ -62,6 +62,7 @@ describe('UserPreferencesController', () => {
               icon: paymentMethod.icon ?? '',
               color: paymentMethod.color ?? '',
             },
+            language: 'en',
           },
         },
       });
@@ -122,6 +123,7 @@ describe('UserPreferencesController', () => {
               icon: '',
               color: '',
             },
+            language: 'en',
           },
         },
       });
@@ -167,10 +169,15 @@ describe('UserPreferencesController', () => {
               icon: paymentMethod.icon ?? '',
               color: paymentMethod.color ?? '',
             },
+            language: 'en',
           },
         },
       });
-      expect(service.save).toHaveBeenCalledWith(new Id('1'), new Id('pm-123'));
+      expect(service.save).toHaveBeenCalledWith(
+        new Id('1'),
+        new Id('pm-123'),
+        undefined,
+      );
     });
 
     it('should handle errors when saving preferences', async () => {
@@ -229,6 +236,7 @@ describe('UserPreferencesController', () => {
               icon: '',
               color: '',
             },
+            language: 'en',
           },
         },
       });

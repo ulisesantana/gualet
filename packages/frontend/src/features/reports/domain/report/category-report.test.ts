@@ -5,7 +5,7 @@ import {
 import { TransactionBuilder } from "@test/builders";
 import { describe, expect, it } from "vitest";
 
-import { CategoryReport } from "./categoryReport";
+import { CategoryReport } from "./category-report";
 
 describe("CategoryReport", () => {
   const incomeCategory1 = generateDefaultIncomeCategories()[0];

@@ -25,11 +25,27 @@ export class ReportPage {
   async goto() {
     await this.page.goto('/reports');
     await this.page.waitForLoadState('networkidle');
+
+    // Wait for initial report to load (it fetches on mount)
+    await expect(this.balanceText).toBeVisible({ timeout: 10000 });
   }
 
   async setDateRange(from: string, to: string) {
-    await this.fromDateInput.fill(from);
-    await this.toDateInput.fill(to);
+    // Set values using evaluate to ensure React detects the change
+    await this.fromDateInput.evaluate((el: HTMLInputElement, value) => {
+      el.value = value;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }, from);
+
+    await this.toDateInput.evaluate((el: HTMLInputElement, value) => {
+      el.value = value;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }, to);
+
+    // Small wait to ensure state updates
+    await this.page.waitForTimeout(200);
   }
 
   async submitReport() {
