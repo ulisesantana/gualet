@@ -6,6 +6,15 @@ import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 import { SignUpUseCase } from "../../application/cases";
 import { RegisterForm, RegisterView } from "./RegisterView";
 
+// Mock wouter
+vi.mock("wouter", async () => {
+  const actual = await vi.importActual("wouter");
+  return {
+    ...actual,
+    useLocation: vi.fn().mockReturnValue(["", vi.fn()]),
+  };
+});
+
 function createMockSignUpUseCase({
   success = false,
   error = null,
@@ -29,7 +38,7 @@ describe("RegisterForm", () => {
     expect(screen.getByTestId("submit-sign-up")).toBeInTheDocument();
   });
 
-  it("shows success message when registration is successful", async () => {
+  it("calls signUpUseCase with correct credentials on submit", async () => {
     const mockSignUpUseCase = createMockSignUpUseCase({ success: true });
     render(<RegisterForm signUpUseCase={mockSignUpUseCase} />);
 
@@ -46,9 +55,6 @@ describe("RegisterForm", () => {
         email: "test@example.com",
         password: "password123",
       });
-      expect(
-        screen.getByText(/your email needs to be confirmed/i),
-      ).toBeInTheDocument();
     });
   });
 
@@ -94,17 +100,10 @@ describe("RegisterForm", () => {
     });
   });
 
-  it("clears success message when error occurs", async () => {
-    const mockSignUpUseCase = {
-      exec: vi
-        .fn()
-        .mockResolvedValueOnce({ success: true })
-        .mockResolvedValueOnce({ success: false, error: "Error message" }),
-    } as unknown as SignUpUseCase;
-
+  it("does not show success message (redirects instead)", async () => {
+    const mockSignUpUseCase = createMockSignUpUseCase({ success: true });
     render(<RegisterForm signUpUseCase={mockSignUpUseCase} />);
 
-    // First call - success
     fireEvent.change(screen.getByPlaceholderText(/enter your email/i), {
       target: { value: "test@example.com" },
     });
@@ -114,19 +113,13 @@ describe("RegisterForm", () => {
     fireEvent.click(screen.getByTestId("submit-sign-up"));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/your email needs to be confirmed/i),
-      ).toBeInTheDocument();
+      expect(mockSignUpUseCase.exec).toHaveBeenCalled();
     });
 
-    fireEvent.click(screen.getByTestId("submit-sign-up"));
-
-    await waitFor(() => {
-      expect(
-        screen.queryByText(/your email needs to be confirmed/i),
-      ).not.toBeInTheDocument();
-      expect(screen.getByText("Error message")).toBeInTheDocument();
-    });
+    // No success message should be shown - user is redirected instead
+    expect(
+      screen.queryByText(/your email needs to be confirmed/i),
+    ).not.toBeInTheDocument();
   });
 });
 

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriesService } from './categories.service';
+import { CategoriesRepositoryFactory } from './categories.repository.factory';
 import { Category } from './category.model';
 import { Id, OperationType } from '@gualet/shared';
 import { buildCategory, buildUserEntity } from '@test/builders';
@@ -10,35 +11,54 @@ import { CategoryEntity, TransactionEntity } from '@src/db';
 describe('CategoriesService', () => {
   const userId = new Id('user-123');
   let service: CategoriesService;
-  let categoryRepository: CategoriesRepository;
+  let categoryRepository: jest.Mocked<CategoriesRepository>;
+  let repositoryFactory: CategoriesRepositoryFactory;
 
   beforeEach(async () => {
+    const mockCategoryRepo = {
+      create: jest.fn(),
+      save: jest.fn(),
+      find: jest.fn(),
+      findAll: jest.fn(),
+      findOne: jest.fn(),
+      findOneBy: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
+
+    const mockTransactionRepo = {
+      count: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CategoriesService,
-        CategoriesRepository,
         {
-          provide: getRepositoryToken(CategoryEntity),
+          provide: CategoriesRepositoryFactory,
           useValue: {
-            create: jest.fn(),
-            save: jest.fn(),
-            find: jest.fn(),
-            findOne: jest.fn(),
-            findOneBy: jest.fn(),
-            delete: jest.fn(),
+            getRepository: jest.fn().mockReturnValue(mockCategoryRepo),
           },
         },
         {
+          provide: CategoriesRepository,
+          useValue: mockCategoryRepo,
+        },
+        {
+          provide: getRepositoryToken(CategoryEntity),
+          useValue: mockCategoryRepo,
+        },
+        {
           provide: getRepositoryToken(TransactionEntity),
-          useValue: {
-            count: jest.fn(),
-          },
+          useValue: mockTransactionRepo,
         },
       ],
     }).compile();
 
     service = module.get<CategoriesService>(CategoriesService);
-    categoryRepository = module.get<CategoriesRepository>(CategoriesRepository);
+    categoryRepository = module.get(CategoriesRepository);
+    repositoryFactory = module.get<CategoriesRepositoryFactory>(
+      CategoriesRepositoryFactory,
+    );
   });
 
   it('should be defined', () => {
@@ -55,9 +75,7 @@ describe('CategoriesService', () => {
       }),
     ];
 
-    jest
-      .spyOn(categoryRepository, 'findAll')
-      .mockResolvedValue(categoryEntities);
+    categoryRepository.findAll.mockResolvedValue(categoryEntities);
 
     const result = await service.findAll(userId);
 
@@ -72,7 +90,7 @@ describe('CategoriesService', () => {
   });
 
   it('should return empty array when user has no categories', async () => {
-    jest.spyOn(categoryRepository, 'findAll').mockResolvedValue([]);
+    categoryRepository.findAll.mockResolvedValue([]);
 
     const result = await service.findAll(userId);
 
@@ -93,7 +111,7 @@ describe('CategoriesService', () => {
       ...newCategoryData,
       id: new Id(categoryId),
     });
-    jest.spyOn(categoryRepository, 'create').mockResolvedValue(savedCategory);
+    categoryRepository.create.mockResolvedValue(savedCategory);
 
     const result = await service.create(userId, newCategoryData);
 
@@ -114,9 +132,7 @@ describe('CategoriesService', () => {
       color: undefined,
     });
 
-    jest
-      .spyOn(categoryRepository, 'create')
-      .mockResolvedValue(categoryWithoutOptionals);
+    categoryRepository.create.mockResolvedValue(categoryWithoutOptionals);
 
     const result = await service.create(userId, {
       id: categoryId,
@@ -136,7 +152,7 @@ describe('CategoriesService', () => {
       icon: '💰',
       color: '#0000FF',
     });
-    jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(category);
+    categoryRepository.findOne.mockResolvedValue(category);
     const categoryId = new Id(category.id);
 
     const result = await service.findOne(userId, categoryId);
@@ -157,9 +173,7 @@ describe('CategoriesService', () => {
       user: buildUserEntity({ id: userId.toString() }),
     });
     const categoryToSave = new Category(categoryEntityToSave);
-    jest
-      .spyOn(categoryRepository, 'update')
-      .mockResolvedValue(categoryEntityToSave);
+    categoryRepository.update.mockResolvedValue(categoryEntityToSave);
 
     const result = await service.update(userId, categoryToSave);
 
@@ -183,9 +197,7 @@ describe('CategoriesService', () => {
       color: undefined,
     });
 
-    jest
-      .spyOn(categoryRepository, 'update')
-      .mockResolvedValue(categoryWithoutOptionals);
+    categoryRepository.update.mockResolvedValue(categoryWithoutOptionals);
 
     const result = await service.update(userId, categoryWithoutOptionals);
 
@@ -195,7 +207,7 @@ describe('CategoriesService', () => {
 
   it('should delete a category', async () => {
     const categoryId = new Id('category-to-delete');
-    jest.spyOn(categoryRepository, 'delete').mockResolvedValue(undefined);
+    categoryRepository.delete.mockResolvedValue(undefined);
 
     await service.delete(userId, categoryId);
 
@@ -205,7 +217,7 @@ describe('CategoriesService', () => {
   describe('createDefaultCategories', () => {
     it('should create all default categories successfully', async () => {
       const mockCategory = buildCategory();
-      jest.spyOn(categoryRepository, 'create').mockResolvedValue(mockCategory);
+      categoryRepository.create.mockResolvedValue(mockCategory);
 
       const result = await service.createDefaultCategories(userId);
 
@@ -222,8 +234,7 @@ describe('CategoriesService', () => {
         .spyOn(console, 'error')
         .mockImplementation(() => {});
 
-      jest
-        .spyOn(categoryRepository, 'create')
+      categoryRepository.create
         .mockResolvedValueOnce(mockCategory)
         .mockRejectedValueOnce(new Error('Database error'))
         .mockResolvedValue(mockCategory);

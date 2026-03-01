@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   InternalServerErrorException,
   NotFoundException,
   Post,
@@ -98,6 +99,30 @@ export class AuthController extends BaseController {
       } else {
         this.handleAuthError(res, error);
       }
+    }
+  }
+
+  @Get('login/demo')
+  @ApiOperation({ summary: 'Demo account login' })
+  @ApiResponse({
+    status: 200,
+    description: 'Demo login successful',
+    type: UserResponseDto,
+  })
+  async loginDemo(@Res({ passthrough: true }) res: Response) {
+    try {
+      const { access_token } = await this.authService.loginDemo();
+      this.saveAccessToken(res, access_token);
+
+      res.status(200);
+      return new UserResponseDto(
+        new User({
+          id: 'demo-user-id',
+          email: 'demo@gualet.app',
+        }),
+      );
+    } catch (error) {
+      this.handleAuthError(res, error);
     }
   }
 

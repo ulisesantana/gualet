@@ -10,6 +10,8 @@ export interface UserRepository {
 
   login(credentials: UserCredentials): Promise<CommandResponse>;
 
+  loginDemo(): Promise<CommandResponse>;
+
   logout(): Promise<CommandResponse>;
 
   isLoggedIn(): Promise<boolean>;

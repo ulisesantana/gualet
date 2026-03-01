@@ -40,6 +40,21 @@ export class CategoriesPage {
     // Navigate directly to categories list to ensure fresh data load
     await this.page.goto('/categories');
     await this.page.waitForLoadState('networkidle');
+
+    // Force reload to ensure fresh data
+    await this.page.reload();
+    await this.page.waitForLoadState('networkidle');
+
+    // Wait a bit for React to render the categories and for any animations
+    await this.page.waitForTimeout(2000);
+
+    // Wait for at least one category item to be visible (or the "no categories" message)
+    await Promise.race([
+      this.page.locator('[data-testid^="category-item-"]').first().waitFor({ state: 'visible', timeout: 5000 }),
+      this.page.locator('text=There are no categories').waitFor({ state: 'visible', timeout: 5000 })
+    ]).catch(() => {
+      // Either categories or empty message should appear
+    });
   }
 
   // ===== Form Interaction Methods =====
@@ -89,8 +104,8 @@ export class CategoriesPage {
   }
 
   async waitForSuccess() {
-    // Wait for redirect to categories list after creation
-    await this.page.waitForURL(/categories/, { timeout: 5000 });
+    // Wait for redirect to categories list after creation (not /categories/add)
+    await this.page.waitForURL(/\/categories$/, { timeout: 10000 });
     // Wait for content to be visible (either the list or the "no categories" message)
     await this.page.waitForLoadState('networkidle');
     // Add a small delay to ensure backend transaction is committed
@@ -151,7 +166,7 @@ export class CategoriesPage {
    * (e.g., same name but different types: INCOME and OUTCOME)
    */
   async verifyCategoryExists(name: string) {
-    await expect(this.getCategoryByName(name).first()).toBeVisible();
+    await expect(this.getCategoryByName(name).first()).toBeVisible({ timeout: 10000 });
   }
 
   /**

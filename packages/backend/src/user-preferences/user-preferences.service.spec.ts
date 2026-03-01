@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { UserPreferencesService } from './user-preferences.service';
 import { UserPreferencesRepository } from './user-preferences.repository';
+import { UserPreferencesRepositoryFactory } from './user-preferences.repository.factory';
 import { PaymentMethodsService } from '@src/payment-methods/payment-methods.service';
 import { Id } from '@gualet/shared';
 import { UserPreferences } from './user-preferences.model';
@@ -12,15 +13,23 @@ describe('UserPreferencesService', () => {
   let paymentMethodsService: jest.Mocked<PaymentMethodsService>;
 
   beforeEach(async () => {
+    const mockRepository = {
+      findByUserId: jest.fn(),
+      save: jest.fn(),
+    };
+
     const moduleRef = await Test.createTestingModule({
       providers: [
         UserPreferencesService,
         {
-          provide: UserPreferencesRepository,
+          provide: UserPreferencesRepositoryFactory,
           useValue: {
-            findByUserId: jest.fn(),
-            save: jest.fn(),
+            getRepository: jest.fn().mockReturnValue(mockRepository),
           },
+        },
+        {
+          provide: UserPreferencesRepository,
+          useValue: mockRepository,
         },
         {
           provide: PaymentMethodsService,

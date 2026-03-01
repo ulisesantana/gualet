@@ -4,15 +4,20 @@ import { render, screen } from "@test/test-utils";
 
 import { SettingsProvider, useSettingsContext } from "./SettingsContext";
 
-vi.mock("@common/infrastructure", () => ({
-  StorageDataSource: vi.fn().mockImplementation(() => ({
-    get: vi.fn((key: string) => {
-      if (key === "spreadsheetId") return "test-spreadsheet-id";
-      return null;
-    }),
-    set: vi.fn(),
-  })),
-}));
+vi.mock("@common/infrastructure", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@common/infrastructure")>();
+  return {
+    ...actual,
+    StorageDataSource: vi.fn().mockImplementation(() => ({
+      get: vi.fn((key: string) => {
+        if (key === "spreadsheetId") return "test-spreadsheet-id";
+        return null;
+      }),
+      set: vi.fn(),
+    })),
+  };
+});
 
 describe("SettingsContext", () => {
   beforeEach(() => {

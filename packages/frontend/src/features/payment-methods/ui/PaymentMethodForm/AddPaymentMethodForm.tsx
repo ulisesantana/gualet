@@ -7,7 +7,7 @@ import {
 
 export type AddPaymentMethodFormProps = Pick<
   PaymentMethodFormParams,
-  "onSubmit" | "onSuccess"
+  "onSubmit" | "onSuccess" | "onError"
 >;
 
 export function AddPaymentMethodForm(props: AddPaymentMethodFormProps) {

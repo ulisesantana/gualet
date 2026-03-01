@@ -5,6 +5,7 @@ import { PaymentMethodsRepository } from './payment-methods.repository';
 import { buildPaymentMethodEntity, buildUserEntity } from '@test/builders';
 import { Id } from '@gualet/shared';
 import {
+  DuplicatePaymentMethodError,
   NotAuthorizedForPaymentMethodError,
   PaymentMethodNotFoundError,
 } from './errors';
@@ -61,6 +62,7 @@ describe('PaymentMethodsRepository', () => {
       user: buildUserEntity({ id: userId.toString() }),
     });
 
+    mockRepository.findOne.mockResolvedValue(null); // No duplicate
     mockRepository.create.mockReturnValue(mockEntity);
     mockRepository.save.mockResolvedValue(mockEntity);
 
@@ -75,6 +77,27 @@ describe('PaymentMethodsRepository', () => {
       color: paymentMethod.color,
     });
     expect(result).toEqual(PaymentMethodsRepository.mapToDomain(mockEntity));
+  });
+
+  it('should throw DuplicatePaymentMethodError when creating a payment method with an existing name', async () => {
+    const userId = new Id('user-123');
+    const paymentMethod = new PaymentMethod({
+      id: new Id(),
+      name: 'Existing Payment Method',
+      icon: '💳',
+      color: '#00AAFF',
+    });
+    const mockEntity = buildPaymentMethodEntity({
+      name: paymentMethod.name,
+      user: buildUserEntity({ id: userId.toString() }),
+    });
+
+    mockRepository.findOne.mockResolvedValue(mockEntity); // Duplicate found
+
+    await expect(repository.create(userId, paymentMethod)).rejects.toThrow(
+      DuplicatePaymentMethodError,
+    );
+    expect(mockRepository.create).not.toHaveBeenCalled();
   });
 
   it('should find all payment methods for a user', async () => {

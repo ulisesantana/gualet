@@ -1,9 +1,10 @@
-import React from "react";
-import { Route, Router } from "wouter";
+import React, { useEffect } from "react";
+import { Route, Router, useLocation } from "wouter";
 // i18n
 import "@common/infrastructure/i18n/config";
 // Auth
 import {
+  LoginDemoUseCase,
   LoginUseCase,
   LoginView,
   LogoutUseCase,
@@ -12,6 +13,7 @@ import {
   SignUpUseCase,
   VerifySessionUseCase,
 } from "@auth";
+import { useAuth } from "@auth/ui/AuthContext";
 // Categories
 import {
   AddCategoryView,
@@ -58,6 +60,7 @@ import { routes } from "../../infrastructure/routes";
 export interface AppProps {
   cases: {
     loginUseCase: LoginUseCase;
+    loginDemoUseCase: LoginDemoUseCase;
     signUpUseCase: SignUpUseCase;
     verifySessionUseCase: VerifySessionUseCase;
     getLastTransactionsUseCase: GetLastTransactionsUseCase;
@@ -80,16 +83,62 @@ export interface AppProps {
   };
 }
 
+/**
+ * Verifies user session once on app startup.
+ * This allows ProtectedRoute components to trust the isAuthenticated state
+ * without re-verifying on every navigation.
+ */
+function SessionVerifier({
+  verifySessionUseCase,
+}: {
+  verifySessionUseCase: VerifySessionUseCase;
+}) {
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    // Only verify once (when isAuthenticated is null = not yet verified)
+    if (isAuthenticated !== null) return;
+
+    verifySessionUseCase
+      .exec()
+      .then((result) => {
+        setIsAuthenticated(result.success);
+      })
+      .catch(() => {
+        setIsAuthenticated(false);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // When we know user is not authenticated, redirect to login
+    if (isAuthenticated !== false) return;
+    const currentPath = window.location.pathname;
+    const publicPaths = [routes.login, routes.register];
+    const isPublicPath = publicPaths.some((p) => currentPath.endsWith(p));
+    if (!isPublicPath) {
+      setLocation(routes.login);
+    }
+  }, [isAuthenticated, setLocation]);
+
+  return null;
+}
+
 export const App: React.FC<AppProps> = ({ cases }) => {
   return (
     // @ts-ignore
     <Router base={import.meta.env.BASE_URL}>
+      <SessionVerifier verifySessionUseCase={cases.verifySessionUseCase} />
       <div className="App">
         <Header />
         <main className="App-main">
           {/*LOGIN*/}
           <Route path={routes.login}>
-            <LoginView loginUseCase={cases.loginUseCase} />
+            <LoginView
+              loginUseCase={cases.loginUseCase}
+              loginDemoUseCase={cases.loginDemoUseCase}
+            />
           </Route>
           {/*REGISTER*/}
           <Route path={routes.register}>

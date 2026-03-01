@@ -5,6 +5,7 @@ import {
   PaymentMethodToUpdate,
 } from './payment-methods.service';
 import { PaymentMethodsRepository } from './payment-methods.repository';
+import { PaymentMethodsRepositoryFactory } from './payment-methods.repository.factory';
 import { Id } from '@gualet/shared';
 import { PaymentMethod } from './payment-method.model';
 import { PaymentMethodNotFoundError } from './errors';
@@ -14,18 +15,26 @@ describe('PaymentMethodsService', () => {
   let repository: jest.Mocked<PaymentMethodsRepository>;
 
   beforeEach(async () => {
+    const mockRepository = {
+      create: jest.fn(),
+      findAll: jest.fn(),
+      findOne: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
+
     const moduleRef = await Test.createTestingModule({
       providers: [
         PaymentMethodsService,
         {
-          provide: PaymentMethodsRepository,
+          provide: PaymentMethodsRepositoryFactory,
           useValue: {
-            create: jest.fn(),
-            findAll: jest.fn(),
-            findOne: jest.fn(),
-            update: jest.fn(),
-            delete: jest.fn(),
+            getRepository: jest.fn().mockReturnValue(mockRepository),
           },
+        },
+        {
+          provide: PaymentMethodsRepository,
+          useValue: mockRepository,
         },
       ],
     }).compile();

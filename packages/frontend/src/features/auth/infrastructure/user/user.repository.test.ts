@@ -1,8 +1,8 @@
-import { UserCredentials } from "../../application/user.repository";
 import { HttpDataSource } from "@common/infrastructure";
 import { BaseResponse } from "@infrastructure/types";
 import { beforeEach, describe, it, Mocked, vi } from "vitest";
 
+import { UserCredentials } from "../../application/user.repository";
 import { UserRepositoryImplementation, UserResponse } from "./user.repository";
 
 describe("UserRepositoryImplementation", () => {
@@ -124,6 +124,36 @@ describe("UserRepositoryImplementation", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Authentication error");
+    });
+  });
+
+  describe("loginDemo", () => {
+    it("should call the get method to login/demo endpoint", async () => {
+      await repository.loginDemo();
+
+      expect(mockHttp.get).toHaveBeenCalledWith("/api/auth/login/demo");
+    });
+
+    it("should return success response when demo login succeeds", async () => {
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { user: { id: "demo-user-id", email: "demo@gualet.app" } },
+      } as UserResponse);
+
+      const result = await repository.loginDemo();
+
+      expect(result.success).toBe(true);
+    });
+
+    it("should return error when demo login fails", async () => {
+      mockHttp.get.mockRejectedValue({
+        response: { data: { error: { message: "Demo login failed" } } },
+      });
+
+      const result = await repository.loginDemo();
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Demo login failed");
     });
   });
 });

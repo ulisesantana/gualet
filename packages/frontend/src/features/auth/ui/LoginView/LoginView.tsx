@@ -13,21 +13,27 @@ import {
 } from "@common/ui/components";
 
 import { LoginUseCase } from "../../application/cases";
+import { LoginDemoUseCase } from "../../application/login-demo";
+import { useAuth } from "../AuthContext";
 
 export interface LoginFormProps {
   loginUseCase: LoginUseCase;
+  loginDemoUseCase: LoginDemoUseCase;
 }
 
-export function LoginForm({ loginUseCase }: LoginFormProps) {
+export function LoginForm({ loginUseCase, loginDemoUseCase }: LoginFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [_location, setLocation] = useLocation();
-  const callback = (error?: string) => {
-    if (error) {
-      setErrorMessage(error);
-    } else {
-      setErrorMessage("");
-      setLocation(routes.home);
-    }
+  const { setIsAuthenticated } = useAuth();
+
+  const onSuccess = () => {
+    setErrorMessage("");
+    setIsAuthenticated(true);
+    setLocation(routes.home);
+  };
+
+  const onError = (error?: string) => {
+    setErrorMessage(error || "Login failed");
   };
 
   const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
@@ -42,17 +48,32 @@ export function LoginForm({ loginUseCase }: LoginFormProps) {
         .exec({ email, password })
         .then((result) => {
           if (result.success) {
-            callback();
+            onSuccess();
           } else {
-            callback(result.error || "Login failed");
+            onError(result.error || "Login failed");
           }
         })
         .catch((error) => {
-          // Extract error message from Error object
           const message = error?.message || "An unexpected error occurred";
-          callback(message);
+          onError(message);
         });
     }
+  };
+
+  const onDemoLoginHandler = () => {
+    loginDemoUseCase
+      .exec()
+      .then((result) => {
+        if (result.success) {
+          onSuccess();
+        } else {
+          onError(result.error || "Demo login failed");
+        }
+      })
+      .catch((error) => {
+        const message = error?.message || "An unexpected error occurred";
+        onError(message);
+      });
   };
 
   return (
@@ -85,6 +106,16 @@ export function LoginForm({ loginUseCase }: LoginFormProps) {
               mt={4}
             >
               LOGIN
+            </Button>
+            <Button
+              type="button"
+              name="demo-login"
+              data-testid="demo-login"
+              width="full"
+              variant="secondary"
+              onClick={onDemoLoginHandler}
+            >
+              TRY DEMO
             </Button>
           </Stack>
         </form>

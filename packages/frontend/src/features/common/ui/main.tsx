@@ -5,11 +5,13 @@ import "./forms.css";
 import "./theme.css";
 // Auth
 import {
+  LoginDemoUseCase,
   LoginUseCase,
   LogoutUseCase,
   SignUpUseCase,
   VerifySessionUseCase,
 } from "@auth/application/cases";
+import { AuthProvider } from "@auth/ui";
 import { UserRepositoryImplementation } from "@auth/infrastructure/user";
 // Categories
 import {
@@ -65,6 +67,7 @@ const userPreferencesRepository = new UserPreferencesRepositoryImplementation(
 // USE CASES
 const cases: AppProps["cases"] = {
   loginUseCase: new LoginUseCase(userRepository),
+  loginDemoUseCase: new LoginDemoUseCase(userRepository),
   signUpUseCase: new SignUpUseCase(userRepository),
   verifySessionUseCase: new VerifySessionUseCase(userRepository),
   logoutUseCase: new LogoutUseCase(userRepository),
@@ -106,9 +109,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ChakraProvider>
-      <SettingsProvider>
-        <App cases={cases} />
-      </SettingsProvider>
+      <AuthProvider>
+        <SettingsProvider>
+          <App cases={cases} />
+        </SettingsProvider>
+      </AuthProvider>
     </ChakraProvider>
   </React.StrictMode>,
 );

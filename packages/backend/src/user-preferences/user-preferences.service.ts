@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { Id } from '@gualet/shared';
-import { UserPreferencesRepository } from './user-preferences.repository';
+import { UserPreferencesRepositoryFactory } from './user-preferences.repository.factory';
 import { UserPreferences } from './user-preferences.model';
 import { PaymentMethodsService } from '@src/payment-methods/payment-methods.service';
 
 @Injectable()
 export class UserPreferencesService {
   constructor(
-    private readonly repository: UserPreferencesRepository,
+    private readonly repositoryFactory: UserPreferencesRepositoryFactory,
     private readonly paymentMethodsService: PaymentMethodsService,
   ) {}
 
   async find(userId: Id): Promise<UserPreferences | null> {
-    const preferences = await this.repository.findByUserId(userId);
+    const repository = this.repositoryFactory.getRepository();
+    const preferences = await repository.findByUserId(userId);
 
     if (!preferences) {
       // Return default preferences with the first payment method
@@ -33,11 +34,12 @@ export class UserPreferencesService {
   async save(
     userId: Id,
     defaultPaymentMethodId: Id,
-    language?: string,
+    language?: 'en' | 'es',
   ): Promise<UserPreferences> {
     // Verify that the payment method exists and belongs to the user
     await this.paymentMethodsService.findOne(userId, defaultPaymentMethodId);
 
-    return this.repository.save(userId, defaultPaymentMethodId, language);
+    const repository = this.repositoryFactory.getRepository();
+    return repository.save(userId, defaultPaymentMethodId, language);
   }
 }

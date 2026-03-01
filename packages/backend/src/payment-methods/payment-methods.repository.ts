@@ -6,6 +6,7 @@ import {
   PaymentMethodInUseError,
   PaymentMethodNotFoundError,
 } from './errors';
+import { DuplicatePaymentMethodError } from './errors/duplicate-payment-method.error';
 import { PaymentMethodToUpdate } from '@src/payment-methods';
 import { PaymentMethodEntity, TransactionEntity } from '@src/db';
 import { Id, PaymentMethod } from '@gualet/shared';
@@ -29,6 +30,14 @@ export class PaymentMethodsRepository {
   }
 
   async create(userId: Id, pm: PaymentMethod): Promise<PaymentMethod> {
+    // Check for duplicate payment method name for this user
+    const existing = await this.repository.findOne({
+      where: { user: { id: userId.toString() }, name: pm.name },
+    });
+    if (existing) {
+      throw new DuplicatePaymentMethodError(pm.name);
+    }
+
     const entity = this.repository.create({
       ...pm.toJSON(),
       ...this.handleNullableFields(pm),

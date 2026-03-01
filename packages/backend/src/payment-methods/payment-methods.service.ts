@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentMethodsRepository } from '@src/payment-methods/payment-methods.repository';
+import { PaymentMethodsRepositoryFactory } from './payment-methods.repository.factory';
 import {
   generateDefaultPaymentMethods,
   Id,
@@ -23,29 +23,30 @@ export interface PaymentMethodToCreate {
 
 @Injectable()
 export class PaymentMethodsService {
-  constructor(private readonly repository: PaymentMethodsRepository) {}
+  constructor(
+    private readonly repositoryFactory: PaymentMethodsRepositoryFactory,
+  ) {}
 
   create(userId: Id, pm: PaymentMethodToCreate): Promise<PaymentMethod> {
-    return this.repository.create(
-      userId,
-      new PaymentMethod({ ...pm, id: new Id(pm.id) }),
-    );
+    return this.repositoryFactory
+      .getRepository()
+      .create(userId, new PaymentMethod({ ...pm, id: new Id(pm.id) }));
   }
 
   findAll(userId: Id): Promise<PaymentMethod[]> {
-    return this.repository.findAll(userId);
+    return this.repositoryFactory.getRepository().findAll(userId);
   }
 
   findOne(userId: Id, id: Id): Promise<PaymentMethod> {
-    return this.repository.findOne(userId, id);
+    return this.repositoryFactory.getRepository().findOne(userId, id);
   }
 
   update(userId: Id, pm: PaymentMethodToUpdate): Promise<PaymentMethod> {
-    return this.repository.update(userId, pm);
+    return this.repositoryFactory.getRepository().update(userId, pm);
   }
 
   delete(userId: Id, id: Id): Promise<void> {
-    return this.repository.delete(userId, id);
+    return this.repositoryFactory.getRepository().delete(userId, id);
   }
 
   async createDefaultPaymentMethods(userId: Id): Promise<PaymentMethod[]> {

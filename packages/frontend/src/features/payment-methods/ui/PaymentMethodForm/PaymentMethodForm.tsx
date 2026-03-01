@@ -38,6 +38,7 @@ export function PaymentMethodForm({
       onSubmit={onSubmitHandler}
       ref={formRef}
       data-testid="payment-method-form"
+      autoComplete="off"
     >
       <Stack gap={4}>
         {errorMessage && (

@@ -18,6 +18,22 @@ describe('JwtStrategy', () => {
       userId: '123',
       email: 'test@example.com',
       raw: payload,
+      isDemo: false,
+    });
+  });
+
+  it('should validate demo payload and return user data with isDemo flag', async () => {
+    const payload = {
+      sub: 'demo-user-id',
+      email: 'demo@gualet.app',
+      isDemo: true,
+    };
+    const result = await jwtStrategy.validate(payload);
+    expect(result).toEqual({
+      userId: 'demo-user-id',
+      email: 'demo@gualet.app',
+      raw: payload,
+      isDemo: true,
     });
   });
 

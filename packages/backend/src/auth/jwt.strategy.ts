@@ -8,6 +8,7 @@ import { TokenPayload } from './dto';
 interface ValidatePayload extends TokenPayload {
   userId: string;
   email: string;
+  isDemo: boolean;
   raw: object;
 }
 
@@ -30,6 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: {
     sub: string;
     email: string;
+    isDemo?: boolean;
   }): Promise<ValidatePayload> {
     if (!payload || typeof payload !== 'object') {
       throw new UnauthorizedException();
@@ -38,6 +40,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       userId: payload.sub,
       email: payload.email,
+      isDemo: payload.isDemo || false,
       raw: payload,
     };
   }

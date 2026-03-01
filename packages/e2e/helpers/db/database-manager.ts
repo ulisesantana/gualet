@@ -133,10 +133,11 @@ export class DatabaseManager {
 
   async reset(): Promise<void> {
     // Delete all data respecting foreign key constraints
+    // Order matters: delete child tables before parent tables
     await this.pool.query('DELETE FROM transactions');
+    await this.pool.query('DELETE FROM user_preferences'); // Must be deleted before payment_methods
     await this.pool.query('DELETE FROM categories');
     await this.pool.query('DELETE FROM payment_methods');
-    await this.pool.query('DELETE FROM user_preferences');
     await this.pool.query('DELETE FROM users');
   }
 
@@ -254,6 +255,37 @@ export class DatabaseManager {
       'DELETE FROM transactions WHERE id = $1',
       [transactionId]
     );
+  }
+
+  /**
+   * Set user preferences
+   */
+  async setUserPreferences(
+    userId: string,
+    defaultPaymentMethodId: string,
+    language: 'en' | 'es' = 'en'
+  ): Promise<void> {
+    const query = `
+      INSERT INTO user_preferences ("userId", "defaultPaymentMethodId", language)
+      VALUES ($1, $2, $3)
+      ON CONFLICT ("userId") 
+      DO UPDATE SET 
+        "defaultPaymentMethodId" = EXCLUDED."defaultPaymentMethodId",
+        language = EXCLUDED.language,
+        "updatedAt" = CURRENT_TIMESTAMP
+    `;
+    await this.pool.query(query, [userId, defaultPaymentMethodId, language]);
+  }
+
+  /**
+   * Get user preferences
+   */
+  async getUserPreferences(userId: string): Promise<any | null> {
+    const result = await this.pool.query(
+      'SELECT * FROM user_preferences WHERE "userId" = $1',
+      [userId]
+    );
+    return result.rows[0] || null;
   }
 
   async close(): Promise<void> {

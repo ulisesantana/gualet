@@ -1,6 +1,6 @@
 # Gualet - Project Status and Roadmap
 
-**Date:** February 13, 2026  
+**Date:** February 14, 2026  
 **Application:** Personal finance management  
 **Status:** 🟡 **Development Phase - Not Production Ready**
 
@@ -8,13 +8,20 @@
 
 ## 📋 Executive Summary
 
-Gualet is a personal finance web application that has **successfully migrated from Supabase to its own backend** with NestJS and PostgreSQL. The backend is **100% complete** with all CRUD functionalities implemented, and the frontend is **fully integrated with the new backend**. 
+Gualet is a personal finance web application that has **successfully migrated from Supabase to its own backend** with NestJS and PostgreSQL. The backend is **100% complete** with all CRUD functionalities implemented, the frontend is **fully integrated with the new backend**, and a **complete Demo Account System** allows users to try the application without registration.
 
 **Current Phase:** Pre-Production Preparation  
+**Latest Achievement:** 🎭 **Demo Account System - 100% Complete**  
 **Next Milestone:** GDPR Compliance & Production Deployment Setup  
 **After That:** Offline-First Implementation with RxDB
 
 ⚠️ **Production Readiness:** The application is **NOT ready for production deployment** - critical GDPR requirements, CI/CD pipeline, and security configurations are missing.
+
+**New Features:**
+- 🎭 **Demo Account:** Fully functional in-memory demo with auto-reset every 30 minutes
+- 🏭 **Factory Pattern:** Repository factories for database/demo mode switching
+- 🔒 **100% DB Isolation:** Demo data NEVER touches database (E2E verified)
+- 🎨 **AuthContext:** Reactive authentication state management
 
 ---
 
@@ -31,12 +38,37 @@ Gualet is a personal finance web application that has **successfully migrated fr
   - Default categories (income and expenses)
   - Default payment methods
 - ✅ **Docker:** docker-compose for development
-- ✅ **Testing:** Jest configured with **99.62% coverage** (190 tests passing)
+- ✅ **Testing:** Jest configured with **99.6% coverage** (69 unit tests passing)
 - ✅ **Documentation:** Swagger/OpenAPI
+
+#### 🎭 Demo Account System ✅ (NEW - Feb 14, 2026)
+- ✅ **Demo Login Endpoint:** `GET /api/auth/login/demo`
+  - No credentials required
+  - Returns JWT with `isDemo: true` flag
+  - User ID: `demo-user-id` (not valid UUID - prevents DB ops)
+  - Token expires in 24 hours
+- ✅ **DemoService:** Centralized in-memory data store
+  - 8 categories (4 INCOME, 4 OUTCOME)
+  - 4 payment methods
+  - 15 transactions (last 90 days)
+  - **Auto-reset every 30 minutes**
+- ✅ **Repository Factory Pattern:**
+  - CategoriesRepositoryFactory
+  - PaymentMethodsRepositoryFactory
+  - TransactionsRepositoryFactory
+  - UserPreferencesRepositoryFactory
+- ✅ **Demo Repositories:** (All in-memory, zero DB impact)
+  - DemoCategoriesRepository
+  - DemoPaymentMethodsRepository
+  - DemoTransactionsRepository
+  - DemoUserPreferencesRepository
+- ✅ **Database Isolation:** E2E tests verify 0 DB changes
+- ✅ **Registration Control:** Enable/disable via `ENABLE_REGISTRATION` env var
 
 #### Authentication ✅
 - ✅ POST `/api/auth/register` - User registration
 - ✅ POST `/api/auth/login` - Login with HttpOnly cookies
+- ✅ **GET `/api/auth/login/demo`** - **Demo login (NEW)**
 - ✅ POST `/api/auth/logout` - Logout
 - ✅ POST `/api/auth/verify` - Session verification
 - ✅ JWT Guards implemented

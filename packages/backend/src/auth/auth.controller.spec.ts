@@ -7,9 +7,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { User } from '@src/users';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
 import {
-  UserNotFoundError,
   InvalidCredentialsError,
   UserAlreadyExistsError,
+  UserNotFoundError,
 } from '@src/users/errors';
 import { Id } from '@gualet/shared';
 import Mocked = jest.Mocked;
@@ -24,6 +24,7 @@ describe('AuthController', () => {
     authService = {
       validateUser: jest.fn(),
       login: jest.fn(),
+      loginDemo: jest.fn(),
       register: jest.fn(),
     } as any;
     configService = { get: jest.fn() } as any;
@@ -133,6 +134,67 @@ describe('AuthController', () => {
       },
       error: null,
       pagination: null,
+    });
+  });
+
+  describe('loginDemo', () => {
+    it('should login as demo user and set cookie', async () => {
+      const access_token = 'demo-token';
+      jest.mocked(authService.loginDemo).mockResolvedValue({ access_token });
+      jest.mocked(configService.get).mockReturnValue('production');
+
+      const result = await controller.loginDemo(response);
+
+      expect(authService.loginDemo).toHaveBeenCalledTimes(1);
+      expect(response.cookie).toHaveBeenCalledWith(
+        'access_token',
+        access_token,
+        {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax',
+        },
+      );
+      expect(response.status).toHaveBeenCalledWith(200);
+      expect(result).toEqual({
+        success: true,
+        data: {
+          user: {
+            id: 'demo-user-id',
+            email: 'demo@gualet.app',
+          },
+        },
+        error: null,
+        pagination: null,
+      });
+    });
+
+    it('should set insecure cookie in development environment', async () => {
+      const access_token = 'demo-token';
+      jest.mocked(authService.loginDemo).mockResolvedValue({ access_token });
+      jest.mocked(configService.get).mockReturnValue('development');
+
+      await controller.loginDemo(response);
+
+      expect(response.cookie).toHaveBeenCalledWith(
+        'access_token',
+        access_token,
+        {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+        },
+      );
+    });
+
+    it('should handle error during demo login', async () => {
+      const error = new Error('Unexpected error');
+      jest.mocked(authService.loginDemo).mockRejectedValue(error);
+
+      await controller.loginDemo(response);
+
+      expect(response.status).toHaveBeenCalledWith(500);
+      expect(response.send).toHaveBeenCalled();
     });
   });
 

@@ -4,10 +4,13 @@ import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 import "@common/infrastructure/i18n/config";
 
 import { SettingsView } from "./SettingsView";
-import { GetUserPreferencesUseCase } from "../../application/get-user-preferences/get-user-preferences.use-case";
-import { SaveUserPreferencesUseCase } from "../../application/save-user-preferences/save-user-preferences.use-case";
-import { GetAllPaymentMethodsUseCase } from "../../../payment-methods/application/get-all-payment-methods/get-all-payment-methods.use-case";
-import { LogoutUseCase } from "../../../auth/application/logout/logout.use-case";
+import {
+  GetUserPreferencesUseCase,
+  SaveUserPreferencesUseCase,
+} from "../../application/cases";
+import { GetAllPaymentMethodsUseCase } from "../../../payment-methods/application/cases";
+import { LogoutUseCase } from "../../../auth/application/cases";
+import { AuthProvider } from "../../../auth/ui/AuthContext";
 
 const mockPaymentMethods = [
   new PaymentMethod({ id: new Id("1"), name: "Credit Card" }),
@@ -63,24 +66,28 @@ describe("SettingsView", () => {
     });
 
     render(
-      <SettingsView
-        getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
-        getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
-        saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
-        logoutUseCase={mockLogoutUseCase}
-      />,
+      <AuthProvider>
+        <SettingsView
+          getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
+          getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+          saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
+          logoutUseCase={mockLogoutUseCase}
+        />
+      </AuthProvider>,
     );
     expect(screen.getByTestId("loader")).toBeInTheDocument();
   });
 
   it("renders settings options after loading", async () => {
     render(
-      <SettingsView
-        getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
-        getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
-        saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
-        logoutUseCase={mockLogoutUseCase}
-      />,
+      <AuthProvider>
+        <SettingsView
+          getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
+          getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+          saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
+          logoutUseCase={mockLogoutUseCase}
+        />
+      </AuthProvider>,
     );
 
     await waitFor(() => {
@@ -97,12 +104,14 @@ describe("SettingsView", () => {
 
   it("loads and displays the user's default payment method", async () => {
     render(
-      <SettingsView
-        getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
-        getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
-        saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
-        logoutUseCase={mockLogoutUseCase}
-      />,
+      <AuthProvider>
+        <SettingsView
+          getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
+          getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+          saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
+          logoutUseCase={mockLogoutUseCase}
+        />
+      </AuthProvider>,
     );
 
     await waitFor(() => {
@@ -113,12 +122,14 @@ describe("SettingsView", () => {
 
   it("changes and saves the default payment method", async () => {
     render(
-      <SettingsView
-        getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
-        getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
-        saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
-        logoutUseCase={mockLogoutUseCase}
-      />,
+      <AuthProvider>
+        <SettingsView
+          getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
+          getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+          saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
+          logoutUseCase={mockLogoutUseCase}
+        />
+      </AuthProvider>,
     );
 
     await waitFor(() => {
@@ -151,12 +162,14 @@ describe("SettingsView", () => {
     } as unknown as GetAllPaymentMethodsUseCase;
 
     render(
-      <SettingsView
-        getAllPaymentMethodsUseCase={errorGetAllPaymentMethodsUseCase}
-        getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
-        saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
-        logoutUseCase={mockLogoutUseCase}
-      />,
+      <AuthProvider>
+        <SettingsView
+          getAllPaymentMethodsUseCase={errorGetAllPaymentMethodsUseCase}
+          getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+          saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
+          logoutUseCase={mockLogoutUseCase}
+        />
+      </AuthProvider>,
     );
 
     await waitFor(() => {

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CategoriesRepository } from './categories.repository';
+import { CategoriesRepositoryFactory } from './categories.repository.factory';
 import {
   Category,
   generateDefaultCategories,
@@ -24,18 +24,20 @@ interface CategoryToCreate {
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly repository: CategoriesRepository) {}
+  constructor(
+    private readonly repositoryFactory: CategoriesRepositoryFactory,
+  ) {}
 
   findOne(userId: Id, id: Id): Promise<Category> {
-    return this.repository.findOne(userId, id);
+    return this.repositoryFactory.getRepository().findOne(userId, id);
   }
 
   findAll(userId: Id): Promise<Category[]> {
-    return this.repository.findAll(userId);
+    return this.repositoryFactory.getRepository().findAll(userId);
   }
 
   create(userId: Id, category: CategoryToCreate): Promise<Category> {
-    return this.repository.create(
+    return this.repositoryFactory.getRepository().create(
       userId,
       new Category({
         ...category,
@@ -47,11 +49,11 @@ export class CategoriesService {
   }
 
   update(userId: Id, category: CategoryToUpdate): Promise<Category> {
-    return this.repository.update(userId, category);
+    return this.repositoryFactory.getRepository().update(userId, category);
   }
 
   delete(userId: Id, id: Id): Promise<void> {
-    return this.repository.delete(userId, id);
+    return this.repositoryFactory.getRepository().delete(userId, id);
   }
 
   // TODO: Test this method and use it on user creation

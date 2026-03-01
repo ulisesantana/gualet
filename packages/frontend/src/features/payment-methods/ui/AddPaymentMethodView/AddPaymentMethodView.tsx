@@ -34,13 +34,21 @@ export function AddPaymentMethodView({
     setLocation(routes.paymentMethods.list);
   };
 
+  const onError = (error: Error) => {
+    console.error("Error creating payment method:", error);
+  };
+
   return (
     <Transition in={match} timeout={500}>
       <div
         className="payment-method-details-view"
         data-testid="add-payment-method-view"
       >
-        <AddPaymentMethodForm onSubmit={onSubmit} onSuccess={onSuccess} />
+        <AddPaymentMethodForm
+          onSubmit={onSubmit}
+          onSuccess={onSuccess}
+          onError={onError}
+        />
       </div>
     </Transition>
   );

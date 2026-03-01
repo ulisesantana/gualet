@@ -53,7 +53,7 @@ export class PaymentMethodRepositoryImplementation
     };
   }
 
-  async create(paymentMethod: PaymentMethod): Promise<Nullable<PaymentMethod>> {
+  async create(paymentMethod: PaymentMethod): Promise<PaymentMethod> {
     const { success, error, data } = await this.handleQueryResponse(
       this.http.post<PaymentMethodDto, SavePaymentMethodResponse>(
         this.path,
@@ -65,7 +65,7 @@ export class PaymentMethodRepositoryImplementation
 
     if (!success) {
       console.error("Error saving payment method:", error);
-      return null;
+      throw new Error(error || "Failed to save payment method");
     }
 
     return PaymentMethodRepositoryImplementation.mapToPaymentMethod(
@@ -118,7 +118,7 @@ export class PaymentMethodRepositoryImplementation
     );
   }
 
-  async update(paymentMethod: PaymentMethod): Promise<Nullable<PaymentMethod>> {
+  async update(paymentMethod: PaymentMethod): Promise<PaymentMethod> {
     const { success, error, data } = await this.handleQueryResponse(
       this.http.patch<UpdatePaymentMethodDto, SavePaymentMethodResponse>(
         this.path.concat(`/${paymentMethod.id}`),
@@ -130,7 +130,7 @@ export class PaymentMethodRepositoryImplementation
 
     if (!success) {
       console.error("Error saving payment method:", error);
-      return null;
+      throw new Error(error || "Failed to save payment method");
     }
 
     return PaymentMethodRepositoryImplementation.mapToPaymentMethod(

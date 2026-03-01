@@ -1,7 +1,11 @@
-import { UserCredentials, UserRepository } from "../../application/user.repository";
 import { HttpDataSource } from "@common/infrastructure";
 import { BaseResponse } from "@infrastructure/types";
 import { HttpRepository } from "@common/infrastructure/http.repository";
+
+import {
+  UserCredentials,
+  UserRepository,
+} from "../../application/user.repository";
 
 export type UserResponse = BaseResponse<
   {
@@ -41,6 +45,12 @@ export class UserRepositoryImplementation
         `${this.path}/login`,
         credentials,
       ),
+    );
+  }
+
+  loginDemo() {
+    return this.handleCommandResponse(
+      this.http.get<UserResponse>(`${this.path}/login/demo`),
     );
   }
 

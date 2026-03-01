@@ -6,3 +6,5 @@ export * from "./RegisterView/RegisterView";
 export * from "./LogoutButton/LogoutButton";
 export * from "./ProtectedRoute/ProtectedRoute";
 
+// Auth context
+export * from "./AuthContext";

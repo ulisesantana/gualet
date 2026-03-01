@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@test/test-utils";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { LogoutButton } from "./LogoutButton";
 import { LogoutUseCase } from "../../application/cases";
+import { AuthProvider } from "../AuthContext";
 
 describe("LogoutButton", () => {
   const mockLogoutUseCase = {
@@ -14,7 +15,11 @@ describe("LogoutButton", () => {
   });
 
   it("renders the button with the logout icon", () => {
-    render(<LogoutButton logoutUseCase={mockLogoutUseCase} />);
+    render(
+      <AuthProvider>
+        <LogoutButton logoutUseCase={mockLogoutUseCase} />
+      </AuthProvider>,
+    );
 
     const button = screen.getByRole("button");
     const image = screen.getByAltText("Logout");
@@ -23,13 +28,17 @@ describe("LogoutButton", () => {
     expect(image).toHaveAttribute("src", "/icons/logout.png");
   });
 
-  it("calls the onLogout handler when clicked", async () => {
-    render(<LogoutButton logoutUseCase={mockLogoutUseCase} />);
+  it("calls logout and updates auth state on click", async () => {
+    render(
+      <AuthProvider>
+        <LogoutButton logoutUseCase={mockLogoutUseCase} />
+      </AuthProvider>,
+    );
 
     const button = screen.getByRole("button");
     fireEvent.click(button);
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(mockLogoutUseCase.exec).toHaveBeenCalledTimes(1);
     });
   });

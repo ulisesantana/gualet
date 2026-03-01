@@ -8,26 +8,20 @@ import {
   Input,
   Stack,
 } from "@common/ui/components";
+import { useLocation } from "wouter";
 
 import { SignUpUseCase } from "../../application/cases";
+import { useAuth } from "../AuthContext";
 
 export interface RegisterFormProps {
   signUpUseCase: SignUpUseCase;
 }
 
 export function RegisterForm({ signUpUseCase }: RegisterFormProps) {
-  const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const callback = (error?: string) => {
-    if (error) {
-      setSuccessMessage("");
-      setErrorMessage(error);
-    } else {
-      setSuccessMessage(
-        "Your email needs to be confirmed. Please, check your email and click on confirm link.",
-      );
-    }
-  };
+  const [, setLocation] = useLocation();
+  const { setIsAuthenticated } = useAuth();
+
   const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -40,16 +34,17 @@ export function RegisterForm({ signUpUseCase }: RegisterFormProps) {
         .exec({ email, password })
         .then((result) => {
           if (result.success) {
-            callback();
+            // Backend auto-logs the user in after registration
+            setIsAuthenticated(true);
+            setLocation("/");
           } else {
             console.error("Registration error:", result.error);
-            callback(result.error || "Registration failed");
+            setErrorMessage(result.error || "Registration failed");
           }
         })
         .catch((error) => {
-          // Extract error message from Error object
           const message = error?.message || "An unexpected error occurred";
-          callback(message);
+          setErrorMessage(message);
         });
     }
   };
@@ -88,11 +83,6 @@ export function RegisterForm({ signUpUseCase }: RegisterFormProps) {
             </Button>
           </Stack>
         </form>
-        {successMessage && (
-          <Box mt={4}>
-            <AlertMessage status="success">{successMessage}</AlertMessage>
-          </Box>
-        )}
         {errorMessage && (
           <Box mt={4}>
             <AlertMessage status="error">{errorMessage}</AlertMessage>

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Id, OperationType, TimeString } from '@gualet/shared';
 import { Transaction } from './transaction.model';
 import { FindTransactionsCriteria } from './dto';
-import { TransactionsRepository } from './transactions.repository';
+import { TransactionsRepositoryFactory } from './transactions.repository.factory';
 import { Pagination } from '@src/common/infrastructure';
 
 export interface TransactionToCreate {
@@ -24,17 +24,19 @@ export interface FindTransactionsResult {
 
 @Injectable()
 export class TransactionsService {
-  constructor(private readonly repository: TransactionsRepository) {}
+  constructor(
+    private readonly repositoryFactory: TransactionsRepositoryFactory,
+  ) {}
 
   create(userId: Id, transaction: TransactionToCreate): Promise<Transaction> {
-    return this.repository.create(userId, transaction);
+    return this.repositoryFactory.getRepository().create(userId, transaction);
   }
 
   find(
     userId: Id,
     { sort, page, pageSize, ...criteria }: FindTransactionsCriteria,
   ): Promise<FindTransactionsResult> {
-    return this.repository.find(userId, {
+    return this.repositoryFactory.getRepository().find(userId, {
       ...criteria,
       sort: sort || 'asc',
       page: page || 1,
@@ -43,7 +45,7 @@ export class TransactionsService {
   }
 
   findById(userId: Id, id: Id): Promise<Transaction> {
-    return this.repository.findById(userId, id);
+    return this.repositoryFactory.getRepository().findById(userId, id);
   }
 
   async update(
@@ -51,9 +53,11 @@ export class TransactionsService {
     transaction: TransactionToUpdate,
   ): Promise<Transaction> {
     const id = new Id(transaction.id);
-    const existingTransaction = await this.repository.findById(userId, id);
+    const existingTransaction = await this.repositoryFactory
+      .getRepository()
+      .findById(userId, id);
 
-    return this.repository.update(userId, {
+    return this.repositoryFactory.getRepository().update(userId, {
       ...existingTransaction,
       ...transaction,
       categoryId:
@@ -65,6 +69,6 @@ export class TransactionsService {
   }
 
   delete(userId: Id, id: Id): Promise<void> {
-    return this.repository.delete(userId, id);
+    return this.repositoryFactory.getRepository().delete(userId, id);
   }
 }

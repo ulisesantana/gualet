@@ -94,4 +94,18 @@ describe('AuthService', () => {
     );
     expect(result).toEqual({ access_token });
   });
+
+  it('should login demo and return access token with isDemo flag', async () => {
+    const access_token = 'demo-token';
+    jest.mocked(jwtService.signAsync).mockResolvedValue(access_token);
+    jest.mocked(configService.get).mockReturnValue('secret');
+
+    const result = await service.loginDemo();
+
+    expect(jwtService.signAsync).toHaveBeenCalledWith(
+      { sub: 'demo-user-id', email: 'demo@gualet.app', isDemo: true },
+      { secret: 'secret', expiresIn: '1w' },
+    );
+    expect(result).toEqual({ access_token });
+  });
 });

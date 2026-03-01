@@ -4,9 +4,11 @@ import { render, screen, waitFor } from "@test/test-utils";
 
 import { ProtectedRoute } from "./ProtectedRoute";
 import { VerifySessionUseCase } from "../../application/cases";
+import { AuthContext, AuthProvider } from "../AuthContext";
 
 vi.mock("wouter", () => ({
   useLocation: vi.fn(),
+  useRoute: vi.fn(),
   Route: ({ children, path }: { children: React.ReactNode; path?: string }) => (
     <div data-testid="route" data-path={path}>
       {children}
@@ -26,21 +28,43 @@ describe("ProtectedRoute", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (wouter.useLocation as Mock).mockReturnValue(["", mockSetLocation]);
+    // Default: route matches
+    (wouter.useRoute as Mock).mockReturnValue([true, {}]);
   });
 
-  it("passes path prop correctly to Route component when authenticated", async () => {
-    mockVerifySessionUseCase.exec.mockResolvedValue({
-      success: true,
-      error: null,
-    });
-
+  it("shows loader initially (while session is being verified)", () => {
     render(
-      <ProtectedRoute
-        path={testPath}
-        verifySessionUseCase={mockVerifySessionUseCase}
+      <AuthProvider>
+        <ProtectedRoute
+          path={testPath}
+          verifySessionUseCase={mockVerifySessionUseCase}
+        >
+          {childrenText}
+        </ProtectedRoute>
+      </AuthProvider>,
+    );
+
+    // Initially shows loader (isAuthenticated is null)
+    expect(screen.getByTestId("loader")).toBeInTheDocument();
+    expect(screen.queryByText(childrenText)).not.toBeInTheDocument();
+  });
+
+  it("shows children when authenticated", async () => {
+    render(
+      <AuthContext.Provider
+        value={{
+          isAuthenticated: true,
+          setIsAuthenticated: vi.fn(),
+          logout: vi.fn(),
+        }}
       >
-        {childrenText}
-      </ProtectedRoute>,
+        <ProtectedRoute
+          path={testPath}
+          verifySessionUseCase={mockVerifySessionUseCase}
+        >
+          {childrenText}
+        </ProtectedRoute>
+      </AuthContext.Provider>,
     );
 
     await waitFor(() => {
@@ -51,46 +75,50 @@ describe("ProtectedRoute", () => {
     expect(routeElement).toHaveAttribute("data-path", testPath);
   });
 
-  it("verifies authentication immediately on mount", () => {
-    mockVerifySessionUseCase.exec.mockReturnValue(new Promise(() => {}));
-
+  it("hides content when not authenticated", () => {
     render(
-      <ProtectedRoute verifySessionUseCase={mockVerifySessionUseCase}>
-        {childrenText}
-      </ProtectedRoute>,
+      <AuthContext.Provider
+        value={{
+          isAuthenticated: false,
+          setIsAuthenticated: vi.fn(),
+          logout: vi.fn(),
+        }}
+      >
+        <ProtectedRoute
+          path={testPath}
+          verifySessionUseCase={mockVerifySessionUseCase}
+        >
+          {childrenText}
+        </ProtectedRoute>
+      </AuthContext.Provider>,
     );
 
-    expect(mockVerifySessionUseCase.exec).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(childrenText)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("loader")).not.toBeInTheDocument();
   });
 
-  it("preserves authentication state between renders when already authenticated", async () => {
-    mockVerifySessionUseCase.exec.mockResolvedValue({
-      success: true,
-      error: null,
-    });
+  it("returns null when route does not match", () => {
+    // Route doesn't match
+    (wouter.useRoute as Mock).mockReturnValue([false, {}]);
 
-    const { rerender } = render(
-      <ProtectedRoute verifySessionUseCase={mockVerifySessionUseCase}>
-        {childrenText}
-      </ProtectedRoute>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText(childrenText)).toBeInTheDocument();
-    });
-
-    vi.clearAllMocks();
-
-    rerender(
-      <ProtectedRoute
-        path="/new-path"
-        verifySessionUseCase={mockVerifySessionUseCase}
+    render(
+      <AuthContext.Provider
+        value={{
+          isAuthenticated: true,
+          setIsAuthenticated: vi.fn(),
+          logout: vi.fn(),
+        }}
       >
-        <span>Updated content</span>
-      </ProtectedRoute>,
+        <ProtectedRoute
+          path="/other-path"
+          verifySessionUseCase={mockVerifySessionUseCase}
+        >
+          {childrenText}
+        </ProtectedRoute>
+      </AuthContext.Provider>,
     );
 
-    expect(mockVerifySessionUseCase.exec).not.toHaveBeenCalled();
-    expect(screen.getByText("Updated content")).toBeInTheDocument();
+    expect(screen.queryByText(childrenText)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("loader")).not.toBeInTheDocument();
   });
 });

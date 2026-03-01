@@ -38,4 +38,18 @@ export class AuthService {
       }),
     };
   }
+
+  async loginDemo(): Promise<{ access_token: string }> {
+    const payload = {
+      sub: 'demo-user-id',
+      email: 'demo@gualet.app',
+      isDemo: true,
+    };
+    return {
+      access_token: await this.jwtService.signAsync(payload, {
+        secret: this.config.get('JWT_SECRET'),
+        expiresIn: '1w',
+      }),
+    };
+  }
 }

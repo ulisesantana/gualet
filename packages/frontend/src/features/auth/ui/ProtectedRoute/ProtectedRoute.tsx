@@ -1,8 +1,9 @@
-import { FC, ReactNode, useEffect, useState } from "react";
-import { Route, RouteProps, useLocation } from "wouter";
+import { FC, ReactNode } from "react";
+import { Route, RouteProps, useRoute } from "wouter";
 import { Loader } from "@common/ui/components";
 
 import { VerifySessionUseCase } from "../../application/cases";
+import { useAuth } from "../AuthContext";
 
 interface ProtectedRouteProps extends RouteProps {
   children: ReactNode;
@@ -12,45 +13,23 @@ interface ProtectedRouteProps extends RouteProps {
 export const ProtectedRoute: FC<ProtectedRouteProps> = ({
   children,
   path,
-  verifySessionUseCase,
+  // verifySessionUseCase is kept as prop for API compatibility but session is verified by SessionVerifier in App
+  verifySessionUseCase: _verifySessionUseCase,
 }) => {
-  const [_, setLocation] = useLocation();
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [match] = useRoute(path as string);
+  const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    const verifyAuth = () => {
-      verifySessionUseCase
-        .exec()
-        .then((result) => {
-          setIsAuthenticated(result.success);
-        })
-        .catch(() => {
-          setIsAuthenticated(false);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    };
+  // If this route doesn't match, don't render anything
+  if (!match) {
+    return null;
+  }
 
-    if (!isAuthenticated) {
-      verifyAuth();
-    } else {
-      setIsAuthenticated(true);
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      setLocation("/login");
-    }
-  }, [loading, isAuthenticated]);
-
-  if (loading) {
+  // Still verifying (null = not yet determined) - show loader
+  if (isAuthenticated === null) {
     return <Loader data-testid="loader" />;
   }
 
+  // Not authenticated - return null (SessionVerifier handles the redirect)
   if (!isAuthenticated) {
     return null;
   }

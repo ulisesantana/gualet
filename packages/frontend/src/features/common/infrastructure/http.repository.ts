@@ -14,7 +14,9 @@ export abstract class HttpRepository {
         ? { success: true, error: null }
         : {
             success: false,
-            error: error?.message || "Failed to execute command",
+            error:
+              (typeof error === "string" ? error : error?.message) ||
+              "Failed to execute command",
           };
     } catch (error: any) {
       console.error("HTTP Repository Command Error:", error);

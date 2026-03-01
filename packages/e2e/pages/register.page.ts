@@ -21,6 +21,7 @@ export class RegisterPage {
   async goto() {
     await this.page.goto('/login');
     await this.page.click('text=Register');
+    await this.page.waitForURL(/register/, { timeout: 5000 });
   }
 
   async register({email, password} : {email: string, password: string}) {

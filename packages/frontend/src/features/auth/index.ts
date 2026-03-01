@@ -1,6 +1,7 @@
 // Application exports
 export * from "./application/user.repository";
 export * from "./application/login";
+export * from "./application/login-demo";
 export * from "./application/sign-up";
 export * from "./application/logout";
 export * from "./application/verify-session";

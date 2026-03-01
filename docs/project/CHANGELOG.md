@@ -1,6 +1,214 @@
 # Changelog - Gualet Project
 
-## [Unreleased] - February 13, 2026
+## [Unreleased] - February 14, 2026
+
+### 📋 Executive Summary
+
+This release includes **complete Demo Account System implementation**:
+- 🎭 **Demo Account** - Fully functional in-memory demo account with data isolation
+- 🏭 **Factory Pattern** - Repository factories for all modules (Categories, PaymentMethods, Transactions, UserPreferences)
+- 🔒 **Database Isolation** - Demo data NEVER touches the database (verified with E2E tests)
+- ✅ **100% Tested** - 103 total tests (69 backend unit, 17 frontend unit, 17 E2E)
+- 🎨 **AuthContext** - Reactive authentication state management (no more window.location.reload)
+- ✅ **Registration Control** - Enable/disable user registration via environment variable
+
+**Key Achievement:** Users can now explore Gualet instantly without registration, with realistic demo data that resets every 30 minutes.
+
+**Impact:** Significantly lowers barrier to entry for new users and showcases features before commitment.
+
+---
+
+### 🆕 Demo Account System - Complete Implementation (Feb 14, 2026)
+
+#### 🎭 Core Features
+
+**1. Demo Login Endpoint**
+- `GET /api/auth/login/demo` - Instant login without credentials
+- Returns JWT with `isDemo: true` flag
+- User ID: `demo-user-id` (not a valid UUID to prevent DB operations)
+- Token expires in 24 hours
+
+**2. Demo Data Service**
+- **DemoService** - Centralized in-memory data store using Maps
+- Auto-initializes with realistic sample data:
+  - 8 categories (4 INCOME, 4 OUTCOME)
+  - 4 payment methods (Debit Card, Cash, Credit Card, Bank Transfer)
+  - 15 transactions spanning last 90 days
+- **Auto-reset every 30 minutes** - Keeps demo data fresh
+- Manual reset methods for testing
+
+**3. Repository Factory Pattern**
+Implemented for ALL modules to support dual-mode operation:
+
+```typescript
+// Example: TransactionsRepositoryFactory
+@Injectable({ scope: Scope.REQUEST })
+export class TransactionsRepositoryFactory {
+  constructor(
+    @Inject(REQUEST) private readonly request: AuthenticatedRequest,
+    private readonly dbRepository: TransactionsRepository,
+    private readonly demoRepository: DemoTransactionsRepository,
+  ) {}
+
+  getRepository(): ITransactionsRepository {
+    return this.request.user?.isDemo 
+      ? this.demoRepository 
+      : this.dbRepository;
+  }
+}
+```
+
+**Modules with Factory Pattern:**
+- ✅ Categories (CategoriesRepositoryFactory)
+- ✅ Payment Methods (PaymentMethodsRepositoryFactory)
+- ✅ Transactions (TransactionsRepositoryFactory)
+- ✅ User Preferences (UserPreferencesRepositoryFactory)
+
+**4. Demo Repositories**
+Each module has a dedicated demo repository working with in-memory data:
+
+- **DemoCategoriesRepository** - CRUD operations on Map<string, Category>
+- **DemoPaymentMethodsRepository** - CRUD operations on Map<string, PaymentMethod>
+- **DemoTransactionsRepository** - CRUD + filtering + pagination on Map<string, Transaction>
+- **DemoUserPreferencesRepository** - Preferences management (returns first PM as default)
+
+**5. Database Isolation Guarantee**
+- Demo user ID `"demo-user-id"` is NOT a valid UUID
+- All DB queries with this ID fail at validation layer
+- Factory pattern ensures demo repositories are used
+- E2E tests verify 0 database changes
+
+#### 🎨 Frontend Implementation
+
+**1. AuthContext (NEW)**
+Replaced `window.location.reload()` with proper React Context for authentication state:
+
+```typescript
+interface AuthContextType {
+  isAuthenticated: boolean;
+  setIsAuthenticated: (value: boolean) => void;
+  logout: () => void;
+}
+```
+
+**Benefits:**
+- ✅ No page reload on logout (smooth UX)
+- ✅ Reactive state management
+- ✅ All ProtectedRoute components react to auth changes
+- ✅ Better performance and user experience
+
+**2. Demo Login UI**
+- **LoginView** - "Try Demo Account" button with 🎭 emoji
+- **Info box** - Explains demo account features and limitations
+- **Visual indicators** - Clear feedback that user is in demo mode
+
+**3. Registration Control**
+- Environment variable: `VITE_ENABLE_REGISTRATION`
+- When disabled:
+  - Hides "Register" link on login page
+  - Shows informative message on register page
+  - Encourages using demo account
+
+#### 🧪 Testing Coverage
+
+**Backend Unit Tests: 69 tests** (+1 new)
+- `demo.service.spec.ts` - DemoService initialization and reset
+- `demo-categories.repository.spec.ts` - 6 tests
+- `demo-payment-methods.repository.spec.ts` - 7 tests
+- `demo-transactions.repository.spec.ts` - 9 tests
+- `demo-user-preferences.repository.spec.ts` - 6 tests (NEW)
+- All factory tests
+
+**Frontend Unit Tests: 17 tests**
+- `LoginDemoUseCase` tests
+- `LogoutButton` tests (updated for AuthContext)
+- `AuthContext` integration tests
+
+**E2E Tests: 17 tests**
+- **Demo Account Isolation** (7 tests):
+  - ✅ Login without credentials
+  - ✅ Demo data pre-loaded
+  - ✅ Transactions NOT persisted to DB
+  - ✅ Categories NOT persisted to DB
+  - ✅ Payment Methods NOT persisted to DB
+  - ✅ CRUD operations without touching DB
+  - ✅ Demo user isolation (doesn't see real user data)
+
+- **User Preferences** (10 tests):
+  - ✅ 4 tests for regular users (persist to DB)
+  - ✅ 4 tests for demo users (NO DB persistence)
+  - ✅ 2 validation tests
+
+**Total: 103 tests** ✅
+
+#### 🔧 Technical Improvements
+
+**1. DTO Validation Fix**
+- **Problem:** `@IsUUID()` decorator rejected demo IDs like `"demo-pm-1"`
+- **Solution:** Changed to `@IsString()` + `@IsNotEmpty()` in UserPreferencesDto
+- **Impact:** Demo and regular users can now change preferences
+
+**2. ProtectedRoute Enhancement**
+- Now re-verifies authentication on location change
+- Uses AuthContext for reactive auth state
+- Better handling of login/logout flows
+
+**3. Database Helper Methods**
+Added to `database-manager.ts` for E2E tests:
+```typescript
+- setUserPreferences(userId, pmId, language)
+- getUserPreferences(userId)
+```
+
+#### 📁 New Files Created
+
+**Backend:**
+- `src/demo/demo.service.ts`
+- `src/demo/demo.module.ts`
+- `src/demo/demo-data.seed.ts`
+- `src/demo/repositories/demo-categories.repository.ts`
+- `src/demo/repositories/demo-payment-methods.repository.ts`
+- `src/demo/repositories/demo-transactions.repository.ts`
+- `src/demo/repositories/demo-user-preferences.repository.ts`
+- `src/categories/categories.repository.factory.ts`
+- `src/payment-methods/payment-methods.repository.factory.ts`
+- `src/transactions/transactions.repository.factory.ts`
+- `src/user-preferences/user-preferences.repository.factory.ts`
+- `src/auth/auth.controller.ts` - Added `/login/demo` endpoint
+
+**Frontend:**
+- `src/features/auth/application/login-demo/login-demo.use-case.ts`
+- `src/features/auth/ui/AuthContext/AuthContext.tsx`
+- `src/features/auth/ui/AuthContext/index.ts`
+
+**E2E:**
+- `tests/demo-account.spec.ts` - 7 tests
+- `tests/user-preferences.spec.ts` - 10 tests
+
+**Tests:**
+- All `*.repository.spec.ts` files for demo repositories
+- Updated tests for factories
+
+#### 📝 Modified Files
+
+**Backend:**
+- All service files to use repository factories
+- All module files to import DemoModule and provide factories
+- `user-preferences.dto.ts` - Removed `@IsUUID()` validation
+
+**Frontend:**
+- `LoginView.tsx` - Added demo login button and info
+- `LogoutButton.tsx` - Uses AuthContext instead of reload
+- `ProtectedRoute.tsx` - Uses AuthContext for reactive auth
+- `main.tsx` - Wrapped with AuthProvider
+- Updated all components using auth state
+
+**E2E:**
+- `database-manager.ts` - Added user preferences helpers
+
+---
+
+## [Previous] - February 13, 2026
 
 ### 📋 Executive Summary
 
