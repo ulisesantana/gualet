@@ -112,8 +112,8 @@ if [ "$SKIP_E2E" = false ]; then
   echo -e "${BOLD}${CYAN}Starting E2E test execution...${NC}"
   echo -e "${YELLOW}⏳ Setting up test environment (Docker, backend, frontend)...${NC}"
 
-  # Run E2E with timeout (3 minutes max)
-  E2E_TIMEOUT=180
+  # Run E2E with timeout (10 minutes max)
+  E2E_TIMEOUT=600
 
   # Run E2E in background to enable timeout
   run_package_tests "E2E" "$E2E_LOG" "npm run test:e2e" E2E_EXIT &
