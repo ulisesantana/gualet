@@ -1,6 +1,6 @@
 # Gualet - Action Plan: Path to Production & Offline-First
 
-**Updated:** February 13, 2026  
+**Updated:** March 2, 2026  
 **Current Status:** Development Complete, Production Preparation Required  
 **Timeline:** 6-8 weeks to Production Ready, then 3-4 weeks for Offline-First
 
@@ -84,27 +84,29 @@ VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}  # ❌ DEPRE
 - Request size limits
 - HTTPS enforcement
 
-### Quick Wins (Can Start Immediately)
+### Quick Wins (Progress Update - Mar 2, 2026)
 
-While planning the full production readiness implementation, you can start with:
+While planning the full production readiness implementation, the following quick wins have been addressed:
 
 1. **Fix GitHub Actions Workflow** (2-3 hours)
-   - Remove Supabase references
-   - Add basic test jobs
+   - [ ] Remove Supabase references
+   - [ ] Add basic test jobs
 
 2. **Enable Skipped E2E Tests** (1 week)
-   - payment-methods.spec.ts (10 tests)
-   - network-errors.spec.ts (9 tests)
-   - 2 individual transaction tests
+   - [ ] payment-methods.spec.ts (10 tests)
+   - [ ] network-errors.spec.ts (9 tests)
+   - [ ] 2 individual transaction tests
+   - ✅ **E2E timeout increased** to 10 minutes for stability (Mar 2, 2026)
 
 3. **Improve Frontend Test Coverage** (1-2 weeks)
    - Current: 72.02%, Target: >90%
-   - Focus on repositories and error handling
+   - ✅ `LastTransactionsView` and `TransactionDetailsView` tests improved with proper Zustand store mocking (Mar 2, 2026)
+   - [ ] Focus on repositories and error handling
 
 4. **Create Storybook Stories** (1 week)
-   - CategoryCard, PaymentMethodCard, TransactionCard
-   - Form components
-   - Common UI components
+   - [ ] CategoryCard, PaymentMethodCard, TransactionCard
+   - [ ] Form components
+   - [ ] Common UI components
 
 ---
 
@@ -282,6 +284,27 @@ npm run typecheck           # ✅ No errors
   - save-payment-method.use-case.test.ts - Added delete mock
   - CategoriesView.test.tsx - Fixed Zustand store mock
 - **Jest Configuration:** Updated to exclude utility scripts (seeders, CLI tools) and set proper thresholds
+
+---
+
+### Post-Week 0 Improvements ✅ (Feb 14 - Mar 2, 2026)
+**Status:** 🟢 **Complete (March 2, 2026)**
+
+#### February 14, 2026 - Demo Account System (Full Stack)
+- [x] **Backend:** Demo login endpoint (`GET /api/auth/login/demo`)
+- [x] **Backend:** DemoService with in-memory data (8 categories, 4 PM, 15 transactions, auto-reset 30min)
+- [x] **Backend:** Repository Factory Pattern (CategoriesRepositoryFactory, PaymentMethodsRepositoryFactory, TransactionsRepositoryFactory, UserPreferencesRepositoryFactory)
+- [x] **Backend:** Demo repositories (DemoCategoriesRepository, DemoPaymentMethodsRepository, DemoTransactionsRepository, DemoUserPreferencesRepository)
+- [x] **Backend:** `ENABLE_REGISTRATION` env var for registration control
+
+#### March 2, 2026 - Frontend Demo Integration & Test Improvements
+- [x] **Frontend:** `LoginDemoUseCase` implementation
+- [x] **Frontend:** `AuthContext` reactive auth state management
+- [x] **Frontend:** "TRY DEMO" button in LoginView (`data-testid="demo-login"`)
+- [x] **Frontend:** Demo login flow with navigation after success
+- [x] **Frontend:** `LastTransactionsView.test.tsx` refactored to use Zustand store mock
+- [x] **Frontend:** `TransactionDetailsView.test.tsx` refactored to use Zustand store mock
+- [x] **E2E:** Test timeout increased to 10 minutes for CI stability
 
 ---
 

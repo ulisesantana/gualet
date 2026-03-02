@@ -1,5 +1,80 @@
 # Changelog - Gualet Project
 
+## [Unreleased] - March 2, 2026
+
+### 📋 Executive Summary
+
+This release includes **frontend demo login integration and test improvements**:
+- 🎭 **Demo Login UI** - "TRY DEMO" button integrated in LoginView with `LoginDemoUseCase`
+- 🔐 **AuthContext** - Reactive authentication state management fully connected to demo flow
+- 🧪 **Updated Frontend Tests** - `LastTransactionsView` and `TransactionDetailsView` tests refactored to use Zustand store mocking
+- ⏱️ **E2E Stability** - E2E test timeout increased for more reliable CI runs
+
+---
+
+### 🆕 Latest Changes (Mar 2, 2026)
+
+#### 🎭 Frontend Demo Login Integration (`feat(auth)`)
+
+**LoginView** now exposes a demo login button alongside the regular login form:
+
+```tsx
+<Button
+  type="button"
+  name="demo-login"
+  data-testid="demo-login"
+  variant="secondary"
+  onClick={onDemoLoginHandler}
+>
+  TRY DEMO
+</Button>
+```
+
+- **`LoginDemoUseCase`** - Calls `GET /api/auth/login/demo` and returns success/error result
+- **`AuthContext`** - `setIsAuthenticated(true)` called on successful demo login, triggering navigation to home without page reload
+- **`useAuth()`** hook wired into `LoginForm` for both regular and demo login flows
+
+**Files modified:**
+- `packages/frontend/src/features/auth/ui/LoginView/LoginView.tsx`
+- `packages/frontend/src/features/auth/application/login-demo/login-demo.use-case.ts` (new)
+- `packages/frontend/src/features/auth/ui/AuthContext/AuthContext.tsx`
+
+#### 🧪 Frontend Test Updates (`test(frontend)`)
+
+`LastTransactionsView` and `TransactionDetailsView` tests were refactored to properly mock the Zustand `useTransactionStore`:
+
+```typescript
+vi.mock("@features/transactions", async () => {
+  const actual = await vi.importActual("@features/transactions");
+  return {
+    ...actual,
+    useTransactionStore: vi.fn((selector) => {
+      if (typeof selector === "function") {
+        return selector(mockTransactionStore);
+      }
+      return mockTransactionStore;
+    }),
+    setUseCases: vi.fn(),
+  };
+});
+```
+
+**Changes:**
+- Tests now use a `mockTransactionStore` object with pre-set state instead of mocking individual use cases at the store level
+- `fetchTransaction` mock simulates store state mutation (sets `currentTransaction`)
+- Added proper `beforeEach` reset of mock store state for test isolation
+- Tests are more robust and accurately reflect real component behavior with the Zustand store
+
+**Files modified:**
+- `packages/frontend/src/features/transactions/ui/LastTransactionsView/LastTransactionsView.test.tsx`
+- `packages/frontend/src/features/transactions/ui/TransactionDetailsView/TransactionDetailsView.test.tsx`
+
+#### ⏱️ E2E Timeout Increase (`fix(e2e)`)
+
+E2E test timeout was increased from 3 minutes to 10 minutes to prevent flaky failures in slower environments and improve CI reliability.
+
+---
+
 ## [Unreleased] - February 14, 2026
 
 ### 📋 Executive Summary

@@ -1,6 +1,6 @@
 # Gualet - Project Status and Roadmap
 
-**Date:** February 14, 2026  
+**Date:** March 2, 2026  
 **Application:** Personal finance management  
 **Status:** 🟡 **Development Phase - Not Production Ready**
 
@@ -11,17 +11,18 @@
 Gualet is a personal finance web application that has **successfully migrated from Supabase to its own backend** with NestJS and PostgreSQL. The backend is **100% complete** with all CRUD functionalities implemented, the frontend is **fully integrated with the new backend**, and a **complete Demo Account System** allows users to try the application without registration.
 
 **Current Phase:** Pre-Production Preparation  
-**Latest Achievement:** 🎭 **Demo Account System - 100% Complete**  
+**Latest Achievement:** 🎭 **Demo Account fully integrated in frontend - "TRY DEMO" button live on login page**  
 **Next Milestone:** GDPR Compliance & Production Deployment Setup  
 **After That:** Offline-First Implementation with RxDB
 
 ⚠️ **Production Readiness:** The application is **NOT ready for production deployment** - critical GDPR requirements, CI/CD pipeline, and security configurations are missing.
 
-**New Features:**
-- 🎭 **Demo Account:** Fully functional in-memory demo with auto-reset every 30 minutes
+**Features:**
+- 🎭 **Demo Account:** Fully functional in-memory demo with auto-reset every 30 minutes (backend + frontend integrated)
 - 🏭 **Factory Pattern:** Repository factories for database/demo mode switching
 - 🔒 **100% DB Isolation:** Demo data NEVER touches database (E2E verified)
 - 🎨 **AuthContext:** Reactive authentication state management
+- 🧪 **Improved Tests:** `LastTransactionsView` and `TransactionDetailsView` tests use proper Zustand store mocking
 
 ---
 
@@ -41,7 +42,7 @@ Gualet is a personal finance web application that has **successfully migrated fr
 - ✅ **Testing:** Jest configured with **99.6% coverage** (69 unit tests passing)
 - ✅ **Documentation:** Swagger/OpenAPI
 
-#### 🎭 Demo Account System ✅ (NEW - Feb 14, 2026)
+#### 🎭 Demo Account System ✅ (Complete - Feb 14, 2026 backend / Mar 2, 2026 frontend)
 - ✅ **Demo Login Endpoint:** `GET /api/auth/login/demo`
   - No credentials required
   - Returns JWT with `isDemo: true` flag
@@ -139,20 +140,19 @@ Gualet is a personal finance web application that has **successfully migrated fr
 #### Infrastructure
 - ✅ **Framework:** React 18 + Vite + TypeScript
 - ✅ **Architecture:** Clean Architecture (Application/Domain/Infrastructure)
+- ✅ **Structure:** Feature-based directory structure (`features/auth`, `features/transactions`, etc.)
+- ✅ **UI Library:** Chakra UI 3.x integrated
 - ✅ **Routing:** Wouter
 - ✅ **HTTP Client:** Axios with HttpDataSource abstraction
+- ✅ **State Management:** Zustand stores for categories, payment methods, and transactions
+- ✅ **i18n:** i18next with English and Spanish support
 - ✅ **PWA:** vite-plugin-pwa configured (but no real offline-first)
 - ✅ **Proxy:** Configured for `/api` → `http://localhost:5050`
-- ✅ **Testing:** Vitest + Testing Library - **183+ tests passing**
-  - **Enhanced coverage** with new comprehensive tests:
-    - CategoryCard, PaymentMethodCard components (100+ tests each)
-    - CategoryForm, PaymentMethodForm with submit handlers
-    - useCategoryStore (285 tests)
-    - usePaymentMethodStore (215 tests)
-    - SettingsContext, useLoader hook
-    - All view components enhanced
+- ✅ **Testing:** Vitest + Testing Library
+  - `LastTransactionsView` and `TransactionDetailsView` tests updated to properly mock Zustand store (Mar 2, 2026)
+  - Enhanced coverage with comprehensive tests for stores, components, forms and views
   - **Coverage:** Statements: 72.02%, Branches: 90.63%, Functions: 76.87%, Lines: 72.02%
-  - **Note:** Coverage improving with new test additions
+  - **Note:** Coverage below 95% target; improvement needed in repositories and UI components
 - ❌ **NO RxDB** implemented yet
 - ❌ **NO Service Worker** with custom cache strategies
 - ❌ **NO offline synchronization**
@@ -185,6 +185,7 @@ All repositories are fully integrated with the **NestJS backend**:
 #### Use Cases (Application Layer) ✅
 ```typescript
 ✅ LoginUseCase
+✅ LoginDemoUseCase  ← NEW (Mar 2, 2026) - Demo login without credentials
 ✅ LogoutUseCase
 ✅ RegisterUseCase
 ✅ GetAllCategoriesUseCase
@@ -232,10 +233,12 @@ All repositories are fully integrated with the **NestJS backend**:
 ✅ usePaymentMethodStore - Zustand store for payment methods (215 tests) 🆕
 ```
 
-#### Hooks & Context 🆕
+#### Hooks & Context
 ```typescript
+✅ AuthContext - Reactive authentication state management (login, demo login, logout)
 ✅ SettingsContext - Context for app settings (86 tests)
 ✅ useLoader - Loading state management hook (50 tests)
+✅ useAuth - Hook to consume AuthContext
 ```
 
 #### Frontend-Backend Integration Status
@@ -252,6 +255,7 @@ All repositories are fully integrated with the **NestJS backend**:
 
 #### Infrastructure
 - ✅ Playwright configured
+- ✅ **Test timeout:** 10 minutes (increased from 3 min for stability - Mar 2, 2026)
 - ✅ Docker Compose for test database
 - ✅ DatabaseManager with complete helpers
 - ✅ Page Objects created (LoginPage, RegisterPage, CategoriesPage, TransactionsPage, PaymentMethodsPage)
