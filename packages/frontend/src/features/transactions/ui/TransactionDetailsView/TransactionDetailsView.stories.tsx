@@ -82,3 +82,14 @@ export const WithTransaction: Story = {
     removeTransactionUseCase,
   },
 };
+
+/** Transaction ID not found — shows "Transaction not found." message. */
+export const NotFound: Story = {
+  args: {
+    getLastTransactionsUseCase,
+    getTransactionUseCase: notFoundUseCase,
+    getTransactionConfigUseCase,
+    saveTransactionUseCase,
+    removeTransactionUseCase,
+  },
+};

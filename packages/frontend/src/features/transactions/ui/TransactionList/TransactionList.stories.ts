@@ -71,18 +71,21 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Full list with income and outcome transactions. */
 export const WithTransactions: Story = {
   args: {
     transactions: sampleTransactions,
   },
 };
 
+/** Empty state — no transactions yet. */
 export const Empty: Story = {
   args: {
     transactions: [],
   },
 };
 
+/** Single transaction in the list. */
 export const SingleTransaction: Story = {
   args: {
     transactions: [sampleTransactions[0]],

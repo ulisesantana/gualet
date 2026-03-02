@@ -10,28 +10,28 @@ import {
 
 import { TransactionCard } from "./TransactionCard";
 
-// More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
+const creditCard = new PaymentMethod({ icon: "💳", name: "Credit card" });
+const cash = new PaymentMethod({ icon: "💶", name: "Cash" });
+
 const meta = {
   title: "Transactions/TransactionCard",
   component: TransactionCard,
   parameters: {
-    // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: "centered",
   },
-  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ["autodocs"],
 } satisfies Meta<typeof TransactionCard>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+/** An outcome transaction (expense). */
 export const OutTransaction: Story = {
   args: {
     transaction: new Transaction({
       id: new Id(),
       date: new Day("2024-09-01"),
-      paymentMethod: new PaymentMethod({ icon: "💳", name: "Credit card" }),
+      paymentMethod: creditCard,
       operation: OperationType.Outcome,
       amount: 18.75,
       description: "SPAR",
@@ -44,15 +44,16 @@ export const OutTransaction: Story = {
   },
 };
 
+/** An income transaction. */
 export const InTransaction: Story = {
   args: {
     transaction: new Transaction({
       id: new Id(),
       date: new Day("2024-09-01"),
-      paymentMethod: new PaymentMethod({ icon: "💳", name: "Credit card" }),
+      paymentMethod: cash,
       operation: OperationType.Income,
       amount: 1809.75,
-      description: "SPAR",
+      description: "September salary",
       category: new Category({
         icon: "💰",
         name: "Salary",

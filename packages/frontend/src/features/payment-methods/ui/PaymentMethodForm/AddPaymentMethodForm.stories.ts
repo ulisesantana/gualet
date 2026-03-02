@@ -10,15 +10,28 @@ const meta = {
     layout: "centered",
   },
   tags: ["autodocs"],
+  args: {
+    onSuccess: fn(),
+    onError: fn(),
+  },
 } satisfies Meta<typeof AddPaymentMethodForm>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Empty form ready to create a new payment method. */
 export const Default: Story = {
   args: {
-    onSubmit: fn(),
-    onSuccess: fn(),
-    onError: fn(),
+    onSubmit: fn().mockResolvedValue(undefined),
+  },
+};
+
+/** Simulates a backend save error displayed inline. */
+export const WithSaveError: Story = {
+  name: "With Save Error",
+  args: {
+    onSubmit: fn().mockRejectedValue(
+      new Error("Failed to save payment method"),
+    ),
   },
 };

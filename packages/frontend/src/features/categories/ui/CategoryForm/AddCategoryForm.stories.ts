@@ -1,30 +1,24 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-import { generateDefaultIncomeCategories } from "@gualet/shared";
 
-import { EditCategoryForm } from "./EditCategoryForm";
-
-const [category] = generateDefaultIncomeCategories();
+import { AddCategoryForm } from "./AddCategoryForm";
 
 const meta = {
-  title: "Categories/EditCategoryForm",
-  component: EditCategoryForm,
+  title: "Categories/AddCategoryForm",
+  component: AddCategoryForm,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
-} satisfies Meta<typeof EditCategoryForm>;
+} satisfies Meta<typeof AddCategoryForm>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Form pre-filled with an existing category ready to edit. */
+/** Empty form ready to create a new category. */
 export const Default: Story = {
   args: {
-    category,
     onSubmit: fn().mockResolvedValue(undefined),
-    onSuccess: fn(),
-    onError: fn(),
   },
 };
 
@@ -32,9 +26,7 @@ export const Default: Story = {
 export const WithSaveError: Story = {
   name: "With Save Error",
   args: {
-    category,
     onSubmit: fn().mockRejectedValue(new Error("Failed to save category")),
-    onSuccess: fn(),
     onError: fn(),
   },
 };
