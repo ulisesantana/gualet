@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Transition } from "react-transition-group";
 import { useLocation, useRoute } from "wouter";
-import "./TransactionDetailsView.css";
+import { Id, Nullable } from "@gualet/shared";
 import { TransactionConfig } from "@domain/models";
 import { routes } from "@common/infrastructure/routes";
 import { useLoader } from "@common/infrastructure/hooks";
-import { Id, Nullable } from "@gualet/shared";
-
 import {
   GetLastTransactionsUseCase,
   GetTransactionConfigUseCase,
@@ -15,7 +13,9 @@ import {
   SaveTransactionUseCase,
   setUseCases,
   useTransactionStore,
-} from "../..";
+} from "@features/transactions";
+
+import "./TransactionDetailsView.css";
 import { EditTransactionForm } from "../TransactionForm";
 
 interface TransactionDetailsViewProps {

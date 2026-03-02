@@ -154,13 +154,7 @@ describe("TransactionDetailsView", () => {
   });
 
   it("displays an error message if transaction is not found", async () => {
-    // Override fetchTransaction to not set currentTransaction
-    mockTransactionStore.fetchTransaction.mockImplementation(() => {
-      mockTransactionStore.currentTransaction = null;
-    });
-
-    mockTransactionStore.currentTransaction = null;
-    mockGetTransactionConfigUseCase.exec.mockResolvedValueOnce(mockConfig);
+    mockGetTransactionUseCase.exec.mockResolvedValueOnce(null);
 
     render(
       <Router>
@@ -187,8 +181,6 @@ describe("TransactionDetailsView", () => {
 
   it("calls remove method on transaction removal", async () => {
     const user = userEvent.setup();
-    mockTransactionStore.currentTransaction = mockTransaction;
-    mockGetTransactionConfigUseCase.exec.mockResolvedValueOnce(mockConfig);
 
     render(
       <Router>
@@ -212,7 +204,7 @@ describe("TransactionDetailsView", () => {
     await user.click(screen.getByText("🚮"));
 
     await waitFor(() => {
-      expect(mockTransactionStore.removeTransaction).toHaveBeenCalledWith(
+      expect(mockRemoveTransactionUseCase.exec).toHaveBeenCalledWith(
         mockTransaction.id,
       );
     });

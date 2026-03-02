@@ -10,16 +10,16 @@ import {
 } from "@gualet/shared";
 import { TransactionBuilder } from "@test/builders";
 import { render, screen, waitFor } from "@test/test-utils";
-
-import { LastTransactionsView } from "./LastTransactionsView";
 import {
   GetLastTransactionsUseCase,
   GetTransactionConfigUseCase,
   GetTransactionUseCase,
   RemoveTransactionUseCase,
   SaveTransactionUseCase,
-} from "../../application/cases";
-import { GetUserPreferencesUseCase } from "../../../settings/application/get-user-preferences/get-user-preferences.use-case";
+} from "@features/transactions";
+import { GetUserPreferencesUseCase } from "@settings";
+
+import { LastTransactionsView } from "./LastTransactionsView";
 
 const mockTransactions = [
   new TransactionBuilder()
@@ -167,11 +167,13 @@ describe("LastTransactionsView", () => {
     );
 
     await waitFor(() => {
-      expect(mockTransactionStore.fetchLastTransactions).toHaveBeenCalledWith(
-        25,
-      );
       expect(mockGetTransactionConfigUseCase.exec).toHaveBeenCalled();
       expect(mockGetUserPreferencesUseCase.exec).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      const list = screen.getByRole("list");
+      expect(list.children).toHaveLength(2);
     });
   });
 
