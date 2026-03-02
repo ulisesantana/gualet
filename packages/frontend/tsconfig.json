@@ -62,7 +62,8 @@
   ],
   "include": [
     "src",
-    "test"
+    "test",
+    ".storybook"
   ],
   "exclude": [
     "**/node_modules",
