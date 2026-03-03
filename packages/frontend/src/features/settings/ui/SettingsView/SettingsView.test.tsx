@@ -179,4 +179,67 @@ describe("SettingsView", () => {
 
     consoleErrorSpy.mockRestore();
   });
+
+  it("changes and saves the language", async () => {
+    render(
+      <AuthProvider>
+        <SettingsView
+          getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
+          getUserPreferencesUseCase={mockGetUserPreferencesUseCase}
+          saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
+          logoutUseCase={mockLogoutUseCase}
+        />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("select-language")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByTestId("select-language"), {
+      target: { value: "es" },
+    });
+
+    await waitFor(() => {
+      expect(mockSaveUserPreferencesUseCase.exec).toHaveBeenCalledWith(
+        expect.objectContaining({ language: "es" }),
+      );
+    });
+  });
+
+  it("saves default payment method when userPreferences is null", async () => {
+    const nullPreferencesUseCase = {
+      exec: vi.fn().mockResolvedValue(null),
+    } as unknown as GetUserPreferencesUseCase;
+
+    render(
+      <AuthProvider>
+        <SettingsView
+          getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
+          getUserPreferencesUseCase={nullPreferencesUseCase}
+          saveUserPreferencesUseCase={mockSaveUserPreferencesUseCase}
+          logoutUseCase={mockLogoutUseCase}
+        />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("select-default-payment-method"),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByTestId("select-default-payment-method"), {
+      target: { value: "2" },
+    });
+
+    await waitFor(() => {
+      expect(mockSaveUserPreferencesUseCase.exec).toHaveBeenCalledWith(
+        expect.objectContaining({
+          defaultPaymentMethod: mockPaymentMethods[1],
+          language: "en",
+        }),
+      );
+    });
+  });
 });

@@ -67,21 +67,22 @@ export function LastTransactionsView({
       .then((config) => {
         console.log("Transaction config", config);
         setTransactionConfig(config);
-        return getUserPreferencesUseCase.exec();
-      })
-      .then((userPreferences: UserPreferences | null) => {
-        console.log("User preferences", userPreferences);
-        if (userPreferences) {
-          setPreferences(userPreferences);
-        } else if (transactionConfig) {
-          console.warn("No user preferences found, using defaults.");
-          setPreferences({
-            defaultPaymentMethod: transactionConfig.paymentMethods[0],
-            language: "en",
+        return getUserPreferencesUseCase
+          .exec()
+          .then((userPreferences: UserPreferences | null) => {
+            console.log("User preferences", userPreferences);
+            if (userPreferences) {
+              setPreferences(userPreferences);
+            } else if (config) {
+              console.warn("No user preferences found, using defaults.");
+              setPreferences({
+                defaultPaymentMethod: config.paymentMethods[0],
+                language: "en",
+              });
+            } else {
+              console.error("No user preferences or transaction config found.");
+            }
           });
-        } else {
-          console.error("No user preferences or transaction config found.");
-        }
       })
       .catch((error) => {
         console.error("Error getting transaction config or preferences");

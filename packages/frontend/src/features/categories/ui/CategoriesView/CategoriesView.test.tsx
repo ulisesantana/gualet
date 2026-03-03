@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Category, Id, OperationType } from "@gualet/shared";
-import { render, screen, waitFor } from "@test/test-utils";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { CategoriesView } from "./CategoriesView";
 import {
@@ -99,14 +99,14 @@ describe("CategoriesView", () => {
     mockStore.categories = mockCategories;
   });
 
-  it("handles delete category error gracefully", async () => {
+  it("handles delete category error gracefully via handleDeleteCategory", async () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
 
-    // Ensure the store is not loading and has categories
     mockStore.isLoading = false;
     mockStore.categories = mockCategories;
+    // Make deleteCategory throw so the catch in handleDeleteCategory runs
     mockDeleteCategory.mockRejectedValueOnce(new Error("Delete failed"));
 
     render(
@@ -116,12 +116,43 @@ describe("CategoriesView", () => {
       />,
     );
 
-    // The error should be handled in the store
-    // This test ensures the view doesn't crash
+    await waitFor(() => {
+      expect(screen.getByRole("list")).toBeInTheDocument();
+    });
+
+    // Click delete on first category card
+    global.confirm = vi.fn(() => true);
+    const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
+    if (deleteButtons.length > 0) {
+      fireEvent.click(deleteButtons[0]);
+    }
+
+    // Verify the view doesn't crash even when delete fails
     await waitFor(() => {
       expect(screen.getByRole("list")).toBeInTheDocument();
     });
 
     consoleErrorSpy.mockRestore();
+  });
+
+  it("calls setUseCases and fetchCategories on mount", async () => {
+    const { setUseCases } = await import(
+      "@categories/infrastructure/useCategoryStore"
+    );
+    mockStore.isLoading = false;
+    mockStore.categories = mockCategories;
+
+    render(
+      <CategoriesView
+        getAllCategoriesUseCase={mockGetAllCategoriesUseCase}
+        deleteCategoryUseCase={mockDeleteCategoryUseCase}
+      />,
+    );
+
+    expect(setUseCases).toHaveBeenCalledWith(
+      mockGetAllCategoriesUseCase,
+      mockDeleteCategoryUseCase,
+    );
+    expect(mockFetchCategories).toHaveBeenCalled();
   });
 });

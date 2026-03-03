@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Id, PaymentMethod } from "@gualet/shared";
 import { usePaymentMethodStore } from "@payment-methods/infrastructure/usePaymentMethodStore";
-import { render, screen, waitFor } from "@test/test-utils";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import {
   GetPaymentMethodUseCase,
@@ -183,5 +183,35 @@ describe("PaymentMethodDetailsView", () => {
 
     // Form has onError handler defined
     consoleErrorSpy.mockRestore();
+  });
+
+  it("should call savePaymentMethodUseCase and redirect on form submit", async () => {
+    vi.mocked(mockGetPaymentMethodUseCase.exec).mockResolvedValue(
+      mockPaymentMethod,
+    );
+    vi.mocked(mockSavePaymentMethodUseCase.exec).mockResolvedValue(undefined);
+
+    const { container } = render(
+      <PaymentMethodDetailsView
+        getPaymentMethodUseCase={mockGetPaymentMethodUseCase}
+        savePaymentMethodUseCase={mockSavePaymentMethodUseCase}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue("Credit Card")).toBeInTheDocument();
+    });
+
+    fireEvent.submit(container.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(mockSavePaymentMethodUseCase.exec).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(mockSetLocation).toHaveBeenCalledWith(
+        expect.stringContaining("/payment-methods"),
+      );
+    });
   });
 });

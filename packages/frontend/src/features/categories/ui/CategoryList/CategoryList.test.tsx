@@ -1,8 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Category, Id, OperationType } from "@gualet/shared";
-import { render, screen } from "@test/test-utils";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { CategoryList } from "./CategoryList";
+
+vi.mock("wouter", () => ({
+  useLocation: vi.fn(() => ["/categories", vi.fn()]),
+}));
 
 describe("CategoryList", () => {
   const mockCategories = [
@@ -18,11 +22,17 @@ describe("CategoryList", () => {
     }),
   ];
 
+  beforeEach(() => {
+    global.confirm = vi.fn(() => true);
+    global.alert = vi.fn();
+    vi.clearAllMocks();
+  });
+
   it("renders a list of CategoryCard components for each category", () => {
     render(<CategoryList categories={mockCategories} />);
 
-    expect(screen.getByText("Food")).toBeInTheDocument();
-    expect(screen.getByText("Salary")).toBeInTheDocument();
+    expect(screen.getByText(/Food/)).toBeInTheDocument();
+    expect(screen.getByText(/Salary/)).toBeInTheDocument();
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(mockCategories.length);
   });
@@ -40,5 +50,31 @@ describe("CategoryList", () => {
       const listItem = screen.queryByTestId(`category-item-${category.id}`);
       expect(listItem).not.toBeNull();
     });
+  });
+
+  it("passes onDeleteCategory to each CategoryCard", async () => {
+    const onDeleteCategory = vi.fn().mockResolvedValue(undefined);
+    render(
+      <CategoryList
+        categories={mockCategories}
+        onDeleteCategory={onDeleteCategory}
+      />,
+    );
+
+    const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
+    expect(deleteButtons).toHaveLength(mockCategories.length);
+
+    fireEvent.click(deleteButtons[0]);
+
+    await waitFor(() => {
+      expect(onDeleteCategory).toHaveBeenCalledWith("1");
+    });
+  });
+
+  it("renders without onDeleteCategory (no delete buttons shown)", () => {
+    render(<CategoryList categories={mockCategories} />);
+
+    const deleteButtons = screen.queryAllByRole("button", { name: /delete/i });
+    expect(deleteButtons).toHaveLength(0);
   });
 });

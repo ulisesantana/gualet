@@ -229,4 +229,35 @@ describe("LastTransactionsView", () => {
 
     consoleErrorSpy.mockRestore();
   });
+
+  it("uses default preferences from transactionConfig when userPreferences is null", async () => {
+    const consoleWarnSpy = vi
+      .spyOn(console, "warn")
+      .mockImplementation(() => {});
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    const noPreferencesUseCase = {
+      exec: vi.fn().mockResolvedValue(null),
+    } as unknown as GetUserPreferencesUseCase;
+
+    render(
+      <LastTransactionsView
+        getLastTransactionsUseCase={mockGetLastTransactionsUseCase}
+        getTransactionUseCase={mockGetTransactionUseCase}
+        getTransactionConfigUseCase={mockGetTransactionConfigUseCase}
+        getUserPreferencesUseCase={noPreferencesUseCase}
+        saveTransactionUseCase={mockSaveTransactionUseCase}
+        removeTransactionUseCase={mockRemoveTransactionUseCase}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        "No user preferences found, using defaults.",
+      );
+    });
+
+    consoleWarnSpy.mockRestore();
+    consoleLogSpy.mockRestore();
+  });
 });

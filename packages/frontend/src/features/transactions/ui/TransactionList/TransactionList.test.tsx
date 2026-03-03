@@ -67,4 +67,10 @@ describe("TransactionList", () => {
       screen.getByText("Transaction: Salary - 200,00 €"),
     ).toBeInTheDocument();
   });
+
+  it("renders empty message when there are no transactions", () => {
+    render(<TransactionList transactions={[]} />);
+
+    expect(screen.getByText("There are no transactions")).toBeInTheDocument();
+  });
 });

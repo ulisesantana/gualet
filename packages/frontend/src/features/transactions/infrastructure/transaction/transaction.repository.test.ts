@@ -8,6 +8,7 @@ import {
   OperationType,
   PaymentMethod,
   PaymentMethodDto,
+  SortDirection,
   TimeString,
   Transaction,
   TransactionDto,
@@ -139,10 +140,125 @@ describe("TransactionRepositoryImplementation (HTTP)", () => {
       expect(Array.isArray(result)).toBe(true);
       expect(result[0]).toEqual(expect.any(Transaction));
     });
+
+    it("should map transactions with null icon/color/description correctly", async () => {
+      const dto: TransactionDto = {
+        id: "txn-2",
+        amount: 50,
+        description: null as any,
+        date: new Date().toISOString() as TimeString,
+        operation: OperationType.Income,
+        category: {
+          id: "cat-1",
+          name: "Salary",
+          icon: null as any,
+          type: OperationType.Income,
+          color: null as any,
+        },
+        paymentMethod: {
+          id: "pm-1",
+          name: "Cash",
+          icon: null as any,
+          color: null as any,
+        },
+      };
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { transactions: [dto] },
+      });
+      const result = await repository.find({});
+      expect(result[0]).toEqual(expect.any(Transaction));
+      expect(result[0].description).toBe("");
+    });
+
     it("should return an empty array if fetch fails", async () => {
       mockHttp.get.mockResolvedValue({ success: false, error: "fail" });
       const result = await repository.find({});
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("findLast", () => {
+    it("should return the last N transactions", async () => {
+      const dto = createTransactionDto();
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { transactions: [dto] },
+      });
+      const result = await repository.findLast(5);
+      expect(Array.isArray(result)).toBe(true);
+      expect(result[0]).toEqual(expect.any(Transaction));
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        expect.stringContaining("pageSize=5"),
+      );
+    });
+
+    it("should return empty array if fetch fails", async () => {
+      mockHttp.get.mockResolvedValue({ success: false, error: "fail" });
+      const result = await repository.findLast(5);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("find with specific criteria", () => {
+    it("should append all criteria as query params", async () => {
+      const dto = createTransactionDto();
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { transactions: [dto] },
+      });
+
+      await repository.find({
+        from: new Day("2024-01-01"),
+        to: new Day("2024-12-31"),
+        categoryId: new Id("cat-1"),
+        paymentMethodId: new Id("pm-1"),
+        operation: OperationType.Outcome,
+        sort: SortDirection.Ascending,
+        page: 1,
+        pageSize: 10,
+      });
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        expect.stringContaining("from=2024-01-01"),
+      );
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        expect.stringContaining("sort=asc"),
+      );
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        expect.stringContaining("pageSize=10"),
+      );
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        expect.stringContaining("page=1"),
+      );
+    });
+
+    it("should use pageSize=0 when pageSize not specified", async () => {
+      const dto = createTransactionDto();
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { transactions: [dto] },
+      });
+
+      await repository.find({});
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        expect.stringContaining("pageSize=0"),
+      );
+    });
+
+    it("should add default sort=desc when sort not specified", async () => {
+      const dto = createTransactionDto();
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { transactions: [dto] },
+      });
+
+      await repository.find({});
+
+      expect(mockHttp.get).toHaveBeenCalledWith(
+        expect.stringContaining("sort=desc"),
+      );
     });
   });
 

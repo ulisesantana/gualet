@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Category, Id, OperationType } from "@gualet/shared";
 import { useCategoryStore } from "@categories/infrastructure/useCategoryStore";
-import { render, screen, waitFor } from "@test/test-utils";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import {
   GetCategoryUseCase,
@@ -154,5 +154,33 @@ describe("CategoryDetailsView", () => {
 
     // Form is displayed, onError callback is defined
     consoleErrorSpy.mockRestore();
+  });
+
+  it("should call saveCategoryUseCase and redirect on form submit", async () => {
+    vi.mocked(mockGetCategoryUseCase.exec).mockResolvedValue(mockCategory);
+    vi.mocked(mockSaveCategoryUseCase.exec).mockResolvedValue(undefined);
+
+    const { container } = render(
+      <CategoryDetailsView
+        getCategoryUseCase={mockGetCategoryUseCase}
+        saveCategoryUseCase={mockSaveCategoryUseCase}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue("Groceries")).toBeInTheDocument();
+    });
+
+    fireEvent.submit(container.querySelector("form")!);
+
+    await waitFor(() => {
+      expect(mockSaveCategoryUseCase.exec).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(mockSetLocation).toHaveBeenCalledWith(
+        expect.stringContaining("/categories"),
+      );
+    });
   });
 });

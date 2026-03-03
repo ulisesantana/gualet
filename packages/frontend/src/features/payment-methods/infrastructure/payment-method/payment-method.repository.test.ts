@@ -37,6 +37,19 @@ describe("PaymentMethodRepositoryImplementation (HTTP)", () => {
       expect(result[1].id.toString()).toBe("pm-2");
     });
 
+    it("should map payment methods with null icon and color", async () => {
+      const paymentMethods: PaymentMethodDto[] = [
+        { id: "pm-3", name: "Other", icon: null as any, color: null as any },
+      ];
+      mockHttp.get.mockResolvedValue({
+        success: true,
+        data: { paymentMethods },
+      });
+      const result = await repository.findAll();
+      expect(result[0].icon).toBe("");
+      expect(result[0].color).toBe("#343434");
+    });
+
     it("should return an empty array if there is an error", async () => {
       mockHttp.get.mockResolvedValue({ success: false, error: "fail" });
       const result = await repository.findAll();

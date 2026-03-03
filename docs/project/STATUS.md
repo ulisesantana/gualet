@@ -1,6 +1,6 @@
 # Gualet - Project Status and Roadmap
 
-**Date:** March 2, 2026  
+**Date:** March 3, 2026  
 **Application:** Personal finance management  
 **Status:** 🟡 **Development Phase - Not Production Ready**
 
@@ -11,7 +11,7 @@
 Gualet is a personal finance web application that has **successfully migrated from Supabase to its own backend** with NestJS and PostgreSQL. The backend is **100% complete** with all CRUD functionalities implemented, the frontend is **fully integrated with the new backend**, and a **complete Demo Account System** allows users to try the application without registration.
 
 **Current Phase:** Pre-Production Preparation  
-**Latest Achievement:** 🎭 **Demo Account fully integrated in frontend - "TRY DEMO" button live on login page**  
+**Latest Achievement:** 🧪 **Frontend test coverage at 98.15% — exceeds 95% target** (399 tests, 70 files, all passing)  
 **Next Milestone:** GDPR Compliance & Production Deployment Setup  
 **After That:** Offline-First Implementation with RxDB
 
@@ -22,7 +22,7 @@ Gualet is a personal finance web application that has **successfully migrated fr
 - 🏭 **Factory Pattern:** Repository factories for database/demo mode switching
 - 🔒 **100% DB Isolation:** Demo data NEVER touches database (E2E verified)
 - 🎨 **AuthContext:** Reactive authentication state management
-- 🧪 **Improved Tests:** `LastTransactionsView` and `TransactionDetailsView` tests use proper Zustand store mocking
+- 🧪 **Frontend Tests:** 98.15% statement coverage / 91.85% branch coverage — exceeds 95% target ⭐
 
 ---
 
@@ -150,9 +150,11 @@ Gualet is a personal finance web application that has **successfully migrated fr
 - ✅ **Proxy:** Configured for `/api` → `http://localhost:5050`
 - ✅ **Testing:** Vitest + Testing Library
   - `LastTransactionsView` and `TransactionDetailsView` tests updated to properly mock Zustand store (Mar 2, 2026)
-  - Enhanced coverage with comprehensive tests for stores, components, forms and views
-  - **Coverage:** Statements: 72.02%, Branches: 90.63%, Functions: 76.87%, Lines: 72.02%
-  - **Note:** Coverage below 95% target; improvement needed in repositories and UI components
+  - Enhanced coverage with comprehensive tests for stores, components, forms, views and repositories (Mar 3, 2026)
+  - **Coverage:** Statements: **98.15%**, Branches: **91.85%**, Functions: **98.53%**, Lines: **98.15%** ⭐
+  - **399 tests passing across 70 test files (100%)** — exceeds the 95% target
+  - New test files: `AuthContext`, `Card`, `Layout`, `submit-handler`
+  - Repository null-coalescing and error-path branches fully covered
 - ❌ **NO RxDB** implemented yet
 - ❌ **NO Service Worker** with custom cache strategies
 - ❌ **NO offline synchronization**

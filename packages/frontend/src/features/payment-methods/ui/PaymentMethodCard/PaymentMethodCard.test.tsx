@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as wouter from "wouter";
 import { Id, PaymentMethod } from "@gualet/shared";
 import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { PaymentMethodCard } from "./PaymentMethodCard";
 
-vi.mock("wouter", () => ({
-  useLocation: vi.fn(() => ["/payment-methods", vi.fn()]),
-}));
+const mockSetLocation = vi.fn();
+
+vi.mock("wouter", async () => {
+  const actual = await vi.importActual<typeof wouter>("wouter");
+  return { ...actual, useLocation: vi.fn() };
+});
 
 describe("PaymentMethodCard", () => {
   const mockPaymentMethod = new PaymentMethod({
@@ -20,6 +24,10 @@ describe("PaymentMethodCard", () => {
     vi.clearAllMocks();
     global.confirm = vi.fn(() => true);
     global.alert = vi.fn();
+    (wouter.useLocation as ReturnType<typeof vi.fn>).mockReturnValue([
+      "/payment-methods",
+      mockSetLocation,
+    ]);
   });
 
   it("should render payment method card with name", () => {
@@ -147,5 +155,16 @@ describe("PaymentMethodCard", () => {
     await waitFor(() => {
       expect(deleteButton).toHaveTextContent("⏳");
     });
+  });
+
+  it("should navigate to the payment method details page when edit is clicked", () => {
+    render(<PaymentMethodCard paymentMethod={mockPaymentMethod} />);
+
+    const editButton = screen.getByRole("button", { name: /edit/i });
+    fireEvent.click(editButton);
+
+    expect(mockSetLocation).toHaveBeenCalledWith(
+      expect.stringContaining("pm-1"),
+    );
   });
 });

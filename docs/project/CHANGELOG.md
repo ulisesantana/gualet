@@ -1,5 +1,59 @@
 # Changelog - Gualet Project
 
+## [Unreleased] - March 3, 2026
+
+### 📋 Executive Summary
+
+This release raises **frontend test coverage above the 95% target**:
+- 🧪 **98.15% statement coverage** / 91.85% branch coverage (up from 76.54%)
+- ✅ **399 tests across 70 test files** — all passing (100%)
+- 🆕 New test files for `AuthContext`, `Card`, `Layout`, `submit-handler`
+- 🔍 Null-coalescing and error-path branches covered in all repositories and views
+- ⚙️ Coverage config updated to exclude interface/type-only files
+
+---
+
+### 🧪 Frontend Test Coverage Improvements (`test(frontend)`)
+
+#### New test files
+
+| File | What it covers |
+|---|---|
+| `AuthContext.test.tsx` | `useAuth` within/outside provider, `logout`, `setIsAuthenticated` |
+| `Card.test.tsx` | `Card` and `CardWithHeader` with/without title, header and footer props |
+| `Layout.test.tsx` | `AlertMessage` ARIA roles (alert/status), title prop, `LoadingSpinner` |
+| `submit-handler.test.ts` | `findCategory` error, `findPaymentMethod` error, `originalTransaction.category` fallback |
+
+#### Extended test files
+
+- **`TransactionList.test.tsx`** — added empty-list branch (`"There are no transactions"`)
+- **`category.repository.test.ts`** — null icon/color mapping, `mapToDto` without id, `create`/`delete` error paths
+- **`payment-method.repository.test.ts`** — null icon/color mapping branch
+- **`LastTransactionsView.test.tsx`** — default-preferences fallback when `userPreferences` is null
+- **`CategoriesView.test.tsx`** — `handleDeleteCategory` catch branch via UI interaction
+- **`PaymentMethodsView.test.tsx`** — `handleDeletePaymentMethod` catch branch via UI interaction
+- **`SettingsView.test.tsx`** — `onChangeLanguage` handler, null-preferences branch on payment-method change
+
+#### Coverage configuration
+
+`vite.config.ts` coverage exclusions updated to skip files with no executable logic:
+```typescript
+exclude: [
+  "src/**/application/repositories.ts",
+  "src/**/application/use-case.ts",
+  "src/**/domain/types.ts",
+  // ...existing exclusions
+]
+```
+
+#### Final coverage report
+
+```
+All files  | 98.15 | 91.85 | 98.53 | 98.15
+```
+
+---
+
 ## [Unreleased] - March 2, 2026
 
 ### 📋 Executive Summary

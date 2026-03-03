@@ -1,18 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as wouter from "wouter";
 import { Id, PaymentMethod } from "@gualet/shared";
 import { usePaymentMethodStore } from "@payment-methods/infrastructure/usePaymentMethodStore";
-import { render, screen, waitFor } from "@test/test-utils";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import {
   DeletePaymentMethodUseCase,
   GetAllPaymentMethodsUseCase,
 } from "../../application/cases";
-import { PaymentMethodsView } from "./PaymentMethodsView"; // Mock wouter - MUST BE BEFORE component imports
+import { PaymentMethodsView } from "./PaymentMethodsView";
 
-// Mock wouter - MUST BE BEFORE component imports
-vi.mock("wouter", () => ({
-  useLocation: () => ["/payment-methods", vi.fn()],
-}));
+const mockSetLocation = vi.fn();
+
+vi.mock("wouter", async () => {
+  const actual = await vi.importActual<typeof wouter>("wouter");
+  return { ...actual, useLocation: vi.fn() };
+});
 
 describe("PaymentMethodsView", () => {
   const mockGetAllPaymentMethodsUseCase = {
@@ -41,6 +44,10 @@ describe("PaymentMethodsView", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     usePaymentMethodStore.getState().reset();
+    (wouter.useLocation as ReturnType<typeof vi.fn>).mockReturnValue([
+      "/payment-methods",
+      mockSetLocation,
+    ]);
   });
 
   it("should render the view", () => {
@@ -105,5 +112,69 @@ describe("PaymentMethodsView", () => {
       expect(screen.queryByText("Credit Card")).toBeInTheDocument();
       expect(screen.queryByText("Cash")).toBeInTheDocument();
     });
+  });
+
+  it("should navigate to add payment method page when add button is clicked", async () => {
+    vi.mocked(mockGetAllPaymentMethodsUseCase.exec).mockResolvedValue([]);
+
+    render(
+      <PaymentMethodsView
+        getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
+        deletePaymentMethodUseCase={mockDeletePaymentMethodUseCase}
+      />,
+    );
+
+    await waitFor(() => {
+      const addButton = screen.getByRole("button", {
+        name: /add new payment method/i,
+      });
+      fireEvent.click(addButton);
+    });
+
+    expect(mockSetLocation).toHaveBeenCalledWith(
+      expect.stringContaining("add"),
+    );
+  });
+
+  it("should handle delete payment method error gracefully", async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    vi.mocked(mockGetAllPaymentMethodsUseCase.exec).mockResolvedValue(
+      mockPaymentMethods,
+    );
+
+    const store = usePaymentMethodStore.getState();
+    store.isLoading = false;
+    store.paymentMethods = mockPaymentMethods;
+    // Make deletePaymentMethod throw so the catch in handleDeletePaymentMethod runs
+    store.deletePaymentMethod = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("Delete failed"));
+
+    render(
+      <PaymentMethodsView
+        getAllPaymentMethodsUseCase={mockGetAllPaymentMethodsUseCase}
+        deletePaymentMethodUseCase={mockDeletePaymentMethodUseCase}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText("Credit Card")).toBeInTheDocument();
+    });
+
+    // Click delete and confirm
+    global.confirm = vi.fn(() => true);
+    const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
+    if (deleteButtons.length > 0) {
+      fireEvent.click(deleteButtons[0]);
+    }
+
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalled();
+    });
+
+    consoleErrorSpy.mockRestore();
   });
 });

@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as wouter from "wouter";
 import { Category, Id, OperationType } from "@gualet/shared";
 import { fireEvent, render, screen, waitFor } from "@test/test-utils";
 
 import { CategoryCard } from "./CategoryCard";
 
-vi.mock("wouter", () => ({
-  useLocation: vi.fn(() => ["/categories", vi.fn()]),
-}));
+const mockSetLocation = vi.fn();
+
+vi.mock("wouter", async () => {
+  const actual = await vi.importActual<typeof wouter>("wouter");
+  return { ...actual, useLocation: vi.fn() };
+});
 
 describe("CategoryCard", () => {
   const mockCategory = new Category({
@@ -21,6 +25,10 @@ describe("CategoryCard", () => {
     vi.clearAllMocks();
     global.confirm = vi.fn(() => true);
     global.alert = vi.fn();
+    (wouter.useLocation as ReturnType<typeof vi.fn>).mockReturnValue([
+      "/categories",
+      mockSetLocation,
+    ]);
   });
 
   it("should render category card with name and type", () => {
@@ -131,5 +139,16 @@ describe("CategoryCard", () => {
 
     const typeElement = screen.getByTestId("category-type-income");
     expect(typeElement).toBeInTheDocument();
+  });
+
+  it("should navigate to category details when edit is clicked", () => {
+    render(<CategoryCard category={mockCategory} />);
+
+    const editButton = screen.getByRole("button", { name: /edit/i });
+    fireEvent.click(editButton);
+
+    expect(mockSetLocation).toHaveBeenCalledWith(
+      expect.stringContaining("cat-1"),
+    );
   });
 });
