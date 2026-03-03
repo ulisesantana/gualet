@@ -17,6 +17,7 @@ import { DemoModule } from '@src/demo';
   ],
   exports: [
     TypeOrmModule,
+    TransactionsService,
     TransactionsRepository,
     TransactionsRepositoryFactory,
   ],
