@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ScheduleModule } from '@nestjs/schedule';
 import { UserService } from './user.service';
 import { DemoUserService } from './demo-user.service';
 import { DemoDataResetService } from './demo-data-reset.service';
@@ -11,7 +10,6 @@ import { TransactionsModule } from '@src/transactions';
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
     TypeOrmModule.forFeature([UserEntity]),
     CategoriesModule,
     PaymentMethodsModule,
@@ -19,6 +17,6 @@ import { TransactionsModule } from '@src/transactions';
   ],
   providers: [UserService, DemoUserService, DemoDataResetService],
   controllers: [],
-  exports: [UserService, DemoUserService, TypeOrmModule],
+  exports: [UserService, DemoUserService, DemoDataResetService, TypeOrmModule],
 })
 export class UserModule {}

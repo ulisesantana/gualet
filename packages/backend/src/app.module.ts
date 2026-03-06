@@ -3,9 +3,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ScheduleModule } from '@nestjs/schedule';
 import { resolve } from 'node:path';
 import { AuthController, AuthModule, AuthService } from '@src/auth';
-import { UserModule, UserService } from '@src/users';
+import { UserModule, UserService, DemoDataResetService } from '@src/users';
 import {
   CategoriesController,
   CategoriesModule,
@@ -41,6 +42,7 @@ import { DatabaseSeederService } from '@src/db/database-seeder.service';
       isGlobal: true,
       ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -101,6 +103,7 @@ import { DatabaseSeederService } from '@src/db/database-seeder.service';
     PaymentMethodsService,
     TransactionsService,
     DatabaseSeederService,
+    DemoDataResetService,
   ],
 })
 export class AppModule {}

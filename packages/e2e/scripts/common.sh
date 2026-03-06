@@ -78,16 +78,31 @@ start_frontend() {
 # Wait for all services to be ready
 wait_for_services() {
     echo "⏳ Waiting for services to start..."
-    sleep 8
 
-    # Check backend health
-    if curl -f http://localhost:5060/api/health > /dev/null 2>&1; then
-        echo "✅ Backend is healthy"
-    else
-        echo "⚠️  Backend health check failed, check logs at /tmp/e2e-backend.log"
-        # Exit if backend is not healthy
-        exit 1
-    fi
+    local max_attempts=30
+    local attempt=1
+    local wait_time=2
+
+    while [ $attempt -le $max_attempts ]; do
+        echo "  Attempt $attempt/$max_attempts: Checking backend health..."
+
+        if curl -f http://localhost:5060/api/health > /dev/null 2>&1; then
+            echo "✅ Backend is healthy"
+            return 0
+        fi
+
+        if [ $attempt -eq $max_attempts ]; then
+            echo "❌ Backend failed to start after $max_attempts attempts"
+            echo "⚠️  Check logs at /tmp/e2e-backend.log"
+            echo ""
+            echo "Last 20 lines of backend log:"
+            tail -20 /tmp/e2e-backend.log 2>/dev/null || echo "  (log file not found)"
+            exit 1
+        fi
+
+        sleep $wait_time
+        attempt=$((attempt + 1))
+    done
 }
 
 # Cleanup function to stop all services
