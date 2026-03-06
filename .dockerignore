@@ -1,0 +1,36 @@
+# Dependencies — will be reinstalled inside the container for the correct platform
+node_modules
+packages/*/node_modules
+
+# Build artifacts
+packages/*/dist
+packages/frontend/storybook-static
+# TypeScript incremental build cache — must not carry over from host to container
+*.tsbuildinfo
+packages/*/*.tsbuildinfo
+
+# Test artifacts
+coverage
+packages/*/coverage
+test-results
+playwright-report
+
+# Development / editor files
+.git
+.github
+.vscode
+.idea
+*.log
+
+# Environment files — secrets must never be baked into the image
+.env
+.env.*
+!.env.example
+
+# Documentation
+docs
+*.md
+
+# E2E package (not needed at runtime)
+packages/e2e
+

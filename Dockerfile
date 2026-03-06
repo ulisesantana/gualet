@@ -9,6 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY packages/backend/package*.json ./packages/backend/
 COPY packages/frontend/package*.json ./packages/frontend/
+COPY packages/shared/package*.json ./packages/shared/
 
 # Install dependencies
 RUN npm install
@@ -17,10 +18,13 @@ RUN npm install
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN npm run build -w @gualet/shared \
+ && npm run build -w @gualet/backend \
+ && npm run build -w @gualet/frontend \
+ && cp -r ./packages/frontend/dist ./packages/backend/dist/public
 
 # Expose port
 EXPOSE 5050
 
 # Run the application
-CMD ["node", "packages/backend/dist/src/main"]
+CMD ["node", "packages/backend/dist/main"]
