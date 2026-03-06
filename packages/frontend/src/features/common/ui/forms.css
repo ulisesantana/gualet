@@ -1,15 +1,8 @@
 form {
-    align-items: flex-end;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: space-between;
-    list-style: none;
-    overflow: auto;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    max-width: 350px;
 }
 
 form footer {
@@ -30,10 +23,6 @@ button {
 input, datalist, select, button {
     background-color: var(--light-primary-color);
     border-color: transparent;
-    border-radius: 24px;
-    margin: 0;
-    padding: 8px 0;
-    width: calc(100% - 150px);
     text-align: center;
 }
 
@@ -41,8 +30,6 @@ button[type=submit] {
     background-color: var(--primary-color);
     color: white;
     font-weight: bold;
-    font-size: 2rem;
-    width: 220px;
 }
 
 label {

@@ -83,7 +83,7 @@ export function LoginForm({ loginUseCase, loginDemoUseCase }: LoginFormProps) {
           Login
         </Heading>
         <form onSubmit={onSubmitHandler}>
-          <Stack gap={4}>
+          <Stack gap={4} width={"100%"}>
             <Input
               label="Email"
               type="email"

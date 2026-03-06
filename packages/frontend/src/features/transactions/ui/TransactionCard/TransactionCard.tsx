@@ -15,24 +15,32 @@ export function TransactionCard({ transaction }: { transaction: Transaction }) {
         cursor="pointer"
         _hover={{ boxShadow: "lg", transform: "translateY(-2px)" }}
         transition="all 0.2s"
+        width="100%"
       >
         <Card marginBottom={3}>
-          <Flex justify="space-between" align="center">
-            <Box>
-              <Text fontSize="sm" color="gray.500" marginBottom={1}>
-                {date}
-              </Text>
-              <Text fontWeight="semibold">{transaction.category.title}</Text>
-            </Box>
+          <Flex
+            justify="space-between"
+            align="center"
+            inline={true}
+            width="100%"
+          >
+            <Text fontSize="sm" color="gray.500" marginBottom={1}>
+              {date}
+            </Text>
             <Badge
-              colorScheme={transaction.isOutcome() ? "red" : "green"}
+              backgroundColor={
+                transaction.isOutcome()
+                  ? "var(--danger-color)"
+                  : "var(--success-color)"
+              }
               fontSize="md"
-              px={3}
-              py={1}
             >
               {transaction.amountFormatted}
             </Badge>
           </Flex>
+          <Text width="100%" fontWeight="semibold">
+            {transaction.category.title}
+          </Text>
         </Card>
       </Box>
     </Link>
