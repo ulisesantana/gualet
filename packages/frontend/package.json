@@ -30,7 +30,7 @@
     "zustand": "^5.0.9"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest run",

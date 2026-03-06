@@ -107,7 +107,7 @@ export const DEMO_TRANSACTIONS: DemoTransactionData[] = [
   // Recent transactions (current month)
   {
     id: 'demo-tx-1',
-    amount: -45.5,
+    amount: 45.5,
     description: 'Supermarket purchase',
     date: new Date(2026, 1, 12).toISOString(),
     operation: OperationType.Outcome,
@@ -116,7 +116,7 @@ export const DEMO_TRANSACTIONS: DemoTransactionData[] = [
   },
   {
     id: 'demo-tx-2',
-    amount: -15.0,
+    amount: 15.0,
     description: 'Uber ride',
     date: new Date(2026, 1, 11).toISOString(),
     operation: OperationType.Outcome,
@@ -134,7 +134,7 @@ export const DEMO_TRANSACTIONS: DemoTransactionData[] = [
   },
   {
     id: 'demo-tx-4',
-    amount: -25.99,
+    amount: 25.99,
     description: 'Netflix subscription',
     date: new Date(2026, 1, 10).toISOString(),
     operation: OperationType.Outcome,
@@ -143,7 +143,7 @@ export const DEMO_TRANSACTIONS: DemoTransactionData[] = [
   },
   {
     id: 'demo-tx-5',
-    amount: -120.0,
+    amount: 120.0,
     description: 'Electricity bill',
     date: new Date(2026, 1, 5).toISOString(),
     operation: OperationType.Outcome,
@@ -154,7 +154,7 @@ export const DEMO_TRANSACTIONS: DemoTransactionData[] = [
   // Last month (January 2026)
   {
     id: 'demo-tx-6',
-    amount: -52.3,
+    amount: 52.3,
     description: 'Weekly groceries',
     date: new Date(2026, 0, 25).toISOString(),
     operation: OperationType.Outcome,
@@ -163,7 +163,7 @@ export const DEMO_TRANSACTIONS: DemoTransactionData[] = [
   },
   {
     id: 'demo-tx-7',
-    amount: -30.0,
+    amount: 30.0,
     description: 'Gas station',
     date: new Date(2026, 0, 20).toISOString(),
     operation: OperationType.Outcome,
@@ -190,7 +190,7 @@ export const DEMO_TRANSACTIONS: DemoTransactionData[] = [
   },
   {
     id: 'demo-tx-10',
-    amount: -80.0,
+    amount: 80.0,
     description: 'Doctor appointment',
     date: new Date(2026, 0, 18).toISOString(),
     operation: OperationType.Outcome,
@@ -201,7 +201,7 @@ export const DEMO_TRANSACTIONS: DemoTransactionData[] = [
   // Two months ago (December 2025)
   {
     id: 'demo-tx-11',
-    amount: -150.0,
+    amount: 150.0,
     description: 'Christmas dinner',
     date: new Date(2025, 11, 25).toISOString(),
     operation: OperationType.Outcome,
@@ -228,7 +228,7 @@ export const DEMO_TRANSACTIONS: DemoTransactionData[] = [
   },
   {
     id: 'demo-tx-14',
-    amount: -45.0,
+    amount: 45.0,
     description: 'Movie tickets',
     date: new Date(2025, 11, 20).toISOString(),
     operation: OperationType.Outcome,
@@ -237,7 +237,7 @@ export const DEMO_TRANSACTIONS: DemoTransactionData[] = [
   },
   {
     id: 'demo-tx-15',
-    amount: -110.0,
+    amount: 110.0,
     description: 'Water bill',
     date: new Date(2025, 11, 10).toISOString(),
     operation: OperationType.Outcome,

@@ -9,9 +9,10 @@ ul.transaction-card-list {
     overflow: auto;
     margin: 0;
     padding: 0;
-    width: 100%;
+    width: calc(100% - 2rem);
+    max-width: 450px;
 }
 
 .transaction-card-list li {
-    padding: 8px;
+    width: 100%;
 }

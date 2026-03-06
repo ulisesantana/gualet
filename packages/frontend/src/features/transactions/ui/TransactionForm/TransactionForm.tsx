@@ -136,7 +136,6 @@ export function TransactionForm({
           label="Description"
           type="text"
           name="description"
-          required
           defaultValue={transaction?.description}
           placeholder="Enter description"
         />
