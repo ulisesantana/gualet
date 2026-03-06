@@ -3,6 +3,8 @@ form {
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: space-between;
+    max-width: 450px;
+    width: 100%;
 }
 
 form footer {

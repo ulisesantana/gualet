@@ -9,7 +9,7 @@ ul.transaction-card-list {
     overflow: auto;
     margin: 0;
     padding: 0;
-    width: calc(100% - 2rem);
+    width: 100%;
     max-width: 450px;
 }
 
