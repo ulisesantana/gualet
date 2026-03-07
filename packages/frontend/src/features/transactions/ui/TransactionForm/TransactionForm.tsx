@@ -7,7 +7,13 @@ import {
   PaymentMethod,
   Transaction,
 } from "@gualet/shared";
-import { Button, Input, Select, Stack } from "@common/ui/components";
+import {
+  Button,
+  Input,
+  Select,
+  Stack,
+  SegmentedControl,
+} from "@common/ui/components";
 import { Field } from "@chakra-ui/react";
 
 import { generateOnSubmitHandler } from "./submit-handler";
@@ -74,14 +80,12 @@ export function TransactionForm({
   return (
     <form onSubmit={onSubmitHandler} ref={formRef}>
       <Stack gap={4}>
-        <Select
+        <SegmentedControl
           label="Operation"
           name="operation"
           required
           value={operation}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-            setOperation(e.target.value as OperationType)
-          }
+          onChange={(value: string) => setOperation(value as OperationType)}
           options={[
             { value: OperationType.Outcome, label: OperationType.Outcome },
             { value: OperationType.Income, label: OperationType.Income },
@@ -89,6 +93,7 @@ export function TransactionForm({
         />
 
         <Field.Root required={!transaction}>
+          <Field.Label htmlFor="category-input">Category</Field.Label>
           <input
             list="category-options"
             id="category-input"

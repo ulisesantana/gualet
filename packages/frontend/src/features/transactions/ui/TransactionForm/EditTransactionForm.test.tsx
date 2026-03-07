@@ -57,10 +57,10 @@ describe("EditTransactionForm", () => {
   it("renders the form with given values", () => {
     setup();
 
-    const operationSelect = element.querySelector(
+    const operationInput = element.querySelector(
       '[name="operation"]',
-    ) as HTMLSelectElement;
-    expect(operationSelect).toHaveValue(mockTransaction.operation);
+    ) as HTMLInputElement;
+    expect(operationInput).toHaveValue(mockTransaction.operation);
 
     expect(
       screen.findByDisplayValue(mockTransaction.category.title),
@@ -112,12 +112,8 @@ describe("EditTransactionForm", () => {
     );
 
     // Change operation to income
-    const operationSelect = element.querySelector(
-      '[name="operation"]',
-    ) as HTMLSelectElement;
-    fireEvent.change(operationSelect, {
-      target: { value: OperationType.Income },
-    });
+    const incomeButton = screen.getByText(OperationType.Income);
+    fireEvent.click(incomeButton);
 
     const incomeCategories = getCategoryOptions();
     expect(incomeCategories).toHaveLength(mockSettings.incomeCategories.length);

@@ -366,7 +366,7 @@ test.describe('Transaction Form Validations', () => {
     await transactionsPage.goto();
 
     // Try to submit without description
-    await transactionsPage.operationSelect.selectOption('OUTCOME');
+    await transactionsPage.selectOperation('OUTCOME');
     await transactionsPage.categoryInput.fill('Groceries');
     await transactionsPage.amountInput.fill('100');
     await transactionsPage.paymentMethodSelect.selectOption({ index: 1 }); // Index 1 to skip placeholder
@@ -392,7 +392,7 @@ test.describe('Transaction Form Validations', () => {
 
     await transactionsPage.goto();
 
-    await transactionsPage.operationSelect.selectOption('OUTCOME');
+    await transactionsPage.selectOperation('OUTCOME');
     await transactionsPage.categoryInput.fill('Groceries');
     await transactionsPage.amountInput.fill('0');
     await transactionsPage.descriptionInput.fill('Zero amount test');

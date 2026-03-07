@@ -8,7 +8,7 @@ export class TransactionsPage {
   readonly dateInput: Locator;
   readonly categoryInput: Locator;
   readonly paymentMethodSelect: Locator;
-  readonly operationSelect: Locator;
+  readonly operationSegmentedControl: Locator;
   readonly submitButton: Locator;
 
   constructor(page: Page) {
@@ -20,8 +20,20 @@ export class TransactionsPage {
     this.dateInput = page.locator('input[name="date"]');
     this.categoryInput = page.locator('input[name="category"]');
     this.paymentMethodSelect = page.locator('select[name="payment-method"]');
-    this.operationSelect = page.locator('select[name="operation"]');
+    // SegmentedControl for operation (replaced select)
+    this.operationSegmentedControl = page.locator('input[name="operation"][type="hidden"]').locator('..');
     this.submitButton = page.locator('button[type="submit"]').first();
+  }
+
+  /**
+   * Select operation type by clicking on the SegmentedControl option
+   */
+  async selectOperation(operation: 'INCOME' | 'OUTCOME') {
+    // Find and click the button with the operation text
+    const operationButton = this.page.getByText(operation, { exact: true });
+    await operationButton.click();
+    // Wait for categories to update
+    await this.page.waitForTimeout(200);
   }
 
   async goto() {
@@ -39,9 +51,7 @@ export class TransactionsPage {
   }) {
     // Select operation type if specified
     if (transaction.operation) {
-      await this.operationSelect.selectOption(transaction.operation);
-      // Wait for categories to update
-      await this.page.waitForTimeout(200);
+      await this.selectOperation(transaction.operation);
     }
 
     // Fill category
@@ -139,8 +149,7 @@ export class TransactionsPage {
   }) {
     // Fill only the fields that are provided
     if (transaction.operation) {
-      await this.operationSelect.selectOption(transaction.operation);
-      await this.page.waitForTimeout(200);
+      await this.selectOperation(transaction.operation);
     }
 
     if (transaction.category) {

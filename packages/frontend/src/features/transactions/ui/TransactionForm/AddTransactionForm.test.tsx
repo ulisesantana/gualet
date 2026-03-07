@@ -83,12 +83,9 @@ describe("AddTransactionForm", () => {
     );
 
     // Change operation to income
-    const operationSelect = element.querySelector(
-      '[name="operation"]',
-    ) as HTMLSelectElement;
-    fireEvent.change(operationSelect, {
-      target: { value: OperationType.Income },
-    });
+    // Find the Income button in the SegmentedControl and click it
+    const incomeButton = screen.getByText(OperationType.Income);
+    fireEvent.click(incomeButton);
 
     const incomeCategories = getCategoryOptions();
     expect(incomeCategories).toHaveLength(mockSettings.incomeCategories.length);
@@ -166,9 +163,10 @@ describe("AddTransactionForm", () => {
     await waitFor(() => {
       // Check that the form resets after submission
       // Operation resets to OUTCOME (default)
-      expect(element.querySelector('[name="operation"]')).toHaveValue(
-        "OUTCOME",
-      );
+      const operationInput = element.querySelector(
+        '[name="operation"]',
+      ) as HTMLInputElement;
+      expect(operationInput).toHaveValue("OUTCOME");
       expect(element.querySelector('[name="description"]')).toHaveValue("");
       expect(element.querySelector('[name="amount"]')).toHaveValue(null);
       expect(element.querySelector('[name="category"]')).toHaveValue("");
