@@ -1,0 +1,21 @@
+{
+  "name": "@gualet/shared",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:cov": "vitest run --coverage",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "jsdom": "^26.1.0"
+  }
+}

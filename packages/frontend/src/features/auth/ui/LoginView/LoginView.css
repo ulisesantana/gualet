@@ -1,0 +1,54 @@
+.login-view {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5vh 0 0 0;
+    width: 100%;
+}
+
+.login-view .success-message, .login-view .error-message {
+    font-size: 1.5rem;
+    font-weight: bolder;
+    max-width: 80%;
+    text-align: center;
+}
+
+.login-view .success-message {
+    color: var(--success-color);
+}
+
+.login-view .error-message {
+    color: var(--danger-color);
+}
+
+.login-view label {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-view form {
+    margin-top: 3rem;
+    width: 100%;
+}
+
+.login-view small {
+    color: gray;
+    width: calc(100% - 2rem);
+    text-align: center;
+    padding: 2rem 1rem 0;
+}
+
+.register-cta {
+    margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+
+}
+
+@media (min-width: 1200px) {
+
+}

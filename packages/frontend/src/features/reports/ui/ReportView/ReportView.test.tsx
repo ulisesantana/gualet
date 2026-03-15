@@ -1,0 +1,302 @@
+import React from "react";
+import {
+  Day,
+  generateDefaultIncomeCategories,
+  generateDefaultOutcomeCategories,
+} from "@gualet/shared";
+import { vi } from "vitest";
+import { TransactionBuilder } from "@test/builders";
+import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen, waitFor } from "@test/test-utils";
+
+import { ReportView } from "./ReportView";
+import { GetReportUseCase } from "../../application/get-report/get-report.use-case";
+import { Report } from "../../domain/report/report";
+
+const mockSetIsLoading = vi.fn();
+
+vi.mock("@common/infrastructure/hooks", () => ({
+  useLoader: vi.fn(() => ({
+    isLoading: false,
+    setIsLoading: mockSetIsLoading,
+    Loader: () => <div>Loader</div>,
+  })),
+}));
+
+describe("ReportView", () => {
+  const to = new Day();
+  const from = to.cloneWithPreviousMonth();
+
+  const incomeCategory1 = generateDefaultIncomeCategories()[0];
+  const incomeCategory2 = generateDefaultIncomeCategories()[1];
+  const outcomeCategory = generateDefaultOutcomeCategories()[1];
+
+  const mockTransactions = [
+    new TransactionBuilder()
+      .withAmount(300)
+      .withCategory(incomeCategory1)
+      .build(),
+    new TransactionBuilder()
+      .withAmount(200)
+      .withCategory(incomeCategory2)
+      .build(),
+    new TransactionBuilder()
+      .withAmount(200)
+      .withCategory(outcomeCategory)
+      .build(),
+    new TransactionBuilder()
+      .withAmount(200)
+      .withCategory(outcomeCategory)
+      .build(),
+  ];
+
+  const mockReport = new Report({
+    from,
+    to,
+    transactions: mockTransactions,
+  });
+
+  const mockGetReportUseCase = {
+    exec: vi.fn().mockResolvedValue(mockReport),
+  } as unknown as GetReportUseCase;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("renders the form with date fields and submit button", () => {
+    const { container } = render(
+      <ReportView getReportUseCase={mockGetReportUseCase} />,
+    );
+
+    expect(container.querySelector("#fromDate")).toBeInTheDocument();
+    expect(container.querySelector("#toDate")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /get report/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("calls fetchReport on initial mount", async () => {
+    render(<ReportView getReportUseCase={mockGetReportUseCase} />);
+
+    await waitFor(() => {
+      expect(mockGetReportUseCase.exec).toHaveBeenCalled();
+    });
+  });
+
+  it("calls fetchReport with the correct dates on submit", async () => {
+    const { container } = render(
+      <ReportView getReportUseCase={mockGetReportUseCase} />,
+    );
+
+    const fromInput = container.querySelector("#fromDate") as HTMLInputElement;
+    const toInput = container.querySelector("#toDate") as HTMLInputElement;
+
+    await userEvent.clear(fromInput);
+    await userEvent.type(fromInput, "2023-01-01");
+    await userEvent.clear(toInput);
+    await userEvent.type(toInput, "2023-01-31");
+    await userEvent.click(screen.getByRole("button", { name: /get report/i }));
+
+    await waitFor(() => {
+      expect(mockGetReportUseCase.exec).toHaveBeenCalledWith({
+        from: new Day("2023-01-01"),
+        to: new Day("2023-01-31"),
+      });
+    });
+  });
+
+  it("displays report data correctly when received", async () => {
+    const to = new Day();
+    const from = to.cloneWithPreviousMonth();
+
+    render(<ReportView getReportUseCase={mockGetReportUseCase} />);
+
+    fireEvent.submit(screen.getByRole("button", { name: /get report/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          new RegExp(`balance for transactions between ${from} and ${to}`, "i"),
+        ),
+      ).toBeInTheDocument();
+      expect(screen.getByText("100")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", {
+          name: /Income.*:.*500/,
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", {
+          name: /Outcome.*:.*-400/,
+        }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("displays 'No data' when report is null initially", () => {
+    const mockEmptyUseCase = {
+      exec: vi.fn().mockResolvedValue(null),
+    } as unknown as GetReportUseCase;
+
+    render(<ReportView getReportUseCase={mockEmptyUseCase} />);
+    expect(screen.getByText(/no data/i)).toBeInTheDocument();
+  });
+
+  it("displays balance with 0 when there are no transactions", async () => {
+    const emptyReport = new Report({
+      from,
+      to,
+      transactions: [],
+    });
+
+    const mockEmptyReportUseCase = {
+      exec: vi.fn().mockResolvedValue(emptyReport),
+    } as unknown as GetReportUseCase;
+
+    render(<ReportView getReportUseCase={mockEmptyReportUseCase} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          new RegExp(`balance for transactions between ${from} and ${to}`, "i"),
+        ),
+      ).toBeInTheDocument();
+      expect(screen.getByText("0")).toBeInTheDocument();
+    });
+  });
+
+  it("shows income section when there are income transactions", async () => {
+    const incomeTransactions = [
+      new TransactionBuilder()
+        .withAmount(500)
+        .withCategory(incomeCategory1)
+        .build(),
+    ];
+
+    const incomeReport = new Report({
+      from,
+      to,
+      transactions: incomeTransactions,
+    });
+
+    const mockIncomeUseCase = {
+      exec: vi.fn().mockResolvedValue(incomeReport),
+    } as unknown as GetReportUseCase;
+
+    render(<ReportView getReportUseCase={mockIncomeUseCase} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /Income.*:.*500/i }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("shows outcome section when there are outcome transactions", async () => {
+    const outcomeTransactions = [
+      new TransactionBuilder()
+        .withAmount(300)
+        .withCategory(outcomeCategory)
+        .build(),
+    ];
+
+    const outcomeReport = new Report({
+      from,
+      to,
+      transactions: outcomeTransactions,
+    });
+
+    const mockOutcomeUseCase = {
+      exec: vi.fn().mockResolvedValue(outcomeReport),
+    } as unknown as GetReportUseCase;
+
+    render(<ReportView getReportUseCase={mockOutcomeUseCase} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /Outcome.*:.*-300/i }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("expands income section when clicked", async () => {
+    render(<ReportView getReportUseCase={mockGetReportUseCase} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /Income.*:.*500/i }),
+      ).toBeInTheDocument();
+    });
+
+    const incomeButton = screen.getByRole("button", {
+      name: /Income.*:.*500/i,
+    });
+    await userEvent.click(incomeButton);
+
+    await waitFor(() => {
+      // Category details should be visible after expansion
+      expect(
+        screen.getByText(new RegExp(incomeCategory1.name, "i")),
+      ).toBeVisible();
+      expect(
+        screen.getByText(new RegExp(incomeCategory2.name, "i")),
+      ).toBeVisible();
+    });
+  });
+
+  it("expands outcome section when clicked", async () => {
+    render(<ReportView getReportUseCase={mockGetReportUseCase} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /Outcome.*:.*-400/i }),
+      ).toBeInTheDocument();
+    });
+
+    const outcomeButton = screen.getByRole("button", {
+      name: /Outcome.*:.*-400/i,
+    });
+    await userEvent.click(outcomeButton);
+
+    await waitFor(() => {
+      // Category details should be visible after expansion
+      expect(
+        screen.getByText(new RegExp(outcomeCategory.name, "i")),
+      ).toBeVisible();
+    });
+  });
+
+  it("handles error gracefully when use case fails", async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    const mockFailingUseCase = {
+      exec: vi.fn().mockRejectedValue(new Error("Network error")),
+    } as unknown as GetReportUseCase;
+
+    render(<ReportView getReportUseCase={mockFailingUseCase} />);
+
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(screen.getByText(/no data/i)).toBeInTheDocument();
+    });
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("sets loading state correctly during fetch", async () => {
+    render(<ReportView getReportUseCase={mockGetReportUseCase} />);
+
+    // Loading should be set to true
+    await waitFor(() => {
+      expect(mockSetIsLoading).toHaveBeenCalledWith(true);
+    });
+
+    // After fetch completes, loading should be set to false
+    await waitFor(() => {
+      expect(mockSetIsLoading).toHaveBeenCalledWith(false);
+    });
+  });
+});

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictNullChecks": true,
+    "baseUrl": ".",
+    "paths": {
+      "@fixtures": ["helpers/fixtures.ts"],
+      "@pages": ["pages/index.ts"]
+    },
+    "types": ["node", "jest", "pg"],
+  }
+}

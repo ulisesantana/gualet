@@ -1,36 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "baseUrl": "./",
-    "paths": {
-      "@application/*": ["src/application/*"],
-      "@components": ["src/infrastructure/ui/components/index.ts"],
-      "@domain/*": ["src/domain/*"],
-      "@infrastructure/*": ["src/infrastructure/*"],
-      "@test/*": ["test/*"],
-      "@views": ["src/infrastructure/ui/views/index.ts"]
-    },
-    "skipLibCheck": true,
+    "target": "ESNext",
+    "module": "Node16",
+    "baseUrl": ".",
+    "moduleResolution": "node16",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
-  "include": [
-    "src",
-    "test"
+  "references": [
+    {
+      "path": "./packages/shared"
+    }
   ]
 }

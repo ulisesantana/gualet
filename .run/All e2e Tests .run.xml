@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="All e2e Tests " type="JavaScriptTestRunnerPlaywright">
+    <config value="$PROJECT_DIR$/playwright.config.ts" />
+    <node-interpreter value="project" />
+    <playwright-package value="$PROJECT_DIR$/node_modules/@playwright/test" />
+    <working-dir value="$PROJECT_DIR$" />
+    <envs />
+    <scope-kind value="ALL" />
+    <method v="2" />
+  </configuration>
+</component>

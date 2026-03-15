@@ -1,0 +1,52 @@
+[alias]
+    # Shortcuts
+    co = checkout
+    br = branch
+    ci = commit
+    st = status
+    unstage = restore --staged
+
+    # Better commits
+    cm = commit -m
+    ca = commit --amend
+    cane = commit --amend --no-edit
+
+    # Better logs
+    lg = log --oneline --graph --decorate --all
+    lgg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    last = log -1 HEAD --stat
+    recent = log -10 --oneline --no-merges
+
+    # Cleanup
+    cleanup = "!git branch --merged | grep -v '\\*\\|main\\|develop' | xargs -n 1 git branch -d"
+    prune-branches = "!git fetch -p && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D"
+
+    # Undo operations
+    undo = reset --soft HEAD~1
+    undo-hard = reset --hard HEAD~1
+    uncommit = reset --soft HEAD~1
+
+    # Working with changes
+    discard = checkout --
+    save = stash save
+    pop = stash pop
+
+    # Information
+    aliases = "!git config -l | grep alias | cut -c 7-"
+    contributors = shortlog --summary --numbered --email
+
+    # Quick shortcuts
+    s = status -s
+    d = diff
+    dc = diff --cached
+    aa = add --all
+
+    # Branch operations
+    new = checkout -b
+    rename = branch -m
+    delete = branch -D
+
+    # Sync
+    sync = "!git fetch origin && git rebase origin/main"
+    update = "!git pull --rebase --prune $@ && git submodule update --init --recursive"
+

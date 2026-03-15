@@ -1,0 +1,55 @@
+.payment-method-card-container {
+  margin-bottom: 0.5rem;
+}
+
+.payment-method-card {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  transition: box-shadow 0.2s;
+}
+
+.payment-method-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.payment-method-card-icon {
+  font-size: 2rem;
+  text-align: center;
+}
+
+.payment-method-card-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.payment-method-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.payment-method-card-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s;
+}
+
+.payment-method-card-actions button:hover:not(:disabled) {
+  background-color: var(--hover-bg, rgba(0, 0, 0, 0.05));
+}
+
+.payment-method-card-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

@@ -1,0 +1,27 @@
+export const routes = {
+  categories: {
+    add: "/categories/add",
+    details: "/categories/details/:id",
+    list: "/categories",
+  },
+  login: "/login",
+  register: "/register",
+  paymentMethods: {
+    add: "/payment-methods/add",
+    details: "/payment-methods/details/:id",
+    list: "/payment-methods",
+  },
+  transactions: {
+    details: "/transactions/details/:id",
+  },
+  reports: "/reports",
+  home: "/",
+  settings: "/settings",
+};
+
+export function generatePath(
+  path: string,
+  params: { [key: string]: string | number },
+) {
+  return path.replace(/:(\w+)/g, (_, key) => params[key].toString());
+}

@@ -1,0 +1,19 @@
+.payment-methods-view {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.payment-methods-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+

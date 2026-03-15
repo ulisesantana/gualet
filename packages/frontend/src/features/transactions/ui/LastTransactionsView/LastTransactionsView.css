@@ -1,0 +1,8 @@
+.last-transactions-view {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 1rem;
+    width: 100%;
+}
