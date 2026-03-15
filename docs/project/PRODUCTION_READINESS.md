@@ -26,7 +26,7 @@ This document outlines the critical path to make Gualet production-ready. Based 
 
 ### ❌ Critical Gaps
 - **GDPR:** 0% implemented (mandatory for EU)
-- **CI/CD:** GitHub Actions workflows removed — not in use at this time (will be set up when deployment is planned)
+- **CI/CD:** Deferred — priority is launching a beta to validate the project; manual checks are sufficient for now
 - **Deployment:** No production configuration exists
 - **Security:** Missing headers, rate limiting, CORS config
 - **Monitoring:** No logging, error tracking, or alerts
@@ -265,27 +265,27 @@ curl -H "Origin: https://malicious.com" https://your-app.com/api/health
 ---
 
 ### **Phase 2: CI/CD Automation** (1 week, deferred)
-**Priority:** ⏸️ **Deferred** — GitHub Actions workflows removed, not in use at this time  
-**Note:** Will be set up from scratch when deployment infrastructure is ready.
+**Priority:** ⏸️ **Deferred** — not a current priority  
+**Reason:** The immediate goal is to **launch a beta and validate the project**. Investing in CI/CD automation makes sense once there is evidence of real usage and the deployment process stabilizes. For now, manual quality checks (`npm run typecheck`, `npm run lint`, `npm run test:backend`, `npm run test:frontend`) are sufficient.
+
+> GitHub Actions workflows have been removed from the repository. They will be created from scratch when automation becomes a bottleneck.
 
 #### What to implement when the time comes
 
-**Day 1-2: Continuous Integration**
-Create `.github/workflows/ci.yml` to run on every PR and push to `main`/`develop`:
+**Continuous Integration (`.github/workflows/ci.yml`)**  
+Run on every PR and push to `main`/`develop`:
 - Type checking (`npm run typecheck`)
 - Linting (`npm run lint`)
 - Backend tests with coverage (`npm run test:backend:cov`)
 - Frontend tests with coverage (`npm run test:frontend:cov`)
 
-**Day 3-4: E2E Tests in CI**
-Create `.github/workflows/e2e.yml`:
+**E2E Tests in CI (`.github/workflows/e2e.yml`)**:
 - Spin up test database with Docker Compose
 - Install Playwright with `npx playwright install --with-deps chromium`
 - Run `npm run test:e2e`
 - Upload `playwright-report/` as artifact on failure
 
-**Day 5: Deployment Workflow**
-Create `.github/workflows/deploy.yml`:
+**Deployment Workflow (`.github/workflows/deploy.yml`)**:
 - Run on push to `main`
 - Type check and build
 - Build Docker image tagged with commit SHA

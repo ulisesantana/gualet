@@ -18,7 +18,7 @@
 - GDPR compliance is mandatory for EU deployment (legal requirement)
 - Security hardening prevents vulnerabilities in production
 - Without production infrastructure, offline-first has nowhere to deploy
-- CI/CD automation will be set up when deployment is planned
+- CI/CD automation is deferred: the priority is **launching a beta to validate the project** before optimizing the deployment process
 
 ---
 
@@ -46,12 +46,19 @@
 
 **Legal Requirement:** Mandatory for EU deployment. Penalties up to €20M or 4% of revenue.
 
-#### 2. CI/CD Pipeline (Not in Use) ⏸️
+#### 2. CI/CD Pipeline (Deferred) ⏸️
 **Estimated Time:** 1 week (when needed)
 
-GitHub Actions workflows have been **removed** — CI/CD is not being used at this time.
+GitHub Actions workflows have been **removed**. CI/CD automation is not a priority right now — the goal is to **launch a beta and validate the project** first. Manual quality checks are sufficient for this stage:
 
-**To set up in the future:**
+```bash
+npm run typecheck
+npm run lint
+npm run test:backend
+npm run test:frontend
+```
+
+**To set up in the future (once beta is live and deployment stabilises):**
 - Automated tests on PRs (backend, frontend, e2e)
 - Type checking in CI
 - Linting automation

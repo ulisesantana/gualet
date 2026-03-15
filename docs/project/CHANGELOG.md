@@ -4,19 +4,19 @@
 
 ### 📋 Executive Summary
 
-- 🗑️ **GitHub Actions workflows removed** — CI/CD is not being used at this time. Workflows will be created from scratch when deployment infrastructure is planned.
+- 🗑️ **GitHub Actions workflows removed** — CI/CD is deferred in favour of launching a beta to validate the project first. Manual quality checks (`typecheck`, `lint`, `test`) are sufficient at this stage. Workflows will be created from scratch once the beta is live and deployment becomes routine.
 
 ### 🔧 Maintenance
 
 #### Removed
-- Deleted `.github/workflows/` directory — GitHub Actions are not needed at this stage of the project.
+- Deleted `.github/workflows/` directory — CI/CD automation is not a bottleneck at this stage; priority is beta launch and project validation.
 
 #### Documentation Updated
-- `README.md` — updated production blockers section
-- `docs/project/STATUS.md` — CI/CD section reclassified as deferred (⏸️)
-- `docs/project/ACTION_PLAN.md` — removed obsolete quick win; CI/CD gap updated
-- `docs/project/PRODUCTION_READINESS.md` — Phase 2 reclassified as deferred; YAML examples preserved as reference
-- `docs/project/EXECUTIVE_SUMMARY.md` — updated missing items and recommended phases
+- `README.md` — updated production blockers section with beta-first rationale
+- `docs/project/STATUS.md` — CI/CD section reclassified as deferred (⏸️) with explanation
+- `docs/project/ACTION_PLAN.md` — CI/CD gap updated; rationale clarified
+- `docs/project/PRODUCTION_READINESS.md` — Phase 2 reclassified as deferred with beta-first explanation
+- `docs/project/EXECUTIVE_SUMMARY.md` — updated recommended phases and path forward
 
 ---
 

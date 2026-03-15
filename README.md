@@ -51,14 +51,14 @@ npm run dev
 - ✅ **i18n:** Complete Spanish/English translation system implemented
 - ❌ **Offline-First:** NOT implemented yet (RxDB + Sync pending)
 - ❌ **Production Ready:** Critical gaps in GDPR, deployment configuration, and security hardening
-- ⏸️ **CI/CD:** GitHub Actions workflows removed — not in use at this time
+- ⏸️ **CI/CD:** Deferred — priority is launching a beta to validate the project; manual checks are sufficient for now
 
 ### ⚠️ Production Blockers
 Before deploying to production, the following **MUST** be addressed:
 - 🔴 **GDPR Compliance:** 0% implemented (Privacy Policy, Terms, Data Export, Account Deletion)
 - 🔴 **Security:** Missing security headers, rate limiting, production CORS configuration
 - 🔴 **Deployment:** No production infrastructure configured
-- ⏸️ **CI/CD Pipeline:** GitHub Actions workflows removed. Will be set up when needed.
+- ⏸️ **CI/CD Pipeline:** Deferred — launching a beta takes priority over automating the deployment process
 
 **See [PRODUCTION_READINESS.md](./docs/project/PRODUCTION_READINESS.md) for detailed roadmap (6-8 weeks to production)**
 

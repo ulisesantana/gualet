@@ -379,17 +379,21 @@ Despite having comprehensive documentation, **NO GDPR functionality is implement
 **Estimated Time:** 2-3 weeks  
 **See:** [GDPR_CHECKLIST.md](../compliance/GDPR_CHECKLIST.md)
 
-#### 2. **CI/CD Pipeline (Not in Use)** ⏸️
-GitHub Actions workflows have been **removed** — CI/CD is not being used at this time.
+#### 2. **CI/CD Pipeline (Deferred)** ⏸️
+GitHub Actions workflows have been **removed**. CI/CD automation is not a priority at this stage — the goal is to **launch a beta and validate the project** before optimising the deployment process. Manual quality checks are sufficient for now:
 
-**To set up in the future:**
+```bash
+npm run typecheck && npm run lint && npm run test:backend && npm run test:frontend
+```
+
+**To set up in the future (once beta is live):**
 - [ ] **Automated Tests** - Run on PRs (backend, frontend, e2e)
 - [ ] **Type Checking** - Enforce in CI
 - [ ] **Linting** - Automated checks
 - [ ] **Build Verification** - Docker build pipeline
 - [ ] **Deployment Automation** - Configured for production
 
-**Priority:** ⏸️ **Deferred** — will be created when deployment is planned  
+**Priority:** ⏸️ **Deferred** — will be created once the beta is stable and deployment is routine  
 **Estimated Time:** 1 week (when needed)
 
 #### 3. **Production Deployment (Not Configured)** 🚨
@@ -688,9 +692,9 @@ The original plan was to implement offline-first next, but a comprehensive audit
 - Security scan shows no critical vulnerabilities
 
 #### 0.2 CI/CD Pipeline Setup (1 week, when needed)
-**Priority:** ⏸️ **Deferred** — GitHub Actions workflows removed, not in use at this time
+**Priority:** ⏸️ **Deferred** — the goal is to launch a beta and validate the project first; manual checks are sufficient at this stage
 
-**Tasks (future):**
+**Tasks (future, once beta is live and deployment stabilises):**
 1. **Day 1-2: GitHub Actions Workflows**
    - [ ] Create `.github/workflows/ci.yml` - Run on all PRs
    - [ ] Add backend tests job

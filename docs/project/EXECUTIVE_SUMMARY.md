@@ -17,7 +17,7 @@
 
 ### What's Missing ❌
 - **GDPR Compliance:** 0% implemented (critical for EU deployment)
-- **CI/CD Pipeline:** GitHub Actions workflows removed — not in use at this time
+- **CI/CD Pipeline:** Deferred — priority is launching a beta to validate the project; workflows removed, manual checks sufficient for now
 - **Production Infrastructure:** No deployment setup exists
 - **Security Hardening:** Missing headers, rate limiting, CORS configuration
 - **Offline-First:** Not yet implemented (original main goal)
@@ -49,11 +49,11 @@ Despite excellent code quality and comprehensive testing, the project lacks esse
 - **Why:** Legal requirement for EU deployment
 - **Risk if skipped:** €20M fine or 4% of revenue
 
-**Phase 2: CI/CD Automation (1 week, when deployment is planned)**
+**Phase 2: CI/CD Automation (1 week, deferred)**
 - Create GitHub Actions workflows from scratch
 - Add automated testing on PRs
 - Configure deployment pipeline
-- **Why:** Quality assurance and deployment reliability
+- **Why deferred:** Priority is launching a beta to validate the project. Once there is real usage and the deployment process stabilises, CI/CD automation pays off. Manual checks (`typecheck`, `lint`, `test`) are sufficient for now.
 
 **Phase 3: Production Infrastructure (2 weeks)**
 - Provision server (Hetzner EU recommended)
@@ -146,33 +146,26 @@ Start immediately with legal requirements:
 
 **Milestone:** GDPR compliant, can legally operate in EU
 
-### Week 4: CI/CD Automation
-- Create GitHub Actions workflows
-- Configure automated testing
-- Set up deployment pipeline
-
-**Milestone:** Automated quality checks, reliable deployments
-
-### Week 5-6: Production Infrastructure
+### Week 4: Production Infrastructure
 - Provision server and database
 - Configure SSL/HTTPS and domain
 - Set up monitoring
 
-**Milestone:** Production environment ready
+**Milestone:** Production environment ready for beta
 
-### Week 7: Monitoring & QA
-- Implement logging and error tracking
-- Complete test coverage
-- Final security audit
-
-**Milestone:** Production ready, monitoring active
-
-### Week 8: Launch MVP 🚀
-- Deploy to production
-- Gather user feedback
+### Week 5: Beta Launch 🚀
+- Deploy beta to production
+- Gather real user feedback
 - Monitor performance and errors
 
-**Milestone:** Live production application
+**Milestone:** Beta live, project validation begins
+
+### Week 6-7: CI/CD Automation *(once beta is stable)*
+- Create GitHub Actions workflows
+- Configure automated testing
+- Set up deployment pipeline
+
+**Milestone:** Automated quality checks; deployments no longer manual
 
 ### Week 9-12: Offline-First (Phase 2)
 After successful MVP launch:
@@ -186,15 +179,15 @@ After successful MVP launch:
 
 ## 🚀 Success Criteria
 
-### Production Readiness (End of Week 7)
+### Production Readiness (Beta Launch)
 - [ ] All GDPR requirements implemented
-- [ ] CI/CD pipeline working
 - [ ] Production server running with HTTPS
 - [ ] Automated backups configured
 - [ ] Monitoring and logging active
 - [ ] All tests passing (>90% coverage)
 - [ ] Security audit complete
 - [ ] Deployment documented
+- [ ] CI/CD pipeline *(deferred — set up once beta is stable)*
 
 ### MVP Launch (Week 8)
 - [ ] Application accessible at production URL
