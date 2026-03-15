@@ -1,6 +1,6 @@
 # Gualet - Action Plan: Path to Production & Offline-First
 
-**Updated:** March 3, 2026  
+**Updated:** March 15, 2026  
 **Current Status:** Development Complete, Production Preparation Required  
 **Timeline:** 6-8 weeks to Production Ready, then 3-4 weeks for Offline-First
 
@@ -16,9 +16,9 @@
 
 **Rationale:**
 - GDPR compliance is mandatory for EU deployment (legal requirement)
-- CI/CD automation ensures code quality and deployment reliability
 - Security hardening prevents vulnerabilities in production
 - Without production infrastructure, offline-first has nowhere to deploy
+- CI/CD automation will be set up when deployment is planned
 
 ---
 
@@ -46,16 +46,12 @@
 
 **Legal Requirement:** Mandatory for EU deployment. Penalties up to €20M or 4% of revenue.
 
-#### 2. CI/CD Pipeline (Obsolete) 🚨
-**Estimated Time:** 1 week
+#### 2. CI/CD Pipeline (Not in Use) ⏸️
+**Estimated Time:** 1 week (when needed)
 
-**Current Issues:**
-```yaml
-# .github/workflows/deploy-github-pages.yml contains:
-VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}  # ❌ DEPRECATED
-```
+GitHub Actions workflows have been **removed** — CI/CD is not being used at this time.
 
-**Missing:**
+**To set up in the future:**
 - Automated tests on PRs (backend, frontend, e2e)
 - Type checking in CI
 - Linting automation
@@ -88,11 +84,7 @@ VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}  # ❌ DEPRE
 
 While planning the full production readiness implementation, the following quick wins have been addressed:
 
-1. **Fix GitHub Actions Workflow** (2-3 hours)
-   - [ ] Remove Supabase references
-   - [ ] Add basic test jobs
-
-2. **Enable Skipped E2E Tests** (1 week)
+1. **Enable Skipped E2E Tests** (1 week)
    - [ ] payment-methods.spec.ts (10 tests)
    - [ ] network-errors.spec.ts (9 tests)
    - [ ] 2 individual transaction tests

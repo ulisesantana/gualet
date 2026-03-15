@@ -50,14 +50,15 @@ npm run dev
   - Note: 21 tests skipped (payment-methods and network-errors suites pending implementation)
 - ✅ **i18n:** Complete Spanish/English translation system implemented
 - ❌ **Offline-First:** NOT implemented yet (RxDB + Sync pending)
-- ❌ **Production Ready:** Critical gaps in GDPR, CI/CD, and deployment configuration
+- ❌ **Production Ready:** Critical gaps in GDPR, deployment configuration, and security hardening
+- ⏸️ **CI/CD:** GitHub Actions workflows removed — not in use at this time
 
 ### ⚠️ Production Blockers
 Before deploying to production, the following **MUST** be addressed:
 - 🔴 **GDPR Compliance:** 0% implemented (Privacy Policy, Terms, Data Export, Account Deletion)
-- 🔴 **CI/CD Pipeline:** Current workflow is obsolete (uses deprecated Supabase references)
 - 🔴 **Security:** Missing security headers, rate limiting, production CORS configuration
 - 🔴 **Deployment:** No production infrastructure configured
+- ⏸️ **CI/CD Pipeline:** GitHub Actions workflows removed. Will be set up when needed.
 
 **See [PRODUCTION_READINESS.md](./docs/project/PRODUCTION_READINESS.md) for detailed roadmap (6-8 weeks to production)**
 

@@ -1,5 +1,25 @@
 # Changelog - Gualet Project
 
+## [Unreleased] - March 15, 2026
+
+### 📋 Executive Summary
+
+- 🗑️ **GitHub Actions workflows removed** — CI/CD is not being used at this time. Workflows will be created from scratch when deployment infrastructure is planned.
+
+### 🔧 Maintenance
+
+#### Removed
+- Deleted `.github/workflows/` directory — GitHub Actions are not needed at this stage of the project.
+
+#### Documentation Updated
+- `README.md` — updated production blockers section
+- `docs/project/STATUS.md` — CI/CD section reclassified as deferred (⏸️)
+- `docs/project/ACTION_PLAN.md` — removed obsolete quick win; CI/CD gap updated
+- `docs/project/PRODUCTION_READINESS.md` — Phase 2 reclassified as deferred; YAML examples preserved as reference
+- `docs/project/EXECUTIVE_SUMMARY.md` — updated missing items and recommended phases
+
+---
+
 ## [Unreleased] - March 3, 2026
 
 ### 📋 Executive Summary
@@ -344,7 +364,7 @@ Added to `database-manager.ts` for E2E tests:
 This release includes **comprehensive project audit and production readiness planning**:
 - 🚨 **Production Readiness Assessment** - Identified critical gaps preventing deployment
 - 📝 **New Documentation** - Created PRODUCTION_READINESS.md with 6-8 week roadmap
-- 🔄 **Updated Priorities** - GDPR compliance and CI/CD now take precedence over offline-first
+- 🔄 **Updated Priorities** - GDPR compliance now takes precedence over offline-first
 - ✅ **Action Plan Revised** - Clear phased approach to production deployment
 
 **Key Finding:** While the application has excellent code quality (99.62% backend coverage, 100% E2E tests passing), it has **critical production blockers** that must be addressed before any deployment.
@@ -359,9 +379,8 @@ This release includes **comprehensive project audit and production readiness pla
 
 **1. Production Readiness Assessment**
 - **Comprehensive Audit:** Analyzed entire codebase, documentation, and infrastructure
-- **Identified 4 Critical Blockers:**
+- **Identified 3 Critical Blockers:**
   - GDPR Compliance: 0% implemented (mandatory for EU)
-  - CI/CD Pipeline: Obsolete workflow with Supabase references
   - Production Infrastructure: No deployment configuration exists
   - Security Hardening: Missing headers, rate limiting, CORS
 

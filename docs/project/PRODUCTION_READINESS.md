@@ -10,7 +10,7 @@
 
 This document outlines the critical path to make Gualet production-ready. Based on a comprehensive audit (February 2026), the application has **critical blockers** that must be addressed before deployment.
 
-**Key Finding:** While the application has excellent code quality and test coverage, it lacks essential production requirements like GDPR compliance, CI/CD automation, and deployment infrastructure.
+**Key Finding:** While the application has excellent code quality and test coverage, it lacks essential production requirements like GDPR compliance and deployment infrastructure.
 
 ---
 
@@ -26,7 +26,7 @@ This document outlines the critical path to make Gualet production-ready. Based 
 
 ### ❌ Critical Gaps
 - **GDPR:** 0% implemented (mandatory for EU)
-- **CI/CD:** Obsolete workflow with Supabase references
+- **CI/CD:** GitHub Actions workflows removed — not in use at this time (will be set up when deployment is planned)
 - **Deployment:** No production configuration exists
 - **Security:** Missing headers, rate limiting, CORS config
 - **Monitoring:** No logging, error tracking, or alerts
@@ -264,191 +264,42 @@ curl -H "Origin: https://malicious.com" https://your-app.com/api/health
 
 ---
 
-### **Phase 2: CI/CD Automation** (1 week)
-**Priority:** 🔴 **CRITICAL**  
-**Blocker:** Quality assurance and deployment automation
+### **Phase 2: CI/CD Automation** (1 week, deferred)
+**Priority:** ⏸️ **Deferred** — GitHub Actions workflows removed, not in use at this time  
+**Note:** Will be set up from scratch when deployment infrastructure is ready.
 
-#### Day 1-2: Continuous Integration
-**Estimated Hours:** 16 hours
+#### What to implement when the time comes
 
-**Create `.github/workflows/ci.yml`:**
-```yaml
-name: Continuous Integration
+**Day 1-2: Continuous Integration**
+Create `.github/workflows/ci.yml` to run on every PR and push to `main`/`develop`:
+- Type checking (`npm run typecheck`)
+- Linting (`npm run lint`)
+- Backend tests with coverage (`npm run test:backend:cov`)
+- Frontend tests with coverage (`npm run test:frontend:cov`)
 
-on:
-  pull_request:
-    branches: [main, develop]
-  push:
-    branches: [main, develop]
+**Day 3-4: E2E Tests in CI**
+Create `.github/workflows/e2e.yml`:
+- Spin up test database with Docker Compose
+- Install Playwright with `npx playwright install --with-deps chromium`
+- Run `npm run test:e2e`
+- Upload `playwright-report/` as artifact on failure
 
-jobs:
-  type-check:
-    name: Type Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - run: npm ci
-      - run: npm run typecheck
+**Day 5: Deployment Workflow**
+Create `.github/workflows/deploy.yml`:
+- Run on push to `main`
+- Type check and build
+- Build Docker image tagged with commit SHA
+- Deploy to production server
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - run: npm ci
-      - run: npm run lint --if-present
+**Estimated Time:** 1 week  
+**Estimated Hours:** 40 hours
 
-  test-backend:
-    name: Backend Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - run: npm ci
-      - run: npm run test:backend:cov
-      - uses: codecov/codecov-action@v3
-        with:
-          files: ./packages/backend/coverage/lcov.info
-          flags: backend
-
-  test-frontend:
-    name: Frontend Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - run: npm ci
-      - run: npm run test:frontend:cov
-      - uses: codecov/codecov-action@v3
-        with:
-          files: ./packages/frontend/coverage/lcov.info
-          flags: frontend
-```
-
-#### Day 3-4: E2E Tests in CI
-**Estimated Hours:** 16 hours
-
-**Create `.github/workflows/e2e.yml`:**
-```yaml
-name: E2E Tests
-
-on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
-
-jobs:
-  e2e:
-    name: Playwright E2E Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Start test database
-        run: |
-          cd packages/e2e
-          docker-compose -f docker-compose.test.yaml up -d
-          sleep 10
-      
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-      
-      - name: Run E2E tests
-        run: npm run test:e2e
-        env:
-          CI: true
-      
-      - name: Upload test results
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
-      
-      - name: Cleanup
-        if: always()
-        run: |
-          cd packages/e2e
-          docker-compose -f docker-compose.test.yaml down
-```
-
-#### Day 5: Update Deployment Workflow
-**Estimated Hours:** 8 hours
-
-**Update `.github/workflows/deploy-github-pages.yml`:**
-```yaml
-name: Deploy to Production
-
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Type check
-        run: npm run typecheck
-      
-      - name: Build application
-        run: npm run build
-        env:
-          NODE_ENV: production
-      
-      - name: Build Docker image
-        run: docker build -t gualet:${{ github.sha }} .
-      
-      - name: Deploy to server
-        # Add your deployment logic here
-        run: echo "Deploy to production server"
-```
-
-**Validation:**
-```bash
-# Test CI locally with act (optional)
-act pull_request
-
-# Push to GitHub and verify
-git push origin feature/ci-cd
-# Check GitHub Actions tab for green checkmarks
-```
-
-**Deliverables:**
+**Deliverables (future):**
 - ✅ CI runs on every PR
 - ✅ Type checking automated
-- ✅ Backend tests in CI (99.62% coverage enforced)
-- ✅ Frontend tests in CI
+- ✅ Backend and frontend tests in CI
 - ✅ E2E tests in CI
-- ✅ Deployment workflow updated
+- ✅ Deployment workflow active
 
 ---
 
@@ -915,7 +766,7 @@ export const Income: Story = {
 | Phase | Duration | Effort | Priority |
 |-------|----------|--------|----------|
 | Phase 1: GDPR Compliance | 2-3 weeks | 110 hours | 🔴 Critical |
-| Phase 2: CI/CD Automation | 1 week | 40 hours | 🔴 Critical |
+| Phase 2: CI/CD Automation | 1 week | 40 hours | ⏸️ Deferred |
 | Phase 3: Production Infrastructure | 2 weeks | 80 hours | 🔴 Critical |
 | Phase 4: Monitoring & Observability | 1 week | 40 hours | 🟡 High |
 | Phase 5: Quality Assurance | 1-2 weeks | 40-80 hours | 🟡 High |
@@ -970,7 +821,7 @@ Use this checklist before deploying to production:
 - [ ] Performance optimized
 
 ### Operations
-- [ ] CI/CD pipeline working
+- [ ] CI/CD pipeline set up (deferred — will be created when deployment is planned)
 - [ ] Deployment documented
 - [ ] Rollback procedure tested
 - [ ] Incident response plan created
@@ -1004,7 +855,7 @@ Use this checklist before deploying to production:
 
 **Recommended Approach:**
 - Start with Phase 1 (GDPR) - non-negotiable for EU
-- Parallel work on Phase 2 (CI/CD) if resources allow
+- Phase 2 (CI/CD) is deferred — workflows removed; will be set up when deployment is planned
 - Phase 3 (Infrastructure) depends on deployment timeline
 - Phases 4-5 can be done incrementally
 
@@ -1017,6 +868,6 @@ Use this checklist before deploying to production:
 
 ---
 
-**Last Updated:** February 13, 2026  
+**Last Updated:** March 15, 2026  
 **Next Review:** After Phase 1 completion  
 **Owner:** Development Team

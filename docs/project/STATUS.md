@@ -1,6 +1,6 @@
 # Gualet - Project Status and Roadmap
 
-**Date:** March 3, 2026  
+**Date:** March 15, 2026  
 **Application:** Personal finance management  
 **Status:** 🟡 **Development Phase - Not Production Ready**
 
@@ -15,7 +15,7 @@ Gualet is a personal finance web application that has **successfully migrated fr
 **Next Milestone:** GDPR Compliance & Production Deployment Setup  
 **After That:** Offline-First Implementation with RxDB
 
-⚠️ **Production Readiness:** The application is **NOT ready for production deployment** - critical GDPR requirements, CI/CD pipeline, and security configurations are missing.
+⚠️ **Production Readiness:** The application is **NOT ready for production deployment** - critical GDPR requirements, security configurations, and deployment infrastructure are missing.
 
 **Features:**
 - 🎭 **Demo Account:** Fully functional in-memory demo with auto-reset every 30 minutes (backend + frontend integrated)
@@ -379,29 +379,18 @@ Despite having comprehensive documentation, **NO GDPR functionality is implement
 **Estimated Time:** 2-3 weeks  
 **See:** [GDPR_CHECKLIST.md](../compliance/GDPR_CHECKLIST.md)
 
-#### 2. **CI/CD Pipeline (Obsolete)** 🚨
-Current GitHub Actions workflow is **broken and outdated**:
+#### 2. **CI/CD Pipeline (Not in Use)** ⏸️
+GitHub Actions workflows have been **removed** — CI/CD is not being used at this time.
 
-**Issues:**
-```yaml
-# .github/workflows/deploy-github-pages.yml
-VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}  # ❌ DEPRECATED
-VITE_SUPABASE_API_KEY: ${{ secrets.VITE_SUPABASE_API_KEY }}          # ❌ DEPRECATED
-```
+**To set up in the future:**
+- [ ] **Automated Tests** - Run on PRs (backend, frontend, e2e)
+- [ ] **Type Checking** - Enforce in CI
+- [ ] **Linting** - Automated checks
+- [ ] **Build Verification** - Docker build pipeline
+- [ ] **Deployment Automation** - Configured for production
 
-**Missing:**
-- [ ] **Automated Tests** - No CI runs on PRs
-- [ ] **Backend Tests in CI** - Not running
-- [ ] **Frontend Tests in CI** - Not running  
-- [ ] **E2E Tests in CI** - Not configured
-- [ ] **Type Checking** - Not in pipeline
-- [ ] **Linting** - Not automated
-- [ ] **Build Verification** - Deploy workflow is for static pages only
-- [ ] **Docker Build** - Not in CI
-- [ ] **Environment Variables** - No secrets configured for NestJS backend
-
-**Priority:** 🔴 **CRITICAL**  
-**Estimated Time:** 1 week  
+**Priority:** ⏸️ **Deferred** — will be created when deployment is planned  
+**Estimated Time:** 1 week (when needed)
 
 #### 3. **Production Deployment (Not Configured)** 🚨
 
@@ -698,17 +687,16 @@ The original plan was to implement offline-first next, but a comprehensive audit
 - Legal review passed (if required)
 - Security scan shows no critical vulnerabilities
 
-#### 0.2 CI/CD Pipeline Setup (1 week)
-**Priority:** 🔴 **CRITICAL** - Quality assurance automation
+#### 0.2 CI/CD Pipeline Setup (1 week, when needed)
+**Priority:** ⏸️ **Deferred** — GitHub Actions workflows removed, not in use at this time
 
-**Tasks:**
+**Tasks (future):**
 1. **Day 1-2: GitHub Actions Workflows**
    - [ ] Create `.github/workflows/ci.yml` - Run on all PRs
    - [ ] Add backend tests job
    - [ ] Add frontend tests job
    - [ ] Add type checking job
    - [ ] Add linting job
-   - [ ] Remove obsolete Supabase references from existing workflow
 
 2. **Day 3-4: E2E Tests in CI**
    - [ ] Create `.github/workflows/e2e.yml`
@@ -717,7 +705,7 @@ The original plan was to implement offline-first next, but a comprehensive audit
    - [ ] Add E2E test job with proper setup/teardown
 
 3. **Day 5: Deployment Automation**
-   - [ ] Update deployment workflow for NestJS + React
+   - [ ] Configure deployment workflow for NestJS + React
    - [ ] Configure production environment secrets
    - [ ] Add Docker build and push steps
    - [ ] Document deployment process

@@ -17,7 +17,7 @@
 
 ### What's Missing ❌
 - **GDPR Compliance:** 0% implemented (critical for EU deployment)
-- **CI/CD Pipeline:** Obsolete workflow with deprecated references
+- **CI/CD Pipeline:** GitHub Actions workflows removed — not in use at this time
 - **Production Infrastructure:** No deployment setup exists
 - **Security Hardening:** Missing headers, rate limiting, CORS configuration
 - **Offline-First:** Not yet implemented (original main goal)
@@ -32,7 +32,6 @@ Despite excellent code quality and comprehensive testing, the project lacks esse
 - Legal compliance (GDPR)
 - Deployment infrastructure
 - Security hardening
-- Continuous integration/deployment
 
 **Estimated Time to Production Ready:** 6-8 weeks full-time
 
@@ -50,8 +49,8 @@ Despite excellent code quality and comprehensive testing, the project lacks esse
 - **Why:** Legal requirement for EU deployment
 - **Risk if skipped:** €20M fine or 4% of revenue
 
-**Phase 2: CI/CD Automation (1 week)**
-- Fix obsolete GitHub Actions workflow
+**Phase 2: CI/CD Automation (1 week, when deployment is planned)**
+- Create GitHub Actions workflows from scratch
 - Add automated testing on PRs
 - Configure deployment pipeline
 - **Why:** Quality assurance and deployment reliability
@@ -148,7 +147,7 @@ Start immediately with legal requirements:
 **Milestone:** GDPR compliant, can legally operate in EU
 
 ### Week 4: CI/CD Automation
-- Update GitHub Actions workflows
+- Create GitHub Actions workflows
 - Configure automated testing
 - Set up deployment pipeline
 
