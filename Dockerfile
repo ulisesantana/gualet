@@ -23,8 +23,12 @@ RUN npm run build -w @gualet/shared \
  && npm run build -w @gualet/frontend \
  && cp -r ./packages/frontend/dist ./packages/backend/dist/public
 
+# Entrypoint script
+COPY scripts/docker-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Expose port
 EXPOSE 5050
 
-# Run the application
-CMD ["node", "packages/backend/dist/main"]
+# Run migrations then start the application
+ENTRYPOINT ["/entrypoint.sh"]

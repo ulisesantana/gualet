@@ -30,6 +30,10 @@ export const AppDataSource = new DataSource({
     PaymentMethodEntity,
     TransactionEntity,
   ],
-  migrations: ['src/migrations/*.ts'],
+  migrations: [
+    process.env.NODE_ENV === 'production'
+      ? `${__dirname}/../migrations/*.js`
+      : 'src/migrations/*.ts',
+  ],
   synchronize: process.env.NODE_ENV === 'development',
 });
