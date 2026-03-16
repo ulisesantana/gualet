@@ -6,7 +6,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { resolve } from 'node:path';
 import { AuthController, AuthModule, AuthService } from '@src/auth';
-import { UserModule, UserService, DemoDataResetService } from '@src/users';
+import { DemoDataResetService, UserModule, UserService } from '@src/users';
 import {
   CategoriesController,
   CategoriesModule,
@@ -75,7 +75,7 @@ import { DatabaseSeederService } from '@src/db/database-seeder.service';
       useFactory: () => [
         {
           rootPath: resolve(__dirname, '../public'),
-          exclude: ['/api/*'],
+          exclude: ['/api/(.*)'],
           serveRoot: '/',
         },
       ],
