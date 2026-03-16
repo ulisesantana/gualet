@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:15
+    container_name: gualet_beta_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ${POSTGRES_DATA_PATH:-postgres_beta_data}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gualet_beta_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gualet_beta_app
+    container_name: gualet_beta_app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-5050}:5050"
+    environment:
+      NODE_ENV: production
+      PORT: 5050
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      ENABLE_REGISTRATION: ${ENABLE_REGISTRATION:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - gualet_beta_network
+
+volumes:
+  postgres_beta_data:
+
+networks:
+  gualet_beta_network:
+    driver: bridge
+
