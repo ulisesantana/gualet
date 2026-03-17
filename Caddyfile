@@ -5,10 +5,10 @@
 # }
 
 # Option B: Local network / IP access (self-signed certificate)
-# Caddy will generate a self-signed cert automatically.
+# Caddy will generate a self-signed cert for this address.
 # Accept the browser warning on first visit.
-:443 {
+# Replace with your server IP or use :443 for any address.
+https://{$SITE_ADDRESS::443} {
   tls internal
   reverse_proxy app:5050
 }
-
