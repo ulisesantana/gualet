@@ -1,0 +1,14 @@
+# Option A: Public domain (Let's Encrypt automatic HTTPS)
+# Replace with your domain:
+# gualet.yourdomain.com {
+#   reverse_proxy app:5050
+# }
+
+# Option B: Local network / IP access (self-signed certificate)
+# Caddy will generate a self-signed cert automatically.
+# Accept the browser warning on first visit.
+:443 {
+  tls internal
+  reverse_proxy app:5050
+}
+
