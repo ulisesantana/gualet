@@ -74,7 +74,7 @@ import { DatabaseSeederService } from '@src/db/database-seeder.service';
     ServeStaticModule.forRootAsync({
       useFactory: () => [
         {
-          rootPath: resolve(__dirname, '../public'),
+          rootPath: resolve(__dirname, 'public'),
           exclude: ['/api/(.*)'],
           serveRoot: '/',
         },
