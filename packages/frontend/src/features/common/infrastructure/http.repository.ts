@@ -20,12 +20,21 @@ export abstract class HttpRepository {
           };
     } catch (error: any) {
       console.error("HTTP Repository Command Error:", error);
+      const status = error?.response?.status;
+      const message =
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "An unknown error occurred";
+      const prefix = status
+        ? `[HTTP ${status}]`
+        : error?.code
+          ? `[${error.code}]`
+          : "[ERROR]";
       return {
         success: false,
-        error:
-          error?.response?.data?.error?.message ||
-          error?.response?.data?.error ||
-          "An unknown error occurred",
+        error: `${prefix} ${message}`,
       };
     }
   }
