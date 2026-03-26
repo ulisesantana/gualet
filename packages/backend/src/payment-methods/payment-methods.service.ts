@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PaymentMethodsRepositoryFactory } from './payment-methods.repository.factory';
 import {
   generateDefaultPaymentMethods,
@@ -23,6 +23,8 @@ export interface PaymentMethodToCreate {
 
 @Injectable()
 export class PaymentMethodsService {
+  private readonly logger = new Logger(PaymentMethodsService.name);
+
   constructor(
     private readonly repositoryFactory: PaymentMethodsRepositoryFactory,
   ) {}
@@ -64,7 +66,10 @@ export class PaymentMethodsService {
       if (res.status === 'fulfilled') {
         return acc.concat(res.value);
       } else {
-        console.error('Failed to create default category:', res.reason);
+        this.logger.error(
+          'Failed to create default payment method:',
+          res.reason,
+        );
       }
       return acc;
     }, []);

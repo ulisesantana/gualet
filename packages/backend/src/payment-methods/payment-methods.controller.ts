@@ -6,6 +6,7 @@ import {
   ForbiddenException,
   Get,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   Param,
   Patch,
@@ -40,6 +41,8 @@ import { Response } from 'express';
 @ApiBearerAuth()
 @Controller('me/payment-methods')
 export class PaymentMethodsController extends SecureController {
+  private readonly logger = new Logger(PaymentMethodsController.name);
+
   constructor(private readonly paymentMethodsService: PaymentMethodsService) {
     super();
   }
@@ -105,7 +108,10 @@ export class PaymentMethodsController extends SecureController {
       );
       res.status(200).send(new PaymentMethodResponseDto(pm));
     } catch (error) {
-      console.error(`Error fetching payment method ${id.toString()}:`, error);
+      this.logger.error(
+        `Error fetching payment method ${id.toString()}:`,
+        error,
+      );
       this.handlePaymentMethodsError(res, error);
     }
   }
@@ -136,7 +142,7 @@ export class PaymentMethodsController extends SecureController {
       );
       res.status(200).send(new PaymentMethodResponseDto(pm));
     } catch (error) {
-      console.error(`Error saving payment method ${id.toString()}:`, error);
+      this.logger.error(`Error saving payment method ${id.toString()}:`, error);
       this.handlePaymentMethodsError(res, error);
     }
   }
@@ -180,7 +186,10 @@ export class PaymentMethodsController extends SecureController {
       );
       res.status(200).send(new SuccessResponse(null));
     } catch (error) {
-      console.error(`Error deleting payment method ${id.toString()}:`, error);
+      this.logger.error(
+        `Error deleting payment method ${id.toString()}:`,
+        error,
+      );
       this.handlePaymentMethodsError(res, error);
     }
   }

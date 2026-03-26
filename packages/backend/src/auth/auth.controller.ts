@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   Post,
   Req,
@@ -32,6 +33,7 @@ import {
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController extends BaseController {
+  private readonly logger = new Logger(AuthController.name);
   private readonly accessToken = 'access_token';
 
   constructor(
@@ -162,6 +164,7 @@ export class AuthController extends BaseController {
   }
 
   private handleAuthError(res: Response, error: any) {
+    this.logger.error('Authentication error:', error);
     if (this.isBaseError(error)) {
       switch (error.code) {
         case UserErrorCodes.UserNotFound: {

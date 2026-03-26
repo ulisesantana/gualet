@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CategoriesRepositoryFactory } from './categories.repository.factory';
 import {
   Category,
@@ -24,6 +24,8 @@ interface CategoryToCreate {
 
 @Injectable()
 export class CategoriesService {
+  private readonly logger = new Logger(CategoriesService.name);
+
   constructor(
     private readonly repositoryFactory: CategoriesRepositoryFactory,
   ) {}
@@ -73,7 +75,7 @@ export class CategoriesService {
       if (res.status === 'fulfilled') {
         return acc.concat(res.value);
       } else {
-        console.error('Failed to create default category:', res.reason);
+        this.logger.error('Failed to create default category:', res.reason);
       }
       return acc;
     }, []);

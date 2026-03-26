@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Put, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Put, Req, Res } from '@nestjs/common';
 import { UserPreferencesService } from './user-preferences.service';
 import { Id } from '@gualet/shared';
 import {
@@ -33,6 +33,8 @@ interface UserPreferencesResponse {
 @ApiBearerAuth()
 @Controller('me/preferences')
 export class UserPreferencesController extends SecureController {
+  private readonly logger = new Logger(UserPreferencesController.name);
+
   constructor(private readonly userPreferencesService: UserPreferencesService) {
     super();
   }
@@ -110,7 +112,7 @@ export class UserPreferencesController extends SecureController {
 
       res.status(200).json(response);
     } catch (error) {
-      console.error('Error fetching user preferences:', error);
+      this.logger.error('Error fetching user preferences:', error);
       res.status(500).json({
         success: false,
         error: {
@@ -186,7 +188,7 @@ export class UserPreferencesController extends SecureController {
 
       res.status(200).json(response);
     } catch (error) {
-      console.error('Error saving user preferences:', error);
+      this.logger.error('Error saving user preferences:', error);
       res.status(500).json({
         success: false,
         error: {

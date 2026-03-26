@@ -6,6 +6,7 @@ import { Id } from '@gualet/shared';
 import { AuthenticatedRequest } from '@src/common/infrastructure';
 import { Response } from 'express';
 import { UserPreferences } from './user-preferences.model';
+import { Logger } from '@nestjs/common';
 import Mocked = jest.Mocked;
 
 describe('UserPreferencesController', () => {
@@ -74,7 +75,9 @@ describe('UserPreferencesController', () => {
       const error = new Error('Database error');
 
       jest.spyOn(service, 'find').mockRejectedValue(error);
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const loggerErrorSpy = jest
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation();
 
       await controller.find(req, res);
 
@@ -86,12 +89,12 @@ describe('UserPreferencesController', () => {
           message: 'Failed to fetch user preferences',
         },
       });
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
         'Error fetching user preferences:',
         error,
       );
 
-      consoleErrorSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
 
     it('should handle payment methods with undefined icon and color', async () => {
@@ -186,7 +189,9 @@ describe('UserPreferencesController', () => {
       const error = new Error('Payment method not found');
 
       jest.spyOn(service, 'save').mockRejectedValue(error);
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const loggerErrorSpy = jest
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation();
 
       await controller.save(dto, req, res);
 
@@ -198,12 +203,12 @@ describe('UserPreferencesController', () => {
           message: 'Failed to save user preferences',
         },
       });
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
         'Error saving user preferences:',
         error,
       );
 
-      consoleErrorSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
 
     it('should handle payment methods with undefined icon and color when saving', async () => {

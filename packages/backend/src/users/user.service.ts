@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -12,6 +12,8 @@ import { PaymentMethodsService } from '@src/payment-methods';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -60,11 +62,15 @@ export class UserService {
 
     await this.categoryService
       .createDefaultCategories(new Id(newUser.id))
-      .catch(console.error);
+      .catch((error) =>
+        this.logger.error('Failed to create default categories:', error),
+      );
 
     await this.paymentMethodService
       .createDefaultPaymentMethods(new Id(newUser.id))
-      .catch(console.error);
+      .catch((error) =>
+        this.logger.error('Failed to create default payment methods:', error),
+      );
 
     return UserService.mapToDomain(newUser);
   }

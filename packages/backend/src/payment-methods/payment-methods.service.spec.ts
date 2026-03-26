@@ -8,6 +8,7 @@ import { PaymentMethodsRepository } from './payment-methods.repository';
 import { PaymentMethodsRepositoryFactory } from './payment-methods.repository.factory';
 import { Id } from '@gualet/shared';
 import { PaymentMethod } from './payment-method.model';
+import { Logger } from '@nestjs/common';
 import { PaymentMethodNotFoundError } from './errors';
 
 describe('PaymentMethodsService', () => {
@@ -197,9 +198,9 @@ describe('PaymentMethodsService', () => {
         icon: '💵',
         color: '#00FF00',
       });
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
+      const loggerErrorSpy = jest
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation();
 
       repository.create
         .mockResolvedValueOnce(mockPaymentMethod)
@@ -209,12 +210,12 @@ describe('PaymentMethodsService', () => {
       const result = await service.createDefaultPaymentMethods(userId);
 
       expect(result.length).toBeGreaterThan(0);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to create default category:',
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        'Failed to create default payment method:',
         expect.any(Error),
       );
 
-      consoleErrorSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
   });
 });

@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,6 +19,8 @@ import {
 
 @Injectable()
 export class DatabaseSeederService implements OnModuleInit {
+  private readonly logger = new Logger(DatabaseSeederService.name);
+
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -34,7 +36,7 @@ export class DatabaseSeederService implements OnModuleInit {
   async onModuleInit() {
     const env = this.configService.get('NODE_ENV');
     if (env === 'development') {
-      console.log('🌱 Running database seeders...');
+      this.logger.log('🌱 Running database seeders...');
       await this.seed();
     }
   }
@@ -43,9 +45,9 @@ export class DatabaseSeederService implements OnModuleInit {
     try {
       const userId = await this.seedUser();
       await this.seedTransactions(userId);
-      console.log('✅ Database seeding completed\n');
+      this.logger.log('✅ Database seeding completed');
     } catch (error) {
-      console.error('❌ Error during seeding:', error);
+      this.logger.error('❌ Error during seeding:', error);
     }
   }
 
@@ -56,7 +58,7 @@ export class DatabaseSeederService implements OnModuleInit {
     });
 
     if (existingUser) {
-      console.log('   ✓ Test user already exists');
+      this.logger.log('Test user already exists');
       return existingUser.id;
     }
 
@@ -77,7 +79,7 @@ export class DatabaseSeederService implements OnModuleInit {
       throw new Error('Failed to create test user');
     }
 
-    console.log('   ✓ Test user created: test@gualet.app / test1234');
+    this.logger.log('Test user created: test@gualet.app / test1234');
 
     // Create default categories
     const defaultCategories = generateDefaultCategories();
@@ -92,7 +94,7 @@ export class DatabaseSeederService implements OnModuleInit {
       });
     }
 
-    console.log(`   ✓ Created ${defaultCategories.length} default categories`);
+    this.logger.log(`Created ${defaultCategories.length} default categories`);
 
     // Create default payment methods
     const defaultPaymentMethods = generateDefaultPaymentMethods();
@@ -106,8 +108,8 @@ export class DatabaseSeederService implements OnModuleInit {
       });
     }
 
-    console.log(
-      `   ✓ Created ${defaultPaymentMethods.length} default payment methods`,
+    this.logger.log(
+      `Created ${defaultPaymentMethods.length} default payment methods`,
     );
 
     return userId;
@@ -120,14 +122,14 @@ export class DatabaseSeederService implements OnModuleInit {
     });
 
     if (existingTransactions > 0) {
-      console.log(`   ✓ User already has ${existingTransactions} transactions`);
+      this.logger.log(`User already has ${existingTransactions} transactions`);
       return;
     }
 
     // Get user
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      console.log('   ✗ User not found, skipping transaction seeding');
+      this.logger.warn('User not found, skipping transaction seeding');
       return;
     }
 
@@ -144,7 +146,7 @@ export class DatabaseSeederService implements OnModuleInit {
     );
 
     if (incomeCategories.length === 0 || outcomeCategories.length === 0) {
-      console.log('   ✗ No categories found, skipping transaction seeding');
+      this.logger.warn('No categories found, skipping transaction seeding');
       return;
     }
 
@@ -154,8 +156,8 @@ export class DatabaseSeederService implements OnModuleInit {
     });
 
     if (paymentMethods.length === 0) {
-      console.log(
-        '   ✗ No payment methods found, skipping transaction seeding',
+      this.logger.warn(
+        'No payment methods found, skipping transaction seeding',
       );
       return;
     }
@@ -276,6 +278,6 @@ export class DatabaseSeederService implements OnModuleInit {
 
     // Save all transactions
     await this.transactionRepository.save(transactions);
-    console.log(`   ✓ Created ${transactions.length} sample transactions`);
+    this.logger.log(`Created ${transactions.length} sample transactions`);
   }
 }

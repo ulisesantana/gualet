@@ -3,6 +3,7 @@ import { CategoriesService } from './categories.service';
 import { CategoriesRepositoryFactory } from './categories.repository.factory';
 import { Category } from './category.model';
 import { Id, OperationType } from '@gualet/shared';
+import { Logger } from '@nestjs/common';
 import { buildCategory, buildUserEntity } from '@test/builders';
 import { CategoriesRepository } from './categories.repository';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -230,9 +231,9 @@ describe('CategoriesService', () => {
 
     it('should handle failures when creating default categories', async () => {
       const mockCategory = buildCategory();
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
+      const loggerErrorSpy = jest
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation();
 
       categoryRepository.create
         .mockResolvedValueOnce(mockCategory)
@@ -242,12 +243,12 @@ describe('CategoriesService', () => {
       const result = await service.createDefaultCategories(userId);
 
       expect(result.length).toBeGreaterThan(0);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
         'Failed to create default category:',
         expect.any(Error),
       );
 
-      consoleErrorSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
   });
 });

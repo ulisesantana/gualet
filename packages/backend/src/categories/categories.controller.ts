@@ -6,6 +6,7 @@ import {
   ForbiddenException,
   Get,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   Param,
   Patch,
@@ -40,6 +41,8 @@ import { Response } from 'express';
 @ApiBearerAuth()
 @Controller('me/categories')
 export class CategoriesController extends SecureController {
+  private readonly logger = new Logger(CategoriesController.name);
+
   constructor(private readonly categoryService: CategoriesService) {
     super();
   }
@@ -93,7 +96,7 @@ export class CategoriesController extends SecureController {
       );
       res.status(200).send(new CategoryResponseDto(category));
     } catch (error) {
-      console.error('Error finding category:', error);
+      this.logger.error('Error finding category:', error);
       this.handleCategoriesError(res, error);
     }
   }
@@ -162,8 +165,7 @@ export class CategoriesController extends SecureController {
 
       res.status(200).send(new CategoryResponseDto(newCategory));
     } catch (error) {
-      // TODO: Add logging service
-      console.error('Error saving category:', error);
+      this.logger.error('Error saving category:', error);
       return this.handleCategoriesError(res, error);
     }
   }
@@ -205,7 +207,7 @@ export class CategoriesController extends SecureController {
 
       res.status(204).send();
     } catch (error) {
-      console.error('Error deleting category:', error);
+      this.logger.error('Error deleting category:', error);
       return this.handleCategoriesError(res, error);
     }
   }
