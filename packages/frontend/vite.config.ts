@@ -14,6 +14,15 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: "autoUpdate",
+        workbox: {
+          navigateFallbackDenylist: [/^\/api\//],
+          runtimeCaching: [
+            {
+              urlPattern: /^\/api\//,
+              handler: "NetworkOnly",
+            },
+          ],
+        },
         manifest: {
           short_name: "Gualet",
           name: "Gualet",
